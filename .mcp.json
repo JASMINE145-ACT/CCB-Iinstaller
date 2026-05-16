@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "quotation": {
+      "command": "bun",
+      "args": ["run", "mcp_servers/quotation-server/src/index.ts"],
+      "env": {
+        "AOL_ACCESS_TOKEN": "aat.NTA.eyJ2IjoxLCJ1Ijo2MDAzNTUsImQiOjMwMDYwMCwiYWkiOjYzMjUyLCJhayI6ImI2Y2JmOTUwLWViNDItNGEyYS1hNjkyLTA2YmY3NDhmZjJmMCIsImFuIjoiRGV2IGZvciBkYXRhIHdlYiIsImFwIjoiYTUxNTJjYzMtM2E4Mi00ODg1LWIxYjgtYjQ3NzViZTNkNmQ1IiwidCI6MTc2ODc3MzQ4ODQwMH0.hm4ysdDzSqDX6umEqbR2okCJQHjuX7Mke1iC8y/0Z/TnbVTdp51WKp1TU0f6AIoXHY1N/hUjYSncweXGpYRpzcZ36JwQuz1yMfl1HPBMwK5AfPoZmxuKUd7gxBAyI3zWFvmFYoF5vLNjXsNLLaWVQfM6LIxwEC7wjIQHVIF1vA9jyRDIJfN1//YHtsDEDIBzsIK1B6dyXuM=.Dpew9QjvKyN531ejkyiaLLDaBxGgKPDw2rMB2mfJGKg",
+        "AOL_DATABASE_ID": "iris",
+        "AOL_SIGNATURE_SECRET": "aru0mBgxVKLzuQydryQ9qUyQTuR4CNVeliCyx7znbxaDDuYVPXAhhSUYyZr7F59I"
+      }
+    }
+  }
+}

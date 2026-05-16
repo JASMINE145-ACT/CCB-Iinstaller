@@ -16,30 +16,54 @@ jobs:
 
       - name: Setup PowerShell
         run: |
-          echo "PowerShell $(($PSVersionTable.PSVersion.Major))"
+          echo "PowerShell version:"
+          $PSVersionTable.PSVersion
+          echo "Current directory:"
+          Get-Location
+          echo "Contents:"
+          Get-ChildItem -Name
 
       - name: Install NSIS
         run: choco install nsis -y
 
       - name: Download resources
         shell: pwsh
-        working-directory: ccb-installer
         run: |
-          .\scripts\build-resources.ps1
+          Write-Host "=== Downloading resources ==="
+          Write-Host "Current directory: $(Get-Location)"
+          Write-Host "Contents:"
+          Get-ChildItem -Name
+          Write-Host "ccb-installer contents:"
+          Get-ChildItem "ccb-installer" -Name
+          Write-Host "scripts contents:"
+          Get-ChildItem "ccb-installer/scripts" -Name
+          & ".\ccb-installer\scripts\build-resources.ps1"
 
       - name: Build installer
-        working-directory: ccb-installer
+        shell: pwsh
         run: |
-          & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
+          Write-Host "=== Building installer ==="
+          Get-ChildItem "ccb-installer" -Recurse -Name | Select-Object -First 20
+
+          # Check if NSIS is installed
+          $nsisPath = "C:\Program Files (x86)\NSIS\makensis.exe"
+          if (Test-Path $nsisPath) {
+            Write-Host "NSIS found at: $nsisPath"
+            & $nsisPath "ccb-installer\installer.nsi"
+          } else {
+            Write-Host "NSIS not found at default path, trying chocolatey..."
+            & "C:\ProgramData\chocolatey\bin\makensis.exe" "ccb-installer\installer.nsi"
+          }
 
       - name: Upload installer
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: CCB-Setup
           path: ccb-installer/*.exe
 
       - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') && success()
         uses: softprops/action-gh-release@v1
         with:
           files: ccb-installer/*.exe
