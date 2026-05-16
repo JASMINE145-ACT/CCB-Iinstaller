@@ -1,0 +1,16 @@
+# CCB Installer Build Artifacts
+ccb-installer/resources/bun/
+ccb-installer/resources/ripgrep/
+*.exe
+*.zip
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log

@@ -1,0 +1,47 @@
+name: Build CCB Installer
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PowerShell
+        run: |
+          echo "PowerShell $(($PSVersionTable.PSVersion.Major))"
+
+      - name: Install NSIS
+        run: choco install nsis -y
+
+      - name: Download resources
+        shell: pwsh
+        working-directory: ccb-installer
+        run: |
+          .\scripts\build-resources.ps1
+
+      - name: Build installer
+        working-directory: ccb-installer
+        run: |
+          & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: CCB-Setup
+          path: ccb-installer/*.exe
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ccb-installer/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
