@@ -14,58 +14,47 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup PowerShell
-        run: |
-          echo "PowerShell version:"
-          $PSVersionTable.PSVersion
-          echo "Current directory:"
-          Get-Location
-          echo "Contents:"
-          Get-ChildItem -Name
-
       - name: Install NSIS
-        run: choco install nsis -y
-
-      - name: Download resources
-        shell: pwsh
         run: |
-          Write-Host "=== Downloading resources ==="
-          Write-Host "Current directory: $(Get-Location)"
-          Write-Host "Contents:"
-          Get-ChildItem -Name
-          Write-Host "ccb-installer contents:"
-          Get-ChildItem "ccb-installer" -Name
-          Write-Host "scripts contents:"
-          Get-ChildItem "ccb-installer/scripts" -Name
-          & ".\ccb-installer\scripts\build-resources.ps1"
+          Write-Host "Installing NSIS..."
+          choco install nsis -y --no-progress
+
+      - name: Download Bun
+        run: |
+          Write-Host "Downloading Bun..."
+          New-Item -ItemType Directory -Force -Path "$PWD\ccb-installer\resources\bun"
+          Invoke-WebRequest -Uri "https://github.com/oven-sh/bun/releases/download/bun-v1.2.18/bun-windows-x64.zip" -OutFile "$PWD\ccb-installer\resources\bun\bun.zip" -UseBasicParsing
+          Expand-Archive -Path "$PWD\ccb-installer\resources\bun\bun.zip" -DestinationPath "$PWD\ccb-installer\resources\bun" -Force
+          Remove-Item "$PWD\ccb-installer\resources\bun\bun.zip"
+          Get-ChildItem "$PWD\ccb-installer\resources\bun" -Recurse | Select-Object Name
+
+      - name: Download ripgrep
+        run: |
+          Write-Host "Downloading ripgrep..."
+          New-Item -ItemType Directory -Force -Path "$PWD\ccb-installer\resources\ripgrep"
+          Invoke-WebRequest -Uri "https://github.com/BurntSushi/ripgrep/releases/download/14.1.1/ripgrep-14.1.1-x86_64-pc-windows-msvc.zip" -OutFile "$PWD\ccb-installer\resources\ripgrep\rg.zip" -UseBasicParsing
+          Expand-Archive -Path "$PWD\ccb-installer\resources\ripgrep\rg.zip" -DestinationPath "$PWD\ccb-installer\resources\ripgrep" -Force
+          Remove-Item "$PWD\ccb-installer\resources\ripgrep\rg.zip"
+          Get-ChildItem "$PWD\ccb-installer\resources\ripgrep" -Recurse | Select-Object Name
 
       - name: Build installer
-        shell: pwsh
         run: |
-          Write-Host "=== Building installer ==="
-          Get-ChildItem "ccb-installer" -Recurse -Name | Select-Object -First 20
-
-          # Check if NSIS is installed
-          $nsisPath = "C:\Program Files (x86)\NSIS\makensis.exe"
-          if (Test-Path $nsisPath) {
-            Write-Host "NSIS found at: $nsisPath"
-            & $nsisPath "ccb-installer\installer.nsi"
-          } else {
-            Write-Host "NSIS not found at default path, trying chocolatey..."
-            & "C:\ProgramData\chocolatey\bin\makensis.exe" "ccb-installer\installer.nsi"
-          }
+          Write-Host "Building installer..."
+          Get-ChildItem "$PWD\ccb-installer" -Recurse | Select-Object FullName
+          & "C:\Program Files (x86)\NSIS\makensis.exe" "$PWD\ccb-installer\installer.nsi"
+          Get-ChildItem "$PWD" -Filter "*.exe" -Recurse | Select-Object FullName
 
       - name: Upload installer
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: CCB-Setup
-          path: ccb-installer/*.exe
+          path: *.exe
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/') && success()
         uses: softprops/action-gh-release@v1
         with:
-          files: ccb-installer/*.exe
+          files: "*.exe"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
