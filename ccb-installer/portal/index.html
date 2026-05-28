@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CCB 门户 | Claude Code Bundle</title>
+  <meta name="description" content="CCB 下载、更新公告、使用文档、问题排查、反馈和用户讨论入口。">
+  <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a class="brand" href="#top" aria-label="CCB Portal">
+        <span class="brand-mark">CCB</span>
+        <span>
+          <strong>Claude Code Bundle</strong>
+          <small>Windows 安装包门户</small>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">菜单</button>
+      <div class="nav-links" id="nav-links">
+        <a href="#download">下载</a>
+        <a href="#updates">更新</a>
+        <a href="#docs">文档</a>
+        <a href="#feedback">反馈</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">CCB Installer Portal</p>
+        <h1>给 Windows 用户的一键 Claude Code 安装和修复入口</h1>
+        <p class="hero-copy">
+          下载最新版 CCB，查看更新说明、终端黑屏/乱码修复、MCP 配置说明，并把用户反馈统一收口。
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="../CCB-Setup-1.0.6.exe">下载 CCB 1.0.6</a>
+          <a class="button secondary" href="#quick-start">查看安装步骤</a>
+        </div>
+        <p class="checksum">
+          SHA256: <code>710889D300D373291C3DBED37CF75E7E9057E0E38F2FF8208BF0CB4751D530ED</code>
+        </p>
+      </div>
+      <aside class="status-card" aria-label="最新状态">
+        <span class="badge">Latest</span>
+        <h2>CCB 1.0.6</h2>
+        <ul>
+          <li>内置 Windows Terminal 离线包</li>
+          <li>自动生成 CCB / CCB Flat Mode 快捷方式</li>
+          <li>内置 exa 和 excel-mcp</li>
+          <li>升级保留用户本地配置</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="section" id="quick-start">
+      <div class="section-heading">
+        <p class="eyebrow">Quick Start</p>
+        <h2>用户安装步骤</h2>
+      </div>
+      <div class="steps">
+        <article>
+          <span>1</span>
+          <h3>下载安装包</h3>
+          <p>下载 `CCB-Setup-1.0.6.exe`，双击运行。公司电脑可直接使用普通用户权限安装。</p>
+        </article>
+        <article>
+          <span>2</span>
+          <h3>保持推荐组件勾选</h3>
+          <p>保留 `Install Windows Terminal if missing`。安装器会优先使用内置离线包安装 Windows Terminal。</p>
+        </article>
+        <article>
+          <span>3</span>
+          <h3>桌面启动</h3>
+          <p>安装完成后先双击 `CCB`。如果黑屏或界面不重画，再双击 `CCB Flat Mode`。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section split" id="download">
+      <div>
+        <p class="eyebrow">Download</p>
+        <h2>最新版下载</h2>
+        <p>
+          当前建议分发 `CCB-Setup-1.0.6.exe`。不要再分发 1.0.4 或更早版本，因为旧版本没有完整的 MCP 加载和终端修复链路。
+        </p>
+      </div>
+      <div class="download-panel">
+        <h3>CCB-Setup-1.0.6.exe</h3>
+        <dl>
+          <div><dt>大小</dt><dd>187,325,073 bytes</dd></div>
+          <div><dt>校验</dt><dd>17 / 17 通过</dd></div>
+          <div><dt>Windows Terminal</dt><dd>内置离线 msixbundle</dd></div>
+        </dl>
+        <a class="button primary wide" href="../CCB-Setup-1.0.6.exe">下载安装包</a>
+      </div>
+    </section>
+
+    <section class="section" id="updates">
+      <div class="section-heading">
+        <p class="eyebrow">Updates</p>
+        <h2>更新公告</h2>
+      </div>
+      <div class="timeline">
+        <article>
+          <time>1.0.6</time>
+          <h3>终端环境一键修复</h3>
+          <p>安装器默认尝试安装 Windows Terminal，自动生成 `CCB` 和 `CCB Flat Mode` 快捷方式，并带离线安装包兜底。</p>
+        </article>
+        <article>
+          <time>1.0.5</time>
+          <h3>MCP 正确加载</h3>
+          <p>通过 `ccb-mcp.json + --mcp-config` 加载 `exa` 和 `excel-mcp`，避免只写 settings.json 但 `/mcp` 不显示。</p>
+        </article>
+        <article>
+          <time>1.0.3</time>
+          <h3>升级保留配置</h3>
+          <p>升级前备份 `%LOCALAPPDATA%\CCB\.claude`，避免覆盖朋友电脑里的本地设置。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="docs">
+      <div class="section-heading">
+        <p class="eyebrow">Docs</p>
+        <h2>使用文档</h2>
+      </div>
+      <div class="cards">
+        <a class="card" href="../../docs/终端显示乱码修复.md">
+          <h3>终端显示乱码修复</h3>
+          <p>处理字体、UTF-8、Unicode 框线、Windows Terminal 和 Flat Mode。</p>
+        </a>
+        <a class="card" href="../../docs/终端界面异常排查.md">
+          <h3>终端界面异常排查</h3>
+          <p>处理黑屏、启动失败、运行时损坏、Git Bash 不可用、杀软隔离。</p>
+        </a>
+        <a class="card" href="../../好用MCP/00_CCB打包MCP正确路径.md">
+          <h3>MCP 正确配置路径</h3>
+          <p>记录 `vendor/mcp-servers`、`ccb-mcp.json`、`--mcp-config` 的正确打包方式。</p>
+        </a>
+        <a class="card" href="../../docs/ccb-update.md">
+          <h3>升级说明</h3>
+          <p>说明如何更新 CCB，同时保留用户本地配置。</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="section-heading">
+        <p class="eyebrow">FAQ</p>
+        <h2>常见问题</h2>
+      </div>
+      <div class="faq-list">
+        <details>
+          <summary>安装后黑色窗口没有内容怎么办？</summary>
+          <p>先双击桌面的 `CCB Flat Mode`。如果仍失败，运行开始菜单里的 `CCB Diagnostics` 收集日志。</p>
+        </details>
+        <details>
+          <summary>为什么要安装 Windows Terminal？</summary>
+          <p>CCB 是终端 TUI，Windows Terminal 对 UTF-8、备用屏、中文和 Unicode 框线支持更稳定。</p>
+        </details>
+        <details>
+          <summary>公司电脑禁止 Windows Terminal 安装怎么办？</summary>
+          <p>安装器不会阻断 CCB 安装。可以使用普通快捷方式、`CCB Flat Mode`，或用 `ccb.cmd -p` 纯文本模式兜底。</p>
+        </details>
+        <details>
+          <summary>更新会不会丢配置？</summary>
+          <p>不会。用户配置在 `%LOCALAPPDATA%\CCB\.claude`，安装器升级前会备份并保留。</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="section split" id="feedback">
+      <div>
+        <p class="eyebrow">Feedback</p>
+        <h2>反馈和讨论</h2>
+        <p>
+          第一版先把反馈入口统一到 GitHub Issues / Discussions。后续可以接入账号系统、工单、评论和下载统计。
+        </p>
+      </div>
+      <div class="feedback-actions">
+        <a class="button secondary wide" href="https://github.com/" target="_blank" rel="noreferrer">提交问题反馈</a>
+        <a class="button secondary wide" href="https://github.com/" target="_blank" rel="noreferrer">进入用户讨论</a>
+        <a class="button ghost wide" href="mailto:support@example.com">邮件联系支持</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>CCB Portal · Claude Code Bundle Installer</p>
+    <p>最后更新：2026-05-28</p>
+  </footer>
+
+  <script src="./assets/app.js"></script>
+</body>
+</html>

@@ -1,116 +1,170 @@
-# CCB - Claude Code Bundle
+# CCB Installer
 
-CCB (Claude Code Bundle) 一键安装包 - 为 Windows 用户提供简单的 AI 编程助手安装体验。
+CCB Installer 是 Claude Code Bundle 的 Windows 安装包工程，目标是让普通 Windows 用户可以一键安装、升级并运行 CCB。
 
-## 功能特点
+## 当前版本
 
-- **一键安装**: 双击 exe 即可完成安装
-- **独立配置**: 不影响系统其他程序
-- **自动配置**: 自动安装 Bun 运行时和 ripgrep
-- **保留配置**: 卸载后用户配置保留
-
-## 安装
-
-1. 从 [Releases](https://github.com/JASMINE145-ACT/CCB-Iinstaller/releases) 页面下载 `CCB-Setup-1.0.0.exe`
-2. 双击运行
-3. 按照向导完成安装
-
-## 从源码构建
-
-### 前置条件
-
-- [NSIS](https://nsis.sourceforge.io/) - 用于编译安装包
-- [PowerShell](https://docs.microsoft.com/powershell/) 7+
-
-### 构建步骤
-
-```bash
-# 1. 下载资源
-pwsh -ExecutionPolicy Bypass -File scripts/build-resources.ps1
-
-# 2. 构建安装包
-makensis installer.nsi
-
-# 3. 验证
-pwsh -ExecutionPolicy Bypass -File scripts/verify-installer.ps1
+```text
+1.0.6
 ```
 
-### 使用 Make
+当前建议分发：
 
-```bash
-make resources    # 下载资源 (Bun + ripgrep)
-make installer    # 构建安装包
-make test         # 验证安装
-make clean        # 清理资源
+```text
+CCB-Setup-1.0.6.exe
 ```
+
+不要再分发 1.0.4 或更早版本。旧版本没有完整的 MCP 加载和终端修复链路。
+
+## 主要能力
+
+- 安装 Claude Code CLI 运行文件。
+- 内置 Bun、ripgrep、Git Bash 等运行依赖。
+- 内置 MCP 配置：
+  - `exa`
+  - `excel-mcp`
+- 生成运行时 `ccb-mcp.json`，并通过 `--mcp-config` 启动 Claude Code。
+- 升级时保留用户配置。
+- 安装时尝试安装 Windows Terminal。
+- 自动生成 `CCB` 和 `CCB Flat Mode` 快捷方式。
+- 提供诊断入口 `ccb-diagnose.cmd`。
+- 提供门户网站静态页 `portal/`。
 
 ## 目录结构
 
-```
+```text
 ccb-installer/
-├── installer.nsi           # NSIS 安装脚本
-├── ccb.cmd                  # 入口脚本
-├── ccb-template.cmd         # 入口脚本模板
-├── README.md                # 本文件
-├── Makefile                 # 构建自动化
-├── resources/               # 内嵌资源 (由 build-resources.ps1 下载)
-│   ├── bun/                 # Bun 运行时
-│   ├── ripgrep/             # ripgrep
-│   └── python/              # Python (可选)
-└── scripts/
-    ├── build-resources.ps1   # 资源下载脚本
-    └── verify-installer.ps1  # 安装验证脚本
+  installer.nsi
+  ccb.cmd
+  ccb-template.cmd
+  ccb-diagnose.cmd
+  ccb-fix-terminal.cmd
+  build.ps1
+  scripts/
+    ensure-mcp-settings.ps1
+    fix-terminal-launcher.ps1
+    install-windows-terminal.ps1
+    test-terminal-local.ps1
+    verify-installer.ps1
+  resources/
+    ccb.ico
+    settings/
+      settings.json
+  vendor/
+    mcp-servers/
+    windows-terminal/
+  portal/
 ```
 
-## 安装后结构
+## 构建
 
-```
-%LOCALAPPDATA%\Programs\CCB\    # 程序目录
-├── bun\                        # Bun 运行时
-├── dist\                       # CCB 代码
-├── vendor\ripgrep\             # ripgrep
-└── ccb.cmd                     # 入口脚本
+需要先安装 NSIS。
 
-%LOCALAPPDATA%\CCB\.claude\     # 配置目录 (保留)
-├── settings.json               # 用户配置
-├── memory\                     # 记忆文件
-└── skills\                     # 技能配置
+```powershell
+cd D:\Projects\claude-code-best\ccb-installer
+.\build.ps1
 ```
 
-## 卸载
+或者直接运行：
 
-- **开始菜单** → **CCB** → **Uninstall**
-- 或者: 设置 → 应用 → CCB → 卸载
-
-**注意**: 卸载后 `%LOCALAPPDATA%\CCB\.claude` 配置目录会保留。
-
-## 开发
-
-### CI/CD
-
-发布标签时会自动构建安装包:
-
-```bash
-git tag v1.0.0
-git push origin v1.0.0
+```powershell
+& 'D:\NSIS\makensis.exe' 'D:\Projects\claude-code-best\ccb-installer\installer.nsi'
 ```
 
-GitHub Actions 会自动:
-1. 安装 NSIS
-2. 下载 Bun + ripgrep 资源
-3. 编译安装包
-4. 创建 Release 并上传 exe
+构建产物：
 
-### 添加资源到 Git
+```text
+CCB-Setup-1.0.6.exe
+```
 
-由于内嵌资源 (Bun/ripgrep) 较大，它们通过 `build-resources.ps1` 脚本下载，不包含在 git 中。
+## 验证
 
-## 许可证
+验证本地安装包工程完整性：
 
-MIT
+```powershell
+cd D:\Projects\claude-code-best\ccb-installer
+.\scripts\verify-installer.ps1 -InstallDir 'D:\Projects\claude-code-best\ccb-installer'
+```
 
-## 版本历史
+验证终端沙盒：
 
-| 版本 | 日期 | 说明 |
-|------|------|------|
-| 1.0.0 | 2026-05-16 | 初始版本 |
+```powershell
+.\scripts\test-terminal-local.ps1 -PrepareOnly -SandboxRoot D:\tmp\ccb-terminal-test
+.\scripts\test-terminal-local.ps1 -Mode Modern -SandboxRoot D:\tmp\ccb-terminal-test
+```
+
+## 升级规则
+
+给已安装用户升级时，直接让用户运行新的完整安装包覆盖安装：
+
+```text
+CCB-Setup-1.0.6.exe
+```
+
+不要要求用户先卸载旧版本。
+
+用户配置位于：
+
+```text
+%LOCALAPPDATA%\CCB\.claude
+```
+
+程序文件位于：
+
+```text
+%LOCALAPPDATA%\Programs\CCB
+```
+
+安装器升级前会备份已有配置到：
+
+```text
+%LOCALAPPDATA%\CCB\backup-before-1.0.6
+```
+
+## Windows Terminal
+
+安装器提供组件：
+
+```text
+Install Windows Terminal if missing (recommended)
+```
+
+处理顺序：
+
+1. 检查是否已有 `wt.exe`。
+2. 如果没有，优先使用内置 `vendor\windows-terminal\*.msixbundle` 安装。
+3. 如果离线安装失败，再尝试 `winget`。
+4. 如果公司策略禁止安装，CCB 本体仍继续安装。
+5. 最后自动生成 `CCB` 和 `CCB Flat Mode` 快捷方式。
+
+## MCP
+
+CCB 使用两层配置：
+
+```text
+%LOCALAPPDATA%\CCB\.claude\settings.json
+%LOCALAPPDATA%\Programs\CCB\ccb-mcp.json
+```
+
+真正用于稳定加载内置 MCP 的是：
+
+```text
+ccb-mcp.json + --mcp-config
+```
+
+不要只依赖私有 `settings.json`，否则 `/mcp` 可能只看到 Claude Code 的 built-in MCP。
+
+## 门户
+
+门户静态站位于：
+
+```text
+portal/
+```
+
+本地预览：
+
+```powershell
+cd D:\Projects\claude-code-best\ccb-installer\portal
+python -m http.server 8080
+```

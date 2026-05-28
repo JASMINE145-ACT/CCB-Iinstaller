@@ -1,6 +1,11 @@
 # CCB Installer Build Artifacts
 ccb-installer/resources/bun/
 ccb-installer/resources/ripgrep/
+ccb-installer/ccb-mcp.json
+ccb-installer/vendor/bun/
+ccb-installer/vendor/git/
+ccb-installer/vendor/ripgrep/
+ccb-installer/vendor/mcp-servers/excel-mcp/mcp-excel.exe
 *.exe
 *.zip
 
