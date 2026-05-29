@@ -1428,16 +1428,16 @@ function stringsForDecisionReason(reason, toolType) {
   switch (reason.type) {
     case "rule":
       return {
-        reasonString: `Permission rule ${source_default.bold(permissionRuleValueToString(reason.rule.ruleValue))} requires confirmation for this ${toolType}.`,
-        configString: reason.rule.source === "policySettings" ? undefined : "/permissions to update rules"
+        reasonString: `\u6743\u9650\u89c4\u5219 ${source_default.bold(permissionRuleValueToString(reason.rule.ruleValue))} \u9700\u8981\u786e\u8ba4\u624d\u80fd\u6267\u884c\u6b64 ${toolType}\u3002`,
+        configString: reason.rule.source === "policySettings" ? undefined : "/permissions \u66f4\u65b0\u89c4\u5219"
       };
     case "hook": {
       const hookReasonString = reason.reason ? `:
 ${reason.reason}` : ".";
       const sourceLabel = reason.hookSource ? ` ${source_default.dim(`[${reason.hookSource}]`)}` : "";
       return {
-        reasonString: `Hook ${source_default.bold(reason.hookName)} requires confirmation for this ${toolType}${hookReasonString}${sourceLabel}`,
-        configString: "/hooks to update"
+        reasonString: `\u94a9\u5b50 ${source_default.bold(reason.hookName)} \u9700\u8981\u786e\u8ba4\u624d\u80fd\u6267\u884c\u6b64 ${toolType}${hookReasonString}${sourceLabel}`,
+        configString: "/hooks \u66f4\u65b0"
       };
     }
     case "safetyCheck":
@@ -1449,7 +1449,7 @@ ${reason.reason}` : ".";
     case "workingDir":
       return {
         reasonString: reason.reason,
-        configString: "/permissions to update rules"
+        configString: "/permissions \u66f4\u65b0\u89c4\u5219"
       };
     default:
       return null;
@@ -1516,7 +1516,7 @@ function PermissionPrompt({
   options,
   onSelect,
   onCancel,
-  question = "Do you want to proceed?",
+  question = "\u662f\u5426\u7ee7\u7eed\uff1f",
   toolAnalyticsContext
 }) {
   const setAppState = useSetAppState();
@@ -1671,8 +1671,8 @@ function PermissionPrompt({
         children: /* @__PURE__ */ jsx_dev_runtime24.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            "Esc to cancel",
-            showTabHint && " \xB7 Tab to amend"
+            "Esc \u53d6\u6d88",
+            showTabHint && " \u00b7 Tab \u4fee\u6539"
           ]
         }, undefined, true, undefined, this)
       }, undefined, false, undefined, this)
@@ -1689,8 +1689,8 @@ var init_PermissionPrompt = __esm(() => {
   import_react22 = __toESM(require_react(), 1);
   jsx_dev_runtime24 = __toESM(require_jsx_dev_runtime(), 1);
   DEFAULT_PLACEHOLDERS = {
-    accept: "tell Claude what to do next",
-    reject: "tell Claude what to do differently"
+    accept: "\u544a\u8bc9 Claude \u8981\u505a\u4ec0\u4e48",
+    reject: "\u544a\u8bc9 Claude \u8981\u505a\u4ec0\u4e48\u8c03\u6574"
   };
 });
 
@@ -1712,7 +1712,7 @@ function WorkflowPermissionRequest({
   const options = import_react30.useMemo(() => {
     const opts = [
       {
-        label: "Yes",
+        label: "\u662f",
         value: "yes",
         feedbackConfig: { type: "accept" }
       }
@@ -1721,22 +1721,20 @@ function WorkflowPermissionRequest({
       opts.push({
         label: /* @__PURE__ */ jsx_dev_runtime35.jsxDEV(ThemedText, {
           children: [
-            "Yes, and don",
-            "\u2019",
-            "t ask again for",
+            "\u662f\uff0c\u4e0d\u518d\u8be2\u95ee",
             " ",
             /* @__PURE__ */ jsx_dev_runtime35.jsxDEV(ThemedText, {
               bold: true,
               children: toolUseConfirm.tool.name
             }, undefined, false, undefined, this),
-            " commands"
+            " \u547d\u4ee4"
           ]
         }, undefined, true, undefined, this),
         value: "yes-dont-ask-again"
       });
     }
     opts.push({
-      label: "No",
+      label: "\u5426",
       value: "no",
       feedbackConfig: { type: "reject" }
     });
@@ -1808,7 +1806,7 @@ function WorkflowPermissionRequest({
     onDone();
   }, [toolUseConfirm, onDone, onReject]);
   return /* @__PURE__ */ jsx_dev_runtime35.jsxDEV(PermissionDialog, {
-    title: "Workflow",
+    title: "\u5de5\u4f5c\u6d41",
     workerBadge,
     children: /* @__PURE__ */ jsx_dev_runtime35.jsxDEV(ThemedBox_default, {
       flexDirection: "column",
@@ -1879,7 +1877,7 @@ function MonitorPermissionRequest({
   const options = import_react31.useMemo(() => {
     const opts = [
       {
-        label: "Yes",
+        label: "\u662f",
         value: "yes",
         feedbackConfig: { type: "accept" }
       }
@@ -1888,22 +1886,20 @@ function MonitorPermissionRequest({
       opts.push({
         label: /* @__PURE__ */ jsx_dev_runtime36.jsxDEV(ThemedText, {
           children: [
-            "Yes, and don",
-            "\u2019",
-            "t ask again for",
+            "\u662f\uff0c\u4e0d\u518d\u8be2\u95ee",
             " ",
             /* @__PURE__ */ jsx_dev_runtime36.jsxDEV(ThemedText, {
               bold: true,
               children: toolUseConfirm.tool.name
             }, undefined, false, undefined, this),
-            " commands"
+            " \u547d\u4ee4"
           ]
         }, undefined, true, undefined, this),
         value: "yes-dont-ask-again"
       });
     }
     opts.push({
-      label: "No",
+      label: "\u5426",
       value: "no",
       feedbackConfig: { type: "reject" }
     });
@@ -1975,7 +1971,7 @@ function MonitorPermissionRequest({
     onDone();
   }, [toolUseConfirm, onDone, onReject]);
   return /* @__PURE__ */ jsx_dev_runtime36.jsxDEV(PermissionDialog, {
-    title: "Monitor",
+    title: "\u76d1\u89c6\u5668",
     workerBadge,
     children: /* @__PURE__ */ jsx_dev_runtime36.jsxDEV(ThemedBox_default, {
       flexDirection: "column",
@@ -2055,7 +2051,7 @@ function VoiceIndicatorImpl({ voiceState }) {
     case "recording":
       return /* @__PURE__ */ jsx_dev_runtime46.jsxDEV(ThemedText, {
         dimColor: true,
-        children: "listening\u2026"
+        children: "\u6b63\u5728\u503e\u542c\u2026"
       }, undefined, false, undefined, this);
     case "processing":
       return /* @__PURE__ */ jsx_dev_runtime46.jsxDEV(ProcessingShimmer, {}, undefined, false, undefined, this);
@@ -2068,7 +2064,7 @@ function VoiceWarmupHint() {
     ;
   return /* @__PURE__ */ jsx_dev_runtime46.jsxDEV(ThemedText, {
     dimColor: true,
-    children: "keep holding\u2026"
+    children: "\u8bf7\u7ee7\u7eed\u6309\u4f4f\u2026"
   }, undefined, false, undefined, this);
 }
 function ProcessingShimmer() {
@@ -2078,7 +2074,7 @@ function ProcessingShimmer() {
   if (reducedMotion) {
     return /* @__PURE__ */ jsx_dev_runtime46.jsxDEV(ThemedText, {
       color: "warning",
-      children: "Voice: processing\u2026"
+      children: "\u8bed\u97f3\uff1a\u5904\u7406\u4e2d\u2026"
     }, undefined, false, undefined, this);
   }
   const elapsedSec = time2 / 1000;
@@ -2088,7 +2084,7 @@ function ProcessingShimmer() {
     ref,
     children: /* @__PURE__ */ jsx_dev_runtime46.jsxDEV(ThemedText, {
       color: color2,
-      children: "Voice: processing\u2026"
+      children: "\u8bed\u97f3\uff1a\u5904\u7406\u4e2d\u2026"
     }, undefined, false, undefined, this)
   }, undefined, false, undefined, this);
 }
@@ -2712,14 +2708,14 @@ init_CustomSelect();
 var jsx_dev_runtime = __toESM(require_jsx_dev_runtime(), 1);
 function CostThresholdDialog({ onDone }) {
   return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Dialog, {
-    title: "You've spent $5 on the Anthropic API this session.",
+    title: "\u672c\u6b21\u4f1a\u8bdd\u5df2\u5728 Anthropic API \u4e0a\u82b1\u8d39 $5\u3002",
     onCancel: onDone,
     children: [
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
         flexDirection: "column",
         children: [
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-            children: "Learn more about how to monitor your spending:"
+            children: "\u4e86\u89e3\u5982\u4f55\u76d1\u63a7\u60a8\u7684\u652f\u51fa\uff1a"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Link, {
             url: "https://code.claude.com/docs/en/costs"
@@ -2730,7 +2726,7 @@ function CostThresholdDialog({ onDone }) {
         options: [
           {
             value: "ok",
-            label: "Got it, thanks!"
+            label: "\u597d\u7684\uff0c\u8c22\u8c22\uff01"
           }
         ],
         onChange: onDone
@@ -2753,28 +2749,28 @@ function IdleReturnDialog({
   const formattedIdle = formatIdleDuration(idleMinutes);
   const formattedTokens = formatTokens(totalInputTokens);
   return /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Dialog, {
-    title: `You've been away ${formattedIdle} and this conversation is ${formattedTokens} tokens.`,
+    title: `\u60a8\u5df2\u79bb\u5f00 ${formattedIdle}\uff0c\u5f53\u524d\u5bf9\u8bdd\u5df2\u8fbe ${formattedTokens} tokens\u3002`,
     onCancel: () => onDone("dismiss"),
     children: [
       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
         flexDirection: "column",
         children: /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
-          children: "If this is a new task, clearing context will save usage and be faster."
+          children: "\u5982\u679c\u662f\u65b0\u4efb\u52a1\uff0c\u6e05\u7406\u4e0a\u4e0b\u6587\u53ef\u8282\u7701\u7528\u91cf\u5e76\u52a0\u5feb\u901f\u5ea6\u3002"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Select, {
         options: [
           {
             value: "continue",
-            label: "Continue this conversation"
+            label: "\u7ee7\u7eed\u6b64\u5bf9\u8bdd"
           },
           {
             value: "clear",
-            label: "Send message as a new conversation"
+            label: "\u4f5c\u4e3a\u65b0\u5bf9\u8bdd\u53d1\u9001\u6d88\u606f"
           },
           {
             value: "never",
-            label: "Don't ask me again"
+            label: "\u4e0d\u518d\u8be2\u95ee"
           }
         ],
         onChange: (value) => onDone(value)
@@ -3034,7 +3030,7 @@ function WorkerPendingPermission({
             bold: true,
             children: [
               " ",
-              "Waiting for team lead approval"
+              "\u7b49\u5f85\u961f\u957f\u6279\u51c6"
             ]
           }, undefined, true, undefined, this)
         ]
@@ -3050,7 +3046,7 @@ function WorkerPendingPermission({
         children: [
           /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Tool: "
+            children: "\u5de5\u5177\uff1a "
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
             children: toolName
@@ -3061,7 +3057,7 @@ function WorkerPendingPermission({
         children: [
           /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Action: "
+            children: "\u64cd\u4f5c\uff1a "
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
             children: description
@@ -3827,7 +3823,7 @@ function PreviewQuestionView({
                     flexGrow: 1,
                     children: [
                       /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(PreviewBox, {
-                        content: previewContent || "No preview available",
+                        content: previewContent || "\u65e0\u9884\u89c8\u5185\u5bb9",
                         maxLines: previewMaxLines,
                         minWidth: minContentWidth,
                         maxWidth: previewMaxWidth
@@ -3839,11 +3835,11 @@ function PreviewQuestionView({
                         children: [
                           /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
                             color: "suggestion",
-                            children: "Notes:"
+                            children: "\u5907\u6ce8\uff1a"
                           }, undefined, false, undefined, this),
                           isInNotesInput ? /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(TextInput, {
                             value: notesValue,
-                            placeholder: "Add notes on this design\u2026",
+                            placeholder: "\u6dfb\u52a0\u8bbe\u8ba1\u5907\u6ce8\u2026",
                             onChange: (value) => {
                               onUpdateQuestionState(questionText, { textInputValue: value }, false);
                             },
@@ -3857,7 +3853,7 @@ function PreviewQuestionView({
                           }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
                             dimColor: true,
                             italic: true,
-                            children: notesValue || "press n to add notes"
+                            children: notesValue || "\u6309 n \u6dfb\u52a0\u5907\u6ce8"
                           }, undefined, false, undefined, this)
                         ]
                       }, undefined, true, undefined, this)
@@ -3884,7 +3880,7 @@ function PreviewQuestionView({
                       }, undefined, false, undefined, this),
                       /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
                         color: isFooterFocused && footerIndex === 0 ? "suggestion" : undefined,
-                        children: "Chat about this"
+                        children: "\u5c31\u6b64\u804a\u5929"
                       }, undefined, false, undefined, this)
                     ]
                   }, undefined, true, undefined, this),
@@ -3900,7 +3896,7 @@ function PreviewQuestionView({
                       }, undefined, false, undefined, this),
                       /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
                         color: isFooterFocused && footerIndex === 1 ? "suggestion" : undefined,
-                        children: "Skip interview and plan immediately"
+                        children: "\u8df3\u8fc7\u8bbf\u8c08\uff0c\u76f4\u63a5\u89c4\u5212"
                       }, undefined, false, undefined, this)
                     ]
                   }, undefined, true, undefined, this)
@@ -3912,22 +3908,23 @@ function PreviewQuestionView({
                   color: "inactive",
                   dimColor: true,
                   children: [
-                    "Enter to select \xB7 ",
+                    "Enter \u9009\u62e9 \u00b7 ",
                     figures_default.arrowUp,
                     "/",
                     figures_default.arrowDown,
-                    " to navigate \xB7 n to add notes",
+                    " \u5bfc\u822a \u00b7 n \u6dfb\u52a0\u5907\u6ce8",
                     questions.length > 1 && /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(jsx_dev_runtime8.Fragment, {
-                      children: " \xB7 Tab to switch questions"
+                      children: " \u00b7 Tab \u5207\u6362\u95ee\u9898"
                     }, undefined, false, undefined, this),
                     isInNotesInput && editorName && /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(jsx_dev_runtime8.Fragment, {
                       children: [
-                        " \xB7 ctrl+g to edit in ",
-                        editorName
+                        " \u00b7 ctrl+g \u5728 ",
+                        editorName,
+                        " \u4e2d\u7f16\u8f91"
                       ]
                     }, undefined, true, undefined, this),
                     " ",
-                    "\xB7 Esc to cancel"
+                    "\u00b7 Esc \u53d6\u6d88"
                   ]
                 }, undefined, true, undefined, this)
               }, undefined, false, undefined, this)
@@ -4040,8 +4037,8 @@ function QuestionView({
   const otherOption = {
     type: "input",
     value: "__other__",
-    label: "Other",
-    placeholder: question.multiSelect ? "Type something" : "Type something.",
+    label: "\u5176\u4ed6",
+    placeholder: question.multiSelect ? "\u8f93\u5165\u5185\u5bb9" : "\u8f93\u5165\u5185\u5bb9\u3002",
     initialValue: questionState?.textInputValue ?? "",
     onChange: (value) => {
       onUpdateQuestionState(questionText, { textInputValue: value }, question.multiSelect ?? false);
@@ -4178,7 +4175,7 @@ function QuestionView({
                         color: isFooterFocused && footerIndex === 0 ? "suggestion" : undefined,
                         children: [
                           options.length + 1,
-                          ". Chat about this"
+                          ". \u5c31\u6b64\u804a\u5929"
                         ]
                       }, undefined, true, undefined, this)
                     ]
@@ -4197,7 +4194,7 @@ function QuestionView({
                         color: isFooterFocused && footerIndex === 1 ? "suggestion" : undefined,
                         children: [
                           options.length + 2,
-                          ". Skip interview and plan immediately"
+                          ". \u8df3\u8fc7\u8bbf\u8c08\uff0c\u76f4\u63a5\u89c4\u5212"
                         ]
                       }, undefined, true, undefined, this)
                     ]
@@ -4210,16 +4207,16 @@ function QuestionView({
                   color: "inactive",
                   dimColor: true,
                   children: [
-                    "Enter to select \xB7",
+                    "Enter \u9009\u62e9 \u00b7",
                     " ",
                     questions.length === 1 ? /* @__PURE__ */ jsx_dev_runtime9.jsxDEV(jsx_dev_runtime9.Fragment, {
                       children: [
                         figures_default.arrowUp,
                         "/",
                         figures_default.arrowDown,
-                        " to navigate"
+                        " \u5bfc\u822a"
                       ]
-                    }, undefined, true, undefined, this) : "Tab/Arrow keys to navigate",
+                    }, undefined, true, undefined, this) : "Tab/\u65b9\u5411\u952e \u5bfc\u822a",
                     isOtherFocused && editorName && /* @__PURE__ */ jsx_dev_runtime9.jsxDEV(jsx_dev_runtime9.Fragment, {
                       children: [
                         " \xB7 ctrl+g to edit in ",
@@ -4227,7 +4224,7 @@ function QuestionView({
                       ]
                     }, undefined, true, undefined, this),
                     " ",
-                    "\xB7 Esc to cancel"
+                    "\u00b7 Esc \u53d6\u6d88"
                   ]
                 }, undefined, true, undefined, this)
               }, undefined, false, undefined, this)
@@ -4275,7 +4272,7 @@ function SubmitQuestionsView({
             answers
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(PermissionRequestTitle, {
-            title: "Review your answers",
+            title: "\u5ba1\u67e5\u4f60\u7684\u56de\u7b54",
             color: "text"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedBox_default, {
@@ -4330,7 +4327,7 @@ function SubmitQuestionsView({
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
                 color: "inactive",
-                children: "Ready to submit your answers?"
+                children: "\u51c6\u5907\u63d0\u4ea4\u56de\u7b54\uff1f"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedBox_default, {
                 marginTop: 1,
@@ -4338,10 +4335,10 @@ function SubmitQuestionsView({
                   options: [
                     {
                       type: "text",
-                      label: "Submit answers",
+                      label: "\u63d0\u4ea4\u56de\u7b54",
                       value: "submit"
                     },
-                    { type: "text", label: "Cancel", value: "cancel" }
+                    { type: "text", label: "\u53d6\u6d88", value: "cancel" }
                   ],
                   onChange: (value) => onFinalResponse(value),
                   onCancel: () => onFinalResponse("cancel")
@@ -4844,67 +4841,67 @@ var import_react20 = __toESM(require_react(), 1);
 var DESTRUCTIVE_PATTERNS = [
   {
     pattern: /\bgit\s+reset\s+--hard\b/,
-    warning: "Note: may discard uncommitted changes"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u4e22\u5f03\u672a\u63d0\u4ea4\u7684\u66f4\u6539"
   },
   {
     pattern: /\bgit\s+push\b[^;&|\n]*[ \t](--force|--force-with-lease|-f)\b/,
-    warning: "Note: may overwrite remote history"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u8986\u76d6\u8fdc\u7a0b\u5386\u53f2"
   },
   {
     pattern: /\bgit\s+clean\b(?![^;&|\n]*(?:-[a-zA-Z]*n|--dry-run))[^;&|\n]*-[a-zA-Z]*f/,
-    warning: "Note: may permanently delete untracked files"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u6c38\u4e45\u5220\u9664\u672a\u8ddf\u8e2a\u6587\u4ef6"
   },
   {
     pattern: /\bgit\s+checkout\s+(--\s+)?\.[ \t]*($|[;&|\n])/,
-    warning: "Note: may discard all working tree changes"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u4e22\u5f03\u6240\u6709\u5de5\u4f5c\u533a\u66f4\u6539"
   },
   {
     pattern: /\bgit\s+restore\s+(--\s+)?\.[ \t]*($|[;&|\n])/,
-    warning: "Note: may discard all working tree changes"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u4e22\u5f03\u6240\u6709\u5de5\u4f5c\u533a\u66f4\u6539"
   },
   {
     pattern: /\bgit\s+stash[ \t]+(drop|clear)\b/,
-    warning: "Note: may permanently remove stashed changes"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u6c38\u4e45\u6e05\u9664 stash"
   },
   {
     pattern: /\bgit\s+branch\s+(-D[ \t]|--delete\s+--force|--force\s+--delete)\b/,
-    warning: "Note: may force-delete a branch"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u5f3a\u5236\u5220\u9664\u5206\u652f"
   },
   {
     pattern: /\bgit\s+(commit|push|merge)\b[^;&|\n]*--no-verify\b/,
-    warning: "Note: may skip safety hooks"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u8df3\u8fc7\u5b89\u5168\u94a9\u5b50"
   },
   {
     pattern: /\bgit\s+commit\b[^;&|\n]*--amend\b/,
-    warning: "Note: may rewrite the last commit"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u6539\u5199\u6700\u540e\u4e00\u6b21\u63d0\u4ea4"
   },
   {
     pattern: /(^|[;&|\n]\s*)rm\s+-[a-zA-Z]*[rR][a-zA-Z]*f|(^|[;&|\n]\s*)rm\s+-[a-zA-Z]*f[a-zA-Z]*[rR]/,
-    warning: "Note: may recursively force-remove files"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u9012\u5f52\u5f3a\u5236\u5220\u9664\u6587\u4ef6"
   },
   {
     pattern: /(^|[;&|\n]\s*)rm\s+-[a-zA-Z]*[rR]/,
-    warning: "Note: may recursively remove files"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u9012\u5f52\u5220\u9664\u6587\u4ef6"
   },
   {
     pattern: /(^|[;&|\n]\s*)rm\s+-[a-zA-Z]*f/,
-    warning: "Note: may force-remove files"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u5f3a\u5236\u5220\u9664\u6587\u4ef6"
   },
   {
     pattern: /\b(DROP|TRUNCATE)\s+(TABLE|DATABASE|SCHEMA)\b/i,
-    warning: "Note: may drop or truncate database objects"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u5220\u9664\u6216\u622a\u65ad\u6570\u636e\u5e93\u5bf9\u8c61"
   },
   {
     pattern: /\bDELETE\s+FROM\s+\w+[ \t]*(;|"|'|\n|$)/i,
-    warning: "Note: may delete all rows from a database table"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u5220\u9664\u6570\u636e\u5e93\u8868\u5168\u90e8\u884c"
   },
   {
     pattern: /\bkubectl\s+delete\b/,
-    warning: "Note: may delete Kubernetes resources"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u5220\u9664 Kubernetes \u8d44\u6e90"
   },
   {
     pattern: /\bterraform\s+destroy\b/,
-    warning: "Note: may destroy Terraform infrastructure"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u9500\u6bc1 Terraform \u57fa\u7840\u8bbe\u65bd"
   }
 ];
 function getDestructiveCommandWarning(command) {
@@ -5463,7 +5460,7 @@ reason: ${decisionReasonToString(permissionResult.decisionReason)}`;
 }
 function decisionReasonToString(decisionReason) {
   if (!decisionReason) {
-    return "No decision reason";
+    return "\u65e0\u51b3\u7b56\u539f\u56e0";
   }
   if (false) {}
   switch (decisionReason.type) {
@@ -5571,7 +5568,7 @@ function decisionReasonDisplayString(decisionReason) {
     case "mode":
       return `${permissionModeTitle(decisionReason.mode)} mode`;
     case "sandboxOverride":
-      return "Requires permission to bypass sandbox";
+      return "\u9700\u8981\u6743\u9650\u624d\u80fd\u7ed5\u8fc7\u6c99\u7bb1";
     case "workingDir":
       return decisionReason.reason;
     case "safetyCheck":
@@ -5704,11 +5701,11 @@ function SuggestionDisplay({
           minWidth: width,
           children: /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Suggestions "
+            children: "\u5efa\u8bae "
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
-          children: "None"
+          children: "\u65e0"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this);
@@ -5725,11 +5722,11 @@ function SuggestionDisplay({
           minWidth: width,
           children: /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Suggestion "
+            children: "\u5efa\u8bae "
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
-          children: "None"
+          children: "\u65e0"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this);
@@ -5745,7 +5742,7 @@ function SuggestionDisplay({
             minWidth: width,
             children: /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Suggestions "
+              children: "\u5efa\u8bae "
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
@@ -5851,7 +5848,7 @@ function PermissionDecisionDebugInfo({
             minWidth: WIDTH,
             children: /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Behavior "
+              children: "\u884c\u4e3a "
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
@@ -5867,7 +5864,7 @@ function PermissionDecisionDebugInfo({
             minWidth: WIDTH,
             children: /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Message "
+              children: "\u6d88\u606f "
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
@@ -5883,7 +5880,7 @@ function PermissionDecisionDebugInfo({
             minWidth: WIDTH,
             children: /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Reason "
+              children: "\u539f\u56e0 "
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this),
           decisionReason === undefined ? /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
@@ -6147,11 +6144,11 @@ function getRiskColor(riskLevel) {
 function getRiskLabel(riskLevel) {
   switch (riskLevel) {
     case "LOW":
-      return "Low risk";
+      return "\u4f4e\u98ce\u9669";
     case "MEDIUM":
-      return "Med risk";
+      return "\u4e2d\u98ce\u9669";
     case "HIGH":
-      return "High risk";
+      return "\u9ad8\u98ce\u9669";
   }
 }
 function createExplanationPromise(props) {
@@ -6187,7 +6184,7 @@ function ExplanationResult({
       marginTop: 1,
       children: /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(ThemedText, {
         dimColor: true,
-        children: "Explanation unavailable"
+        children: "\u65e0\u6cd5\u83b7\u53d6\u8bf4\u660e"
       }, undefined, false, undefined, this)
     }, undefined, false, undefined, this);
   }
@@ -6632,14 +6629,14 @@ function ShowInIDEPrompt({
         }, undefined, false, undefined, this),
         isSupportedVSCodeTerminal() && /* @__PURE__ */ jsx_dev_runtime16.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Save file to continue\u2026"
+          children: "\u4fdd\u5b58\u6587\u4ef6\u540e\u7ee7\u7eed\u2026"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime16.jsxDEV(ThemedBox_default, {
           flexDirection: "column",
           children: [
             /* @__PURE__ */ jsx_dev_runtime16.jsxDEV(ThemedText, {
               children: [
-                "Do you want to make this edit to",
+                "\u662f\u5426\u8981\u4fee\u6539",
                 " ",
                 /* @__PURE__ */ jsx_dev_runtime16.jsxDEV(ThemedText, {
                   bold: true,
@@ -6678,8 +6675,8 @@ function ShowInIDEPrompt({
           children: /* @__PURE__ */ jsx_dev_runtime16.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Esc to cancel",
-              (focusedOption === "yes" && !yesInputMode || focusedOption === "no" && !noInputMode) && " \xB7 Tab to amend"
+              "Esc \u53d6\u6d88",
+              (focusedOption === "yes" && !yesInputMode || focusedOption === "no" && !noInputMode) && " \u00b7 Tab \u4fee\u6539"
             ]
           }, undefined, true, undefined, this)
         }, undefined, false, undefined, this)
@@ -6735,16 +6732,16 @@ function getFilePermissionOptions({
   if (yesInputMode && onAcceptFeedbackChange) {
     options.push({
       type: "input",
-      label: "Yes",
+      label: "\u662f",
       value: "yes",
-      placeholder: "and tell Claude what to do next",
+      placeholder: "\u5e76\u544a\u8bc9 Claude \u8981\u505a\u4ec0\u4e48",
       onChange: onAcceptFeedbackChange,
       allowEmptySubmitToCancel: true,
       option: { type: "accept-once" }
     });
   } else {
     options.push({
-      label: "Yes",
+      label: "\u662f",
       value: "yes",
       option: { type: "accept-once" }
     });
@@ -6754,7 +6751,7 @@ function getFilePermissionOptions({
   const inGlobalClaudeFolder = isInGlobalClaudeFolder(filePath);
   if ((inClaudeFolder || inGlobalClaudeFolder) && operationType !== "read") {
     options.push({
-      label: "Yes, and allow Claude to edit its own settings for this session",
+      label: "\u662f\uff0c\u5e76\u5141\u8bb8 Claude \u5728\u672c\u4f1a\u8bdd\u4e2d\u4fee\u6539\u81ea\u8eab\u8bbe\u7f6e",
       value: "yes-claude-folder",
       option: {
         type: "accept-session",
@@ -6765,11 +6762,11 @@ function getFilePermissionOptions({
     let sessionLabel;
     if (inAllowedPath) {
       if (operationType === "read") {
-        sessionLabel = "Yes, during this session";
+        sessionLabel = "\u662f\uff0c\u4ec5\u672c\u6b21\u4f1a\u8bdd";
       } else {
         sessionLabel = /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
           children: [
-            "Yes, allow all edits during this session",
+            "\u662f\uff0c\u672c\u6b21\u4f1a\u8bdd\u5141\u8bb8\u6240\u6709\u7f16\u8f91",
             " ",
             /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
               bold: true,
@@ -6788,7 +6785,7 @@ function getFilePermissionOptions({
       if (operationType === "read") {
         sessionLabel = /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
           children: [
-            "Yes, allow reading from ",
+            "\u662f\uff0c\u5141\u8bb8\u4ece ",
             /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
               bold: true,
               children: [
@@ -6796,13 +6793,13 @@ function getFilePermissionOptions({
                 "/"
               ]
             }, undefined, true, undefined, this),
-            " during this session"
+            " \u672c\u6b21\u4f1a\u8bdd"
           ]
         }, undefined, true, undefined, this);
       } else {
         sessionLabel = /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
           children: [
-            "Yes, allow all edits in ",
+            "\u662f\uff0c\u5141\u8bb8\u5728 ",
             /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
               bold: true,
               children: [
@@ -6810,7 +6807,7 @@ function getFilePermissionOptions({
                 "/"
               ]
             }, undefined, true, undefined, this),
-            " during this session ",
+            " \u672c\u6b21\u4f1a\u8bdd ",
             /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
               bold: true,
               children: [
@@ -6832,16 +6829,16 @@ function getFilePermissionOptions({
   if (noInputMode && onRejectFeedbackChange) {
     options.push({
       type: "input",
-      label: "No",
+      label: "\u5426",
       value: "no",
-      placeholder: "and tell Claude what to do differently",
+      placeholder: "\u5e76\u544a\u8bc9 Claude \u8981\u505a\u4ec0\u4e48\u8c03\u6574",
       onChange: onRejectFeedbackChange,
       allowEmptySubmitToCancel: true,
       option: { type: "reject" }
     });
   } else {
     options.push({
-      label: "No",
+      label: "\u5426",
       value: "no",
       option: { type: "reject" }
     });
@@ -7070,7 +7067,7 @@ function FilePermissionDialog({
   onReject,
   title,
   subtitle,
-  question = "Do you want to proceed?",
+  question = "\u662f\u5426\u7ee7\u7eed\uff1f",
   content,
   completionType = "tool_use_single",
   path,
@@ -7221,8 +7218,8 @@ function FilePermissionDialog({
         children: /* @__PURE__ */ jsx_dev_runtime18.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            "Esc to cancel",
-            (focusedOption === "yes" && !yesInputMode || focusedOption === "no" && !noInputMode) && " \xB7 Tab to amend"
+            "Esc \u53d6\u6d88",
+            (focusedOption === "yes" && !yesInputMode || focusedOption === "no" && !noInputMode) && " \u00b7 Tab \u4fee\u6539"
           ]
         }, undefined, true, undefined, this)
       }, undefined, false, undefined, this)
@@ -7284,9 +7281,9 @@ function SedEditPermissionRequestInner({
   }, [oldContent, newContent]);
   const noChangesMessage = import_react18.useMemo(() => {
     if (!fileExists) {
-      return "File does not exist";
+      return "\u6587\u4ef6\u4e0d\u5b58\u5728";
     }
-    return "Pattern did not match any content";
+    return "\u6a21\u5f0f\u672a\u5339\u914d\u5230\u4efb\u4f55\u5185\u5bb9";
   }, [fileExists]);
   const parseInput = (input) => {
     const parsed = BashTool.inputSchema.parse(input);
@@ -7303,11 +7300,11 @@ function SedEditPermissionRequestInner({
     toolUseContext: props.toolUseContext,
     onDone: props.onDone,
     onReject: props.onReject,
-    title: "Edit file",
+    title: "\u7f16\u8f91\u6587\u4ef6",
     subtitle: relative3(getCwd(), filePath),
     question: /* @__PURE__ */ jsx_dev_runtime19.jsxDEV(ThemedText, {
       children: [
-        "Do you want to make this edit to",
+        "\u662f\u5426\u8981\u4fee\u6539",
         " ",
         /* @__PURE__ */ jsx_dev_runtime19.jsxDEV(ThemedText, {
           bold: true,
@@ -7477,7 +7474,7 @@ function commandListDisplay(commands) {
             bold: true,
             children: commands[0]
           }, undefined, false, undefined, this),
-          " and ",
+          " \u548c ",
           /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
             bold: true,
             children: commands[1]
@@ -7491,7 +7488,7 @@ function commandListDisplay(commands) {
             bold: true,
             children: commands.slice(0, -1).join(", ")
           }, undefined, false, undefined, this),
-          ", and",
+          ", \u548c",
           " ",
           /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
             bold: true,
@@ -7504,7 +7501,7 @@ function commandListDisplay(commands) {
 function commandListDisplayTruncated(commands) {
   const plainText = commands.join(", ");
   if (plainText.length > 50) {
-    return "similar";
+    return "\u7c7b\u4f3c\u547d\u4ee4";
   }
   return commandListDisplay(commands);
 }
@@ -7531,7 +7528,7 @@ function formatPathList(paths) {
           children: names[0]
         }, undefined, false, undefined, this),
         sep2,
-        " and ",
+        " \u548c ",
         /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
           bold: true,
           children: names[1]
@@ -7553,7 +7550,7 @@ function formatPathList(paths) {
         children: names[1]
       }, undefined, false, undefined, this),
       sep2,
-      " and ",
+      " \u548c ",
       paths.length - 2,
       " more"
     ]
@@ -7582,21 +7579,21 @@ function generateShellSuggestionsLabel(suggestions, shellToolName, commandTransf
       const dirName = basename5(firstPath) || firstPath;
       return /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
         children: [
-          "Yes, allow reading from ",
+          "\u662f\uff0c\u5141\u8bb8\u4ece ",
           /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
             bold: true,
             children: dirName
           }, undefined, false, undefined, this),
           sep2,
-          " from this project"
+          "\uff08\u672c\u9879\u76ee\uff09"
         ]
       }, undefined, true, undefined, this);
     }
     return /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
       children: [
-        "Yes, allow reading from ",
+        "\u662f\uff0c\u5141\u8bb8\u4ece ",
         formatPathList(readPaths),
-        " from this project"
+        "\uff08\u672c\u9879\u76ee\uff09"
       ]
     }, undefined, true, undefined, this);
   }
@@ -7606,30 +7603,30 @@ function generateShellSuggestionsLabel(suggestions, shellToolName, commandTransf
       const dirName = basename5(firstDir) || firstDir;
       return /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
         children: [
-          "Yes, and always allow access to ",
+          "\u662f\uff0c\u59cb\u7ec8\u5141\u8bb8\u8bbf\u95ee ",
           /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
             bold: true,
             children: dirName
           }, undefined, false, undefined, this),
           sep2,
-          " from this project"
+          "\uff08\u672c\u9879\u76ee\uff09"
         ]
       }, undefined, true, undefined, this);
     }
     return /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
       children: [
-        "Yes, and always allow access to ",
+        "\u662f\uff0c\u59cb\u7ec8\u5141\u8bb8\u8bbf\u95ee ",
         formatPathList(directories),
-        " from this project"
+        "\uff08\u672c\u9879\u76ee\uff09"
       ]
     }, undefined, true, undefined, this);
   }
   if (hasCommands && !hasDirectories && !hasReadPaths) {
     return /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
       children: [
-        "Yes, and don't ask again for ",
+        "\u662f\uff0c\u4e0d\u518d\u8be2\u95ee ",
         commandListDisplayTruncated(shellCommands),
-        " commands in",
+        " \u547d\u4ee4\uff08\u9879\u76ee\uff1a",
         " ",
         /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
           bold: true,
@@ -7643,9 +7640,9 @@ function generateShellSuggestionsLabel(suggestions, shellToolName, commandTransf
     if (hasDirectories && hasReadPaths) {
       return /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
         children: [
-          "Yes, and always allow access to ",
+          "\u662f\uff0c\u59cb\u7ec8\u5141\u8bb8\u8bbf\u95ee ",
           formatPathList(allPaths),
-          " from this project"
+          "\uff08\u672c\u9879\u76ee\uff09"
         ]
       }, undefined, true, undefined, this);
     }
@@ -7655,23 +7652,23 @@ function generateShellSuggestionsLabel(suggestions, shellToolName, commandTransf
     if (allPaths.length === 1 && shellCommands.length === 1) {
       return /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
         children: [
-          "Yes, and allow access to ",
+          "\u662f\uff0c\u5141\u8bb8\u8bbf\u95ee ",
           formatPathList(allPaths),
-          " and",
+          " \u548c",
           " ",
           commandListDisplayTruncated(shellCommands),
-          " commands"
+          " \u547d\u4ee4"
         ]
       }, undefined, true, undefined, this);
     }
     return /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
       children: [
-        "Yes, and allow ",
+        "\u662f\uff0c\u5141\u8bb8 ",
         formatPathList(allPaths),
-        " access and",
+        " \u8bbf\u95ee\u4ee5\u53ca ",
         " ",
         commandListDisplayTruncated(shellCommands),
-        " commands"
+        " \u547d\u4ee4"
       ]
     }, undefined, true, undefined, this);
   }
@@ -7705,15 +7702,15 @@ function bashToolUseOptions({
   if (yesInputMode) {
     options.push({
       type: "input",
-      label: "Yes",
+      label: "\u662f",
       value: "yes",
-      placeholder: "and tell Claude what to do next",
+      placeholder: "\u5e76\u544a\u8bc9 Claude \u8981\u505a\u4ec0\u4e48",
       onChange: onAcceptFeedbackChange,
       allowEmptySubmitToCancel: true
     });
   } else {
     options.push({
-      label: "Yes",
+      label: "\u662f",
       value: "yes"
     });
   }
@@ -7722,7 +7719,7 @@ function bashToolUseOptions({
     if (editablePrefix !== undefined && onEditablePrefixChange && !hasNonBashSuggestions && suggestions.length > 0) {
       options.push({
         type: "input",
-        label: "Yes, and don\u2019t ask again for",
+        label: "\u662f\uff0c\u4e0d\u518d\u8be2\u95ee",
         value: "yes-prefix-edited",
         placeholder: "command prefix (e.g., npm run:*)",
         initialValue: editablePrefix,
@@ -7745,7 +7742,7 @@ function bashToolUseOptions({
     if (process.env.USER_TYPE === "ant" && !editablePrefixShown && isClassifierPermissionsEnabled() && onClassifierDescriptionChange && !initialClassifierDescriptionEmpty && !descriptionAlreadyExists(classifierDescription ?? "", existingAllowDescriptions) && decisionReason?.type !== "classifier") {
       options.push({
         type: "input",
-        label: "Yes, and don\u2019t ask again for",
+        label: "\u662f\uff0c\u4e0d\u518d\u8be2\u95ee",
         value: "yes-classifier-reviewed",
         placeholder: "describe what to allow...",
         initialValue: classifierDescription ?? "",
@@ -7760,15 +7757,15 @@ function bashToolUseOptions({
   if (noInputMode) {
     options.push({
       type: "input",
-      label: "No",
+      label: "\u5426",
       value: "no",
-      placeholder: "and tell Claude what to do differently",
+      placeholder: "\u5e76\u544a\u8bc9 Claude \u8981\u505a\u4ec0\u4e48\u8c03\u6574",
       onChange: onRejectFeedbackChange,
       allowEmptySubmitToCancel: true
     });
   } else {
     options.push({
-      label: "No",
+      label: "\u5426",
       value: "no"
     });
   }
@@ -8022,7 +8019,7 @@ function BashPermissionRequestInner({
   const classifierSubtitle = undefined;
   return /* @__PURE__ */ jsx_dev_runtime21.jsxDEV(PermissionDialog, {
     workerBadge,
-    title: sandboxingEnabled && !isSandboxed ? "Bash command (unsandboxed)" : "Bash command",
+    title: sandboxingEnabled && !isSandboxed ? "Bash \u547d\u4ee4\uff08\u672a\u5728\u6c99\u7bb1\u5185\uff09" : "Bash \u547d\u4ee4",
     subtitle: classifierSubtitle,
     children: [
       /* @__PURE__ */ jsx_dev_runtime21.jsxDEV(ThemedBox_default, {
@@ -8055,7 +8052,7 @@ function BashPermissionRequestInner({
             marginTop: 1,
             children: /* @__PURE__ */ jsx_dev_runtime21.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Ctrl-D to hide debug info"
+              children: "Ctrl-D \u9690\u85cf\u8c03\u8bd5\u4fe1\u606f"
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this)
         ]
@@ -8078,7 +8075,7 @@ function BashPermissionRequestInner({
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime21.jsxDEV(ThemedText, {
                 dimColor: false,
-                children: "Do you want to proceed?"
+                children: "\u662f\u5426\u7ee7\u7eed\uff1f"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime21.jsxDEV(Select, {
                 options,
@@ -8098,14 +8095,14 @@ function BashPermissionRequestInner({
               /* @__PURE__ */ jsx_dev_runtime21.jsxDEV(ThemedText, {
                 dimColor: true,
                 children: [
-                  "Esc to cancel",
-                  (focusedOption === "yes" && !yesInputMode || focusedOption === "no" && !noInputMode) && " \xB7 Tab to amend",
-                  explainerState.enabled && ` \xB7 ctrl+e to ${explainerState.visible ? "hide" : "explain"}`
+                  "Esc \u53d6\u6d88",
+                  (focusedOption === "yes" && !yesInputMode || focusedOption === "no" && !noInputMode) && " \u00b7 Tab \u4fee\u6539",
+                  explainerState.enabled && ` \xB7 ctrl+e ${explainerState.visible ? "\u9690\u85cf" : "\u89e3\u91ca"}`
                 ]
               }, undefined, true, undefined, this),
               toolUseContext.options.debug && /* @__PURE__ */ jsx_dev_runtime21.jsxDEV(ThemedText, {
                 dimColor: true,
-                children: "Ctrl+d to show debug info"
+                children: "Ctrl+d \u663e\u793a\u8c03\u8bd5\u4fe1\u606f"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -8150,7 +8147,7 @@ function EnterPlanModePermissionRequest({
   }
   return /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(PermissionDialog, {
     color: "planMode",
-    title: "Enter plan mode?",
+    title: "\u8fdb\u5165\u8ba1\u5212\u6a21\u5f0f\uff1f",
     workerBadge,
     children: /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(ThemedBox_default, {
       flexDirection: "column",
@@ -8158,7 +8155,7 @@ function EnterPlanModePermissionRequest({
       paddingX: 1,
       children: [
         /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(ThemedText, {
-          children: "Claude wants to enter plan mode to explore and design an implementation approach."
+          children: "Claude \u60f3\u8981\u8fdb\u5165\u8ba1\u5212\u6a21\u5f0f\uff0c\u63a2\u7d22\u5e76\u8bbe\u8ba1\u5b9e\u73b0\u65b9\u6848\u3002"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(ThemedBox_default, {
           marginTop: 1,
@@ -8166,23 +8163,23 @@ function EnterPlanModePermissionRequest({
           children: [
             /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "In plan mode, Claude will:"
+              children: "\u5728\u8ba1\u5212\u6a21\u5f0f\u4e0b\uff0cClaude \u5c06\uff1a"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(ThemedText, {
               dimColor: true,
-              children: " \xB7 Explore the codebase thoroughly"
+              children: " \xB7 \u5168\u9762\u63a2\u7d22\u4ee3\u7801\u5e93"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(ThemedText, {
               dimColor: true,
-              children: " \xB7 Identify existing patterns"
+              children: " \xB7 \u8bc6\u522b\u73b0\u6709\u6a21\u5f0f"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(ThemedText, {
               dimColor: true,
-              children: " \xB7 Design an implementation strategy"
+              children: " \xB7 \u8bbe\u8ba1\u5b9e\u73b0\u7b56\u7565"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(ThemedText, {
               dimColor: true,
-              children: " \xB7 Present a plan for your approval"
+              children: " \xB7 \u63d0\u4ea4\u8ba1\u5212\u4f9b\u60a8\u5ba1\u6279"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
@@ -8190,15 +8187,15 @@ function EnterPlanModePermissionRequest({
           marginTop: 1,
           children: /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "No code changes will be made until you approve the plan."
+            children: "\u5728\u60a8\u6279\u51c6\u8ba1\u5212\u4e4b\u524d\u4e0d\u4f1a\u8fdb\u884c\u4ee3\u7801\u66f4\u6539\u3002"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(ThemedBox_default, {
           marginTop: 1,
           children: /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(Select, {
             options: [
-              { label: "Yes, enter plan mode", value: "yes" },
-              { label: "No, start implementing now", value: "no" }
+              { label: "\u662f\uff0c\u8fdb\u5165\u8ba1\u5212\u6a21\u5f0f", value: "yes" },
+              { label: "\u5426\uff0c\u7acb\u5373\u5f00\u59cb\u5b9e\u73b0", value: "no" }
             ],
             onChange: handleResponse,
             onCancel: () => handleResponse("no")
@@ -8593,7 +8590,7 @@ ${currentPlan}${verificationInstruction}${transcriptHint}${teamHint}${feedbackSu
       children: [
         /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Would you like to proceed?"
+          children: "\u662f\u5426\u7ee7\u7eed\uff1f"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedBox_default, {
           marginTop: 1,
@@ -8613,7 +8610,7 @@ ${currentPlan}${verificationInstruction}${transcriptHint}${teamHint}${feedbackSu
           children: [
             /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "ctrl-g to edit in "
+              children: "Ctrl-g \u5728 "
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedText, {
               bold: true,
@@ -8637,7 +8634,7 @@ ${currentPlan}${verificationInstruction}${transcriptHint}${teamHint}${feedbackSu
                   color: "success",
                   children: [
                     figures_default.tick,
-                    "Plan saved!"
+                    "\u8ba1\u5212\u5df2\u4fdd\u5b58\uff01"
                   ]
                 }, undefined, true, undefined, this)
               ]
@@ -8687,7 +8684,7 @@ ${currentPlan}${verificationInstruction}${transcriptHint}${teamHint}${feedbackSu
     };
     return /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(PermissionDialog, {
       color: "planMode",
-      title: "Exit plan mode?",
+      title: "\u9000\u51fa\u8ba1\u5212\u6a21\u5f0f\uff1f",
       workerBadge,
       children: /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedBox_default, {
         flexDirection: "column",
@@ -8695,14 +8692,14 @@ ${currentPlan}${verificationInstruction}${transcriptHint}${teamHint}${feedbackSu
         marginTop: 1,
         children: [
           /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedText, {
-            children: "Claude wants to exit plan mode"
+            children: "Claude \u60f3\u8981\u9000\u51fa\u8ba1\u5212\u6a21\u5f0f"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedBox_default, {
             marginTop: 1,
             children: /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(Select, {
               options: [
-                { label: "Yes", value: "yes" },
-                { label: "No", value: "no" }
+                { label: "\u662f", value: "yes" },
+                { label: "\u5426", value: "no" }
               ],
               onChange: handleEmptyPlanResponse,
               onCancel: () => {
@@ -8730,7 +8727,7 @@ ${currentPlan}${verificationInstruction}${transcriptHint}${teamHint}${feedbackSu
     children: [
       /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(PermissionDialog, {
         color: "planMode",
-        title: "Ready to code?",
+        title: "\u51c6\u5907\u7f16\u7801\uff1f",
         innerPaddingX: 0,
         workerBadge,
         children: /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedBox_default, {
@@ -8741,7 +8738,7 @@ ${currentPlan}${verificationInstruction}${transcriptHint}${teamHint}${feedbackSu
               paddingX: 1,
               flexDirection: "column",
               children: /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedText, {
-                children: "Here is Claude's plan:"
+                children: "Claude \u7684\u8ba1\u5212\uff1a"
               }, undefined, false, undefined, this)
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedBox_default, {
@@ -8771,7 +8768,7 @@ ${currentPlan}${verificationInstruction}${transcriptHint}${teamHint}${feedbackSu
                   children: [
                     /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedText, {
                       bold: true,
-                      children: "Requested permissions:"
+                      children: "\u8bf7\u6c42\u7684\u6743\u9650\uff1a"
                     }, undefined, false, undefined, this),
                     allowedPrompts.map((p, i) => /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedText, {
                       dimColor: true,
@@ -8792,7 +8789,7 @@ ${currentPlan}${verificationInstruction}${transcriptHint}${teamHint}${feedbackSu
                   children: [
                     /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedText, {
                       dimColor: true,
-                      children: "Claude has written up a plan and is ready to execute. Would you like to proceed?"
+                      children: "Claude \u5df2\u5236\u5b9a\u4e86\u8ba1\u5212\u5e76\u51c6\u5907\u6267\u884c\u3002\u662f\u5426\u7ee7\u7eed\uff1f"
                     }, undefined, false, undefined, this),
                     /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedBox_default, {
                       marginTop: 1,
@@ -8822,7 +8819,7 @@ ${currentPlan}${verificationInstruction}${transcriptHint}${teamHint}${feedbackSu
             children: [
               /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedText, {
                 dimColor: true,
-                children: "ctrl-g to edit in "
+                children: "Ctrl-g \u5728 "
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedText, {
                 bold: true,
@@ -8848,7 +8845,7 @@ ${currentPlan}${verificationInstruction}${transcriptHint}${teamHint}${feedbackSu
                 color: "success",
                 children: [
                   figures_default.tick,
-                  "Plan saved!"
+                  "\u8ba1\u5212\u5df2\u4fdd\u5b58\uff01"
                 ]
               }, undefined, true, undefined, this)
             ]
@@ -8867,47 +8864,47 @@ function buildPlanApprovalOptions({
   onFeedbackChange
 }) {
   const options = [];
-  const usedLabel = usedPercent !== null ? ` (${usedPercent}% used)` : "";
+  const usedLabel = usedPercent !== null ? ` (\u5df2\u7528 ${usedPercent}%)` : "";
   if (showClearContext) {
     if (false) {} else if (isBypassPermissionsModeAvailable) {
       options.push({
-        label: `Yes, clear context${usedLabel} and bypass permissions`,
+        label: `\u662f\uff0c\u6e05\u7406\u4e0a\u4e0b\u6587${usedLabel}\u5e76\u7ed5\u8fc7\u6743\u9650\u68c0\u67e5`,
         value: "yes-bypass-permissions"
       });
     } else {
       options.push({
-        label: `Yes, clear context${usedLabel} and auto-accept edits`,
+        label: `\u662f\uff0c\u6e05\u7406\u4e0a\u4e0b\u6587${usedLabel}\u5e76\u81ea\u52a8\u63a5\u53d7\u7f16\u8f91`,
         value: "yes-accept-edits"
       });
     }
   }
   if (false) {} else if (isBypassPermissionsModeAvailable) {
     options.push({
-      label: "Yes, and bypass permissions",
+      label: "\u662f\uff0c\u5e76\u7ed5\u8fc7\u6743\u9650\u68c0\u67e5",
       value: "yes-accept-edits-keep-context"
     });
   } else {
     options.push({
-      label: "Yes, auto-accept edits",
+      label: "\u662f\uff0c\u81ea\u52a8\u63a5\u53d7\u7f16\u8f91",
       value: "yes-accept-edits-keep-context"
     });
   }
   options.push({
-    label: "Yes, manually approve edits",
+    label: "\u662f\uff0c\u624b\u52a8\u6279\u51c6\u7f16\u8f91",
     value: "yes-default-keep-context"
   });
   if (showUltraplan) {
     options.push({
-      label: "No, refine with Ultraplan on Claude Code on the web",
+      label: "\u5426\uff0c\u5728 Claude Code \u7f51\u9875\u7248\u4f7f\u7528 Ultraplan \u4f18\u5316",
       value: "ultraplan"
     });
   }
   options.push({
     type: "input",
-    label: "No, keep planning",
+    label: "\u5426\uff0c\u7ee7\u7eed\u89c4\u5212",
     value: "no",
-    placeholder: "Tell Claude what to change",
-    description: "shift+tab to approve with this feedback",
+    placeholder: "\u544a\u8bc9 Claude \u8981\u4fee\u6539\u4ec0\u4e48",
+    description: "shift+tab \u4f7f\u7528\u6b64\u53cd\u9988\u6279\u51c6",
     onChange: onFeedbackChange
   });
   return options;
@@ -9032,7 +9029,7 @@ function FallbackPermissionRequest({
   const options = import_react23.useMemo(() => {
     const result = [
       {
-        label: "Yes",
+        label: "\u662f",
         value: "yes",
         feedbackConfig: { type: "accept" }
       }
@@ -9041,13 +9038,13 @@ function FallbackPermissionRequest({
       result.push({
         label: /* @__PURE__ */ jsx_dev_runtime25.jsxDEV(ThemedText, {
           children: [
-            "Yes, and don't ask again for ",
+            "\u662f\uff0c\u4e0d\u518d\u8be2\u95ee ",
             /* @__PURE__ */ jsx_dev_runtime25.jsxDEV(ThemedText, {
               bold: true,
               children: userFacingName
             }, undefined, false, undefined, this),
             " ",
-            "commands in ",
+            " \u547d\u4ee4\uff08\u9879\u76ee\uff1a",
             /* @__PURE__ */ jsx_dev_runtime25.jsxDEV(ThemedText, {
               bold: true,
               children: originalCwd
@@ -9058,7 +9055,7 @@ function FallbackPermissionRequest({
       });
     }
     result.push({
-      label: "No",
+      label: "\u5426",
       value: "no",
       feedbackConfig: { type: "reject" }
     });
@@ -9069,7 +9066,7 @@ function FallbackPermissionRequest({
     isMcp: toolUseConfirm.tool.isMcp ?? false
   }), [toolUseConfirm.tool.name, toolUseConfirm.tool.isMcp]);
   return /* @__PURE__ */ jsx_dev_runtime25.jsxDEV(PermissionDialog, {
-    title: "Tool use",
+    title: "\u5de5\u5177\u4f7f\u7528",
     workerBadge,
     children: [
       /* @__PURE__ */ jsx_dev_runtime25.jsxDEV(ThemedBox_default, {
@@ -9164,11 +9161,11 @@ function FileEditPermissionRequest(props) {
     onDone: props.onDone,
     onReject: props.onReject,
     workerBadge: props.workerBadge,
-    title: "Edit file",
+    title: "\u7f16\u8f91\u6587\u4ef6",
     subtitle: relative4(getCwd(), file_path),
     question: /* @__PURE__ */ jsx_dev_runtime26.jsxDEV(ThemedText, {
       children: [
-        "Do you want to make this edit to",
+        "\u662f\u5426\u8981\u4fee\u6539",
         " ",
         /* @__PURE__ */ jsx_dev_runtime26.jsxDEV(ThemedText, {
           bold: true,
@@ -9579,7 +9576,7 @@ function NotebookEditPermissionRequest(props) {
     onDone: props.onDone,
     onReject: props.onReject,
     workerBadge: props.workerBadge,
-    title: "Edit notebook",
+    title: "\u7f16\u8f91 notebook",
     question: /* @__PURE__ */ jsx_dev_runtime31.jsxDEV(ThemedText, {
       children: [
         "Do you want to ",
@@ -9620,63 +9617,63 @@ var import_react27 = __toESM(require_react(), 1);
 var DESTRUCTIVE_PATTERNS2 = [
   {
     pattern: /(?:^|[|;&\n({])\s*(Remove-Item|rm|del|rd|rmdir|ri)\b[^|;&\n}]*-Recurse\b[^|;&\n}]*-Force\b/i,
-    warning: "Note: may recursively force-remove files"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u9012\u5f52\u5f3a\u5236\u5220\u9664\u6587\u4ef6"
   },
   {
     pattern: /(?:^|[|;&\n({])\s*(Remove-Item|rm|del|rd|rmdir|ri)\b[^|;&\n}]*-Force\b[^|;&\n}]*-Recurse\b/i,
-    warning: "Note: may recursively force-remove files"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u9012\u5f52\u5f3a\u5236\u5220\u9664\u6587\u4ef6"
   },
   {
     pattern: /(?:^|[|;&\n({])\s*(Remove-Item|rm|del|rd|rmdir|ri)\b[^|;&\n}]*-Recurse\b/i,
-    warning: "Note: may recursively remove files"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u9012\u5f52\u5220\u9664\u6587\u4ef6"
   },
   {
     pattern: /(?:^|[|;&\n({])\s*(Remove-Item|rm|del|rd|rmdir|ri)\b[^|;&\n}]*-Force\b/i,
-    warning: "Note: may force-remove files"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u5f3a\u5236\u5220\u9664\u6587\u4ef6"
   },
   {
     pattern: /\bClear-Content\b[^|;&\n]*\*/i,
-    warning: "Note: may clear content of multiple files"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u6e05\u7a7a\u591a\u4e2a\u6587\u4ef6\u5185\u5bb9"
   },
   {
     pattern: /\bFormat-Volume\b/i,
-    warning: "Note: may format a disk volume"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u683c\u5f0f\u5316\u78c1\u76d8\u5377"
   },
   {
     pattern: /\bClear-Disk\b/i,
-    warning: "Note: may clear a disk"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u6e05\u7a7a\u78c1\u76d8"
   },
   {
     pattern: /\bgit\s+reset\s+--hard\b/i,
-    warning: "Note: may discard uncommitted changes"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u4e22\u5f03\u672a\u63d0\u4ea4\u7684\u66f4\u6539"
   },
   {
     pattern: /\bgit\s+push\b[^|;&\n]*\s+(--force|--force-with-lease|-f)\b/i,
-    warning: "Note: may overwrite remote history"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u8986\u76d6\u8fdc\u7a0b\u5386\u53f2"
   },
   {
     pattern: /\bgit\s+clean\b(?![^|;&\n]*(?:-[a-zA-Z]*n|--dry-run))[^|;&\n]*-[a-zA-Z]*f/i,
-    warning: "Note: may permanently delete untracked files"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u6c38\u4e45\u5220\u9664\u672a\u8ddf\u8e2a\u6587\u4ef6"
   },
   {
     pattern: /\bgit\s+stash\s+(drop|clear)\b/i,
-    warning: "Note: may permanently remove stashed changes"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u6c38\u4e45\u6e05\u9664 stash"
   },
   {
     pattern: /\b(DROP|TRUNCATE)\s+(TABLE|DATABASE|SCHEMA)\b/i,
-    warning: "Note: may drop or truncate database objects"
+    warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u5220\u9664\u6216\u622a\u65ad\u6570\u636e\u5e93\u5bf9\u8c61"
   },
   {
     pattern: /\bStop-Computer\b/i,
-    warning: "Note: will shut down the computer"
+    warning: "\u6ce8\u610f\uff1a\u5c06\u5173\u95ed\u8ba1\u7b97\u673a"
   },
   {
     pattern: /\bRestart-Computer\b/i,
-    warning: "Note: will restart the computer"
+    warning: "\u6ce8\u610f\uff1a\u5c06\u91cd\u542f\u8ba1\u7b97\u673a"
   },
   {
     pattern: /\bClear-RecycleBin\b/i,
-    warning: "Note: permanently deletes recycled files"
+    warning: "\u6ce8\u610f\uff1a\u5c06\u6c38\u4e45\u5220\u9664\u56de\u6536\u7ad9\u6587\u4ef6"
   }
 ];
 function getDestructiveCommandWarning2(command) {
@@ -9841,15 +9838,15 @@ function powershellToolUseOptions({
   if (yesInputMode) {
     options.push({
       type: "input",
-      label: "Yes",
+      label: "\u662f",
       value: "yes",
-      placeholder: "and tell Claude what to do next",
+      placeholder: "\u5e76\u544a\u8bc9 Claude \u8981\u505a\u4ec0\u4e48",
       onChange: onAcceptFeedbackChange,
       allowEmptySubmitToCancel: true
     });
   } else {
     options.push({
-      label: "Yes",
+      label: "\u662f",
       value: "yes"
     });
   }
@@ -9858,7 +9855,7 @@ function powershellToolUseOptions({
     if (editablePrefix !== undefined && onEditablePrefixChange && !hasNonPowerShellSuggestions) {
       options.push({
         type: "input",
-        label: "Yes, and don\u2019t ask again for",
+        label: "\u662f\uff0c\u4e0d\u518d\u8be2\u95ee",
         value: "yes-prefix-edited",
         placeholder: "command prefix (e.g., Get-Process:*)",
         initialValue: editablePrefix,
@@ -9881,15 +9878,15 @@ function powershellToolUseOptions({
   if (noInputMode) {
     options.push({
       type: "input",
-      label: "No",
+      label: "\u5426",
       value: "no",
-      placeholder: "and tell Claude what to do differently",
+      placeholder: "\u5e76\u544a\u8bc9 Claude \u8981\u505a\u4ec0\u4e48\u8c03\u6574",
       onChange: onRejectFeedbackChange,
       allowEmptySubmitToCancel: true
     });
   } else {
     options.push({
-      label: "No",
+      label: "\u5426",
       value: "no"
     });
   }
@@ -10046,7 +10043,7 @@ function PowerShellPermissionRequest(props) {
   }
   return /* @__PURE__ */ jsx_dev_runtime32.jsxDEV(PermissionDialog, {
     workerBadge,
-    title: "PowerShell command",
+    title: "PowerShell \u547d\u4ee4",
     children: [
       /* @__PURE__ */ jsx_dev_runtime32.jsxDEV(ThemedBox_default, {
         flexDirection: "column",
@@ -10078,7 +10075,7 @@ function PowerShellPermissionRequest(props) {
             marginTop: 1,
             children: /* @__PURE__ */ jsx_dev_runtime32.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Ctrl-D to hide debug info"
+              children: "Ctrl-D \u9690\u85cf\u8c03\u8bd5\u4fe1\u606f"
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this)
         ]
@@ -10099,7 +10096,7 @@ function PowerShellPermissionRequest(props) {
                 }, undefined, false, undefined, this)
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime32.jsxDEV(ThemedText, {
-                children: "Do you want to proceed?"
+                children: "\u662f\u5426\u7ee7\u7eed\uff1f"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime32.jsxDEV(Select, {
                 options,
@@ -10118,14 +10115,14 @@ function PowerShellPermissionRequest(props) {
               /* @__PURE__ */ jsx_dev_runtime32.jsxDEV(ThemedText, {
                 dimColor: true,
                 children: [
-                  "Esc to cancel",
-                  (focusedOption === "yes" && !yesInputMode || focusedOption === "no" && !noInputMode) && " \xB7 Tab to amend",
-                  explainerState.enabled && ` \xB7 ctrl+e to ${explainerState.visible ? "hide" : "explain"}`
+                  "Esc \u53d6\u6d88",
+                  (focusedOption === "yes" && !yesInputMode || focusedOption === "no" && !noInputMode) && " \u00b7 Tab \u4fee\u6539",
+                  explainerState.enabled && ` \xB7 ctrl+e ${explainerState.visible ? "\u9690\u85cf" : "\u89e3\u91ca"}`
                 ]
               }, undefined, true, undefined, this),
               toolUseContext.options.debug && /* @__PURE__ */ jsx_dev_runtime32.jsxDEV(ThemedText, {
                 dimColor: true,
-                children: "Ctrl+d to show debug info"
+                children: "Ctrl+d \u663e\u793a\u8c03\u8bd5\u4fe1\u606f"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -10178,7 +10175,7 @@ function SkillPermissionRequest(props) {
   const options = import_react28.useMemo(() => {
     const baseOptions = [
       {
-        label: "Yes",
+        label: "\u662f",
         value: "yes",
         feedbackConfig: { type: "accept" }
       }
@@ -10188,7 +10185,7 @@ function SkillPermissionRequest(props) {
       alwaysAllowOptions.push({
         label: /* @__PURE__ */ jsx_dev_runtime33.jsxDEV(ThemedText, {
           children: [
-            "Yes, and don't ask again for ",
+            "\u662f\uff0c\u4e0d\u518d\u8be2\u95ee ",
             /* @__PURE__ */ jsx_dev_runtime33.jsxDEV(ThemedText, {
               bold: true,
               children: skill
@@ -10209,13 +10206,13 @@ function SkillPermissionRequest(props) {
         alwaysAllowOptions.push({
           label: /* @__PURE__ */ jsx_dev_runtime33.jsxDEV(ThemedText, {
             children: [
-              "Yes, and don't ask again for",
+              "\u662f\uff0c\u4e0d\u518d\u8be2\u95ee",
               " ",
               /* @__PURE__ */ jsx_dev_runtime33.jsxDEV(ThemedText, {
                 bold: true,
                 children: commandPrefix + ":*"
               }, undefined, false, undefined, this),
-              " commands in",
+              " \u547d\u4ee4\uff08\u9879\u76ee\uff1a",
               " ",
               /* @__PURE__ */ jsx_dev_runtime33.jsxDEV(ThemedText, {
                 bold: true,
@@ -10228,7 +10225,7 @@ function SkillPermissionRequest(props) {
       }
     }
     const noOption = {
-      label: "No",
+      label: "\u5426",
       value: "no",
       feedbackConfig: { type: "reject" }
     };
@@ -10342,7 +10339,7 @@ function SkillPermissionRequest(props) {
     workerBadge,
     children: [
       /* @__PURE__ */ jsx_dev_runtime33.jsxDEV(ThemedText, {
-        children: "Claude may use instructions, code, or files from this Skill."
+        children: "Claude \u53ef\u80fd\u4f7f\u7528\u6b64 Skill \u7684\u8bf4\u660e\u3001\u4ee3\u7801\u6216\u6587\u4ef6\u3002"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime33.jsxDEV(ThemedBox_default, {
         flexDirection: "column",
@@ -10410,7 +10407,7 @@ function WebFetchPermissionRequest({
   const options = import_react29.useMemo(() => {
     const result = [
       {
-        label: "Yes",
+        label: "\u662f",
         value: "yes"
       }
     ];
@@ -10418,7 +10415,7 @@ function WebFetchPermissionRequest({
       result.push({
         label: /* @__PURE__ */ jsx_dev_runtime34.jsxDEV(ThemedText, {
           children: [
-            "Yes, and don't ask again for ",
+            "\u662f\uff0c\u4e0d\u518d\u8be2\u95ee ",
             /* @__PURE__ */ jsx_dev_runtime34.jsxDEV(ThemedText, {
               bold: true,
               children: hostname
@@ -10431,7 +10428,7 @@ function WebFetchPermissionRequest({
     result.push({
       label: /* @__PURE__ */ jsx_dev_runtime34.jsxDEV(ThemedText, {
         children: [
-          "No, and tell Claude what to do differently ",
+          "\u5426\uff0c\u5e76\u544a\u8bc9 Claude \u8981\u505a\u4ec0\u4e48\u8c03\u6574 ",
           /* @__PURE__ */ jsx_dev_runtime34.jsxDEV(ThemedText, {
             bold: true,
             children: "(esc)"
@@ -10476,7 +10473,7 @@ function WebFetchPermissionRequest({
     }
   }
   return /* @__PURE__ */ jsx_dev_runtime34.jsxDEV(PermissionDialog, {
-    title: "Fetch",
+    title: "\u83b7\u53d6\u7f51\u9875",
     workerBadge,
     children: [
       /* @__PURE__ */ jsx_dev_runtime34.jsxDEV(ThemedBox_default, {
@@ -10504,7 +10501,7 @@ function WebFetchPermissionRequest({
             toolType: "tool"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime34.jsxDEV(ThemedText, {
-            children: "Do you want to allow Claude to fetch this content?"
+            children: "\u662f\u5426\u5141\u8bb8 Claude \u83b7\u53d6\u6b64\u5185\u5bb9\uff1f"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime34.jsxDEV(Select, {
             options,
@@ -10564,14 +10561,14 @@ function permissionComponentForTool(tool) {
 function getNotificationMessage(toolUseConfirm) {
   const toolName = toolUseConfirm.tool.userFacingName(toolUseConfirm.input);
   if (toolUseConfirm.tool === ExitPlanModeV2Tool) {
-    return "Claude Code needs your approval for the plan";
+    return "Claude Code \u9700\u8981\u60a8\u5ba1\u6279\u8ba1\u5212";
   }
   if (toolUseConfirm.tool === EnterPlanModeTool) {
-    return "Claude Code wants to enter plan mode";
+    return "Claude Code \u60f3\u8981\u8fdb\u5165\u8ba1\u5212\u6a21\u5f0f";
   }
   if (false) {}
   if (!toolName || toolName.trim() === "") {
-    return "Claude Code needs your attention";
+    return "Claude Code \u9700\u8981\u60a8\u7684\u5173\u6ce8";
   }
   return `Claude needs your permission to use ${toolName}`;
 }
@@ -11019,7 +11016,7 @@ function ElicitationFormDialog({
   const currentFieldIsText = currentField !== undefined && isTextField(currentField.schema) && !isEnumSchema(currentField.schema);
   const isEditingTextField = currentFieldIsText && !focusedButton;
   useRegisterOverlay("elicitation");
-  useNotifyAfterTimeout("Claude Code needs your input", "elicitation_dialog");
+  useNotifyAfterTimeout("Claude Code \u9700\u8981\u60a8\u7684\u8f93\u5165", "elicitation_dialog");
   const syncTextInput = import_react32.useCallback((fieldIndex) => {
     if (fieldIndex === undefined) {
       setTextInputValue("");
@@ -11567,7 +11564,7 @@ function ElicitationFormDialog({
                     /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(ThemedText, {
                       dimColor: true,
                       italic: true,
-                      children: "not set"
+                      children: "\u672a\u8bbe\u7f6e"
                     }, undefined, false, undefined, this)
                   ]
                 }, undefined, true, undefined, this);
@@ -11634,7 +11631,7 @@ function ElicitationFormDialog({
                     /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(ThemedText, {
                       dimColor: true,
                       italic: true,
-                      children: "not set"
+                      children: "\u672a\u8bbe\u7f6e"
                     }, undefined, false, undefined, this)
                   ]
                 }, undefined, true, undefined, this);
@@ -11656,7 +11653,7 @@ function ElicitationFormDialog({
               }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(ThemedText, {
                 dimColor: true,
                 italic: true,
-                children: "not set"
+                children: "\u672a\u8bbe\u7f6e"
               }, undefined, false, undefined, this);
             }
           } else if (isTextField(schema)) {
@@ -11665,7 +11662,7 @@ function ElicitationFormDialog({
                 value: textInputValue,
                 onChange: handleTextInputChange,
                 onSubmit: handleTextInputSubmit,
-                placeholder: `Type something\u2026`,
+                placeholder: `\u8f93\u5165\u5185\u5bb9\u2026`,
                 columns: Math.min(columns - 20, 60),
                 cursorOffset: textInputCursorOffset,
                 onChangeCursorOffset: setTextInputCursorOffset,
@@ -11679,7 +11676,7 @@ function ElicitationFormDialog({
               }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(ThemedText, {
                 dimColor: true,
                 italic: true,
-                children: "not set"
+                children: "\u672a\u8bbe\u7f6e"
               }, undefined, false, undefined, this);
             }
           } else {
@@ -11688,7 +11685,7 @@ function ElicitationFormDialog({
             }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(ThemedText, {
               dimColor: true,
               italic: true,
-              children: "not set"
+              children: "\u672a\u8bbe\u7f6e"
             }, undefined, false, undefined, this);
           }
           return /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(ThemedBox_default, {
@@ -11760,9 +11757,9 @@ ${message}`,
     isCancelActive: (!currentField || !!focusedButton) && !expandedAccordion,
     inputGuide: (exitState) => exitState.pending ? /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(ThemedText, {
       children: [
-        "Press ",
+        "\u6309 ",
         exitState.keyName,
-        " again to exit"
+        " \u518d\u6b21\u9000\u51fa"
       ]
     }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(Byline, {
       children: [
@@ -11770,33 +11767,33 @@ ${message}`,
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "cancel"
+          description: "\u53d6\u6d88"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(KeyboardShortcutHint, {
           shortcut: "\u2191\u2193",
-          action: "navigate"
+          action: "\u5bfc\u822a"
         }, undefined, false, undefined, this),
         currentField && /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Backspace",
-          action: "unset"
+          action: "\u6e05\u9664"
         }, undefined, false, undefined, this),
         currentField && currentField.schema.type === "boolean" && /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Space",
-          action: "toggle"
+          action: "\u5207\u6362"
         }, undefined, false, undefined, this),
         currentField && isEnumSchema(currentField.schema) && (expandedAccordion ? /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Space",
-          action: "select"
+          action: "\u9009\u62e9"
         }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(KeyboardShortcutHint, {
           shortcut: "\u2192",
-          action: "expand"
+          action: "\u5c55\u5f00"
         }, undefined, false, undefined, this)),
         currentField && isMultiSelectEnumSchema(currentField.schema) && (expandedAccordion ? /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Space",
-          action: "toggle"
+          action: "\u5207\u6362"
         }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(KeyboardShortcutHint, {
           shortcut: "\u2192",
-          action: "expand"
+          action: "\u5c55\u5f00"
         }, undefined, false, undefined, this))
       ]
     }, undefined, true, undefined, this),
@@ -11844,7 +11841,7 @@ function ElicitationURLDialog({
   const phaseRef = import_react32.useRef("prompt");
   const [focusedButton, setFocusedButton] = import_react32.useState("accept");
   const showCancel = waitingState?.showCancel ?? false;
-  useNotifyAfterTimeout("Claude Code needs your input", "elicitation_url_dialog");
+  useNotifyAfterTimeout("Claude Code \u9700\u8981\u60a8\u7684\u8f93\u5165", "elicitation_url_dialog");
   useRegisterOverlay("elicitation-url");
   phaseRef.current = phase;
   const onWaitingDismissRef = import_react32.useRef(onWaitingDismiss);
@@ -11933,9 +11930,9 @@ ${message}`,
       isCancelActive: true,
       inputGuide: (exitState) => exitState.pending ? /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(ThemedText, {
         children: [
-          "Press ",
+          "\u6309 ",
           exitState.keyName,
-          " again to exit"
+          " \u518d\u6b21\u9000\u51fa"
         ]
       }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(Byline, {
         children: [
@@ -11943,11 +11940,11 @@ ${message}`,
             action: "confirm:no",
             context: "Confirmation",
             fallback: "Esc",
-            description: "cancel"
+            description: "\u53d6\u6d88"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(KeyboardShortcutHint, {
             shortcut: "\\u2190\\u2192",
-            action: "switch"
+            action: "\u5207\u6362"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this),
@@ -11973,7 +11970,7 @@ ${message}`,
             children: /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(ThemedText, {
               dimColor: true,
               italic: true,
-              children: "Waiting for the server to confirm completion\u2026"
+              children: "\u7b49\u5f85\u670d\u52a1\u5668\u786e\u8ba4\u5b8c\u6210\u2026"
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(ThemedBox_default, {
@@ -12030,9 +12027,9 @@ ${message}`,
     isCancelActive: true,
     inputGuide: (exitState) => exitState.pending ? /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(ThemedText, {
       children: [
-        "Press ",
+        "\u6309 ",
         exitState.keyName,
-        " again to exit"
+        " \u518d\u6b21\u9000\u51fa"
       ]
     }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(Byline, {
       children: [
@@ -12040,11 +12037,11 @@ ${message}`,
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "cancel"
+          description: "\u53d6\u6d88"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime38.jsxDEV(KeyboardShortcutHint, {
           shortcut: "\\u2190\\u2192",
-          action: "switch"
+          action: "\u5207\u6362"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
@@ -13164,7 +13161,7 @@ function NotificationContent({
         children: /* @__PURE__ */ jsx_dev_runtime47.jsxDEV(ThemedText, {
           dimColor: true,
           wrap: "truncate",
-          children: "Now using extra usage"
+          children: "\u6b63\u5728\u4f7f\u7528\u989d\u5916\u7528\u91cf"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       apiKeyHelperSlow && /* @__PURE__ */ jsx_dev_runtime47.jsxDEV(ThemedBox_default, {
@@ -13199,7 +13196,7 @@ function NotificationContent({
         children: /* @__PURE__ */ jsx_dev_runtime47.jsxDEV(ThemedText, {
           color: "warning",
           wrap: "truncate",
-          children: "Debug mode"
+          children: "\u8c03\u8bd5\u6a21\u5f0f"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       apiKeyStatus !== "invalid" && apiKeyStatus !== "missing" && verbose && /* @__PURE__ */ jsx_dev_runtime47.jsxDEV(ThemedBox_default, {
@@ -13307,7 +13304,7 @@ function useArrowKeyHistory(onSetInput, currentInput, pastedContents, setCursorO
           action: "history:search",
           context: "Global",
           fallback: "ctrl+r",
-          description: "search history"
+          description: "\u641c\u7d22\u5386\u53f2"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       priority: "immediate",
@@ -14943,7 +14940,7 @@ function useTypeahead({
           members.push({
             id: `dm-${t.name}`,
             displayText: `@${t.name}`,
-            description: "send message"
+            description: "\u53d1\u9001\u6d88\u606f"
           });
         }
       }
@@ -14956,7 +14953,7 @@ function useTypeahead({
         members.push({
           id: `dm-${name}`,
           displayText: `@${name}`,
-          description: status ? `send message \xB7 ${status}` : "send message"
+          description: status ? `\u53d1\u9001\u6d88\u606f \xb7 ${status}` : "\u53d1\u9001\u6d88\u606f"
         });
       }
       if (members.length > 0) {
@@ -15529,9 +15526,9 @@ function useTypeahead({
           jsx: /* @__PURE__ */ jsx_dev_runtime49.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Use ",
+              "\u4f7f\u7528 ",
               thinkingToggleShortcut,
-              " to toggle thinking"
+              " \u5207\u6362\u601d\u8003\u6a21\u5f0f"
             ]
           }, undefined, true, undefined, this),
           priority: "immediate",
@@ -15805,7 +15802,7 @@ function BridgeDialog({ onDone }) {
   const contextSuffix = contextParts.length > 0 ? " \xB7 " + contextParts.join(" \xB7 ") : "";
   const footerText = error ? FAILED_FOOTER_TEXT : displayUrl ? sessionActive ? buildActiveFooterText(displayUrl) : buildIdleFooterText(displayUrl) : undefined;
   return /* @__PURE__ */ jsx_dev_runtime51.jsxDEV(Dialog, {
-    title: "Remote Control",
+    title: "\u8fdc\u7a0b\u63a7\u5236",
     onCancel: onDone,
     hideInputGuide: true,
     children: /* @__PURE__ */ jsx_dev_runtime51.jsxDEV(ThemedBox_default, {
@@ -15863,7 +15860,7 @@ function BridgeDialog({ onDone }) {
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime51.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "d to disconnect \xB7 space for QR code \xB7 Enter/Esc to close"
+          children: "d \u65ad\u5f00\u8fde\u63a5 \u00b7 space \u663e\u793a\u4e8c\u7ef4\u7801 \u00b7 Enter/Esc \u5173\u95ed"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this)
@@ -16125,12 +16122,12 @@ function ThinkingToggle({
   const options = [
     {
       value: "true",
-      label: "Enabled",
+      label: "\u5df2\u542f\u7528",
       description: "Claude will think before responding"
     },
     {
       value: "false",
-      label: "Disabled",
+      label: "\u5df2\u7981\u7528",
       description: "Claude will respond without extended thinking"
     }
   ];
@@ -16167,11 +16164,11 @@ function ThinkingToggle({
               /* @__PURE__ */ jsx_dev_runtime57.jsxDEV(ThemedText, {
                 color: "remember",
                 bold: true,
-                children: "Toggle thinking mode"
+                children: "\u5207\u6362\u601d\u8003\u6a21\u5f0f"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime57.jsxDEV(ThemedText, {
                 dimColor: true,
-                children: "Enable or disable thinking for this session."
+                children: "\u4e3a\u672c\u4f1a\u8bdd\u5f00\u542f\u6216\u5173\u95ed\u601d\u8003\u6a21\u5f0f\u3002"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this),
@@ -16182,11 +16179,11 @@ function ThinkingToggle({
             children: [
               /* @__PURE__ */ jsx_dev_runtime57.jsxDEV(ThemedText, {
                 color: "warning",
-                children: "Changing thinking mode mid-conversation will increase latency and may reduce quality. For best results, set this at the start of a session."
+                children: "\u5bf9\u8bdd\u4e2d\u9014\u5207\u6362\u601d\u8003\u6a21\u5f0f\u4f1a\u589e\u52a0\u5ef6\u8fdf\u5e76\u53ef\u80fd\u964d\u4f4e\u8d28\u91cf\u3002\u5efa\u8bae\u5728\u4f1a\u8bdd\u5f00\u59cb\u65f6\u8bbe\u7f6e\u3002"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime57.jsxDEV(ThemedText, {
                 color: "warning",
-                children: "Do you want to proceed?"
+                children: "\u662f\u5426\u7ee7\u7eed\uff1f"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime57.jsxDEV(ThemedBox_default, {
@@ -16208,34 +16205,34 @@ function ThinkingToggle({
         italic: true,
         children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime57.jsxDEV(jsx_dev_runtime57.Fragment, {
           children: [
-            "Press ",
+            "\u6309 ",
             exitState.keyName,
-            " again to exit"
+            " \u518d\u6b21\u9000\u51fa"
           ]
         }, undefined, true, undefined, this) : confirmationPending !== null ? /* @__PURE__ */ jsx_dev_runtime57.jsxDEV(Byline, {
           children: [
             /* @__PURE__ */ jsx_dev_runtime57.jsxDEV(KeyboardShortcutHint, {
               shortcut: "Enter",
-              action: "confirm"
+              action: "\u786e\u8ba4"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime57.jsxDEV(ConfigurableShortcutHint, {
               action: "confirm:no",
               context: "Confirmation",
               fallback: "Esc",
-              description: "cancel"
+              description: "\u53d6\u6d88"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime57.jsxDEV(Byline, {
           children: [
             /* @__PURE__ */ jsx_dev_runtime57.jsxDEV(KeyboardShortcutHint, {
               shortcut: "Enter",
-              action: "confirm"
+              action: "\u786e\u8ba4"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime57.jsxDEV(ConfigurableShortcutHint, {
               action: "confirm:no",
               context: "Confirmation",
               fallback: "Esc",
-              description: "exit"
+              description: "\u9000\u51fa"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this)
@@ -16461,20 +16458,20 @@ function TeamDetailView({
   selectedIndex,
   onCancel
 }) {
-  const subtitle = `${teammates.length} ${teammates.length === 1 ? "teammate" : "teammates"}`;
+  const subtitle = `${teammates.length} \u540d\u961f\u53cb`;
   const supportsHideShow = getCachedBackend()?.supportsHideShow ?? false;
   const cycleModeShortcut = useShortcutDisplay("confirm:cycleMode", "Confirmation", "shift+tab");
   return /* @__PURE__ */ jsx_dev_runtime58.jsxDEV(jsx_dev_runtime58.Fragment, {
     children: [
       /* @__PURE__ */ jsx_dev_runtime58.jsxDEV(Dialog, {
-        title: `Team ${teamName}`,
+        title: `\u961f\u4f0d ${teamName}`,
         subtitle,
         onCancel,
         color: "background",
         hideInputGuide: true,
         children: teammates.length === 0 ? /* @__PURE__ */ jsx_dev_runtime58.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "No teammates"
+          children: "\u65e0\u961f\u53cb"
         }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime58.jsxDEV(ThemedBox_default, {
           flexDirection: "column",
           children: teammates.map((teammate, index) => /* @__PURE__ */ jsx_dev_runtime58.jsxDEV(TeammateListItem, {
@@ -16491,11 +16488,11 @@ function TeamDetailView({
             figures_default.arrowUp,
             "/",
             figures_default.arrowDown,
-            " select \xB7 Enter view \xB7 k kill \xB7 s shutdown \xB7 p prune idle",
-            supportsHideShow && " \xB7 h hide/show \xB7 H hide/show all",
+            " \u9009\u62e9 \xb7 Enter \u67e5\u770b \xb7 k \u7ec8\u6b62 \xb7 s \u5173\u673a \xb7 p \u6e05\u7406\u7a7a\u95f2",
+            supportsHideShow && " \xb7 h \u9690\u85cf/\u663e\u793a \xb7 H \u5168\u90e8\u9690\u85cf/\u663e\u793a",
             " \xB7 ",
             cycleModeShortcut,
-            " sync cycle modes for all \xB7 Esc close"
+            " \u540c\u6b65\u5207\u6362\u6240\u6709\u6a21\u5f0f \xb7 Esc \u5173\u95ed"
           ]
         }, undefined, true, undefined, this)
       }, undefined, false, undefined, this)
@@ -16518,11 +16515,11 @@ function TeammateListItem({
       isSelected ? figures_default.pointer + " " : "  ",
       teammate.isHidden && /* @__PURE__ */ jsx_dev_runtime58.jsxDEV(ThemedText, {
         dimColor: true,
-        children: "[hidden] "
+        children: "[\u9690\u85cf] "
       }, undefined, false, undefined, this),
       isIdle && /* @__PURE__ */ jsx_dev_runtime58.jsxDEV(ThemedText, {
         dimColor: true,
-        children: "[idle] "
+        children: "[\u7a7a\u95f2] "
       }, undefined, false, undefined, this),
       modeSymbol && /* @__PURE__ */ jsx_dev_runtime58.jsxDEV(ThemedText, {
         color: modeColor,
@@ -16574,7 +16571,7 @@ function TeammateDetailView({
   if (teammate.model)
     subtitleParts.push(teammate.model);
   if (workingPath) {
-    subtitleParts.push(teammate.worktreePath ? `worktree: ${workingPath}` : workingPath);
+    subtitleParts.push(teammate.worktreePath ? `\u5de5\u4f5c\u6811\uff1a ${workingPath}` : workingPath);
   }
   const subtitle = subtitleParts.join(" \xB7 ") || undefined;
   const mode = teammate.mode ? permissionModeFromString(teammate.mode) : "default";
@@ -16609,7 +16606,7 @@ function TeammateDetailView({
             children: [
               /* @__PURE__ */ jsx_dev_runtime58.jsxDEV(ThemedText, {
                 bold: true,
-                children: "Tasks"
+                children: "\u4efb\u52a1"
               }, undefined, false, undefined, this),
               teammateTasks.map((task) => /* @__PURE__ */ jsx_dev_runtime58.jsxDEV(ThemedText, {
                 color: task.status === "completed" ? "success" : undefined,
@@ -16626,14 +16623,14 @@ function TeammateDetailView({
             children: [
               /* @__PURE__ */ jsx_dev_runtime58.jsxDEV(ThemedText, {
                 bold: true,
-                children: "Prompt"
+                children: "\u63d0\u793a\u8bcd"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime58.jsxDEV(ThemedText, {
                 children: [
                   promptExpanded ? teammate.prompt : truncateToWidth(teammate.prompt, 80),
                   stringWidth(teammate.prompt) > 80 && !promptExpanded && /* @__PURE__ */ jsx_dev_runtime58.jsxDEV(ThemedText, {
                     dimColor: true,
-                    children: " (p to expand)"
+                    children: " \uff08p \u5c55\u5f00\uff09"
                   }, undefined, false, undefined, this)
                 ]
               }, undefined, true, undefined, this)
@@ -16647,11 +16644,11 @@ function TeammateDetailView({
           dimColor: true,
           children: [
             figures_default.arrowLeft,
-            " back \xB7 Esc close \xB7 k kill \xB7 s shutdown",
-            getCachedBackend()?.supportsHideShow && " \xB7 h hide/show",
+            " \u8fd4\u56de \xb7 Esc \u5173\u95ed \xb7 k \u7ec8\u6b62 \xb7 s \u5173\u673a",
+            getCachedBackend()?.supportsHideShow && " \xb7 h \u663e\u793a/\u9690\u85cf",
             " \xB7 ",
             cycleModeShortcut,
-            " cycle mode"
+            " \u5207\u6362\u6a21\u5f0f"
           ]
         }, undefined, true, undefined, this)
       }, undefined, false, undefined, this)
@@ -18587,7 +18584,7 @@ function BackgroundTaskStatus({
             " \xB7 ",
             /* @__PURE__ */ jsx_dev_runtime61.jsxDEV(KeyboardShortcutHint, {
               shortcut: "shift + \u2193",
-              action: "expand"
+              action: "\u5c55\u5f00"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this)
@@ -18741,11 +18738,11 @@ function TeamStatus({
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime62.jsxDEV(ThemedText, {
         dimColor: true,
-        children: "Enter to view"
+        children: "Enter \u67e5\u770b"
       }, undefined, false, undefined, this)
     ]
   }, undefined, true, undefined, this) : null;
-  const statusText = `${totalTeammates} ${totalTeammates === 1 ? "teammate" : "teammates"}`;
+  const statusText = `${totalTeammates} \u540d\u961f\u53cb`;
   return /* @__PURE__ */ jsx_dev_runtime62.jsxDEV(jsx_dev_runtime62.Fragment, {
     children: [
       /* @__PURE__ */ jsx_dev_runtime62.jsxDEV(ThemedText, {
@@ -18782,7 +18779,7 @@ function HistorySearchInput({
     children: [
       /* @__PURE__ */ jsx_dev_runtime63.jsxDEV(ThemedText, {
         dimColor: true,
-        children: historyFailedMatch ? "no matching prompt:" : "search prompts:"
+        children: historyFailedMatch ? "\u65e0\u5339\u914d\u63d0\u793a\uff1a" : "\u641c\u7d22\u63d0\u793a\uff1a"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime63.jsxDEV(TextInput, {
         value,
@@ -19001,16 +18998,16 @@ function PromptInputFooterLeftSide({
     return /* @__PURE__ */ jsx_dev_runtime64.jsxDEV(ThemedText, {
       dimColor: true,
       children: [
-        "Press ",
+        "\u6309 ",
         exitMessage.key,
-        " again to exit"
+        " \u518d\u6b21\u9000\u51fa"
       ]
     }, "exit-message", true, undefined, this);
   }
   if (isPasting) {
     return /* @__PURE__ */ jsx_dev_runtime64.jsxDEV(ThemedText, {
       dimColor: true,
-      children: "Pasting text\u2026"
+      children: "\u6b63\u5728\u7c98\u8d34\u6587\u672c\u2026"
     }, "pasting-message", false, undefined, this);
   }
   const showVim = isVimModeEnabled() && vimMode === "INSERT" && !isSearching;
@@ -19122,14 +19119,14 @@ function ModeIndicator({
       permissionModeSymbol(currentMode),
       " ",
       permissionModeTitle(currentMode).toLowerCase(),
-      " on",
+      " \u5df2\u5f00\u542f",
       shouldShowModeHint && /* @__PURE__ */ jsx_dev_runtime64.jsxDEV(ThemedText, {
         dimColor: true,
         children: [
           " ",
           /* @__PURE__ */ jsx_dev_runtime64.jsxDEV(KeyboardShortcutHint, {
             shortcut: modeCycleShortcut,
-            action: "cycle",
+            action: "\u5207\u6362",
             parens: true
           }, undefined, false, undefined, this)
         ]
@@ -19144,7 +19141,7 @@ function ModeIndicator({
           color: "ide",
           children: [
             figures_default.circleDouble,
-            " remote"
+            " \u8fdc\u7a0b"
           ]
         }, undefined, true, undefined, this)
       }, "remote", false, undefined, this)
@@ -19174,7 +19171,7 @@ function ModeIndicator({
       dimColor: true,
       children: /* @__PURE__ */ jsx_dev_runtime64.jsxDEV(KeyboardShortcutHint, {
         shortcut: escShortcut,
-        action: "return to team lead"
+        action: "\u8fd4\u56de\u961f\u957f"
       }, undefined, false, undefined, this)
     }, "esc-return", false, undefined, this));
   } else if (hasNextTick) {
@@ -19219,7 +19216,7 @@ function ModeIndicator({
   if (parts.length === 0 && !tasksPart && !modePart && showHint) {
     parts.push(/* @__PURE__ */ jsx_dev_runtime64.jsxDEV(ThemedText, {
       dimColor: true,
-      children: "? for shortcuts"
+      children: "? \u5feb\u6377\u952e"
     }, "shortcuts-hint", false, undefined, this));
   }
   const copyOnSelect = getGlobalConfig().copyOnSelect ?? true;
@@ -19235,13 +19232,13 @@ function ModeIndicator({
         children: [
           !copyOnSelect && /* @__PURE__ */ jsx_dev_runtime64.jsxDEV(KeyboardShortcutHint, {
             shortcut: "ctrl+c",
-            action: "copy"
+            action: "\u590d\u5236"
           }, undefined, false, undefined, this),
           isXtermJs() && (altClickFailed ? /* @__PURE__ */ jsx_dev_runtime64.jsxDEV(ThemedText, {
             children: "set macOptionClickForcesSelection in VS Code settings"
           }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime64.jsxDEV(KeyboardShortcutHint, {
             shortcut: isMac ? "option+click" : "shift+click",
-            action: "native select"
+            action: "\u6846\u9009"
           }, undefined, false, undefined, this))
         ]
       }, undefined, true, undefined, this)
@@ -19250,9 +19247,9 @@ function ModeIndicator({
     parts.push(/* @__PURE__ */ jsx_dev_runtime64.jsxDEV(ThemedText, {
       dimColor: true,
       children: [
-        "hold ",
+        "\u6309\u4f4f ",
         voiceKeyShortcut,
-        " to speak"
+        " \u8bf4\u8bdd"
       ]
     }, "voice-hint", true, undefined, this));
   }
@@ -19261,10 +19258,10 @@ function ModeIndicator({
       dimColor: true,
       children: tasksSelected ? /* @__PURE__ */ jsx_dev_runtime64.jsxDEV(KeyboardShortcutHint, {
         shortcut: "Enter",
-        action: "view tasks"
+        action: "\u67e5\u770b\u4efb\u52a1"
       }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime64.jsxDEV(KeyboardShortcutHint, {
         shortcut: "\u2193",
-        action: "manage"
+        action: "\u7ba1\u7406"
       }, undefined, false, undefined, this)
     }, "manage-tasks", false, undefined, this));
   }
@@ -19330,7 +19327,7 @@ function getSpinnerHintParts(isLoading, escShortcut, todosShortcut, killAgentsSh
         dimColor: true,
         children: /* @__PURE__ */ jsx_dev_runtime64.jsxDEV(KeyboardShortcutHint, {
           shortcut: escShortcut,
-          action: "interrupt"
+          action: "\u4e2d\u65ad"
         }, undefined, false, undefined, this)
       }, "esc", false, undefined, this)
     ] : [],
@@ -19339,7 +19336,7 @@ function getSpinnerHintParts(isLoading, escShortcut, todosShortcut, killAgentsSh
         dimColor: true,
         children: /* @__PURE__ */ jsx_dev_runtime64.jsxDEV(KeyboardShortcutHint, {
           shortcut: killAgentsShortcut,
-          action: "stop agents"
+          action: "\u505c\u6b62 agent"
         }, undefined, false, undefined, this)
       }, "kill-agents", false, undefined, this)
     ] : [],
@@ -19527,7 +19524,7 @@ function BridgeStatusIndicator({ bridgeSelected }) {
       status.label,
       bridgeSelected && /* @__PURE__ */ jsx_dev_runtime65.jsxDEV(ThemedText, {
         dimColor: true,
-        children: " \xB7 Enter to view"
+        children: " \u00b7 Enter \u67e5\u770b"
       }, undefined, false, undefined, this)
     ]
   }, undefined, true, undefined, this);
@@ -19670,7 +19667,7 @@ function PipeStatusInline() {
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime65.jsxDEV(ThemedText, {
             color: "warning",
-            children: "\u2191\u2193 move Space select \u2190/\u2192 or m route Enter/Esc close Shift+\u2193 toggle"
+            children: "\u2191\u2193 \u79fb\u52a8 Space \u9009\u62e9 \u2190/\u2192 \u6216 m \u8def\u7531 Enter/Esc \u5173\u95ed Shift+\u2193 \u5207\u6362"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this),
@@ -19710,7 +19707,7 @@ function PipeStatusInline() {
         paddingLeft: 2,
         children: /* @__PURE__ */ jsx_dev_runtime65.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "No other pipes found. Start another instance."
+          children: "\u672a\u627e\u5230\u5176\u4ed6\u7ba1\u9053\u3002\u8bf7\u542f\u52a8\u53e6\u4e00\u5b9e\u4f8b\u3002"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this)
     ]
@@ -20001,7 +19998,7 @@ function usePromptInputPlaceholder({
       return `Message @${displayName}\u2026`;
     }
     if (queuedCommands.some(isQueuedCommandEditable) && (getGlobalConfig().queuedCommandUpHintCount || 0) < NUM_TIMES_QUEUE_HINT_SHOWN) {
-      return "Press up to edit queued messages";
+      return "\u6309 \u2191 \u7f16\u8f91\u961f\u5217\u6d88\u606f";
     }
     if (submitCount < 1 && promptSuggestionEnabled && !proactiveModule2?.isProactiveActive()) {
       return getExampleCommandFromCache();
@@ -20646,13 +20643,13 @@ function PromptInput({
           jsx: /* @__PURE__ */ jsx_dev_runtime69.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Tip:",
+              "\u63d0\u793a\uff1a",
               " ",
               /* @__PURE__ */ jsx_dev_runtime69.jsxDEV(ConfigurableShortcutHint, {
                 action: "chat:stash",
                 context: "Chat",
                 fallback: "ctrl+s",
-                description: "stash"
+                description: "\u6682\u5b58"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this),
@@ -21759,7 +21756,7 @@ function PromptInput({
       children: /* @__PURE__ */ jsx_dev_runtime69.jsxDEV(ThemedText, {
         dimColor: true,
         italic: true,
-        children: "Save and close editor to continue..."
+        children: "\u4fdd\u5b58\u5e76\u5173\u95ed\u7f16\u8f91\u5668\u4ee5\u7ee7\u7eed..."
       }, undefined, false, undefined, this)
     }, undefined, false, undefined, this);
   }
@@ -21780,7 +21777,7 @@ function PromptInput({
         marginLeft: 2,
         children: /* @__PURE__ */ jsx_dev_runtime69.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Waiting for permission\u2026"
+          children: "\u7b49\u5f85\u6743\u9650\u786e\u8ba4\u2026"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime69.jsxDEV(PromptInputStashNotice, {
@@ -22039,7 +22036,7 @@ function convertStreamEvent(msg) {
 }
 function convertResultMessage(msg) {
   const isError = msg.subtype !== "success";
-  const content = isError ? msg.errors?.join(", ") || "Unknown error" : "Session completed successfully";
+  const content = isError ? msg.errors?.join(", ") || "\u672a\u77e5\u9519\u8bef" : "\u4f1a\u8bdd\u6210\u529f\u5b8c\u6210";
   return {
     type: "system",
     subtype: "informational",
@@ -22353,7 +22350,7 @@ function useRemoteSession({
           onReject(feedback) {
             const response = {
               behavior: "deny",
-              message: feedback ?? "User denied permission"
+              message: feedback ?? "\u7528\u6237\u62d2\u7edd\u4e86\u6743\u9650"
             };
             manager.respondToPermissionRequest(requestId, response);
             setToolUseConfirmQueue((queue) => queue.filter((item) => item.toolUseID !== request.tool_use_id));
@@ -22693,7 +22690,7 @@ function useDirectConnect({
           onReject(feedback) {
             const response = {
               behavior: "deny",
-              message: feedback ?? "User denied permission"
+              message: feedback ?? "\u7528\u6237\u62d2\u7edd\u4e86\u6743\u9650"
             };
             manager.respondToPermissionRequest(requestId, response);
             setToolUseConfirmQueue((queue) => queue.filter((item) => item.toolUseID !== request.tool_use_id));
@@ -22835,7 +22832,7 @@ function useSSHSession({
           onReject(feedback) {
             manager.respondToPermissionRequest(requestId, {
               behavior: "deny",
-              message: feedback ?? "User denied permission"
+              message: feedback ?? "\u7528\u6237\u62d2\u7edd\u4e86\u6743\u9650"
             });
             setToolUseConfirmQueue((q) => q.filter((i) => i.toolUseID !== request.tool_use_id));
           },
@@ -23159,7 +23156,7 @@ var inputToResponse = {
   "3": "good"
 };
 var isValidResponseInput = (input) => RESPONSE_INPUTS.includes(input);
-var DEFAULT_MESSAGE = "How is Claude doing this session? (optional)";
+var DEFAULT_MESSAGE = "\u672c\u6b21\u4f1a\u8bdd Claude \u8868\u73b0\u5982\u4f55\uff1f\uff08\u53ef\u9009\uff09";
 function FeedbackSurveyView({
   onSelect,
   inputValue,
@@ -23199,7 +23196,7 @@ function FeedbackSurveyView({
                   color: "ansi:cyan",
                   children: "1"
                 }, undefined, false, undefined, this),
-                ": Bad"
+                ": \u5dee"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this),
@@ -23211,7 +23208,7 @@ function FeedbackSurveyView({
                   color: "ansi:cyan",
                   children: "2"
                 }, undefined, false, undefined, this),
-                ": Fine"
+                ": \u8fd8\u884c"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this),
@@ -23223,7 +23220,7 @@ function FeedbackSurveyView({
                   color: "ansi:cyan",
                   children: "3"
                 }, undefined, false, undefined, this),
-                ": Good"
+                ": \u597d"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this),
@@ -23234,7 +23231,7 @@ function FeedbackSurveyView({
                   color: "ansi:cyan",
                   children: "0"
                 }, undefined, false, undefined, this),
-                ": Dismiss"
+                ": \u5173\u95ed"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this)
@@ -23336,7 +23333,7 @@ function SkillImprovementSurveyView({
                   color: "ansi:cyan",
                   children: "1"
                 }, undefined, false, undefined, this),
-                ": Apply"
+                ": \u5e94\u7528"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this),
@@ -23348,7 +23345,7 @@ function SkillImprovementSurveyView({
                   color: "ansi:cyan",
                   children: "0"
                 }, undefined, false, undefined, this),
-                ": Dismiss"
+                ": \u5173\u95ed"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this)
@@ -23913,7 +23910,7 @@ function CancelRequestHandler(props) {
     if (!hasRunningAgents) {
       addNotification({
         key: "kill-agents-none",
-        text: "No background agents running",
+        text: "\u65e0\u540e\u53f0 agent \u5728\u8fd0\u884c",
         priority: "immediate",
         timeoutMs: 2000
       });
@@ -24620,7 +24617,7 @@ function handleInteractivePermission(params, resolve) {
       if (bridgeCallbacks && bridgeRequestId) {
         bridgeCallbacks.sendResponse(bridgeRequestId, {
           behavior: "deny",
-          message: feedback ?? "User denied permission"
+          message: feedback ?? "\u7528\u6237\u62d2\u7edd\u4e86\u6743\u9650"
         });
         bridgeCallbacks.cancelRequest(bridgeRequestId);
       }
@@ -25528,7 +25525,7 @@ function TeammateViewHeader() {
         /* @__PURE__ */ jsx_dev_runtime73.jsxDEV(ThemedBox_default, {
           children: [
             /* @__PURE__ */ jsx_dev_runtime73.jsxDEV(ThemedText, {
-              children: "Viewing "
+              children: "\u6b63\u5728\u67e5\u770b "
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime73.jsxDEV(ThemedText, {
               color: nameColor,
@@ -25544,7 +25541,7 @@ function TeammateViewHeader() {
                 " \xB7 ",
                 /* @__PURE__ */ jsx_dev_runtime73.jsxDEV(KeyboardShortcutHint, {
                   shortcut: "esc",
-                  action: "return"
+                  action: "\u8fd4\u56de"
                 }, undefined, false, undefined, this)
               ]
             }, undefined, true, undefined, this)
@@ -26807,18 +26804,18 @@ function RemoteCallout({ onDone }) {
   }, []);
   const options = [
     {
-      label: "Enable Remote Control for this session",
-      description: "Opens a secure connection to claude.ai.",
+      label: "\u4e3a\u672c\u4f1a\u8bdd\u542f\u7528\u8fdc\u7a0b\u63a7\u5236",
+      description: "\u5efa\u7acb\u5230 claude.ai \u7684\u5b89\u5168\u8fde\u63a5\u3002",
       value: "enable"
     },
     {
-      label: "Never mind",
-      description: "You can always enable it later with /remote-control.",
+      label: "\u7b97\u4e86",
+      description: "\u53ef\u968f\u65f6\u7528 /remote-control \u518d\u542f\u7528\u3002",
       value: "dismiss"
     }
   ];
   return /* @__PURE__ */ jsx_dev_runtime76.jsxDEV(PermissionDialog, {
-    title: "Remote Control",
+    title: "\u8fdc\u7a0b\u63a7\u5236",
     children: /* @__PURE__ */ jsx_dev_runtime76.jsxDEV(ThemedBox_default, {
       flexDirection: "column",
       paddingX: 2,
@@ -26829,13 +26826,13 @@ function RemoteCallout({ onDone }) {
           flexDirection: "column",
           children: [
             /* @__PURE__ */ jsx_dev_runtime76.jsxDEV(ThemedText, {
-              children: "Remote Control lets you access this CLI session from the web (claude.ai/code) or the Claude app, so you can pick up where you left off on any device."
+              children: "\u8fdc\u7a0b\u63a7\u5236\u53ef\u8ba9\u4f60\u4ece\u7f51\u9875\uff08claude.ai/code\uff09\u6216 Claude \u5e94\u7528\u8bbf\u95ee\u6b64 CLI \u4f1a\u8bdd\uff0c\u5728\u4efb\u610f\u8bbe\u5907\u4e0a\u7ee7\u7eed\u3002"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime76.jsxDEV(ThemedText, {
               children: " "
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime76.jsxDEV(ThemedText, {
-              children: "You can disconnect remote access anytime by running /remote-control again."
+              children: "\u968f\u65f6\u53ef\u518d\u6b21\u8fd0\u884c /remote-control \u65ad\u5f00\u8fdc\u7a0b\u8bbf\u95ee\u3002"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
@@ -27600,7 +27597,7 @@ function TranscriptSharePrompt({
           }, undefined, true, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime77.jsxDEV(ThemedText, {
             bold: true,
-            children: "Can Anthropic look at your session transcript to help us improve Claude Code?"
+            children: "Anthropic \u662f\u5426\u53ef\u4ee5\u67e5\u770b\u4f1a\u8bdd\u8bb0\u5f55\u4ee5\u6539\u8fdb Claude Code\uff1f"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this),
@@ -27608,7 +27605,7 @@ function TranscriptSharePrompt({
         marginLeft: 2,
         children: /* @__PURE__ */ jsx_dev_runtime77.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Learn more: https://code.claude.com/docs/en/data-usage#session-quality-surveys"
+          children: "\u4e86\u89e3\u66f4\u591a\uff1a https://code.claude.com/docs/en/data-usage#session-quality-surveys"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime77.jsxDEV(ThemedBox_default, {
@@ -27622,7 +27619,7 @@ function TranscriptSharePrompt({
                   color: "ansi:cyan",
                   children: "1"
                 }, undefined, false, undefined, this),
-                ": Yes"
+                ": \u662f"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this),
@@ -27634,7 +27631,7 @@ function TranscriptSharePrompt({
                   color: "ansi:cyan",
                   children: "2"
                 }, undefined, false, undefined, this),
-                ": No"
+                ": \u5426"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this),
@@ -27645,7 +27642,7 @@ function TranscriptSharePrompt({
                   color: "ansi:cyan",
                   children: "3"
                 }, undefined, false, undefined, this),
-                ": Don't ask again"
+                ": \u4e0d\u518d\u8be2\u95ee"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this)
@@ -27685,7 +27682,7 @@ function FeedbackSurvey({
         color: "success",
         children: [
           "\u2713",
-          " Thanks for sharing your transcript!"
+          " \u611f\u8c22\u5206\u4eab\u4f1a\u8bdd\u8bb0\u5f55\uff01"
         ]
       }, undefined, true, undefined, this)
     }, undefined, false, undefined, this);
@@ -27696,7 +27693,7 @@ function FeedbackSurvey({
       children: /* @__PURE__ */ jsx_dev_runtime78.jsxDEV(ThemedText, {
         dimColor: true,
         children: [
-          "Sharing transcript",
+          "\u6b63\u5728\u5206\u4eab\u4f1a\u8bdd\u8bb0\u5f55",
           "\u2026"
         ]
       }, undefined, true, undefined, this)
@@ -27754,29 +27751,29 @@ function FeedbackSurveyThanks({
     children: [
       /* @__PURE__ */ jsx_dev_runtime78.jsxDEV(ThemedText, {
         color: "success",
-        children: "Thanks for the feedback!"
+        children: "\u611f\u8c22\u53cd\u9988\uff01"
       }, undefined, false, undefined, this),
       showFollowUp ? /* @__PURE__ */ jsx_dev_runtime78.jsxDEV(ThemedText, {
         dimColor: true,
         children: [
-          "(Optional) Press [",
+          "\uff08\u53ef\u9009\uff09\u6309 [",
           /* @__PURE__ */ jsx_dev_runtime78.jsxDEV(ThemedText, {
             color: "ansi:cyan",
             children: "1"
           }, undefined, false, undefined, this),
-          "] to tell us what went well ",
+          "] \u544a\u8bc9\u6211\u4eec\u54ea\u91cc\u505a\u5f97\u597d ",
           " \xB7 ",
           feedbackCommand
         ]
       }, undefined, true, undefined, this) : lastResponse === "bad" ? /* @__PURE__ */ jsx_dev_runtime78.jsxDEV(ThemedText, {
         dimColor: true,
-        children: "Use /issue to report model behavior issues."
+        children: "\u4f7f\u7528 /issue \u62a5\u544a\u6a21\u578b\u884c\u4e3a\u95ee\u9898\u3002"
       }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime78.jsxDEV(ThemedText, {
         dimColor: true,
         children: [
-          "Use ",
+          "\u4f7f\u7528 ",
           feedbackCommand,
-          " to share detailed feedback anytime."
+          " \u968f\u65f6\u5206\u4eab\u8be6\u7ec6\u53cd\u9988\u3002"
         ]
       }, undefined, true, undefined, this)
     ]
@@ -28042,7 +28039,7 @@ function useChromeExtensionNotification() {
         key: "chrome-requires-subscription",
         jsx: /* @__PURE__ */ jsx_dev_runtime79.jsxDEV(ThemedText, {
           color: "error",
-          children: "Claude in Chrome requires a claude.ai subscription"
+          children: "Claude in Chrome \u9700\u8981 claude.ai \u8ba2\u9605"
         }, undefined, false, undefined, this),
         priority: "immediate",
         timeoutMs: 5000
@@ -28054,7 +28051,7 @@ function useChromeExtensionNotification() {
         key: "chrome-extension-not-detected",
         jsx: /* @__PURE__ */ jsx_dev_runtime79.jsxDEV(ThemedText, {
           color: "warning",
-          children: "Chrome extension not detected \xB7 https://claude.ai/chrome to install"
+          children: "\u672a\u68c0\u6d4b\u5230 Chrome \u6269\u5c55 \xb7 https://claude.ai/chrome \u5b89\u88c5"
         }, undefined, false, undefined, this),
         priority: "immediate",
         timeoutMs: 3000
@@ -28348,7 +28345,7 @@ function useOfficialMarketplaceNotification() {
         key: "marketplace-config-save-failed",
         jsx: /* @__PURE__ */ jsx_dev_runtime80.jsxDEV(ThemedText, {
           color: "error",
-          children: "Failed to save marketplace retry info \xB7 Check ~/.claude.json permissions"
+          children: "\u4fdd\u5b58\u5e02\u573a\u91cd\u8bd5\u4fe1\u606f\u5931\u8d25 \xb7 \u68c0\u67e5 ~/.claude.json \u6743\u9650"
         }, undefined, false, undefined, this),
         priority: "immediate",
         timeoutMs: 1e4
@@ -28360,7 +28357,7 @@ function useOfficialMarketplaceNotification() {
         key: "marketplace-installed",
         jsx: /* @__PURE__ */ jsx_dev_runtime80.jsxDEV(ThemedText, {
           color: "success",
-          children: "\u2713 Anthropic marketplace installed \xB7 /plugin to see available plugins"
+          children: "\u2713 \u5df2\u5b89\u88c5 Anthropic \u5e02\u573a \xb7 /plugin \u67e5\u770b\u53ef\u7528\u63d2\u4ef6"
         }, undefined, false, undefined, this),
         priority: "immediate",
         timeoutMs: 7000
@@ -28371,7 +28368,7 @@ function useOfficialMarketplaceNotification() {
         key: "marketplace-install-failed",
         jsx: /* @__PURE__ */ jsx_dev_runtime80.jsxDEV(ThemedText, {
           color: "warning",
-          children: "Failed to install Anthropic marketplace \xB7 Will retry on next startup"
+          children: "\u5b89\u88c5 Anthropic \u5e02\u573a\u5931\u8d25 \xb7 \u4e0b\u6b21\u542f\u52a8\u65f6\u91cd\u8bd5"
         }, undefined, false, undefined, this),
         priority: "immediate",
         timeoutMs: 8000
@@ -28550,12 +28547,12 @@ function SandboxPermissionRequest({
   }
   const managedDomainsOnly = shouldAllowManagedSandboxDomainsOnly();
   const options = [
-    { label: "Yes", value: "yes" },
+    { label: "\u662f", value: "yes" },
     ...!managedDomainsOnly ? [
       {
         label: /* @__PURE__ */ jsx_dev_runtime81.jsxDEV(ThemedText, {
           children: [
-            "Yes, and don't ask again for ",
+            "\u662f\uff0c\u4e0d\u518d\u8be2\u95ee ",
             /* @__PURE__ */ jsx_dev_runtime81.jsxDEV(ThemedText, {
               bold: true,
               children: host
@@ -28568,7 +28565,7 @@ function SandboxPermissionRequest({
     {
       label: /* @__PURE__ */ jsx_dev_runtime81.jsxDEV(ThemedText, {
         children: [
-          "No, and tell Claude what to do differently ",
+          "\u5426\uff0c\u5e76\u544a\u8bc9 Claude \u8981\u505a\u4ec0\u4e48\u8c03\u6574 ",
           /* @__PURE__ */ jsx_dev_runtime81.jsxDEV(ThemedText, {
             bold: true,
             children: "(esc)"
@@ -28579,7 +28576,7 @@ function SandboxPermissionRequest({
     }
   ];
   return /* @__PURE__ */ jsx_dev_runtime81.jsxDEV(PermissionDialog, {
-    title: "Network request outside of sandbox",
+    title: "\u6c99\u7bb1\u5916\u7684\u7f51\u7edc\u8bf7\u6c42",
     children: /* @__PURE__ */ jsx_dev_runtime81.jsxDEV(ThemedBox_default, {
       flexDirection: "column",
       paddingX: 2,
@@ -28589,7 +28586,7 @@ function SandboxPermissionRequest({
           children: [
             /* @__PURE__ */ jsx_dev_runtime81.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Host:"
+              children: "\u4e3b\u673a\uff1a"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime81.jsxDEV(ThemedText, {
               children: [
@@ -28602,7 +28599,7 @@ function SandboxPermissionRequest({
         /* @__PURE__ */ jsx_dev_runtime81.jsxDEV(ThemedBox_default, {
           marginTop: 1,
           children: /* @__PURE__ */ jsx_dev_runtime81.jsxDEV(ThemedText, {
-            children: "Do you want to allow this connection?"
+            children: "\u662f\u5426\u5141\u8bb8\u6b64\u8fde\u63a5\uff1f"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime81.jsxDEV(ThemedBox_default, {
@@ -29377,7 +29374,7 @@ function LspRecommendationMenu({
     {
       label: /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedText, {
         children: [
-          "Yes, install ",
+          "\u662f\uff0c\u5b89\u88c5 ",
           /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedText, {
             bold: true,
             children: pluginName
@@ -29387,13 +29384,13 @@ function LspRecommendationMenu({
       value: "yes"
     },
     {
-      label: "No, not now",
+      label: "\u5426\uff0c\u6682\u4e0d",
       value: "no"
     },
     {
       label: /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedText, {
         children: [
-          "Never for ",
+          "\u6c38\u4e0d\u63a8\u8350 ",
           /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedText, {
             bold: true,
             children: pluginName
@@ -29403,12 +29400,12 @@ function LspRecommendationMenu({
       value: "never"
     },
     {
-      label: "Disable all LSP recommendations",
+      label: "\u7981\u7528\u6240\u6709 LSP \u63a8\u8350",
       value: "disable"
     }
   ];
   return /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(PermissionDialog, {
-    title: "LSP Plugin Recommendation",
+    title: "LSP \u63d2\u4ef6\u63a8\u8350",
     children: /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedBox_default, {
       flexDirection: "column",
       paddingX: 2,
@@ -29418,14 +29415,14 @@ function LspRecommendationMenu({
           marginBottom: 1,
           children: /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "LSP provides code intelligence like go-to-definition and error checking"
+            children: "LSP \u63d0\u4f9b\u8df3\u8f6c\u5b9a\u4e49\u3001\u9519\u8bef\u68c0\u67e5\u7b49\u4ee3\u7801\u667a\u80fd\u529f\u80fd"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedBox_default, {
           children: [
             /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Plugin:"
+              children: "\u63d2\u4ef6\uff1a"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedText, {
               children: [
@@ -29445,13 +29442,13 @@ function LspRecommendationMenu({
           children: [
             /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Triggered by:"
+              children: "\u89e6\u53d1\u6761\u4ef6\uff1a"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedText, {
               children: [
                 " ",
                 fileExtension,
-                " files"
+                " \u6587\u4ef6"
               ]
             }, undefined, true, undefined, this)
           ]
@@ -29459,7 +29456,7 @@ function LspRecommendationMenu({
         /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedBox_default, {
           marginTop: 1,
           children: /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedText, {
-            children: "Would you like to install this LSP plugin?"
+            children: "\u662f\u5426\u5b89\u88c5\u6b64 LSP \u63d2\u4ef6\uff1f"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime86.jsxDEV(ThemedBox_default, {
@@ -29574,7 +29571,7 @@ function PluginHintMenu({
     {
       label: /* @__PURE__ */ jsx_dev_runtime87.jsxDEV(ThemedText, {
         children: [
-          "Yes, install ",
+          "\u662f\uff0c\u5b89\u88c5 ",
           /* @__PURE__ */ jsx_dev_runtime87.jsxDEV(ThemedText, {
             bold: true,
             children: pluginName
@@ -29584,16 +29581,16 @@ function PluginHintMenu({
       value: "yes"
     },
     {
-      label: "No",
+      label: "\u5426",
       value: "no"
     },
     {
-      label: "No, and don't show plugin installation hints again",
+      label: "\u5426\uff0c\u4e14\u4e0d\u518d\u663e\u793a\u63d2\u4ef6\u5b89\u88c5\u63d0\u793a",
       value: "disable"
     }
   ];
   return /* @__PURE__ */ jsx_dev_runtime87.jsxDEV(PermissionDialog, {
-    title: "Plugin Recommendation",
+    title: "\u63d2\u4ef6\u63a8\u8350",
     children: /* @__PURE__ */ jsx_dev_runtime87.jsxDEV(ThemedBox_default, {
       flexDirection: "column",
       paddingX: 2,
@@ -29617,7 +29614,7 @@ function PluginHintMenu({
           children: [
             /* @__PURE__ */ jsx_dev_runtime87.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Plugin:"
+              children: "\u63d2\u4ef6\uff1a"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime87.jsxDEV(ThemedText, {
               children: [
@@ -29631,7 +29628,7 @@ function PluginHintMenu({
           children: [
             /* @__PURE__ */ jsx_dev_runtime87.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Marketplace:"
+              children: "\u5e02\u573a\uff1a"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime87.jsxDEV(ThemedText, {
               children: [
@@ -29650,7 +29647,7 @@ function PluginHintMenu({
         /* @__PURE__ */ jsx_dev_runtime87.jsxDEV(ThemedBox_default, {
           marginTop: 1,
           children: /* @__PURE__ */ jsx_dev_runtime87.jsxDEV(ThemedText, {
-            children: "Would you like to install it?"
+            children: "\u662f\u5426\u5b89\u88c5\uff1f"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime87.jsxDEV(ThemedBox_default, {
@@ -29962,7 +29959,7 @@ function AwsAuthStatusBox() {
       /* @__PURE__ */ jsx_dev_runtime90.jsxDEV(ThemedText, {
         bold: true,
         color: "permission",
-        children: "Cloud Authentication"
+        children: "\u4e91\u7aef\u8ba4\u8bc1"
       }, undefined, false, undefined, this),
       status.output.length > 0 && /* @__PURE__ */ jsx_dev_runtime90.jsxDEV(ThemedBox_default, {
         flexDirection: "column",
@@ -30231,7 +30228,7 @@ var MIGRATIONS = [
       return;
     return {
       key: "sonnet-46-update",
-      text: "Model updated to Sonnet 4.6",
+      text: "\u6a21\u578b\u5df2\u5207\u6362\u4e3a Sonnet 4.6",
       color: "suggestion",
       priority: "high",
       timeoutMs: 3000
@@ -30244,7 +30241,7 @@ var MIGRATIONS = [
       return;
     return {
       key: "opus-pro-update",
-      text: isLegacyRemap ? "Model updated to Opus 4.6 \xB7 Set CLAUDE_CODE_DISABLE_LEGACY_MODEL_REMAP=1 to opt out" : "Model updated to Opus 4.6",
+      text: isLegacyRemap ? "\u6a21\u578b\u5df2\u5207\u6362\u4e3a Opus 4.6 \xb7 \u8bbe\u7f6e CLAUDE_CODE_DISABLE_LEGACY_MODEL_REMAP=1 \u53ef\u9000\u51fa" : "\u6a21\u578b\u5df2\u5207\u6362\u4e3a Opus 4.6",
       color: "suggestion",
       priority: "high",
       timeoutMs: isLegacyRemap ? 8000 : 3000
@@ -30512,19 +30509,19 @@ function AutoRunIssueNotification({
       /* @__PURE__ */ jsx_dev_runtime94.jsxDEV(ThemedBox_default, {
         children: /* @__PURE__ */ jsx_dev_runtime94.jsxDEV(ThemedText, {
           bold: true,
-          children: "Running feedback capture..."
+          children: "\u6b63\u5728\u6536\u96c6\u53cd\u9988..."
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime94.jsxDEV(ThemedBox_default, {
         children: /* @__PURE__ */ jsx_dev_runtime94.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            "Press ",
+            "\u6309 ",
             /* @__PURE__ */ jsx_dev_runtime94.jsxDEV(KeyboardShortcutHint, {
               shortcut: "Esc",
               action: "cancel"
             }, undefined, false, undefined, this),
-            " anytime"
+            " \u968f\u65f6\u53ef\u53d6\u6d88"
           ]
         }, undefined, true, undefined, this)
       }, undefined, false, undefined, this),
@@ -30566,7 +30563,7 @@ function getAutoRunIssueReasonText(reason) {
     case "feedback_survey_good":
       return 'You responded "Good" to the feedback survey';
     default:
-      return "Unknown reason";
+      return "\u672a\u77e5\u539f\u56e0";
   }
 }
 
@@ -30856,7 +30853,7 @@ Implement this plan.`,
         await writeFile2(savePath, plan, { encoding: "utf-8" });
         setMessages((prev) => [
           ...prev,
-          createSystemMessage(`Ultraplan rejected \xB7 Plan saved to ${toRelativePath(savePath)}`, "suggestion")
+          createSystemMessage(`Ultraplan \u5df2\u62d2\u7edd \xb7 \u8ba1\u5212\u5df2\u4fdd\u5b58\u81f3 ${toRelativePath(savePath)}`, "suggestion")
         ]);
         break;
       }
@@ -30876,24 +30873,24 @@ Implement this plan.`,
   ]);
   const options = React45.useMemo(() => [
     {
-      label: "Implement here",
+      label: "\u5728\u6b64\u5b9e\u73b0",
       value: "here",
-      description: "Inject plan into the current conversation"
+      description: "\u5c06\u8ba1\u5212\u6ce8\u5165\u5f53\u524d\u5bf9\u8bdd"
     },
     {
-      label: "Start new session",
+      label: "\u5f00\u542f\u65b0\u4f1a\u8bdd",
       value: "fresh",
-      description: "Clear conversation and start with only the plan"
+      description: "\u6e05\u7a7a\u5bf9\u8bdd\uff0c\u4ec5\u4fdd\u7559\u8ba1\u5212\u5f00\u59cb"
     },
     {
-      label: "Cancel",
+      label: "\u53d6\u6d88",
       value: "cancel",
-      description: "Don't implement \u2014 save plan and return"
+      description: "\u4e0d\u5b9e\u73b0 \u2014 \u4fdd\u5b58\u8ba1\u5212\u5e76\u8fd4\u56de"
     }
   ], []);
   return /* @__PURE__ */ jsx_dev_runtime97.jsxDEV(Dialog, {
-    title: "Ultraplan approved",
-    subtitle: "How should the plan be implemented?",
+    title: "Ultraplan \u5df2\u6279\u51c6",
+    subtitle: "\u5982\u4f55\u5b9e\u65bd\u8be5\u8ba1\u5212\uff1f",
     onCancel: () => {},
     hideInputGuide: true,
     children: /* @__PURE__ */ jsx_dev_runtime97.jsxDEV(ThemedBox_default, {
@@ -30979,17 +30976,17 @@ function UltraplanLaunchDialog({ onChoice }) {
   const handleCancel = React46.useCallback(() => {
     handleChoice("cancel");
   }, [handleChoice]);
-  const runDescription = isBridgeEnabled2 ? "Disable remote control and launch in Claude Code on the web" : "launch in Claude Code on the web";
+  const runDescription = isBridgeEnabled2 ? "\u5173\u95ed\u8fdc\u7a0b\u63a7\u5236\u5e76\u5728 Claude Code \u7f51\u9875\u7248\u542f\u52a8" : "\u5728 Claude Code \u7f51\u9875\u7248\u542f\u52a8";
   const options = [
     {
-      label: "Run ultraplan",
+      label: "\u8fd0\u884c ultraplan",
       value: "run",
       description: runDescription
     },
-    { label: "Not now", value: "cancel" }
+    { label: "\u6682\u4e0d", value: "cancel" }
   ];
   return /* @__PURE__ */ jsx_dev_runtime98.jsxDEV(Dialog, {
-    title: "Run ultraplan in the cloud?",
+    title: "\u5728\u4e91\u7aef\u8fd0\u884c ultraplan\uff1f",
     subtitle: dialogConfig.timeEstimate,
     onCancel: handleCancel,
     children: /* @__PURE__ */ jsx_dev_runtime98.jsxDEV(ThemedBox_default, {
@@ -31017,7 +31014,7 @@ function UltraplanLaunchDialog({ onChoice }) {
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime98.jsxDEV(ThemedText, {
           dimColor: true,
-          children: isBridgeEnabled2 ? "This will disable Remote Control for this session." : dialogConfig.dialogPipeline
+          children: isBridgeEnabled2 ? "\u8fd9\u5c06\u4e3a\u672c\u4f1a\u8bdd\u5173\u95ed\u8fdc\u7a0b\u63a7\u5236\u3002" : dialogConfig.dialogPipeline
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime98.jsxDEV(Select, {
           options,
@@ -31726,10 +31723,10 @@ function TranscriptModeFooter({
       /* @__PURE__ */ jsx_dev_runtime99.jsxDEV(ThemedText, {
         dimColor: true,
         children: [
-          "Showing detailed transcript \xB7 ",
+          "\u663e\u793a\u8be6\u7ec6\u8bb0\u5f55 \u00b7 ",
           toggleShortcut,
-          " to toggle",
-          searchBadge ? " \xB7 n/N to navigate" : virtualScroll ? ` \xB7 ${figures_default.arrowUp}${figures_default.arrowDown} scroll \xB7 home/end top/bottom` : suppressShowAll ? "" : ` \xB7 ${showAllShortcut} to ${showAllInTranscript ? "collapse" : "show all"}`
+          " \u5207\u6362",
+          searchBadge ? " \u00b7 n/N \u5bfc\u822a" : virtualScroll ? ` \u00b7 ${figures_default.arrowUp}${figures_default.arrowDown} \u6eda\u52a8 \u00b7 home/end \u9876/\u5e95` : suppressShowAll ? "" : ` \xB7 ${showAllShortcut} ${showAllInTranscript ? "\u6298\u53e0" : "\u5c55\u5f00\u5168\u90e8"}`
         ]
       }, undefined, true, undefined, this),
       status ? /* @__PURE__ */ jsx_dev_runtime99.jsxDEV(jsx_dev_runtime99.Fragment, {
@@ -31839,17 +31836,17 @@ function TranscriptSearchBar({
       }, undefined, false, undefined, this),
       indexStatus === "building" ? /* @__PURE__ */ jsx_dev_runtime99.jsxDEV(ThemedText, {
         dimColor: true,
-        children: "indexing\u2026 "
+        children: "\u6b63\u5728\u5efa\u7d22\u2026 "
       }, undefined, false, undefined, this) : indexStatus ? /* @__PURE__ */ jsx_dev_runtime99.jsxDEV(ThemedText, {
         dimColor: true,
         children: [
-          "indexed in ",
+          "\u7d22\u5f15\u7528\u65f6 ",
           indexStatus.ms,
           "ms "
         ]
       }, undefined, true, undefined, this) : count2 === 0 && query2 ? /* @__PURE__ */ jsx_dev_runtime99.jsxDEV(ThemedText, {
         color: "error",
-        children: "no matches "
+        children: "\u65e0\u5339\u914d "
       }, undefined, false, undefined, this) : count2 > 0 ? /* @__PURE__ */ jsx_dev_runtime99.jsxDEV(ThemedText, {
         dimColor: true,
         children: [
@@ -32866,7 +32863,7 @@ Error: sandbox required but unavailable: ${reason}
         children: [
           /* @__PURE__ */ jsx_dev_runtime99.jsxDEV(ThemedText, {
             color: "warning",
-            children: "sandbox disabled"
+            children: "\u6c99\u7bb1\u5df2\u7981\u7528"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime99.jsxDEV(ThemedText, {
             dimColor: true,
@@ -34098,7 +34095,7 @@ ${fileList}`);
           children: [
             /* @__PURE__ */ jsx_dev_runtime99.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "new task? "
+              children: "\u65b0\u4efb\u52a1\uff1f "
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime99.jsxDEV(ThemedText, {
               color: "suggestion",
@@ -34106,7 +34103,7 @@ ${fileList}`);
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime99.jsxDEV(ThemedText, {
               dimColor: true,
-              children: " to save "
+              children: " \u4ee5\u4fdd\u7559 "
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime99.jsxDEV(ThemedText, {
               color: "suggestion",
@@ -34119,7 +34116,7 @@ ${fileList}`);
         }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime99.jsxDEV(ThemedText, {
           color: "warning",
           children: [
-            "new task? /clear to save ",
+            "\u65b0\u4efb\u52a1\uff1f\u7528 /clear \u4fdd\u7559 ",
             formattedTokens,
             " tokens"
           ]

@@ -137,12 +137,12 @@ import {
 // src/components/skills/SkillsMenu.tsx
 function getSourceTitle(source) {
   if (source === "plugin") {
-    return "Plugin skills";
+    return "\u63d2\u4ef6\u6280\u80fd";
   }
   if (source === "mcp") {
-    return "MCP skills";
+    return "MCP \u6280\u80fd";
   }
-  return `${capitalize_default(getSettingSourceName(source))} skills`;
+  return `${capitalize_default(getSettingSourceName(source))} \u6280\u80fd`;
 }
 function getSourceSubtitle(source, skills) {
   if (source === "mcp") {
@@ -184,18 +184,18 @@ function SkillsMenu({ onExit, commands }) {
     return groups;
   }, [skills]);
   const handleCancel = () => {
-    onExit("Skills dialog dismissed", { display: "system" });
+    onExit("\u6280\u80fd\u5bf9\u8bdd\u6846\u5df2\u5173\u95ed", { display: "system" });
   };
   if (skills.length === 0) {
     return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Dialog, {
-      title: "Skills",
-      subtitle: "No skills found",
+      title: "\u6280\u80fd",
+      subtitle: "\u672a\u627e\u5230\u6280\u80fd",
       onCancel: handleCancel,
       hideInputGuide: true,
       children: [
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Create skills in .claude/skills/ or ~/.claude/skills/"
+          children: "\u5728 .claude/skills/ \u6216 ~/.claude/skills/ \u4e2d\u521b\u5efa\u6280\u80fd"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
@@ -204,7 +204,7 @@ function SkillsMenu({ onExit, commands }) {
             action: "confirm:no",
             context: "Confirmation",
             fallback: "Esc",
-            description: "close"
+            description: "\u5173\u95ed"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this)
       ]
@@ -214,11 +214,11 @@ function SkillsMenu({ onExit, commands }) {
     switch (source) {
       case "projectSettings":
       case "localSettings":
-        return { label: "local", color: "yellow" };
+        return { label: "\u672c\u5730", color: "yellow" };
       case "userSettings":
-        return { label: "global", color: "cyan" };
+        return { label: "\u5168\u5c40", color: "cyan" };
       case "policySettings":
-        return { label: "managed", color: "magenta" };
+        return { label: "\u6258\u7ba1", color: "magenta" };
       default:
         return;
     }
@@ -247,7 +247,7 @@ function SkillsMenu({ onExit, commands }) {
             pluginName ? ` \xB7 ${pluginName}` : "",
             " \xB7 ",
             tokenDisplay,
-            " description tokens"
+            " \u63cf\u8ff0 tokens"
           ]
         }, undefined, true, undefined, this)
       ]
@@ -284,8 +284,8 @@ function SkillsMenu({ onExit, commands }) {
     }, source, true, undefined, this);
   };
   return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Dialog, {
-    title: "Skills",
-    subtitle: `${skills.length} ${plural(skills.length, "skill")}`,
+    title: "\u6280\u80fd",
+    subtitle: `\u5171 ${skills.length} \u4e2a\u6280\u80fd`,
     onCancel: handleCancel,
     hideInputGuide: true,
     children: [
@@ -309,7 +309,7 @@ function SkillsMenu({ onExit, commands }) {
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "close"
+          description: "\u5173\u95ed"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this)
     ]

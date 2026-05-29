@@ -14,13 +14,13 @@ function Get-Bun {
     $Output = "$ResourcesDir/bun/bun-windows-x64.zip"
     $ExtractTo = "$ResourcesDir/bun"
 
-    Write-Host "Downloading Bun $Version..."
+    Write-Host "正在下载 Bun $Version..."
     Write-Host "URL: $Url"
-    Write-Host "Output: $Output"
+    Write-Host "输出路径: $Output"
     Invoke-WebRequest -Uri $Url -OutFile $Output -UseBasicParsing
     Expand-Archive -Path $Output -DestinationPath $ExtractTo -Force
     Remove-Item $Output -Force
-    Write-Host "Bun downloaded to $ExtractTo"
+    Write-Host "Bun 已下载到 $ExtractTo"
 }
 
 function Get-Ripgrep {
@@ -29,16 +29,16 @@ function Get-Ripgrep {
     $Output = "$ResourcesDir/ripgrep/ripgrep.zip"
     $ExtractTo = "$ResourcesDir/ripgrep"
 
-    Write-Host "Downloading ripgrep $Version..."
+    Write-Host "正在下载 ripgrep $Version..."
     Write-Host "URL: $Url"
-    Write-Host "Output: $Output"
+    Write-Host "输出路径: $Output"
     Invoke-WebRequest -Uri $Url -OutFile $Output -UseBasicParsing
     Expand-Archive -Path $Output -DestinationPath $ExtractTo -Force
     Remove-Item $Output -Force
-    Write-Host "ripgrep downloaded to $ExtractTo"
+    Write-Host "ripgrep 已下载到 $ExtractTo"
 }
 
-Write-Host "Resources directory: $ResourcesDir"
+Write-Host "资源目录: $ResourcesDir"
 Get-Bun
 Get-Ripgrep
-Write-Host "Resources prepared successfully!"
+Write-Host "资源准备完毕！"

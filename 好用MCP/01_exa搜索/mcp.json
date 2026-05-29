@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "exa": {
+      "type": "http",
+      "url": "https://mcp.exa.ai/mcp",
+      "description": "神经网络搜索 + 网页内容抓取（来自 ECC 插件）"
+    }
+  }
+}

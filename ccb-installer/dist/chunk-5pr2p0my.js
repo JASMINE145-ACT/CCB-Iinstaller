@@ -176,7 +176,7 @@ function AssistantSessionChooser({ sessions, onSelect, onCancel }) {
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "\u2191\u2193 navigate \xB7 Enter select \xB7 Esc cancel"
+          children: "\u2191\u2193 \u5bfc\u822a \xB7 Enter \u9009\u62e9 \xB7 Esc \u53d6\u6d88"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this)

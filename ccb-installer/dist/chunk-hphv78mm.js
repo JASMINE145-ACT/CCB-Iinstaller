@@ -228,7 +228,7 @@ function RemoteEnvironmentDialog({ onDone }) {
     setLoadingState("updating");
     const selectedEnv = environments.find((env) => env.environment_id === value);
     if (!selectedEnv) {
-      onDone("Error: Selected environment not found");
+      onDone("\u6240\u9009\u73af\u5883\u672a\u627e\u5230");
       return;
     }
     updateSettingsForSource("localSettings", {
@@ -236,7 +236,7 @@ function RemoteEnvironmentDialog({ onDone }) {
         defaultEnvironmentId: selectedEnv.environment_id
       }
     });
-    onDone(`Set default remote environment to ${source_default.bold(selectedEnv.name)} (${selectedEnv.environment_id})`);
+    onDone(`\u5df2\u5c06\u9ed8\u8ba4\u8fdc\u7a0b\u73af\u5883\u8bbe\u4e3a ${source_default.bold(selectedEnv.name)} (${selectedEnv.environment_id})`);
   }
   if (loadingState === "loading") {
     return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Dialog, {
@@ -244,7 +244,7 @@ function RemoteEnvironmentDialog({ onDone }) {
       onCancel: onDone,
       hideInputGuide: true,
       children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(LoadingState, {
-        message: "Loading environments\u2026"
+        message: "\u6b63\u5728\u52a0\u8f7d\u73af\u5883\u2026"
       }, undefined, false, undefined, this)
     }, undefined, false, undefined, this);
   }
@@ -255,7 +255,7 @@ function RemoteEnvironmentDialog({ onDone }) {
       children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
         color: "error",
         children: [
-          "Error: ",
+          "\u9519\u8bef\uff1a ",
           error
         ]
       }, undefined, true, undefined, this)
@@ -267,7 +267,7 @@ function RemoteEnvironmentDialog({ onDone }) {
       subtitle: SETUP_HINT,
       onCancel: onDone,
       children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-        children: "No remote environments available."
+        children: "\u6682\u65e0\u53ef\u7528\u7684\u8fdc\u7a0b\u73af\u5883\u3002"
       }, undefined, false, undefined, this)
     }, undefined, false, undefined, this);
   }
@@ -292,7 +292,7 @@ function EnvironmentLabel({
   return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
     children: [
       figures_default.tick,
-      " Using ",
+      " \u6b63\u5728\u4f7f\u7528 ",
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
         bold: true,
         children: environment.name
@@ -331,10 +331,10 @@ function MultipleEnvironmentsContent({
   onSelect,
   onCancel
 }) {
-  const sourceSuffix = selectedEnvironmentSource && selectedEnvironmentSource !== "localSettings" ? ` (from ${getSettingSourceName(selectedEnvironmentSource)} settings)` : "";
+  const sourceSuffix = selectedEnvironmentSource && selectedEnvironmentSource !== "localSettings" ? ` \uff08\u6765\u81ea ${getSettingSourceName(selectedEnvironmentSource)} \u8bbe\u7f6e\uff09` : "";
   const subtitle = /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
     children: [
-      "Currently using: ",
+      "\u5f53\u524d\u4f7f\u7528\uff1a ",
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
         bold: true,
         children: selectedEnvironment.name
@@ -353,7 +353,7 @@ function MultipleEnvironmentsContent({
         children: SETUP_HINT
       }, undefined, false, undefined, this),
       loadingState === "updating" ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(LoadingState, {
-        message: "Updating\u2026"
+        message: "\u6b63\u5728\u66f4\u65b0\u2026"
       }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Select, {
         options: environments.map((env) => ({
           label: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
@@ -383,13 +383,13 @@ function MultipleEnvironmentsContent({
           children: [
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
               shortcut: "Enter",
-              action: "select"
+              action: "\u9009\u62e9"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
               action: "confirm:no",
               context: "Confirmation",
               fallback: "Esc",
-              description: "cancel"
+              description: "\u53d6\u6d88"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this)
@@ -397,7 +397,7 @@ function MultipleEnvironmentsContent({
     ]
   }, undefined, true, undefined, this);
 }
-var import_react, jsx_dev_runtime, DIALOG_TITLE = "Select Remote Environment", SETUP_HINT = `Configure environments at: https://claude.ai/code`;
+var import_react, jsx_dev_runtime, DIALOG_TITLE = "\u9009\u62e9\u8fdc\u7a0b\u73af\u5883", SETUP_HINT = `\u5728\u6b64\u914d\u7f6e\u73af\u5883\uff1a https://claude.ai/code`;
 var init_RemoteEnvironmentDialog = __esm(() => {
   init_source();
   init_figures();

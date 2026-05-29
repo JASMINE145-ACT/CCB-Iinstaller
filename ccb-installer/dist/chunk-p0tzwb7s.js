@@ -71,27 +71,27 @@ async function call(onDone, context) {
           authVersion: prev.authVersion + 1
         }));
       }
-      onDone(success ? "Login successful" : "Login interrupted");
+      onDone(success ? "\u767b\u5f55\u6210\u529f" : "\u767b\u5f55\u5df2\u4e2d\u65ad");
     }
   }, undefined, false, undefined, this);
 }
 function Login(props) {
   const mainLoopModel = useMainLoopModel();
   return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Dialog, {
-    title: "Login",
+    title: "\u767b\u5f55",
     onCancel: () => props.onDone(false, mainLoopModel),
     color: "permission",
     inputGuide: (exitState) => exitState.pending ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
       children: [
-        "Press ",
+        "\u6309 ",
         exitState.keyName,
-        " again to exit"
+        " \u518d\u6b21\u9000\u51fa"
       ]
     }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
       action: "confirm:no",
       context: "Confirmation",
       fallback: "Esc",
-      description: "cancel"
+      description: "\u53d6\u6d88"
     }, undefined, false, undefined, this),
     children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConsoleOAuthFlow, {
       onDone: () => props.onDone(true, mainLoopModel),

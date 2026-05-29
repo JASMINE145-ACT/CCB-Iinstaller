@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "description": "实时文档查询 — 支持所有主流框架（来自 ECC 插件）"
+    }
+  }
+}

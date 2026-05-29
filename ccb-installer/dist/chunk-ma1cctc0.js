@@ -253,7 +253,7 @@ var init_hooksConfigManager = __esm(() => {
   getHookEventMetadata = memoize_default(function(toolNames) {
     return {
       PreToolUse: {
-        summary: "Before tool execution",
+        summary: "\u5de5\u5177\u6267\u884c\u524d",
         description: `Input to command is JSON of tool call arguments.
 Exit code 0 - stdout/stderr not shown
 Exit code 2 - show stderr to model and block tool call
@@ -264,7 +264,7 @@ Other exit codes - show stderr to user only but continue with tool call`,
         }
       },
       PostToolUse: {
-        summary: "After tool execution",
+        summary: "\u5de5\u5177\u6267\u884c\u540e",
         description: `Input to command is JSON with fields "inputs" (tool call arguments) and "response" (tool call response).
 Exit code 0 - stdout shown in transcript mode (ctrl+o)
 Exit code 2 - show stderr to model immediately
@@ -275,7 +275,7 @@ Other exit codes - show stderr to user only`,
         }
       },
       PostToolUseFailure: {
-        summary: "After tool execution fails",
+        summary: "\u5de5\u5177\u6267\u884c\u5931\u8d25\u540e",
         description: `Input to command is JSON with tool_name, tool_input, tool_use_id, error, error_type, is_interrupt, and is_timeout.
 Exit code 0 - stdout shown in transcript mode (ctrl+o)
 Exit code 2 - show stderr to model immediately
@@ -286,7 +286,7 @@ Other exit codes - show stderr to user only`,
         }
       },
       PermissionDenied: {
-        summary: "After auto mode classifier denies a tool call",
+        summary: "\u81ea\u52a8\u6a21\u5f0f\u5206\u7c7b\u5668\u62d2\u7edd\u5de5\u5177\u8c03\u7528\u540e",
         description: `Input to command is JSON with tool_name, tool_input, tool_use_id, and reason.
 Return {"hookSpecificOutput":{"hookEventName":"PermissionDenied","retry":true}} to tell the model it may retry.
 Exit code 0 - stdout shown in transcript mode (ctrl+o)
@@ -297,7 +297,7 @@ Other exit codes - show stderr to user only`,
         }
       },
       Notification: {
-        summary: "When notifications are sent",
+        summary: "\u53d1\u9001\u901a\u77e5\u65f6",
         description: `Input to command is JSON with notification message and type.
 Exit code 0 - stdout/stderr not shown
 Other exit codes - show stderr to user only`,
@@ -314,14 +314,14 @@ Other exit codes - show stderr to user only`,
         }
       },
       UserPromptSubmit: {
-        summary: "When the user submits a prompt",
+        summary: "\u7528\u6237\u63d0\u4ea4\u63d0\u793a\u65f6",
         description: `Input to command is JSON with original user prompt text.
 Exit code 0 - stdout shown to Claude
 Exit code 2 - block processing, erase original prompt, and show stderr to user only
 Other exit codes - show stderr to user only`
       },
       SessionStart: {
-        summary: "When a new session is started",
+        summary: "\u65b0\u4f1a\u8bdd\u542f\u52a8\u65f6",
         description: `Input to command is JSON with session start source.
 Exit code 0 - stdout shown to Claude
 Blocking errors are ignored
@@ -332,14 +332,14 @@ Other exit codes - show stderr to user only`,
         }
       },
       Stop: {
-        summary: "Right before Claude concludes its response",
+        summary: "Claude \u7ed3\u675f\u56de\u590d\u524d",
         description: `Exit code 0 - stdout/stderr not shown
 Exit code 2 - show stderr to model and continue conversation
 Other exit codes - show stderr to user only`
       },
       StopFailure: {
-        summary: "When the turn ends due to an API error",
-        description: "Fires instead of Stop when an API error (rate limit, auth failure, etc.) ended the turn. Fire-and-forget \u2014 hook output and exit codes are ignored.",
+        summary: "API \u9519\u8bef\u5bfc\u81f4\u56de\u5408\u7ed3\u675f\u65f6",
+        description: "API \u9519\u8bef\uff08\u9650\u901f\u3001\u8ba4\u8bc1\u5931\u8d25\u7b49\uff09\u7ed3\u675f\u56de\u5408\u65f6\u89e6\u53d1\uff0c\u66ff\u4ee3 Stop\u3002\u706b\u5e76\u5fd8\u8bb0\u2014hook \u8f93\u51fa\u4e0e\u9000\u51fa\u7801\u88ab\u5ffd\u7565\u3002",
         matcherMetadata: {
           fieldToMatch: "error",
           values: [
@@ -354,7 +354,7 @@ Other exit codes - show stderr to user only`
         }
       },
       SubagentStart: {
-        summary: "When a subagent (Agent tool call) is started",
+        summary: "\u5b50 agent\uff08Agent \u5de5\u5177\u8c03\u7528\uff09\u542f\u52a8\u65f6",
         description: `Input to command is JSON with agent_id and agent_type.
 Exit code 0 - stdout shown to subagent
 Blocking errors are ignored
@@ -365,7 +365,7 @@ Other exit codes - show stderr to user only`,
         }
       },
       SubagentStop: {
-        summary: "Right before a subagent (Agent tool call) concludes its response",
+        summary: "\u5b50 agent\uff08Agent \u5de5\u5177\u8c03\u7528\uff09\u7ed3\u675f\u56de\u590d\u524d",
         description: `Input to command is JSON with agent_id, agent_type, and agent_transcript_path.
 Exit code 0 - stdout/stderr not shown
 Exit code 2 - show stderr to subagent and continue having it run
@@ -376,7 +376,7 @@ Other exit codes - show stderr to user only`,
         }
       },
       PreCompact: {
-        summary: "Before conversation compaction",
+        summary: "\u5bf9\u8bdd\u538b\u7f29\u524d",
         description: `Input to command is JSON with compaction details.
 Exit code 0 - stdout appended as custom compact instructions
 Exit code 2 - block compaction
@@ -387,7 +387,7 @@ Other exit codes - show stderr to user only but continue with compaction`,
         }
       },
       PostCompact: {
-        summary: "After conversation compaction",
+        summary: "\u5bf9\u8bdd\u538b\u7f29\u540e",
         description: `Input to command is JSON with compaction details and the summary.
 Exit code 0 - stdout shown to user
 Other exit codes - show stderr to user only`,
@@ -397,7 +397,7 @@ Other exit codes - show stderr to user only`,
         }
       },
       SessionEnd: {
-        summary: "When a session is ending",
+        summary: "\u4f1a\u8bdd\u7ed3\u675f\u65f6",
         description: `Input to command is JSON with session end reason.
 Exit code 0 - command completes successfully
 Other exit codes - show stderr to user only`,
@@ -407,7 +407,7 @@ Other exit codes - show stderr to user only`,
         }
       },
       PermissionRequest: {
-        summary: "When a permission dialog is displayed",
+        summary: "\u663e\u793a\u6743\u9650\u5bf9\u8bdd\u6846\u65f6",
         description: `Input to command is JSON with tool_name, tool_input, and tool_use_id.
 Output JSON with hookSpecificOutput containing decision to allow or deny.
 Exit code 0 - use hook decision if provided
@@ -418,7 +418,7 @@ Other exit codes - show stderr to user only`,
         }
       },
       Setup: {
-        summary: "Repo setup hooks for init and maintenance",
+        summary: "\u4ed3\u5e93 init \u4e0e maintenance \u8bbe\u7f6e hooks",
         description: `Input to command is JSON with trigger (init or maintenance).
 Exit code 0 - stdout shown to Claude
 Blocking errors are ignored
@@ -429,28 +429,28 @@ Other exit codes - show stderr to user only`,
         }
       },
       TeammateIdle: {
-        summary: "When a teammate is about to go idle",
+        summary: "\u961f\u53cb\u5373\u5c06\u7a7a\u95f2\u65f6",
         description: `Input to command is JSON with teammate_name and team_name.
 Exit code 0 - stdout/stderr not shown
 Exit code 2 - show stderr to teammate and prevent idle (teammate continues working)
 Other exit codes - show stderr to user only`
       },
       TaskCreated: {
-        summary: "When a task is being created",
+        summary: "\u521b\u5efa\u4efb\u52a1\u65f6",
         description: `Input to command is JSON with task_id, task_subject, task_description, teammate_name, and team_name.
 Exit code 0 - stdout/stderr not shown
 Exit code 2 - show stderr to model and prevent task creation
 Other exit codes - show stderr to user only`
       },
       TaskCompleted: {
-        summary: "When a task is being marked as completed",
+        summary: "\u6807\u8bb0\u4efb\u52a1\u5b8c\u6210\u65f6",
         description: `Input to command is JSON with task_id, task_subject, task_description, teammate_name, and team_name.
 Exit code 0 - stdout/stderr not shown
 Exit code 2 - show stderr to model and prevent task completion
 Other exit codes - show stderr to user only`
       },
       Elicitation: {
-        summary: "When an MCP server requests user input (elicitation)",
+        summary: "MCP \u670d\u52a1\u5668\u8bf7\u6c42\u7528\u6237\u8f93\u5165\uff08elicitation\uff09\u65f6",
         description: `Input to command is JSON with mcp_server_name, message, and requested_schema.
 Output JSON with hookSpecificOutput containing action (accept/decline/cancel) and optional content.
 Exit code 0 - use hook response if provided
@@ -462,7 +462,7 @@ Other exit codes - show stderr to user only`,
         }
       },
       ElicitationResult: {
-        summary: "After a user responds to an MCP elicitation",
+        summary: "\u7528\u6237\u54cd\u5e94 MCP elicitation \u540e",
         description: `Input to command is JSON with mcp_server_name, action, content, mode, and elicitation_id.
 Output JSON with hookSpecificOutput containing optional action and content to override the response.
 Exit code 0 - use hook response if provided
@@ -474,7 +474,7 @@ Other exit codes - show stderr to user only`,
         }
       },
       ConfigChange: {
-        summary: "When configuration files change during a session",
+        summary: "\u4f1a\u8bdd\u4e2d\u914d\u7f6e\u6587\u4ef6\u53d8\u66f4\u65f6",
         description: `Input to command is JSON with source (user_settings, project_settings, local_settings, policy_settings, skills) and file_path.
 Exit code 0 - allow the change
 Exit code 2 - block the change from being applied to the session
@@ -491,7 +491,7 @@ Other exit codes - show stderr to user only`,
         }
       },
       InstructionsLoaded: {
-        summary: "When an instruction file (CLAUDE.md or rule) is loaded",
+        summary: "\u52a0\u8f7d\u6307\u4ee4\u6587\u4ef6\uff08CLAUDE.md \u6216 rule\uff09\u65f6",
         description: `Input to command is JSON with file_path, memory_type (User, Project, Local, Managed), load_reason (session_start, nested_traversal, path_glob_match, include, compact), globs (optional \u2014 the paths: frontmatter patterns that matched), trigger_file_path (optional \u2014 the file Claude touched that caused the load), and parent_file_path (optional \u2014 the file that @-included this one).
 Exit code 0 - command completes successfully
 Other exit codes - show stderr to user only
@@ -508,20 +508,20 @@ This hook is observability-only and does not support blocking.`,
         }
       },
       WorktreeCreate: {
-        summary: "Create an isolated worktree for VCS-agnostic isolation",
+        summary: "\u521b\u5efa\u72ec\u7acb worktree\uff08\u4e0e VCS \u65e0\u5173\uff09",
         description: `Input to command is JSON with name (suggested worktree slug).
 Stdout should contain the absolute path to the created worktree directory.
 Exit code 0 - worktree created successfully
 Other exit codes - worktree creation failed`
       },
       WorktreeRemove: {
-        summary: "Remove a previously created worktree",
+        summary: "\u79fb\u9664\u6b64\u524d\u521b\u5efa\u7684 worktree",
         description: `Input to command is JSON with worktree_path (absolute path to worktree).
 Exit code 0 - worktree removed successfully
 Other exit codes - show stderr to user only`
       },
       CwdChanged: {
-        summary: "After the working directory changes",
+        summary: "\u5de5\u4f5c\u76ee\u5f55\u53d8\u66f4\u540e",
         description: `Input to command is JSON with old_cwd and new_cwd.
 CLAUDE_ENV_FILE is set \u2014 write bash exports there to apply env to subsequent BashTool commands.
 Hook output can include hookSpecificOutput.watchPaths (array of absolute paths) to register with the FileChanged watcher.
@@ -529,7 +529,7 @@ Exit code 0 - command completes successfully
 Other exit codes - show stderr to user only`
       },
       FileChanged: {
-        summary: "When a watched file changes",
+        summary: "\u76d1\u89c6\u6587\u4ef6\u53d8\u66f4\u65f6",
         description: `Input to command is JSON with file_path and event (change, add, unlink).
 CLAUDE_ENV_FILE is set \u2014 write bash exports there to apply env to subsequent BashTool commands.
 The matcher field specifies filenames to watch in the current directory (e.g. ".envrc|.env").
@@ -550,9 +550,9 @@ function SelectEventMode({
   onSelectEvent,
   onCancel
 }) {
-  const subtitle = `${totalHooksCount} ${plural(totalHooksCount, "hook")} configured`;
+  const subtitle = `\u5df2\u914d\u7f6e ${totalHooksCount} \u4e2a hook`;
   return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Dialog, {
-    title: "Hooks",
+    title: "Hooks \u914d\u7f6e",
     subtitle,
     onCancel,
     children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
@@ -566,12 +566,12 @@ function SelectEventMode({
               color: "suggestion",
               children: [
                 figures_default.info,
-                " Hooks Restricted by Policy"
+                " Hooks \u53d7\u7b56\u7565\u9650\u5236"
               ]
             }, undefined, true, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Only hooks from managed settings can run. User-defined hooks from ~/.claude/settings.json, .claude/settings.json, and .claude/settings.local.json are blocked."
+              children: "\u4ec5\u6258\u7ba1\u8bbe\u7f6e\u4e2d\u7684 hooks \u53ef\u8fd0\u884c\u3002\u6765\u81ea ~/.claude/settings.json\u3001.claude/settings.json \u548c .claude/settings.local.json \u7684\u7528\u6237 hooks \u5df2\u88ab\u963b\u6b62\u3002"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
@@ -581,11 +581,11 @@ function SelectEventMode({
             dimColor: true,
             children: [
               figures_default.info,
-              " This menu is read-only. To add or modify hooks, edit settings.json directly or ask Claude.",
+              " \u6b64\u83dc\u5355\u4e3a\u53ea\u8bfb\u3002\u8981\u6dfb\u52a0\u6216\u4fee\u6539 hooks\uff0c\u8bf7\u76f4\u63a5\u7f16\u8f91 settings.json \u6216\u8be2\u95ee Claude\u3002",
               " ",
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Link, {
                 url: "https://code.claude.com/docs/en/hooks",
-                children: "Learn more"
+                children: "\u4e86\u89e3\u66f4\u591a"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -643,14 +643,14 @@ function SelectHookMode({
   onSelect,
   onCancel
 }) {
-  const title = hookEventMetadata.matcherMetadata !== undefined ? `${selectedEvent} - Matcher: ${selectedMatcher || "(all)"}` : selectedEvent;
+  const title = hookEventMetadata.matcherMetadata !== undefined ? `${selectedEvent} - \u5339\u914d\u5668\uff1a ${selectedMatcher || "\uff08\u5168\u90e8\uff09"}` : selectedEvent;
   if (hooksForSelectedMatcher.length === 0) {
     return /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Dialog, {
       title,
       subtitle: hookEventMetadata.description,
       onCancel,
       inputGuide: () => /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
-        children: "Esc to go back"
+        children: "Esc \u8fd4\u56de"
       }, undefined, false, undefined, this),
       children: /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
         flexDirection: "column",
@@ -658,11 +658,11 @@ function SelectHookMode({
         children: [
           /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "No hooks configured for this event."
+            children: "\u6b64\u4e8b\u4ef6\u672a\u914d\u7f6e hooks\u3002"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "To add hooks, edit settings.json directly or ask Claude."
+            children: "\u8981\u6dfb\u52a0 hooks\uff0c\u8bf7\u76f4\u63a5\u7f16\u8f91 settings.json \u6216\u8be2\u95ee Claude\u3002"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this)
@@ -723,11 +723,11 @@ function SelectMatcherMode({
   }, [matchersForSelectedEvent, hooksByEventAndMatcher, selectedEvent]);
   if (matchersForSelectedEvent.length === 0) {
     return /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(Dialog, {
-      title: `${selectedEvent} - Matchers`,
+      title: `${selectedEvent} - \u5339\u914d\u5668`,
       subtitle: eventDescription,
       onCancel,
       inputGuide: () => /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
-        children: "Esc to go back"
+        children: "Esc \u8fd4\u56de"
       }, undefined, false, undefined, this),
       children: /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedBox_default, {
         flexDirection: "column",
@@ -735,18 +735,18 @@ function SelectMatcherMode({
         children: [
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "No hooks configured for this event."
+            children: "\u6b64\u4e8b\u4ef6\u672a\u914d\u7f6e hooks\u3002"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "To add hooks, edit settings.json directly or ask Claude."
+            children: "\u8981\u6dfb\u52a0 hooks\uff0c\u8bf7\u76f4\u63a5\u7f16\u8f91 settings.json \u6216\u8be2\u95ee Claude\u3002"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this)
     }, undefined, false, undefined, this);
   }
   return /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(Dialog, {
-    title: `${selectedEvent} - Matchers`,
+    title: `${selectedEvent} - \u5339\u914d\u5668`,
     subtitle: eventDescription,
     onCancel,
     children: /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedBox_default, {
@@ -754,11 +754,11 @@ function SelectMatcherMode({
       children: /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(Select, {
         options: matchersWithSources.map((item) => {
           const sourceText = item.sources.map(hookSourceInlineDisplayString).join(", ");
-          const matcherLabel = item.matcher || "(all)";
+          const matcherLabel = item.matcher || "\uff08\u5168\u90e8\uff09";
           return {
             label: `[${sourceText}] ${matcherLabel}`,
             value: item.matcher,
-            description: `${item.hookCount} ${plural(item.hookCount, "hook")}`
+            description: `${item.hookCount} \u4e2a hook`
           };
         }),
         onChange: (value) => {
@@ -787,10 +787,10 @@ function ViewHookMode({
   onCancel
 }) {
   return /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(Dialog, {
-    title: "Hook details",
+    title: "Hook \u8be6\u60c5",
     onCancel,
     inputGuide: () => /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
-      children: "Esc to go back"
+      children: "Esc \u8fd4\u56de"
     }, undefined, false, undefined, this),
     children: /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedBox_default, {
       flexDirection: "column",
@@ -801,7 +801,7 @@ function ViewHookMode({
           children: [
             /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
               children: [
-                "Event: ",
+                "\u4e8b\u4ef6\uff1a ",
                 /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
                   bold: true,
                   children: selectedHook.event
@@ -810,16 +810,16 @@ function ViewHookMode({
             }, undefined, true, undefined, this),
             eventSupportsMatcher && /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
               children: [
-                "Matcher: ",
+                "\u5339\u914d\u5668\uff1a ",
                 /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
                   bold: true,
-                  children: selectedHook.matcher || "(all)"
+                  children: selectedHook.matcher || "\uff08\u5168\u90e8\uff09"
                 }, undefined, false, undefined, this)
               ]
             }, undefined, true, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
               children: [
-                "Type: ",
+                "\u7c7b\u578b\uff1a ",
                 /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
                   bold: true,
                   children: selectedHook.config.type
@@ -828,7 +828,7 @@ function ViewHookMode({
             }, undefined, true, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
               children: [
-                "Source:",
+                "\u6765\u6e90\uff1a",
                 " ",
                 /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
                   dimColor: true,
@@ -838,7 +838,7 @@ function ViewHookMode({
             }, undefined, true, undefined, this),
             selectedHook.pluginName && /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
               children: [
-                "Plugin: ",
+                "\u63d2\u4ef6\uff1a ",
                 /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
                   dimColor: true,
                   children: selectedHook.pluginName
@@ -870,7 +870,7 @@ function ViewHookMode({
         }, undefined, true, undefined, this),
         "statusMessage" in selectedHook.config && selectedHook.config.statusMessage && /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
           children: [
-            "Status message:",
+            "\u72b6\u6001\u6d88\u606f\uff1a",
             " ",
             /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
               dimColor: true,
@@ -880,7 +880,7 @@ function ViewHookMode({
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "To modify or remove this hook, edit settings.json directly or ask Claude to help."
+          children: "\u8981\u4fee\u6539\u6216\u79fb\u9664\u6b64 hook\uff0c\u8bf7\u76f4\u63a5\u7f16\u8f91 settings.json \u6216\u8be2\u95ee Claude\u3002"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this)
@@ -889,11 +889,11 @@ function ViewHookMode({
 function getContentFieldLabel(config) {
   switch (config.type) {
     case "command":
-      return "Command";
+      return "\u547d\u4ee4";
     case "prompt":
-      return "Prompt";
+      return "\u63d0\u793a\u8bcd";
     case "agent":
-      return "Prompt";
+      return "\u63d0\u793a\u8bcd";
     case "http":
       return "URL";
   }
@@ -1001,10 +1001,10 @@ function HooksConfigMenu({ toolNames, onExit }) {
   }, [hooksByEventAndMatcher]);
   if (hooksDisabled) {
     return /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(Dialog, {
-      title: "Hook Configuration - Disabled",
+      title: "Hook \u914d\u7f6e - \u5df2\u7981\u7528",
       onCancel: handleExit,
       inputGuide: () => /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
-        children: "Esc to close"
+        children: "Esc \u5173\u95ed"
       }, undefined, false, undefined, this),
       children: /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedBox_default, {
         flexDirection: "column",
@@ -1015,51 +1015,48 @@ function HooksConfigMenu({ toolNames, onExit }) {
             children: [
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
                 children: [
-                  "All hooks are currently ",
+                  "\u6240\u6709 hooks \u5f53\u524d",
                   /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "disabled"
+                    children: "\u5df2\u7981\u7528"
                   }, undefined, false, undefined, this),
-                  disabledByPolicy && " by a managed settings file",
-                  ". You have",
+                  disabledByPolicy && " \u7531\u6258\u7ba1\u8bbe\u7f6e\u6587\u4ef6\u7981\u7528",
+                  "\u3002\u5171",
                   " ",
                   /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
                     bold: true,
                     children: totalHooksCount
                   }, undefined, false, undefined, this),
-                  " configured",
+                  " \u4e2a hook\uff0c",
                   " ",
-                  plural(totalHooksCount, "hook"),
-                  " that",
-                  " ",
-                  plural(totalHooksCount, "is", "are"),
-                  " not running."
+                  plural(totalHooksCount, "\u5747", "\u5747"),
+                  " \u672a\u8fd0\u884c\u3002"
                 ]
               }, undefined, true, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedBox_default, {
                 marginTop: 1,
                 children: /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
                   dimColor: true,
-                  children: "When hooks are disabled:"
+                  children: "hooks \u7981\u7528\u65f6\uff1a"
                 }, undefined, false, undefined, this)
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
                 dimColor: true,
-                children: "\xB7 No hook commands will execute"
+                children: "\xb7 \u4e0d\u4f1a\u6267\u884c\u4efb\u4f55 hook \u547d\u4ee4"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
                 dimColor: true,
-                children: "\xB7 StatusLine will not be displayed"
+                children: "\xb7 \u4e0d\u663e\u793a\u72b6\u6001\u884c"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
                 dimColor: true,
-                children: "\xB7 Tool operations will proceed without hook validation"
+                children: "\xb7 \u5de5\u5177\u64cd\u4f5c\u5c06\u8df3\u8fc7 hook \u9a8c\u8bc1"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this),
           !disabledByPolicy && /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
             dimColor: true,
-            children: 'To re-enable hooks, remove "disableAllHooks" from settings.json or ask Claude.'
+            children: '\u8981\u91cd\u65b0\u542f\u7528 hooks\uff0c\u8bf7\u4ece settings.json \u79fb\u9664 "disableAllHooks" \u6216\u8be2\u95ee Claude\u3002'
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this)

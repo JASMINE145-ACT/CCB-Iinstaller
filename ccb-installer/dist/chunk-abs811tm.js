@@ -267,16 +267,16 @@ var getExampleCommandFromCache = memoize_default(() => {
   const projectConfig = getCurrentProjectConfig();
   const frequentFile = projectConfig.exampleFiles?.length ? sample_default(projectConfig.exampleFiles) : "<filepath>";
   const commands = [
-    "fix lint errors",
-    "fix typecheck errors",
+    "\u4fee\u590d lint \u9519\u8bef",
+    "\u4fee\u590d\u7c7b\u578b\u68c0\u67e5\u9519\u8bef",
     `how does ${frequentFile} work?`,
     `refactor ${frequentFile}`,
-    "how do I log an error?",
+    "\u5982\u4f55\u8bb0\u5f55\u9519\u8bef\uff1f",
     `edit ${frequentFile} to...`,
     `write a test for ${frequentFile}`,
     "create a util logging.py that..."
   ];
-  return `Try "${sample_default(commands)}"`;
+  return `\u8bd5\u8bd5\u201c${sample_default(commands)}\u201d`;
 });
 var refreshExampleCommands = memoize_default(async () => {
   const projectConfig = getCurrentProjectConfig();
@@ -799,12 +799,12 @@ function DesktopUpsellStartup({ onDone }) {
     }
   }
   const options = [
-    { label: "Open in Claude Code Desktop", value: "try" },
-    { label: "Not now", value: "not-now" },
-    { label: "Don't ask again", value: "never" }
+    { label: "\u5728 Claude Code \u684c\u9762\u7248\u4e2d\u6253\u5f00", value: "try" },
+    { label: "\u6682\u4e0d", value: "not-now" },
+    { label: "\u4e0d\u518d\u8be2\u95ee", value: "never" }
   ];
   return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(PermissionDialog, {
-    title: "Try Claude Code Desktop",
+    title: "\u8bd5\u7528 Claude Code \u684c\u9762\u7248",
     children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
       flexDirection: "column",
       paddingX: 2,
@@ -813,7 +813,7 @@ function DesktopUpsellStartup({ onDone }) {
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
           marginBottom: 1,
           children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-            children: "Same Claude Code with visual diffs, live app preview, parallel sessions, and more."
+            children: "Claude Code \u684c\u9762\u7248\u652f\u6301\u53ef\u89c6\u5316 diff\u3001\u5b9e\u65f6\u9884\u89c8\u3001\u5e76\u884c\u4f1a\u8bdd\u7b49\u3002"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Select, {
@@ -907,7 +907,7 @@ async function isMarketplacePluginRelevant(pluginName, context, signals) {
 var externalTips = [
   {
     id: "new-user-warmup",
-    content: async () => `Start with small features or bug fixes, tell Claude to propose a plan, and verify its suggested edits`,
+    content: async () => `\u4ece\u5c0f\u529f\u80fd\u6216 bug \u4fee\u590d\u5f00\u59cb\uff0c\u8ba9 Claude \u63d0\u51fa\u8ba1\u5212\u5e76\u9a8c\u8bc1\u5efa\u8bae\u7684\u4fee\u6539`,
     cooldownSessions: 3,
     async isRelevant() {
       const config = getGlobalConfig();
@@ -916,7 +916,7 @@ var externalTips = [
   },
   {
     id: "plan-mode-for-complex-tasks",
-    content: async () => `Use Plan Mode to prepare for a complex request before making changes. Press ${getShortcutDisplay("chat:cycleMode", "Chat", "shift+tab")} twice to enable.`,
+    content: async () => `\u590d\u6742\u4efb\u52a1\u524d\u7528\u8ba1\u5212\u6a21\u5f0f\u505a\u51c6\u5907\uff0c\u6309 ${getShortcutDisplay("chat:cycleMode", "Chat", "shift+tab")} \u4e24\u6b21\u542f\u7528\u3002`,
     cooldownSessions: 5,
     isRelevant: async () => {
       if (process.env.USER_TYPE === "ant")
@@ -928,7 +928,7 @@ var externalTips = [
   },
   {
     id: "default-permission-mode-config",
-    content: async () => `Use /config to change your default permission mode (including Plan Mode)`,
+    content: async () => `\u4f7f\u7528 /config \u66f4\u6539\u9ed8\u8ba4\u6743\u9650\u6a21\u5f0f\uff08\u5305\u542b\u8ba1\u5212\u6a21\u5f0f\uff09`,
     cooldownSessions: 10,
     isRelevant: async () => {
       try {
@@ -945,7 +945,7 @@ var externalTips = [
   },
   {
     id: "git-worktrees",
-    content: async () => "Use git worktrees to run multiple Claude sessions in parallel.",
+    content: async () => "\u4f7f\u7528 git worktrees \u5e76\u884c\u8fd0\u884c\u591a\u4e2a Claude \u4f1a\u8bdd\u3002",
     cooldownSessions: 10,
     isRelevant: async () => {
       try {
@@ -959,7 +959,7 @@ var externalTips = [
   },
   {
     id: "color-when-multi-clauding",
-    content: async () => "Running multiple Claude sessions? Use /color and /rename to tell them apart at a glance.",
+    content: async () => "\u8fd0\u884c\u591a\u4e2a Claude \u4f1a\u8bdd\uff1f\u4f7f\u7528 /color \u548c /rename \u533a\u5206\u5b83\u4eec\u3002",
     cooldownSessions: 10,
     isRelevant: async () => {
       if (getCurrentSessionAgentColor())
@@ -970,7 +970,7 @@ var externalTips = [
   },
   {
     id: "terminal-setup",
-    content: async () => env.terminal === "Apple_Terminal" ? "Run /terminal-setup to enable convenient terminal integration like Option + Enter for new line and more" : "Run /terminal-setup to enable convenient terminal integration like Shift + Enter for new line and more",
+    content: async () => env.terminal === "Apple_Terminal" ? "\u8fd0\u884c /terminal-setup \u542f\u7528\u7ec8\u7aef\u96c6\u6210\uff08\u5982 Option+Enter \u6362\u884c\u7b49\uff09" : "\u8fd0\u884c /terminal-setup \u542f\u7528\u7ec8\u7aef\u96c6\u6210\uff08\u5982 Shift+Enter \u6362\u884c\u7b49\uff09",
     cooldownSessions: 10,
     async isRelevant() {
       const config = getGlobalConfig();
@@ -982,7 +982,7 @@ var externalTips = [
   },
   {
     id: "shift-enter",
-    content: async () => env.terminal === "Apple_Terminal" ? "Press Option+Enter to send a multi-line message" : "Press Shift+Enter to send a multi-line message",
+    content: async () => env.terminal === "Apple_Terminal" ? "\u6309 Option+Enter \u53d1\u9001\u591a\u884c\u6d88\u606f" : "\u6309 Shift+Enter \u53d1\u9001\u591a\u884c\u6d88\u606f",
     cooldownSessions: 10,
     async isRelevant() {
       const config = getGlobalConfig();
@@ -991,7 +991,7 @@ var externalTips = [
   },
   {
     id: "shift-enter-setup",
-    content: async () => env.terminal === "Apple_Terminal" ? "Run /terminal-setup to enable Option+Enter for new lines" : "Run /terminal-setup to enable Shift+Enter for new lines",
+    content: async () => env.terminal === "Apple_Terminal" ? "\u8fd0\u884c /terminal-setup \u542f\u7528 Option+Enter \u6362\u884c" : "\u8fd0\u884c /terminal-setup \u542f\u7528 Shift+Enter \u6362\u884c",
     cooldownSessions: 10,
     async isRelevant() {
       if (!shouldOfferTerminalSetup()) {
@@ -1003,7 +1003,7 @@ var externalTips = [
   },
   {
     id: "memory-command",
-    content: async () => "Use /memory to view and manage Claude memory",
+    content: async () => "\u4f7f\u7528 /memory \u67e5\u770b\u548c\u7ba1\u7406 Claude \u8bb0\u5fc6",
     cooldownSessions: 15,
     async isRelevant() {
       const config = getGlobalConfig();
@@ -1012,31 +1012,31 @@ var externalTips = [
   },
   {
     id: "theme-command",
-    content: async () => "Use /theme to change the color theme",
+    content: async () => "\u4f7f\u7528 /theme \u66f4\u6539\u989c\u8272\u4e3b\u9898",
     cooldownSessions: 20,
     isRelevant: async () => true
   },
   {
     id: "colorterm-truecolor",
-    content: async () => "Try setting environment variable COLORTERM=truecolor for richer colors",
+    content: async () => "\u8bd5\u7740\u8bbe\u7f6e\u73af\u5883\u53d8\u91cf COLORTERM=truecolor \u4ee5\u83b7\u5f97\u66f4\u4e30\u5bcc\u7684\u989c\u8272",
     cooldownSessions: 30,
     isRelevant: async () => !process.env.COLORTERM && source_default.level < 3
   },
   {
     id: "powershell-tool-env",
-    content: async () => "Set CLAUDE_CODE_USE_POWERSHELL_TOOL=1 to enable the PowerShell tool (preview)",
+    content: async () => "\u8bbe\u7f6e CLAUDE_CODE_USE_POWERSHELL_TOOL=1 \u4ee5\u542f\u7528 PowerShell \u5de5\u5177\uff08\u9884\u89c8\uff09",
     cooldownSessions: 10,
     isRelevant: async () => getPlatform() === "windows" && process.env.CLAUDE_CODE_USE_POWERSHELL_TOOL === undefined
   },
   {
     id: "status-line",
-    content: async () => "Use /statusline to set up a custom status line that will display beneath the input box",
+    content: async () => "\u4f7f\u7528 /statusline \u5728\u8f93\u5165\u6846\u4e0b\u65b9\u8bbe\u7f6e\u81ea\u5b9a\u4e49\u72b6\u6001\u884c",
     cooldownSessions: 25,
     isRelevant: async () => getSettings_DEPRECATED().statusLine === undefined
   },
   {
     id: "prompt-queue",
-    content: async () => "Hit Enter to queue up additional messages while Claude is working.",
+    content: async () => "Claude \u5de5\u4f5c\u65f6\u6309 Enter \u53ef\u5c06\u6d88\u606f\u52a0\u5165\u961f\u5217\u3002",
     cooldownSessions: 5,
     async isRelevant() {
       const config = getGlobalConfig();
@@ -1045,19 +1045,19 @@ var externalTips = [
   },
   {
     id: "enter-to-steer-in-relatime",
-    content: async () => "Send messages to Claude while it works to steer Claude in real-time",
+    content: async () => "\u5728 Claude \u5de5\u4f5c\u65f6\u53d1\u9001\u6d88\u606f\uff0c\u5b9e\u65f6\u5f15\u5bfc\u5176\u884c\u4e3a\u3002",
     cooldownSessions: 20,
     isRelevant: async () => true
   },
   {
     id: "todo-list",
-    content: async () => "Ask Claude to create a todo list when working on complex tasks to track progress and remain on track",
+    content: async () => "\u5904\u7406\u590d\u6742\u4efb\u52a1\u65f6\u8ba9 Claude \u521b\u5efa\u5f85\u529e\u6e05\u5355\uff0c\u8ddf\u8e2a\u8fdb\u5ea6\u4e0d\u8d70\u504f\u3002",
     cooldownSessions: 20,
     isRelevant: async () => true
   },
   {
     id: "vscode-command-install",
-    content: async () => `Open the Command Palette (Cmd+Shift+P) and run "Shell Command: Install '${env.terminal === "vscode" ? "code" : env.terminal}' command in PATH" to enable IDE integration`,
+    content: async () => `\u6253\u5f00\u547d\u4ee4\u9762\u677f\uff08Cmd+Shift+P\uff09\u5e76\u8fd0\u884c\u201cShell Command: Install '${env.terminal === "vscode" ? "code" : env.terminal}' \u547d\u4ee4\u5230 PATH\u201d\u4ee5\u542f\u7528 IDE \u96c6\u6210`,
     cooldownSessions: 0,
     async isRelevant() {
       if (!isSupportedVSCodeTerminal()) {
@@ -1080,7 +1080,7 @@ var externalTips = [
   },
   {
     id: "ide-upsell-external-terminal",
-    content: async () => "Connect Claude to your IDE \xB7 /ide",
+    content: async () => "\u8fde\u63a5 Claude \u5230 IDE \xb7 /ide",
     cooldownSessions: 4,
     async isRelevant() {
       if (isSupportedTerminal()) {
@@ -1096,19 +1096,19 @@ var externalTips = [
   },
   {
     id: "install-github-app",
-    content: async () => "Run /install-github-app to tag @claude right from your Github issues and PRs",
+    content: async () => "\u8fd0\u884c /install-github-app\uff0c\u5728 Github Issue \u548c PR \u4e2d\u76f4\u63a5 @claude",
     cooldownSessions: 10,
     isRelevant: async () => !getGlobalConfig().githubActionSetupCount
   },
   {
     id: "install-slack-app",
-    content: async () => "Run /install-slack-app to use Claude in Slack",
+    content: async () => "\u8fd0\u884c /install-slack-app \u5728 Slack \u4e2d\u4f7f\u7528 Claude",
     cooldownSessions: 10,
     isRelevant: async () => !getGlobalConfig().slackAppInstallCount
   },
   {
     id: "permissions",
-    content: async () => "Use /permissions to pre-approve and pre-deny bash, edit, and MCP tools",
+    content: async () => "\u4f7f\u7528 /permissions \u9884\u5148\u6279\u51c6\u6216\u62d2\u7edd bash\u3001edit \u548c MCP \u5de5\u5177",
     cooldownSessions: 10,
     async isRelevant() {
       const config = getGlobalConfig();
@@ -1117,43 +1117,43 @@ var externalTips = [
   },
   {
     id: "drag-and-drop-images",
-    content: async () => "Did you know you can drag and drop image files into your terminal?",
+    content: async () => "\u53ef\u4ee5\u628a\u56fe\u7247\u6587\u4ef6\u62d6\u62fd\u5230\u7ec8\u7aef\u4e2d",
     cooldownSessions: 10,
     isRelevant: async () => !env.isSSH()
   },
   {
     id: "paste-images-mac",
-    content: async () => "Paste images into Claude Code using control+v (not cmd+v!)",
+    content: async () => "\u4f7f\u7528 Ctrl+V \u7c98\u8d34\u56fe\u7247\u5230 Claude Code\uff08\u4e0d\u662f Cmd+V\uff01\uff09",
     cooldownSessions: 10,
     isRelevant: async () => getPlatform() === "macos"
   },
   {
     id: "double-esc",
-    content: async () => "Double-tap esc to rewind the conversation to a previous point in time",
+    content: async () => "\u53cc\u51fb Esc \u56de\u9000\u5230\u5bf9\u8bdd\u7684\u4e4b\u524d\u8282\u70b9",
     cooldownSessions: 10,
     isRelevant: async () => !fileHistoryEnabled()
   },
   {
     id: "double-esc-code-restore",
-    content: async () => "Double-tap esc to rewind the code and/or conversation to a previous point in time",
+    content: async () => "\u53cc\u51fb Esc \u56de\u9000\u4ee3\u7801\u548c/\u6216\u5bf9\u8bdd\u5230\u4e4b\u524d\u8282\u70b9",
     cooldownSessions: 10,
     isRelevant: async () => fileHistoryEnabled()
   },
   {
     id: "continue",
-    content: async () => "Run claude --continue or claude --resume to resume a conversation",
+    content: async () => "\u8fd0\u884c claude --continue \u6216 claude --resume \u6062\u590d\u4f1a\u8bdd",
     cooldownSessions: 10,
     isRelevant: async () => true
   },
   {
     id: "rename-conversation",
-    content: async () => "Name your conversations with /rename to find them easily in /resume later",
+    content: async () => "\u7528 /rename \u547d\u540d\u4f1a\u8bdd\uff0c\u4fbf\u4e8e\u5728 /resume \u4e2d\u627e\u56de",
     cooldownSessions: 15,
     isRelevant: async () => isCustomTitleEnabled() && getGlobalConfig().numStartups > 10
   },
   {
     id: "custom-commands",
-    content: async () => "Create skills by adding .md files to .claude/skills/ in your project or ~/.claude/skills/ for skills that work in any project",
+    content: async () => "\u5728\u9879\u76ee .claude/skills/ \u6216 ~/.claude/skills/ \u6dfb\u52a0 .md \u6587\u4ef6\u5373\u53ef\u521b\u5efa skill",
     cooldownSessions: 15,
     async isRelevant() {
       const config = getGlobalConfig();
@@ -1162,19 +1162,19 @@ var externalTips = [
   },
   {
     id: "shift-tab",
-    content: async () => process.env.USER_TYPE === "ant" ? `Hit ${getShortcutDisplay("chat:cycleMode", "Chat", "shift+tab")} to cycle between default mode and auto mode` : `Hit ${getShortcutDisplay("chat:cycleMode", "Chat", "shift+tab")} to cycle between default mode, auto-accept edit mode, and plan mode`,
+    content: async () => process.env.USER_TYPE === "ant" ? `Hit ${getShortcutDisplay("chat:cycleMode", "Chat", "shift+tab")} to cycle between default mode and auto mode` : `\u6309 ${getShortcutDisplay("chat:cycleMode", "Chat", "shift+tab")} \u5728\u9ed8\u8ba4\u3001\u81ea\u52a8\u63a5\u53d7\u7f16\u8f91\u548c\u8ba1\u5212\u6a21\u5f0f\u4e4b\u95f4\u5207\u6362`,
     cooldownSessions: 10,
     isRelevant: async () => true
   },
   {
     id: "image-paste",
-    content: async () => `Use ${getShortcutDisplay("chat:imagePaste", "Chat", "ctrl+v")} to paste images from your clipboard`,
+    content: async () => `\u4f7f\u7528 ${getShortcutDisplay("chat:imagePaste", "Chat", "ctrl+v")} \u4ece\u526a\u8d34\u677f\u7c98\u8d34\u56fe\u7247`,
     cooldownSessions: 20,
     isRelevant: async () => true
   },
   {
     id: "custom-agents",
-    content: async () => "Use /agents to optimize specific tasks. Eg. Software Architect, Code Writer, Code Reviewer",
+    content: async () => "\u4f7f\u7528 /agents \u4e3a\u7279\u5b9a\u4efb\u52a1\u4f18\u5316 agent\uff0c\u4f8b\u5982\u67b6\u6784\u5e08\u3001\u4ee3\u7801\u7f16\u5199\u3001\u4ee3\u7801\u5ba1\u67e5",
     cooldownSessions: 15,
     async isRelevant() {
       const config = getGlobalConfig();
@@ -1183,7 +1183,7 @@ var externalTips = [
   },
   {
     id: "agent-flag",
-    content: async () => "Use --agent <agent_name> to directly start a conversation with a subagent",
+    content: async () => "\u4f7f\u7528 --agent <agent_name> \u76f4\u63a5\u4e0e\u5b50 agent \u5f00\u59cb\u5bf9\u8bdd",
     cooldownSessions: 15,
     async isRelevant() {
       const config = getGlobalConfig();
@@ -1192,7 +1192,7 @@ var externalTips = [
   },
   {
     id: "desktop-app",
-    content: async () => "Run Claude Code locally or remotely using the Claude desktop app: clau.de/desktop",
+    content: async () => "\u901a\u8fc7 Claude \u684c\u9762\u5e94\u7528\u5728\u672c\u5730\u6216\u8fdc\u7a0b\u8fd0\u884c Claude Code\uff1a clau.de/desktop",
     cooldownSessions: 15,
     isRelevant: async () => getPlatform() !== "linux"
   },
@@ -1200,7 +1200,7 @@ var externalTips = [
     id: "desktop-shortcut",
     content: async (ctx) => {
       const blue = color("suggestion", ctx.theme);
-      return `Continue your session in Claude Code Desktop with ${blue("/desktop")}`;
+      return `\u5728 Claude Code \u684c\u9762\u7248\u4e2d\u7ee7\u7eed\u4f1a\u8bdd\uff1a${blue("/desktop")}`;
     },
     cooldownSessions: 15,
     isRelevant: async () => {
@@ -1211,19 +1211,19 @@ var externalTips = [
   },
   {
     id: "web-app",
-    content: async () => "Run tasks in the cloud while you keep coding locally \xB7 clau.de/web",
+    content: async () => "\u5728\u4e91\u7aef\u8fd0\u884c\u4efb\u52a1\uff0c\u672c\u5730\u7ee7\u7eed\u7f16\u7801 \xb7 clau.de/web",
     cooldownSessions: 15,
     isRelevant: async () => true
   },
   {
     id: "mobile-app",
-    content: async () => "/mobile to use Claude Code from the Claude app on your phone",
+    content: async () => "\u4f7f\u7528 /mobile \u5728\u624b\u673a Claude \u5e94\u7528\u4e2d\u4f7f\u7528 Claude Code",
     cooldownSessions: 15,
     isRelevant: async () => true
   },
   {
     id: "opusplan-mode-reminder",
-    content: async () => `Your default model setting is Opus Plan Mode. Press ${getShortcutDisplay("chat:cycleMode", "Chat", "shift+tab")} twice to activate Plan Mode and plan with Claude Opus.`,
+    content: async () => `\u9ed8\u8ba4\u6a21\u578b\u4e3a Opus \u8ba1\u5212\u6a21\u5f0f\u3002\u6309 ${getShortcutDisplay("chat:cycleMode", "Chat", "shift+tab")} \u4e24\u6b21\u542f\u7528\u8ba1\u5212\u6a21\u5f0f\u5e76\u4f7f\u7528 Claude Opus \u89c4\u5212\u3002`,
     cooldownSessions: 2,
     async isRelevant() {
       if (process.env.USER_TYPE === "ant")
@@ -1239,7 +1239,7 @@ var externalTips = [
     id: "frontend-design-plugin",
     content: async (ctx) => {
       const blue = color("suggestion", ctx.theme);
-      return `Working with HTML/CSS? Install the frontend-design plugin:
+      return `\u5728\u505a HTML/CSS\uff1f\u5b89\u88c5 frontend-design \u63d2\u4ef6\uff1a
 ${blue(`/plugin install frontend-design@${OFFICIAL_MARKETPLACE_NAME}`)}`;
     },
     cooldownSessions: 3,
@@ -1251,7 +1251,7 @@ ${blue(`/plugin install frontend-design@${OFFICIAL_MARKETPLACE_NAME}`)}`;
     id: "vercel-plugin",
     content: async (ctx) => {
       const blue = color("suggestion", ctx.theme);
-      return `Working with Vercel? Install the vercel plugin:
+      return `\u5728\u7528 Vercel\uff1f\u5b89\u88c5 vercel \u63d2\u4ef6\uff1a
 ${blue(`/plugin install vercel@${OFFICIAL_MARKETPLACE_NAME}`)}`;
     },
     cooldownSessions: 3,
@@ -1266,7 +1266,7 @@ ${blue(`/plugin install vercel@${OFFICIAL_MARKETPLACE_NAME}`)}`;
       const blue = color("suggestion", ctx.theme);
       const cmd = blue("/effort high");
       const variant = getFeatureValue_CACHED_MAY_BE_STALE("tengu_tide_elm", "off");
-      return variant === "copy_b" ? `Use ${cmd} for better one-shot answers. Claude thinks it through first.` : `Working on something tricky? ${cmd} gives better first answers`;
+      return variant === "copy_b" ? `\u4f7f\u7528 ${cmd} \u83b7\u5f97\u66f4\u597d\u7684\u4e00\u6b21\u6027\u56de\u7b54\u3002Claude \u4f1a\u5148\u6df1\u5165\u601d\u8003\u3002` : `\u5728\u5904\u7406\u96be\u9898\uff1f${cmd} \u80fd\u63d0\u4f9b\u66f4\u597d\u7684\u9996\u6b21\u56de\u7b54`;
     },
     cooldownSessions: 3,
     isRelevant: async () => {
@@ -1290,7 +1290,7 @@ ${blue(`/plugin install vercel@${OFFICIAL_MARKETPLACE_NAME}`)}`;
     content: async (ctx) => {
       const blue = color("suggestion", ctx.theme);
       const variant = getFeatureValue_CACHED_MAY_BE_STALE("tengu_tern_alloy", "off");
-      return variant === "copy_b" ? `For big tasks, tell Claude to ${blue("use subagents")}. They work in parallel and keep your main thread clean.` : `Say ${blue('"fan out subagents"')} and Claude sends a team. Each one digs deep so nothing gets missed.`;
+      return variant === "copy_b" ? `\u5927\u578b\u4efb\u52a1\u53ef\u8ba9 Claude ${blue("\u4f7f\u7528\u5b50 agent")}\uff0c\u5e76\u884c\u5904\u7406\u4e14\u4e0d\u5360\u7528\u4e3b\u7ebf\u7a0b\u3002` : `\u8bf4 ${blue('\u201c\u6d3e\u51fa\u5b50 agent\u201d')} \u8ba9 Claude \u6d3e\u51fa\u56e2\u961f\uff0c\u5404\u81ea\u6df1\u5165\u5904\u7406\u4e0d\u9057\u6f0f\u3002`;
     },
     cooldownSessions: 3,
     isRelevant: async () => {
@@ -1304,7 +1304,7 @@ ${blue(`/plugin install vercel@${OFFICIAL_MARKETPLACE_NAME}`)}`;
     content: async (ctx) => {
       const blue = color("suggestion", ctx.theme);
       const variant = getFeatureValue_CACHED_MAY_BE_STALE("tengu_timber_lark", "off");
-      return variant === "copy_b" ? `Use ${blue("/loop 5m check the deploy")} to run any prompt on a schedule. Set it and forget it.` : `${blue("/loop")} runs any prompt on a recurring schedule. Great for monitoring deploys, babysitting PRs, or polling status.`;
+      return variant === "copy_b" ? `\u4f7f\u7528 ${blue("/loop 5m check the deploy")} \u6309\u65f6\u95f4\u8868\u8fd0\u884c\u4efb\u610f\u63d0\u793a\u3002\u8bbe\u597d\u5373\u53ef\u653e\u4efb\u3002` : `${blue("/loop")} \u53ef\u6309\u5468\u671f\u8fd0\u884c\u4efb\u610f\u63d0\u793a\uff0c\u9002\u5408\u76d1\u63a7\u90e8\u7f72\u3001\u5173\u6ce8 PR \u6216\u8f6e\u8be2\u72b6\u6001\u3002`;
     },
     cooldownSessions: 3,
     isRelevant: async () => {
@@ -1320,7 +1320,7 @@ ${blue(`/plugin install vercel@${OFFICIAL_MARKETPLACE_NAME}`)}`;
     content: async (ctx) => {
       const claude = color("claude", ctx.theme);
       const reward = getCachedReferrerReward();
-      return reward ? `Share Claude Code and earn ${claude(formatCreditAmount(reward))} of extra usage \xB7 ${claude("/passes")}` : `You have free guest passes to share \xB7 ${claude("/passes")}`;
+      return reward ? `\u5206\u4eab Claude Code\uff0c\u53ef\u83b7\u5f97 ${claude(formatCreditAmount(reward))} \u989d\u5916\u7528\u91cf \xb7 ${claude("/passes")}` : `\u60a8\u6709\u514d\u8d39\u5ba2\u4eba\u901a\u884c\u8bc1\u53ef\u5206\u4eab \xb7 ${claude("/passes")}`;
     },
     cooldownSessions: 3,
     isRelevant: async () => {
@@ -1340,14 +1340,14 @@ ${blue(`/plugin install vercel@${OFFICIAL_MARKETPLACE_NAME}`)}`;
       const amount = info ? formatGrantAmount(info) : null;
       if (!amount)
         return "";
-      return `${claude(`${amount} in extra usage, on us`)} \xB7 third-party apps \xB7 ${claude("/extra-usage")}`;
+      return `${claude(`${amount} \u989d\u5916\u7528\u91cf\uff0c\u7531\u6211\u4eec\u627f\u62c5`)} \xb7 \u7b2c\u4e09\u65b9\u5e94\u7528 \xb7 ${claude("/extra-usage")}`;
     },
     cooldownSessions: 3,
     isRelevant: async () => shouldShowOverageCreditUpsell()
   },
   {
     id: "feedback-command",
-    content: async () => "Use /feedback to help us improve!",
+    content: async () => "\u4f7f\u7528 /feedback \u5e2e\u52a9\u6211\u4eec\u6539\u8fdb\uff01",
     cooldownSessions: 15,
     async isRelevant() {
       if (process.env.USER_TYPE === "ant") {

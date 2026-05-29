@@ -133,13 +133,13 @@ function KeybindingWarnings() {
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
         bold: true,
         color: errors.length > 0 ? "error" : "warning",
-        children: "Keybinding Configuration Issues"
+        children: "\u5feb\u6377\u952e\u914d\u7f6e\u95ee\u9898"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
         children: [
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Location: "
+            children: "\u4f4d\u7f6e\uff1a "
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             dimColor: true,
@@ -163,7 +163,7 @@ function KeybindingWarnings() {
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                     color: "error",
-                    children: "[Error]"
+                    children: "[\u9519\u8bef]"
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -197,7 +197,7 @@ function KeybindingWarnings() {
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                     color: "warning",
-                    children: "[Warning]"
+                    children: "[\u8b66\u544a]"
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -247,17 +247,17 @@ function SandboxDoctorSection() {
     return null;
   }
   const statusColor = hasErrors ? "error" : "warning";
-  const statusText = hasErrors ? "Missing dependencies" : "Available (with warnings)";
+  const statusText = hasErrors ? "\u7f3a\u5c11\u4f9d\u8d56" : "\u53ef\u7528\uff08\u6709\u8b66\u544a\uff09";
   return /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
     flexDirection: "column",
     children: [
       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
         bold: true,
-        children: "Sandbox"
+        children: "\u6c99\u7bb1"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
         children: [
-          "\u2514 Status: ",
+          "\u2514 \u72b6\u6001\uff1a ",
           /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
             color: statusColor,
             children: statusText
@@ -280,7 +280,7 @@ function SandboxDoctorSection() {
       }, i, true, undefined, this)),
       hasErrors && /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
         dimColor: true,
-        children: "\u2514 Run /sandbox for install instructions"
+        children: "\u2514 \u8fd0\u884c /sandbox \u67e5\u770b\u5b89\u88c5\u8bf4\u660e"
       }, undefined, false, undefined, this)
     ]
   }, undefined, true, undefined, this);
@@ -299,7 +299,7 @@ async function checkClaudeMdFiles() {
     return null;
   }
   const details = largeFiles.sort((a, b) => b.content.length - a.content.length).map((file) => `${file.path}: ${file.content.length.toLocaleString()} chars`);
-  const message = largeFiles.length === 1 ? `Large CLAUDE.md file detected (${largeFiles[0].content.length.toLocaleString()} chars > ${MAX_MEMORY_CHARACTER_COUNT.toLocaleString()})` : `${largeFiles.length} large CLAUDE.md files detected (each > ${MAX_MEMORY_CHARACTER_COUNT.toLocaleString()} chars)`;
+  const message = largeFiles.length === 1 ? `\u68c0\u6d4b\u5230\u5927\u578b CLAUDE.md \u6587\u4ef6\uff08${largeFiles[0].content.length.toLocaleString()} \u5b57\u7b26 > ${MAX_MEMORY_CHARACTER_COUNT.toLocaleString()}\uff09` : `\u68c0\u6d4b\u5230 ${largeFiles.length} \u4e2a\u5927\u578b CLAUDE.md \u6587\u4ef6\uff08\u6bcf\u4e2a > ${MAX_MEMORY_CHARACTER_COUNT.toLocaleString()} \u5b57\u7b26\uff09`;
   return {
     type: "claudemd_files",
     severity: "warning",
@@ -326,12 +326,12 @@ async function checkAgentDescriptions(agentInfo) {
   }).sort((a, b) => b.tokens - a.tokens);
   const details = agentTokens.slice(0, 5).map((agent) => `${agent.name}: ~${agent.tokens.toLocaleString()} tokens`);
   if (agentTokens.length > 5) {
-    details.push(`(${agentTokens.length - 5} more custom agents)`);
+    details.push(`\uff08\u8fd8\u6709 ${agentTokens.length - 5} \u4e2a\u81ea\u5b9a\u4e49 agent\uff09`);
   }
   return {
     type: "agent_descriptions",
     severity: "warning",
-    message: `Large agent descriptions (~${totalTokens.toLocaleString()} tokens > ${AGENT_DESCRIPTIONS_THRESHOLD.toLocaleString()})`,
+    message: `agent \u63cf\u8ff0\u8fc7\u5927\uff08~${totalTokens.toLocaleString()} tokens > ${AGENT_DESCRIPTIONS_THRESHOLD.toLocaleString()}\uff09`,
     details,
     currentValue: totalTokens,
     threshold: AGENT_DESCRIPTIONS_THRESHOLD
@@ -361,12 +361,12 @@ async function checkMcpTools(tools, getToolPermissionContext, agentInfo) {
     const sortedServers = Array.from(toolsByServer.entries()).sort((a, b) => b[1].tokens - a[1].tokens);
     const details = sortedServers.slice(0, 5).map(([name, info]) => `${name}: ${info.count} tools (~${info.tokens.toLocaleString()} tokens)`);
     if (sortedServers.length > 5) {
-      details.push(`(${sortedServers.length - 5} more servers)`);
+      details.push(`\uff08\u8fd8\u6709 ${sortedServers.length - 5} \u4e2a\u670d\u52a1\u5668\uff09`);
     }
     return {
       type: "mcp_tools",
       severity: "warning",
-      message: `Large MCP tools context (~${mcpToolTokens.toLocaleString()} tokens > ${MCP_TOOLS_THRESHOLD.toLocaleString()})`,
+      message: `MCP \u5de5\u5177\u4e0a\u4e0b\u6587\u8fc7\u5927\uff08~${mcpToolTokens.toLocaleString()} tokens > ${MCP_TOOLS_THRESHOLD.toLocaleString()}\uff09`,
       details,
       currentValue: mcpToolTokens,
       threshold: MCP_TOOLS_THRESHOLD
@@ -382,7 +382,7 @@ async function checkMcpTools(tools, getToolPermissionContext, agentInfo) {
     return {
       type: "mcp_tools",
       severity: "warning",
-      message: `Large MCP tools context (~${estimatedTokens.toLocaleString()} tokens estimated > ${MCP_TOOLS_THRESHOLD.toLocaleString()})`,
+      message: `MCP \u5de5\u5177\u4e0a\u4e0b\u6587\u8fc7\u5927\uff08~${estimatedTokens.toLocaleString()} tokens \u4f30\u7b97 > ${MCP_TOOLS_THRESHOLD.toLocaleString()}\uff09`,
       details: [
         `${mcpTools.length} MCP tools detected (token count estimated)`
       ],
@@ -407,7 +407,7 @@ async function checkUnreachableRules(getToolPermissionContext) {
   return {
     type: "unreachable_rules",
     severity: "warning",
-    message: `${unreachable.length} ${plural(unreachable.length, "unreachable permission rule")} detected`,
+    message: `\u68c0\u6d4b\u5230 ${unreachable.length} ${plural(unreachable.length, "\u4e0d\u53ef\u8fbe\u6743\u9650\u89c4\u5219")}`,
     details,
     currentValue: unreachable.length,
     threshold: 0
@@ -561,7 +561,7 @@ function Doctor({ onDone }) {
     })();
   }, [toolPermissionContext, tools, agentDefinitions]);
   const handleDismiss = import_react.useCallback(() => {
-    onDone("Claude Code diagnostics dismissed", { display: "system" });
+    onDone("\u5df2\u5173\u95ed Claude Code \u8bca\u65ad", { display: "system" });
   }, [onDone]);
   useKeybindings({
     "confirm:yes": handleDismiss,
@@ -571,7 +571,7 @@ function Doctor({ onDone }) {
     return /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(Pane, {
       children: /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
         dimColor: true,
-        children: "Checking installation status\u2026"
+        children: "\u6b63\u5728\u68c0\u67e5\u5b89\u88c5\u72b6\u6001\u2026"
       }, undefined, false, undefined, this)
     }, undefined, false, undefined, this);
   }
@@ -582,11 +582,11 @@ function Doctor({ onDone }) {
         children: [
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             bold: true,
-            children: "Diagnostics"
+            children: "\u8bca\u65ad"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             children: [
-              "\u2514 Currently running: ",
+              "\u2514 \u5f53\u524d\u8fd0\u884c\uff1a ",
               diagnostic.installationType,
               " (",
               diagnostic.version,
@@ -595,32 +595,32 @@ function Doctor({ onDone }) {
           }, undefined, true, undefined, this),
           diagnostic.packageManager && /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             children: [
-              "\u2514 Package manager: ",
+              "\u2514 \u5305\u7ba1\u7406\u5668\uff1a ",
               diagnostic.packageManager
             ]
           }, undefined, true, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             children: [
-              "\u2514 Path: ",
+              "\u2514 \u8def\u5f84\uff1a ",
               diagnostic.installationPath
             ]
           }, undefined, true, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             children: [
-              "\u2514 Invoked: ",
+              "\u2514 \u8c03\u7528\u8def\u5f84\uff1a ",
               diagnostic.invokedBinary
             ]
           }, undefined, true, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             children: [
-              "\u2514 Config install method: ",
+              "\u2514 \u914d\u7f6e\u5b89\u88c5\u65b9\u5f0f\uff1a ",
               diagnostic.configInstallMethod
             ]
           }, undefined, true, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             children: [
-              "\u2514 Search: ",
-              diagnostic.ripgrepStatus.working ? "OK" : "Not working",
+              "\u2514 \u641c\u7d22\uff1a ",
+              diagnostic.ripgrepStatus.working ? "OK" : "\u4e0d\u53ef\u7528",
               " (",
               diagnostic.ripgrepStatus.mode === "embedded" ? "bundled" : diagnostic.ripgrepStatus.mode === "builtin" ? "vendor" : diagnostic.ripgrepStatus.systemPath || "system",
               ")"
@@ -632,7 +632,7 @@ function Doctor({ onDone }) {
               /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                 color: "warning",
                 children: [
-                  "Recommendation: ",
+                  "\u5efa\u8bae\uff1a ",
                   diagnostic.recommendation.split(`
 `)[0]
                 ]
@@ -649,13 +649,13 @@ function Doctor({ onDone }) {
               /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {}, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                 color: "warning",
-                children: "Warning: Multiple installations found"
+                children: "\u8b66\u544a\uff1a\u68c0\u6d4b\u5230\u591a\u4e2a\u5b89\u88c5"
               }, undefined, false, undefined, this),
               diagnostic.multipleInstallations.map((install, i) => /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                 children: [
                   "\u2514 ",
                   install.type,
-                  " at ",
+                  " \u4e8e ",
                   install.path
                 ]
               }, i, true, undefined, this))
@@ -670,13 +670,13 @@ function Doctor({ onDone }) {
                   /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                     color: "warning",
                     children: [
-                      "Warning: ",
+                      "\u8b66\u544a\uff1a ",
                       warning.issue
                     ]
                   }, undefined, true, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                     children: [
-                      "Fix: ",
+                      "\u4fee\u590d\uff1a ",
                       warning.fix
                     ]
                   }, undefined, true, undefined, this)
@@ -691,7 +691,7 @@ function Doctor({ onDone }) {
             children: [
               /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                 bold: true,
-                children: "Invalid Settings"
+                children: "\u65e0\u6548\u8bbe\u7f6e"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ValidationErrorsList, {
                 errors: errorsExcludingMcp
@@ -705,25 +705,25 @@ function Doctor({ onDone }) {
         children: [
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             bold: true,
-            children: "Updates"
+            children: "\u66f4\u65b0"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             children: [
-              "\u2514 Auto-updates:",
+              "\u2514 \u81ea\u52a8\u66f4\u65b0\uff1a",
               " ",
-              diagnostic.packageManager ? "Managed by package manager" : diagnostic.autoUpdates
+              diagnostic.packageManager ? "\u7531\u5305\u7ba1\u7406\u5668\u7ba1\u7406" : diagnostic.autoUpdates
             ]
           }, undefined, true, undefined, this),
           diagnostic.hasUpdatePermissions !== null && /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             children: [
-              "\u2514 Update permissions:",
+              "\u2514 \u66f4\u65b0\u6743\u9650\uff1a",
               " ",
-              diagnostic.hasUpdatePermissions ? "Yes" : "No (requires sudo)"
+              diagnostic.hasUpdatePermissions ? "\u662f" : "\u5426\uff08\u9700\u8981 sudo\uff09"
             ]
           }, undefined, true, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             children: [
-              "\u2514 Auto-update channel: ",
+              "\u2514 \u81ea\u52a8\u66f4\u65b0\u6e20\u9053\uff1a ",
               autoUpdatesChannel
             ]
           }, undefined, true, undefined, this),
@@ -743,7 +743,7 @@ function Doctor({ onDone }) {
         children: [
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             bold: true,
-            children: "Environment Variables"
+            children: "\u73af\u5883\u53d8\u91cf"
           }, undefined, false, undefined, this),
           envValidationErrors.map((validation, i) => /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             children: [
@@ -764,19 +764,19 @@ function Doctor({ onDone }) {
         children: [
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             bold: true,
-            children: "Version Locks"
+            children: "\u7248\u672c\u9501\u5b9a"
           }, undefined, false, undefined, this),
           versionLockInfo.staleLocksCleaned > 0 && /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "\u2514 Cleaned ",
+              "\u2514 \u5df2\u6e05\u7406 ",
               versionLockInfo.staleLocksCleaned,
-              " stale lock(s)"
+              " \u4e2a\u8fc7\u671f\u9501"
             ]
           }, undefined, true, undefined, this),
           versionLockInfo.locks.length === 0 ? /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "\u2514 No active version locks"
+            children: "\u2514 \u65e0\u6d3b\u52a8\u7248\u672c\u9501"
           }, undefined, false, undefined, this) : versionLockInfo.locks.map((lock, i) => /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             children: [
               "\u2514 ",
@@ -785,10 +785,10 @@ function Doctor({ onDone }) {
               lock.pid,
               " ",
               lock.isProcessRunning ? /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
-                children: "(running)"
+                children: "(\u8fd0\u884c\u4e2d)"
               }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                 color: "warning",
-                children: "(stale)"
+                children: "(\u8fc7\u671f)"
               }, undefined, false, undefined, this)
             ]
           }, i, true, undefined, this))
@@ -800,14 +800,14 @@ function Doctor({ onDone }) {
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             bold: true,
             color: "error",
-            children: "Agent Parse Errors"
+            children: "Agent \u89e3\u6790\u9519\u8bef"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             color: "error",
             children: [
-              "\u2514 Failed to parse ",
+              "\u2514 \u89e3\u6790\u5931\u8d25 ",
               agentInfo.failedFiles.length,
-              " agent file(s):"
+              " \u4e2a agent \u6587\u4ef6\uff1a"
             ]
           }, undefined, true, undefined, this),
           agentInfo.failedFiles.map((file, i) => /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
@@ -828,14 +828,14 @@ function Doctor({ onDone }) {
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             bold: true,
             color: "error",
-            children: "Plugin Errors"
+            children: "\u63d2\u4ef6\u9519\u8bef"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             color: "error",
             children: [
               "\u2514 ",
               pluginsErrors.length,
-              " plugin error(s) detected:"
+              " \u4e2a\u63d2\u4ef6\u9519\u8bef\uff1a"
             ]
           }, undefined, true, undefined, this),
           pluginsErrors.map((error, i) => /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
@@ -858,7 +858,7 @@ function Doctor({ onDone }) {
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             bold: true,
             color: "warning",
-            children: "Unreachable Permission Rules"
+            children: "\u4e0d\u53ef\u8fbe\u7684\u6743\u9650\u89c4\u5219"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             children: [
@@ -889,7 +889,7 @@ function Doctor({ onDone }) {
         children: [
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             bold: true,
-            children: "Context Usage Warnings"
+            children: "\u4e0a\u4e0b\u6587\u7528\u91cf\u8b66\u544a"
           }, undefined, false, undefined, this),
           contextWarnings.claudeMdWarning && /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(jsx_dev_runtime3.Fragment, {
             children: [
@@ -910,7 +910,7 @@ function Doctor({ onDone }) {
               /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                 children: [
                   "  ",
-                  "\u2514 Files:"
+                  "\u2514 \u6587\u4ef6\uff1a"
                 ]
               }, undefined, true, undefined, this),
               contextWarnings.claudeMdWarning.details.map((detail, i) => /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
@@ -942,7 +942,7 @@ function Doctor({ onDone }) {
               /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                 children: [
                   "  ",
-                  "\u2514 Top contributors:"
+                  "\u2514 \u4e3b\u8981\u8d21\u732e\uff1a"
                 ]
               }, undefined, true, undefined, this),
               contextWarnings.agentWarning.details.map((detail, i) => /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
@@ -974,7 +974,7 @@ function Doctor({ onDone }) {
               /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                 children: [
                   "  ",
-                  "\u2514 MCP servers:"
+                  "\u2514 MCP \u670d\u52a1\u5668\uff1a"
                 ]
               }, undefined, true, undefined, this),
               contextWarnings.mcpWarning.details.map((detail, i) => /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {

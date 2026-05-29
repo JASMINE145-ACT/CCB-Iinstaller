@@ -49,7 +49,7 @@ import {
 function PermissionDescription() {
   return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
     dimColor: true,
-    children: "Claude Code will be able to read files in this directory and make edits when auto-accept edits is on."
+    children: "Claude Code \u53ef\u8bfb\u53d6\u6b64\u76ee\u5f55\u4e2d\u7684\u6587\u4ef6\uff0c\u5f00\u542f\u81ea\u52a8\u63a5\u53d7\u7f16\u8f91\u65f6\u53ef\u4fee\u6539\u3002"
   }, undefined, false, undefined, this);
 }
 function DirectoryDisplay({ path }) {
@@ -78,7 +78,7 @@ function DirectoryInput({
     flexDirection: "column",
     children: [
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-        children: "Enter the path to the directory:"
+        children: "\u8f93\u5165\u76ee\u5f55\u8def\u5f84\uff1a"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
         borderDimColor: true,
@@ -201,31 +201,31 @@ function AddWorkspaceDirectory({
     autoFocus: true,
     onKeyDown: handleKeyDown,
     children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Dialog, {
-      title: "Add directory to workspace",
+      title: "\u6dfb\u52a0\u5de5\u4f5c\u76ee\u5f55\u5230\u5de5\u4f5c\u533a",
       onCancel,
       color: "permission",
       isCancelActive: false,
       inputGuide: directoryPath ? undefined : (exitState) => exitState.pending ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
         children: [
-          "Press ",
+          "\u6309 ",
           exitState.keyName,
-          " again to exit"
+          " \u518d\u6b21\u9000\u51fa"
         ]
       }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Byline, {
         children: [
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
             shortcut: "Tab",
-            action: "complete"
+            action: "\u8865\u5168"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
             shortcut: "Enter",
-            action: "add"
+            action: "\u6dfb\u52a0"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
             action: "confirm:no",
             context: "Settings",
             fallback: "Esc",
-            description: "cancel"
+            description: "\u53d6\u6d88"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this),
@@ -279,15 +279,15 @@ var init_AddWorkspaceDirectory = __esm(() => {
   REMEMBER_DIRECTORY_OPTIONS = [
     {
       value: "yes-session",
-      label: "Yes, for this session"
+      label: "\u662f\uff0c\u4ec5\u672c\u6b21\u4f1a\u8bdd"
     },
     {
       value: "yes-remember",
-      label: "Yes, and remember this directory"
+      label: "\u662f\uff0c\u5e76\u8bb0\u4f4f\u6b64\u76ee\u5f55"
     },
     {
       value: "no",
-      label: "No"
+      label: "\u5426"
     }
   ];
 });

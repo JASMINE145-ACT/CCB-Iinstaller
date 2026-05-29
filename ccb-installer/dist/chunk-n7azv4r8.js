@@ -214,11 +214,11 @@ function buildPrimarySection() {
   const customTitle = getCurrentSessionTitle(sessionId);
   const nameValue = customTitle ?? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
     dimColor: true,
-    children: "/rename to add a name"
+    children: "/rename \u6dfb\u52a0\u540d\u79f0"
   }, undefined, false, undefined, this);
   return [
     { label: "Version", value: "2.1.888" },
-    { label: "Session name", value: nameValue },
+    { label: "\u4f1a\u8bdd\u540d\u79f0", value: nameValue },
     { label: "Session ID", value: sessionId },
     { label: "cwd", value: getCwd() },
     ...buildAccountProperties(),
@@ -233,7 +233,7 @@ function buildSecondarySection({
 }) {
   const modelLabel = getModelDisplayLabel(mainLoopModel);
   return [
-    { label: "Model", value: modelLabel },
+    { label: "\u6a21\u578b", value: modelLabel },
     ...buildIDEProperties(mcp.clients, context.options.ideInstallationStatus, theme),
     ...buildMcpProperties(mcp.clients, theme),
     ...buildSandboxProperties(),
@@ -327,7 +327,7 @@ function Status({
           action: "confirm:no",
           context: "Settings",
           fallback: "Esc",
-          description: "cancel"
+          description: "\u53d6\u6d88"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this)
     ]
@@ -345,7 +345,7 @@ function Diagnostics({
     children: [
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
         bold: true,
-        children: "System Diagnostics"
+        children: "\u7cfb\u7edf\u8bca\u65ad"
       }, undefined, false, undefined, this),
       diagnostics.map((diagnostic, i) => /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
         flexDirection: "row",
@@ -393,7 +393,7 @@ function ChannelDowngradeDialog({
     onChoice("cancel");
   }
   return /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Dialog, {
-    title: "Switch to Stable Channel",
+    title: "\u5207\u6362\u5230 Stable \u6e20\u9053",
     onCancel: handleCancel,
     color: "permission",
     hideBorder: true,
@@ -408,12 +408,12 @@ function ChannelDowngradeDialog({
       }, undefined, true, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
         dimColor: true,
-        children: "How would you like to handle this?"
+        children: "\u5982\u4f55\u5904\u7406\uff1f"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Select, {
         options: [
           {
-            label: "Allow possible downgrade to stable version",
+            label: "\u5141\u8bb8\u53ef\u80fd\u964d\u7ea7\u5230 stable \u7248\u672c",
             value: "downgrade"
           },
           {
@@ -466,7 +466,7 @@ function OutputStylePicker({
     onComplete(outputStyle);
   }, [onComplete]);
   return /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(Dialog, {
-    title: "Preferred output style",
+    title: "\u9996\u9009\u8f93\u51fa\u98ce\u683c",
     onCancel,
     hideInputGuide: !isStandaloneCommand,
     hideBorder: !isStandaloneCommand,
@@ -478,12 +478,12 @@ function OutputStylePicker({
           marginTop: 1,
           children: /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "This changes how Claude Code communicates with you"
+            children: "\u8fd9\u5c06\u6539\u53d8 Claude Code \u4e0e\u4f60\u7684\u6c9f\u901a\u65b9\u5f0f"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         isLoading ? /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Loading output styles\u2026"
+          children: "\u6b63\u5728\u52a0\u8f7d\u8f93\u51fa\u98ce\u683c\u2026"
         }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(Select, {
           options: styleOptions,
           onChange: handleStyleSelect,
@@ -494,7 +494,7 @@ function OutputStylePicker({
     }, undefined, true, undefined, this)
   }, undefined, false, undefined, this);
 }
-var import_react2, jsx_dev_runtime3, DEFAULT_OUTPUT_STYLE_LABEL = "Default", DEFAULT_OUTPUT_STYLE_DESCRIPTION = "Claude completes coding tasks efficiently and provides concise responses";
+var import_react2, jsx_dev_runtime3, DEFAULT_OUTPUT_STYLE_LABEL = "\u9ed8\u8ba4", DEFAULT_OUTPUT_STYLE_DESCRIPTION = "Claude \u9ad8\u6548\u5b8c\u6210\u7f16\u7801\u4efb\u52a1\uff0c\u56de\u590d\u7b80\u6d01\u660e\u4e86";
 var init_OutputStylePicker = __esm(() => {
   init_outputStyles();
   init_src();
@@ -522,7 +522,7 @@ function LanguagePicker({
     gap: 1,
     children: [
       /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
-        children: "Enter your preferred response and voice language:"
+        children: "\u8f93\u5165\u9996\u9009\u56de\u590d\u4e0e\u8bed\u97f3\u8bed\u8a00\uff1a"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedBox_default, {
         flexDirection: "row",
@@ -546,7 +546,7 @@ function LanguagePicker({
       }, undefined, true, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
         dimColor: true,
-        children: "Leave empty for default (English)"
+        children: "\u7559\u7a7a\u5219\u4f7f\u7528\u9ed8\u8ba4\uff08\u82f1\u8bed\uff09"
       }, undefined, false, undefined, this)
     ]
   }, undefined, true, undefined, this);
@@ -652,7 +652,7 @@ function Config({
       mainLoopModelForSession: null
     }));
     setChanges((prev) => {
-      const valStr = modelDisplayString(value) + (isBilledAsExtraUsage(value, false, isOpus1mMergeEnabled()) ? " \xB7 Billed as extra usage" : "");
+      const valStr = modelDisplayString(value) + (isBilledAsExtraUsage(value, false, isOpus1mMergeEnabled()) ? " \xb7 \u8ba1\u4e3a\u989d\u5916\u7528\u91cf" : "");
       if ("model" in prev) {
         const { model, ...rest } = prev;
         return { ...rest, model: valStr };
@@ -678,7 +678,7 @@ function Config({
   const settingsItems = [
     {
       id: "autoCompactEnabled",
-      label: "Auto-compact",
+      label: "\u81ea\u52a8\u538b\u7f29",
       value: globalConfig.autoCompactEnabled,
       type: "boolean",
       onChange(autoCompactEnabled) {
@@ -691,7 +691,7 @@ function Config({
     },
     {
       id: "spinnerTipsEnabled",
-      label: "Show tips",
+      label: "\u663e\u793a\u63d0\u793a",
       value: settingsData?.spinnerTipsEnabled ?? true,
       type: "boolean",
       onChange(spinnerTipsEnabled) {
@@ -709,7 +709,7 @@ function Config({
     },
     {
       id: "prefersReducedMotion",
-      label: "Reduce motion",
+      label: "\u51cf\u5c11\u52a8\u753b",
       value: settingsData?.prefersReducedMotion ?? false,
       type: "boolean",
       onChange(prefersReducedMotion) {
@@ -731,7 +731,7 @@ function Config({
     },
     {
       id: "thinkingEnabled",
-      label: "Thinking mode",
+      label: "\u601d\u8003\u6a21\u5f0f",
       value: thinkingEnabled ?? true,
       type: "boolean",
       onChange(enabled) {
@@ -745,7 +745,7 @@ function Config({
     ...isFastModeEnabled() && isFastModeAvailable() ? [
       {
         id: "fastMode",
-        label: `Fast mode (${FAST_MODE_MODEL_DISPLAY} only)`,
+        label: `\u5feb\u901f\u6a21\u5f0f\uff08\u4ec5 ${FAST_MODE_MODEL_DISPLAY}\uff09`,
         value: !!isFastMode,
         type: "boolean",
         onChange(enabled) {
@@ -778,7 +778,7 @@ function Config({
     ...getFeatureValue_CACHED_MAY_BE_STALE("tengu_chomp_inflection", false) ? [
       {
         id: "promptSuggestionEnabled",
-        label: "Prompt suggestions",
+        label: "\u63d0\u793a\u5efa\u8bae",
         value: promptSuggestionEnabled,
         type: "boolean",
         onChange(enabled) {
@@ -795,7 +795,7 @@ function Config({
     ...[
       {
         id: "poorMode",
-        label: "Poor mode (save tokens)",
+        label: "\u7701 token \u6a21\u5f0f",
         value: (() => {
           const PoorMode = (init_poorMode(), __toCommonJS(exports_poorMode));
           return PoorMode.isPoorModeActive();
@@ -814,7 +814,7 @@ function Config({
     ...process.env.USER_TYPE === "ant" ? [
       {
         id: "speculationEnabled",
-        label: "Speculative execution",
+        label: "\u63a8\u6d4b\u6267\u884c",
         value: globalConfig.speculationEnabled ?? true,
         type: "boolean",
         onChange(enabled) {
@@ -839,7 +839,7 @@ function Config({
     ...isFileCheckpointingAvailable ? [
       {
         id: "fileCheckpointingEnabled",
-        label: "Rewind code (checkpoints)",
+        label: "\u56de\u9000\u4ee3\u7801\uff08\u68c0\u67e5\u70b9\uff09",
         value: globalConfig.fileCheckpointingEnabled,
         type: "boolean",
         onChange(enabled) {
@@ -859,14 +859,14 @@ function Config({
     ] : [],
     {
       id: "verbose",
-      label: "Verbose output",
+      label: "\u8be6\u7ec6\u8f93\u51fa",
       value: verbose,
       type: "boolean",
       onChange: onChangeVerbose
     },
     {
       id: "terminalProgressBarEnabled",
-      label: "Terminal progress bar",
+      label: "\u7ec8\u7aef\u8fdb\u5ea6\u6761",
       value: globalConfig.terminalProgressBarEnabled,
       type: "boolean",
       onChange(terminalProgressBarEnabled) {
@@ -883,7 +883,7 @@ function Config({
     ...getFeatureValue_CACHED_MAY_BE_STALE("tengu_terminal_sidebar", false) ? [
       {
         id: "showStatusInTerminalTab",
-        label: "Show status in terminal tab",
+        label: "\u5728\u7ec8\u7aef\u6807\u7b7e\u663e\u793a\u72b6\u6001",
         value: globalConfig.showStatusInTerminalTab ?? false,
         type: "boolean",
         onChange(showStatusInTerminalTab) {
@@ -903,7 +903,7 @@ function Config({
     ] : [],
     {
       id: "showTurnDuration",
-      label: "Show turn duration",
+      label: "\u663e\u793a\u8f6e\u6b21\u65f6\u957f",
       value: globalConfig.showTurnDuration,
       type: "boolean",
       onChange(showTurnDuration) {
@@ -916,7 +916,7 @@ function Config({
     },
     {
       id: "defaultPermissionMode",
-      label: "Default permission mode",
+      label: "\u9ed8\u8ba4\u6743\u9650\u6a21\u5f0f",
       value: settingsData?.permissions?.defaultMode || "default",
       options: (() => {
         const priorityOrder = ["default", "plan"];
@@ -959,7 +959,7 @@ function Config({
     ...[],
     {
       id: "respectGitignore",
-      label: "Respect .gitignore in file picker",
+      label: "\u6587\u4ef6\u9009\u62e9\u5668\u9075\u5faa .gitignore",
       value: globalConfig.respectGitignore,
       type: "boolean",
       onChange(respectGitignore) {
@@ -972,7 +972,7 @@ function Config({
     },
     {
       id: "copyFullResponse",
-      label: "Always copy full response (skip /copy picker)",
+      label: "\u59cb\u7ec8\u590d\u5236\u5b8c\u6574\u56de\u590d",
       value: globalConfig.copyFullResponse,
       type: "boolean",
       onChange(copyFullResponse) {
@@ -987,7 +987,7 @@ function Config({
     ...isFullscreenEnvEnabled() ? [
       {
         id: "copyOnSelect",
-        label: "Copy on select",
+        label: "\u9009\u4e2d\u5373\u590d\u5236",
         value: globalConfig.copyOnSelect ?? true,
         type: "boolean",
         onChange(copyOnSelect) {
@@ -1002,27 +1002,27 @@ function Config({
     ] : [],
     autoUpdaterDisabledReason ? {
       id: "autoUpdatesChannel",
-      label: "Auto-update channel",
+      label: "\u81ea\u52a8\u66f4\u65b0\u6e20\u9053",
       value: "disabled",
       type: "managedEnum",
       onChange() {}
     } : {
       id: "autoUpdatesChannel",
-      label: "Auto-update channel",
+      label: "\u81ea\u52a8\u66f4\u65b0\u6e20\u9053",
       value: settingsData?.autoUpdatesChannel ?? "latest",
       type: "managedEnum",
       onChange() {}
     },
     {
       id: "theme",
-      label: "Theme",
+      label: "\u4e3b\u9898",
       value: themeSetting,
       type: "managedEnum",
       onChange: setTheme
     },
     {
       id: "notifChannel",
-      label: "Local notifications",
+      label: "\u672c\u5730\u901a\u77e5",
       value: globalConfig.preferredNotifChannel,
       options: [
         "auto",
@@ -1048,7 +1048,7 @@ function Config({
     ...[
       {
         id: "taskCompleteNotifEnabled",
-        label: "Push when idle",
+        label: "\u7a7a\u95f2\u65f6\u63a8\u9001",
         value: globalConfig.taskCompleteNotifEnabled ?? false,
         type: "boolean",
         onChange(taskCompleteNotifEnabled) {
@@ -1064,7 +1064,7 @@ function Config({
       },
       {
         id: "inputNeededNotifEnabled",
-        label: "Push when input needed",
+        label: "\u9700\u8981\u8f93\u5165\u65f6\u63a8\u9001",
         value: globalConfig.inputNeededNotifEnabled ?? false,
         type: "boolean",
         onChange(inputNeededNotifEnabled) {
@@ -1080,7 +1080,7 @@ function Config({
       },
       {
         id: "agentPushNotifEnabled",
-        label: "Push when Claude decides",
+        label: "Claude \u51b3\u5b9a\u65f6\u63a8\u9001",
         value: globalConfig.agentPushNotifEnabled ?? false,
         type: "boolean",
         onChange(agentPushNotifEnabled) {
@@ -1097,7 +1097,7 @@ function Config({
     ],
     {
       id: "outputStyle",
-      label: "Output style",
+      label: "\u8f93\u51fa\u98ce\u683c",
       value: currentOutputStyle,
       type: "managedEnum",
       onChange: () => {}
@@ -1105,7 +1105,7 @@ function Config({
     ...showDefaultViewPicker ? [
       {
         id: "defaultView",
-        label: "What you see by default",
+        label: "\u9ed8\u8ba4\u663e\u793a\u5185\u5bb9",
         value: settingsData?.defaultView === undefined ? "default" : String(settingsData.defaultView),
         options: ["transcript", "chat", "default"],
         type: "enum",
@@ -1129,14 +1129,14 @@ function Config({
     ] : [],
     {
       id: "language",
-      label: "Language",
+      label: "\u8bed\u8a00",
       value: currentLanguage ?? "Default (English)",
       type: "managedEnum",
       onChange: () => {}
     },
     {
       id: "editorMode",
-      label: "Editor mode",
+      label: "\u7f16\u8f91\u5668\u6a21\u5f0f",
       value: globalConfig.editorMode === "emacs" ? "normal" : globalConfig.editorMode || "normal",
       options: ["normal", "vim"],
       type: "enum",
@@ -1157,7 +1157,7 @@ function Config({
     },
     {
       id: "prStatusFooterEnabled",
-      label: "Show PR status footer",
+      label: "\u663e\u793a PR \u72b6\u6001\u680f",
       value: globalConfig.prStatusFooterEnabled ?? true,
       type: "boolean",
       onChange(enabled) {
@@ -1180,7 +1180,7 @@ function Config({
     },
     {
       id: "model",
-      label: "Model",
+      label: "\u6a21\u578b",
       value: mainLoopModel === null ? "Default (recommended)" : mainLoopModel,
       type: "managedEnum",
       onChange: onChangeMainModelConfig
@@ -1188,7 +1188,7 @@ function Config({
     ...isConnectedToIde ? [
       {
         id: "diffTool",
-        label: "Diff tool",
+        label: "Diff \u5de5\u5177",
         value: globalConfig.diffTool ?? "auto",
         options: ["terminal", "auto"],
         type: "enum",
@@ -1211,7 +1211,7 @@ function Config({
     ...!isSupportedTerminal() ? [
       {
         id: "autoConnectIde",
-        label: "Auto-connect to IDE (external terminal)",
+        label: "\u81ea\u52a8\u8fde\u63a5 IDE\uff08\u5916\u90e8\u7ec8\u7aef\uff09",
         value: globalConfig.autoConnectIde ?? false,
         type: "boolean",
         onChange(autoConnectIde) {
@@ -1227,7 +1227,7 @@ function Config({
     ...isSupportedTerminal() ? [
       {
         id: "autoInstallIdeExtension",
-        label: "Auto-install IDE extension",
+        label: "\u81ea\u52a8\u5b89\u88c5 IDE \u6269\u5c55",
         value: globalConfig.autoInstallIdeExtension ?? true,
         type: "boolean",
         onChange(autoInstallIdeExtension) {
@@ -1245,7 +1245,7 @@ function Config({
     ] : [],
     {
       id: "claudeInChromeDefaultEnabled",
-      label: "Claude in Chrome enabled by default",
+      label: "\u9ed8\u8ba4\u542f\u7528 Claude in Chrome",
       value: globalConfig.claudeInChromeDefaultEnabled ?? true,
       type: "boolean",
       onChange(enabled) {
@@ -1292,7 +1292,7 @@ function Config({
         },
         {
           id: "teammateDefaultModel",
-          label: "Default teammate model",
+          label: "\u961f\u53cb\u9ed8\u8ba4\u6a21\u578b",
           value: teammateModelDisplayString(globalConfig.teammateDefaultModel),
           type: "managedEnum",
           onChange() {}
@@ -1303,7 +1303,7 @@ function Config({
     ...shouldShowExternalIncludesToggle ? [
       {
         id: "showExternalIncludesDialog",
-        label: "External CLAUDE.md includes",
+        label: "\u5916\u90e8 CLAUDE.md \u5f15\u7528",
         value: (() => {
           const projectConfig = getCurrentProjectConfig();
           if (projectConfig.hasClaudeMdExternalIncludesApproved) {
@@ -1766,13 +1766,13 @@ function Config({
               children: [
                 /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(KeyboardShortcutHint, {
                   shortcut: "Enter",
-                  action: "select"
+                  action: "\u9009\u62e9"
                 }, undefined, false, undefined, this),
                 /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ConfigurableShortcutHint, {
                   action: "confirm:no",
                   context: "Confirmation",
                   fallback: "Esc",
-                  description: "cancel"
+                  description: "\u53d6\u6d88"
                 }, undefined, false, undefined, this)
               ]
             }, undefined, true, undefined, this)
@@ -1801,13 +1801,13 @@ function Config({
             children: [
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "confirm"
+                action: "\u786e\u8ba4"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -1850,13 +1850,13 @@ function Config({
             children: [
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "confirm"
+                action: "\u786e\u8ba4"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -1877,13 +1877,13 @@ function Config({
             children: [
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "confirm"
+                action: "\u786e\u8ba4"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "disable external includes"
+                description: "\u7981\u7528\u5916\u90e8\u5f15\u7528"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -1918,13 +1918,13 @@ function Config({
             children: [
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "confirm"
+                action: "\u786e\u8ba4"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -1958,20 +1958,20 @@ function Config({
             children: [
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "confirm"
+                action: "\u786e\u8ba4"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Settings",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this) : showSubmenu === "EnableAutoUpdates" ? /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(Dialog, {
-      title: "Enable Auto-Updates",
+      title: "\u542f\u7528\u81ea\u52a8\u66f4\u65b0",
       onCancel: () => {
         setShowSubmenu(null);
         setTabsHidden(false);
@@ -1995,11 +1995,11 @@ function Config({
       }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(Select, {
         options: [
           {
-            label: "Enable with latest channel",
+            label: "\u4f7f\u7528 latest \u6e20\u9053",
             value: "latest"
           },
           {
-            label: "Enable with stable channel",
+            label: "\u4f7f\u7528 stable \u6e20\u9053",
             value: "stable"
           }
         ],
@@ -2061,7 +2061,7 @@ function Config({
           isFocused: isSearchMode && !headerFocused,
           isTerminalFocused,
           cursorOffset: searchCursorOffset,
-          placeholder: "Search settings\u2026"
+          placeholder: "\u641c\u7d22\u8bbe\u7f6e\u2026"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedBox_default, {
           flexDirection: "column",
@@ -2132,7 +2132,7 @@ function Config({
                           children: [
                             /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
                               color: isSelected ? "suggestion" : undefined,
-                              children: "disabled"
+                              children: "\u5df2\u7981\u7528"
                             }, undefined, false, undefined, this),
                             /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
                               dimColor: true,
@@ -2171,17 +2171,17 @@ function Config({
             children: [
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "\u2190/\u2192 tab",
-                action: "switch"
+                action: "\u5207\u6362"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "\u2193",
-                action: "return"
+                action: "\u8fd4\u56de"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Settings",
                 fallback: "Esc",
-                description: "close"
+                description: "\u5173\u95ed"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -2190,21 +2190,21 @@ function Config({
           children: /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(Byline, {
             children: [
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
-                children: "Type to filter"
+                children: "\u8f93\u5165\u4ee5\u7b5b\u9009"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter/\u2193",
-                action: "select"
+                action: "\u9009\u62e9"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "\u2191",
-                action: "tabs"
+                action: "\u6807\u7b7e\u9875"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Settings",
                 fallback: "Esc",
-                description: "clear"
+                description: "\u6e05\u9664"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -2216,25 +2216,25 @@ function Config({
                 action: "select:accept",
                 context: "Settings",
                 fallback: "Space",
-                description: "change"
+                description: "\u66f4\u6539"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ConfigurableShortcutHint, {
                 action: "settings:close",
                 context: "Settings",
                 fallback: "Enter",
-                description: "save"
+                description: "\u4fdd\u5b58"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ConfigurableShortcutHint, {
                 action: "settings:search",
                 context: "Settings",
                 fallback: "/",
-                description: "search"
+                description: "\u641c\u7d22"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Settings",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -2502,13 +2502,13 @@ function Usage() {
                 action: "settings:retry",
                 context: "Settings",
                 fallback: "r",
-                description: "retry"
+                description: "\u91cd\u8bd5"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Settings",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -2523,7 +2523,7 @@ function Usage() {
       children: [
         /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Loading usage data\u2026"
+          children: "\u6b63\u5728\u52a0\u8f7d\u7528\u91cf\u6570\u636e\u2026"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
           dimColor: true,
@@ -2531,7 +2531,7 @@ function Usage() {
             action: "confirm:no",
             context: "Settings",
             fallback: "Esc",
-            description: "cancel"
+            description: "\u53d6\u6d88"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this)
       ]
@@ -2541,16 +2541,16 @@ function Usage() {
   const showSonnetBar = subscriptionType === "max" || subscriptionType === "team" || subscriptionType === null;
   const limits = [
     {
-      title: "Current session",
+      title: "\u5f53\u524d\u4f1a\u8bdd",
       limit: utilization.five_hour
     },
     {
-      title: "Current week (all models)",
+      title: "\u672c\u5468\uff08\u5168\u90e8\u6a21\u578b\uff09",
       limit: utilization.seven_day
     },
     ...showSonnetBar ? [
       {
-        title: "Current week (Sonnet only)",
+        title: "\u672c\u5468\uff08\u4ec5 Sonnet\uff09",
         limit: utilization.seven_day_sonnet
       }
     ] : []
@@ -2562,7 +2562,7 @@ function Usage() {
     children: [
       limits.some(({ limit }) => limit) || /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
         dimColor: true,
-        children: "/usage is only available for subscription plans."
+        children: "/usage \u4ec5\u9002\u7528\u4e8e\u8ba2\u9605\u5957\u9910\u3002"
       }, undefined, false, undefined, this),
       limits.map(({ title, limit }) => limit && /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(LimitBar, {
         title,
@@ -2582,7 +2582,7 @@ function Usage() {
           action: "confirm:no",
           context: "Settings",
           fallback: "Esc",
-          description: "cancel"
+          description: "\u53d6\u6d88"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this)
     ]
@@ -2608,7 +2608,7 @@ function ExtraUsageSection({
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Extra usage not enabled \xB7 /extra-usage to enable"
+            children: "\u672a\u542f\u7528\u989d\u5916\u7528\u91cf \xb7 /extra-usage \u542f\u7528"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this);
@@ -2625,7 +2625,7 @@ function ExtraUsageSection({
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Unlimited"
+          children: "\u65e0\u9650\u5236"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this);
@@ -2694,14 +2694,14 @@ function Settings({
   });
   const tabs = [
     /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Tab, {
-      title: "Status",
+      title: "\u72b6\u6001",
       children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Status, {
         context,
         diagnosticsPromise
       }, undefined, false, undefined, this)
     }, "status", false, undefined, this),
     /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Tab, {
-      title: "Config",
+      title: "\u914d\u7f6e",
       children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(import_react6.Suspense, {
         fallback: null,
         children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Config, {
@@ -2714,7 +2714,7 @@ function Settings({
       }, undefined, false, undefined, this)
     }, "config", false, undefined, this),
     /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Tab, {
-      title: "Usage",
+      title: "\u7528\u91cf",
       children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Usage, {}, undefined, false, undefined, this)
     }, "usage", false, undefined, this)
   ];

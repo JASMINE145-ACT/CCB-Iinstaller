@@ -140,7 +140,7 @@ function ModelPicker({
         {
           value: initial,
           label: modelDisplayString(initial),
-          description: "Current model"
+          description: "\u5f53\u524d\u6a21\u578b"
         }
       ];
     }
@@ -213,18 +213,18 @@ function ModelPicker({
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 color: "remember",
                 bold: true,
-                children: "Select model"
+                children: "\u9009\u62e9\u6a21\u578b"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 dimColor: true,
-                children: headerText ?? "Switch between Claude models. Applies to this session and future Claude Code sessions. For other/previous model names, specify with --model."
+                children: headerText ?? "\u5728 Claude \u6a21\u578b\u95f4\u5207\u6362\u3002\u5bf9\u672c\u4f1a\u8bdd\u53ca\u4e4b\u540e\u7684 Claude Code \u4f1a\u8bdd\u751f\u6548\u3002\u5176\u4ed6/\u65e7\u6a21\u578b\u540d\u8bf7\u7528 --model \u6307\u5b9a\u3002"
               }, undefined, false, undefined, this),
               sessionModel && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 dimColor: true,
                 children: [
-                  "Currently using ",
+                  "\u5f53\u524d\u4f1a\u8bdd\u4f7f\u7528 ",
                   modelDisplayString(sessionModel),
-                  " for this session (set by plan mode). Selecting a model will undo this."
+                  " \uff08\u7531\u8ba1\u5212\u6a21\u5f0f\u8bbe\u5b9a\uff09\u3002\u9009\u62e9\u6a21\u578b\u5c06\u53d6\u6d88\u6b64\u8bbe\u7f6e\u3002"
                 ]
               }, undefined, true, undefined, this)
             ]
@@ -250,9 +250,9 @@ function ModelPicker({
                 children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                   dimColor: true,
                   children: [
-                    "and ",
+                    "\u8fd8\u6709 ",
                     hiddenCount,
-                    " more\u2026"
+                    " \u9879\u2026"
                   ]
                 }, undefined, true, undefined, this)
               }, undefined, false, undefined, this)
@@ -270,8 +270,8 @@ function ModelPicker({
                   }, undefined, false, undefined, this),
                   " ",
                   capitalize_default(displayEffort),
-                  " effort",
-                  displayEffort === focusedDefaultEffort ? ` (default)` : ``,
+                  " \u529b\u5ea6",
+                  displayEffort === focusedDefaultEffort ? ` (\u9ed8\u8ba4)` : ``,
                   " ",
                   /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                     color: "subtle",
@@ -284,7 +284,7 @@ function ModelPicker({
                   /* @__PURE__ */ jsx_dev_runtime.jsxDEV(EffortLevelIndicator, {
                     effort: undefined
                   }, undefined, false, undefined, this),
-                  " Effort not supported",
+                  " \u4e0d\u652f\u6301 effort",
                   focusedModelName ? ` for ${focusedModelName}` : ""
                 ]
               }, undefined, true, undefined, this),
@@ -294,10 +294,10 @@ function ModelPicker({
                   /* @__PURE__ */ jsx_dev_runtime.jsxDEV(EffortLevelIndicator, {
                     effort: "high"
                   }, undefined, false, undefined, this),
-                  " 1M context on",
+                  " 1M \u4e0a\u4e0b\u6587\u5df2\u5f00\u542f",
                   /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                     color: "subtle",
-                    children: " \xB7 Space to toggle"
+                    children: " \xb7 \u7a7a\u683c\u5207\u6362"
                   }, undefined, false, undefined, this)
                 ]
               }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
@@ -306,7 +306,7 @@ function ModelPicker({
                   /* @__PURE__ */ jsx_dev_runtime.jsxDEV(EffortLevelIndicator, {
                     effort: undefined
                   }, undefined, false, undefined, this),
-                  " 1M context off",
+                  " 1M \u4e0a\u4e0b\u6587\u5df2\u5173\u95ed",
                   focusedModelName ? ` for ${focusedModelName}` : ""
                 ]
               }, undefined, true, undefined, this)
@@ -317,15 +317,15 @@ function ModelPicker({
             children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               dimColor: true,
               children: [
-                "Fast mode is ",
+                "\u5feb\u901f\u6a21\u5f0f\u5df2",
                 /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                   bold: true,
-                  children: "ON"
+                  children: "\u5f00\u542f"
                 }, undefined, false, undefined, this),
-                " and available with",
+                " \uff0c\u4ec5\u652f\u6301",
                 " ",
                 FAST_MODE_MODEL_DISPLAY,
-                " only (/fast). Switching to other models turn off fast mode."
+                " \uff08/fast\uff09\u3002\u5207\u6368\u5176\u4ed6\u6a21\u578b\u4f1a\u5173\u95ed\u5feb\u901f\u6a21\u5f0f\u3002"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this) : isFastModeAvailable() && !isFastModeCooldown() ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
@@ -333,14 +333,14 @@ function ModelPicker({
             children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               dimColor: true,
               children: [
-                "Use ",
+                "\u4f7f\u7528 ",
                 /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                   bold: true,
                   children: "/fast"
                 }, undefined, false, undefined, this),
-                " to turn on Fast mode (",
+                " \u5f00\u542f\u5feb\u901f\u6a21\u5f0f\uff08",
                 FAST_MODE_MODEL_DISPLAY,
-                " only)."
+                " \u4ec5\uff09\u3002"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this) : null : null
@@ -351,21 +351,21 @@ function ModelPicker({
         italic: true,
         children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
           children: [
-            "Press ",
+            "\u6309 ",
             exitState.keyName,
-            " again to exit"
+            " \u518d\u6b21\u9000\u51fa"
           ]
         }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Byline, {
           children: [
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
               shortcut: "Enter",
-              action: "confirm"
+              action: "\u786e\u8ba4"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
               action: "select:cancel",
               context: "Select",
               fallback: "Esc",
-              description: "exit"
+              description: "\u9000\u51fa"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this)

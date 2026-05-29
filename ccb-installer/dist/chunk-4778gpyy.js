@@ -149,7 +149,7 @@ function SessionPreview({
       padding: 1,
       children: [
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(LoadingState, {
-          message: "Loading session\u2026"
+          message: "\u6b63\u5728\u52a0\u8f7d\u4f1a\u8bdd\u2026"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
@@ -158,7 +158,7 @@ function SessionPreview({
               action: "confirm:no",
               context: "Confirmation",
               fallback: "Esc",
-              description: "cancel"
+              description: "\u53d6\u6d88"
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this)
@@ -199,7 +199,7 @@ function SessionPreview({
               " \xB7",
               " ",
               displayLog.messageCount,
-              " messages",
+              " \u6761\u6d88\u606f",
               displayLog.gitBranch ? ` \xB7 ${displayLog.gitBranch}` : ""
             ]
           }, undefined, true, undefined, this),
@@ -209,13 +209,13 @@ function SessionPreview({
               children: [
                 /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
                   shortcut: "Enter",
-                  action: "resume"
+                  action: "\u6062\u590d"
                 }, undefined, false, undefined, this),
                 /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
                   action: "confirm:no",
                   context: "Confirmation",
                   fallback: "Esc",
-                  description: "cancel"
+                  description: "\u53d6\u6d88"
                 }, undefined, false, undefined, this)
               ]
             }, undefined, true, undefined, this)
@@ -263,7 +263,7 @@ function TagTabs({
   availableWidth,
   showAllProjects = false
 }) {
-  const resumeLabel = showAllProjects ? "Resume (All Projects)" : "Resume";
+  const resumeLabel = showAllProjects ? "\u6062\u590d\uff08\u5168\u90e8\u9879\u76ee\uff09" : "\u6062\u590d";
   const resumeLabelWidth = resumeLabel.length + 1;
   const rightHintWidth = Math.max(RIGHT_HINT_WIDTH_WITH_COUNT, RIGHT_HINT_WIDTH_NO_COUNT);
   const maxTabsWidth = availableWidth - resumeLabelWidth - rightHintWidth - 2;
@@ -953,7 +953,7 @@ function LogSelector({
       }
       setAgenticSearchState({
         status: "error",
-        message: error instanceof Error ? error.message : "Search failed"
+        message: error instanceof Error ? error.message : "\u641c\u7d22\u5931\u8d25"
       });
       logEvent("tengu_agentic_search_error", {
         query_length: searchQuery.length
@@ -1126,7 +1126,7 @@ function LogSelector({
     filterIndicators.push(currentBranch);
   }
   if (hasMultipleWorktrees && !showAllWorktrees) {
-    filterIndicators.push("current worktree");
+    filterIndicators.push("\u5f53\u524d\u5de5\u4f5c\u6811");
   }
   const showAdditionalFilterLine = filterIndicators.length > 0 && viewMode !== "search";
   const searchBoxLines = 3;
@@ -1181,16 +1181,16 @@ function LogSelector({
           bold: true,
           color: "suggestion",
           children: [
-            "Resume Session",
+            "\u6062\u590d\u4f1a\u8bdd",
             viewMode === "list" && displayedLogs.length > visibleCount && /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
               dimColor: true,
               children: [
                 " ",
-                "(",
+                "\uff08",
                 focusedIndex,
-                " of ",
+                " / ",
                 displayedLogs.length,
-                ")"
+                "\uff09"
               ]
             }, undefined, true, undefined, this)
           ]
@@ -1224,7 +1224,7 @@ function LogSelector({
         children: [
           /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(Spinner, {}, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
-            children: " Searching\u2026"
+            children: " \u6b63\u5728\u641c\u7d22\u2026"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this),
@@ -1235,7 +1235,7 @@ function LogSelector({
         children: /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
           dimColor: true,
           italic: true,
-          children: "Claude found these results:"
+          children: "Claude \u627e\u5230\u4ee5\u4e0b\u7ed3\u679c\uff1a"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       agenticSearchState.status === "results" && agenticSearchState.results.length === 0 && filteredLogs.length === 0 && /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedBox_default, {
@@ -1245,7 +1245,7 @@ function LogSelector({
         children: /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
           dimColor: true,
           italic: true,
-          children: "No matching sessions found."
+          children: "\u672a\u627e\u5230\u5339\u914d\u7684\u4f1a\u8bdd\u3002"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       agenticSearchState.status === "error" && filteredLogs.length === 0 && /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedBox_default, {
@@ -1255,7 +1255,7 @@ function LogSelector({
         children: /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
           dimColor: true,
           italic: true,
-          children: "No matching sessions found."
+          children: "\u672a\u627e\u5230\u5339\u914d\u7684\u4f1a\u8bdd\u3002"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       Boolean(searchQuery.trim()) && onAgenticSearch && isAgenticSearchEnabled && agenticSearchState.status !== "searching" && agenticSearchState.status !== "results" && agenticSearchState.status !== "error" && /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedBox_default, {
@@ -1273,7 +1273,7 @@ function LogSelector({
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
                 color: isAgenticSearchOptionFocused ? "suggestion" : undefined,
                 bold: isAgenticSearchOptionFocused,
-                children: "Search deeply using Claude \u2192"
+                children: "\u4f7f\u7528 Claude \u6df1\u5ea6\u641c\u7d22 \u2192"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this),
@@ -1288,7 +1288,7 @@ function LogSelector({
         children: [
           /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
             bold: true,
-            children: "Rename session:"
+            children: "\u91cd\u547d\u540d\u4f1a\u8bdd\uff1a"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedBox_default, {
             paddingTop: 1,
@@ -1363,9 +1363,9 @@ function LogSelector({
         children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            "Press ",
+            "\u6309 ",
             exitState.keyName,
-            " again to exit"
+            " \u518d\u6b21\u9000\u51fa"
           ]
         }, undefined, true, undefined, this) : viewMode === "rename" ? /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
           dimColor: true,
@@ -1373,13 +1373,13 @@ function LogSelector({
             children: [
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "save"
+                action: "\u4fdd\u5b58"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -1388,13 +1388,13 @@ function LogSelector({
           children: /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(Byline, {
             children: [
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
-                children: "Searching with Claude\u2026"
+                children: "\u6b63\u5728\u4f7f\u7528 Claude \u641c\u7d22\u2026"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -1404,17 +1404,17 @@ function LogSelector({
             children: [
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "search"
+                action: "\u641c\u7d22"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "\u2193",
-                action: "skip"
+                action: "\u8df3\u8fc7"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -1423,17 +1423,17 @@ function LogSelector({
           children: /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(Byline, {
             children: [
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
-                children: isSearching && isDeepSearchEnabled ? "Searching\u2026" : "Type to Search"
+                children: isSearching && isDeepSearchEnabled ? "\u6b63\u5728\u641c\u7d22\u2026" : "\u8f93\u5165\u4ee5\u641c\u7d22"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "select"
+                action: "\u9009\u62e9"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "clear"
+                description: "\u6e05\u9664"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -1443,32 +1443,32 @@ function LogSelector({
             children: [
               onToggleAllProjects && /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Ctrl+A",
-                action: `show ${showAllProjects ? "current dir" : "all projects"}`
+                action: `${showAllProjects ? "\u663e\u793a\u5f53\u524d\u76ee\u5f55" : "\u663e\u793a\u5168\u90e8\u9879\u76ee"}`
               }, undefined, false, undefined, this),
               currentBranch && /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Ctrl+B",
-                action: "toggle branch"
+                action: "\u5207\u6362\u5206\u652f"
               }, undefined, false, undefined, this),
               hasMultipleWorktrees && /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Ctrl+W",
-                action: `show ${showAllWorktrees ? "current worktree" : "all worktrees"}`
+                action: `${showAllWorktrees ? "\u663e\u793a\u5f53\u524d\u5de5\u4f5c\u6811" : "\u663e\u793a\u5168\u90e8\u5de5\u4f5c\u6811"}`
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Ctrl+V",
-                action: "preview"
+                action: "\u9884\u89c8"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Ctrl+R",
-                action: "rename"
+                action: "\u91cd\u547d\u540d"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
-                children: "Type to search"
+                children: "\u8f93\u5165\u4ee5\u641c\u7d22"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this),
               getExpandCollapseHint() && /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
                 children: getExpandCollapseHint()

@@ -288,7 +288,7 @@ Learn more at ${DESKTOP_DOCS_URL}`, { display: "system" });
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Press any key to continue\u2026"
+          children: "\u6309\u4efb\u610f\u952e\u7ee7\u7eed\u2026"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this);

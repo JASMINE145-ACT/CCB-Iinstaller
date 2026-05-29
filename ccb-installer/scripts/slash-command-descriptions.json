@@ -1,0 +1,792 @@
+[
+  {
+    "srcPath": "add-dir/index.ts",
+    "name": "add-dir",
+    "descriptionRaw": "\"Add a new working directory\","
+  },
+  {
+    "srcPath": "",
+    "name": "add-dir",
+    "descriptionRaw": "\"Add a new working directory\""
+  },
+  {
+    "srcPath": "advisor.ts",
+    "name": "advisor",
+    "descriptionRaw": "\"Configure the advisor model\","
+  },
+  {
+    "srcPath": "",
+    "name": "advisor",
+    "descriptionRaw": "\"Configure the advisor model\""
+  },
+  {
+    "srcPath": "agents/index.ts",
+    "name": "agents",
+    "descriptionRaw": "\"Manage agent configurations\","
+  },
+  {
+    "srcPath": "",
+    "name": "agents",
+    "descriptionRaw": "\"Manage agent configurations\""
+  },
+  {
+    "srcPath": "assistant/gate.ts",
+    "name": "assistant",
+    "descriptionRaw": "\"Open the Kairos assistant panel\","
+  },
+  {
+    "srcPath": "",
+    "name": "assistant",
+    "descriptionRaw": "\"Open the Kairos assistant panel\""
+  },
+  {
+    "srcPath": "autonomy.ts",
+    "name": "autonomy",
+    "descriptionRaw": "\"Inspect automatic autonomy runs recorded for proactive ticks and scheduled tasks\","
+  },
+  {
+    "srcPath": "",
+    "name": "autonomy",
+    "descriptionRaw": "\"Inspect automatic autonomy runs recorded for proactive ticks and scheduled tasks\""
+  },
+  {
+    "srcPath": "branch/index.ts",
+    "name": "branch",
+    "descriptionRaw": "\"Create a branch of the current conversation at this point\","
+  },
+  {
+    "srcPath": "",
+    "name": "bridge-kick",
+    "descriptionRaw": "\"Inject bridge failure states for manual recovery testing\""
+  },
+  {
+    "srcPath": "brief.ts",
+    "name": "brief",
+    "descriptionRaw": "\"Toggle brief-only mode\","
+  },
+  {
+    "srcPath": "",
+    "name": "brief",
+    "descriptionRaw": "\"Toggle brief-only mode\""
+  },
+  {
+    "srcPath": "",
+    "name": "btw",
+    "descriptionRaw": "\"Ask a quick side question without interrupting the main conversation\""
+  },
+  {
+    "srcPath": "",
+    "name": "chrome",
+    "descriptionRaw": "\"Claude in Chrome (Beta) settings\""
+  },
+  {
+    "srcPath": "logout/logout.tsx",
+    "name": "claude-native-installer",
+    "descriptionRaw": "option.description,"
+  },
+  {
+    "srcPath": "clear/index.ts",
+    "name": "clear",
+    "descriptionRaw": "\"Clear conversation history and free up context\","
+  },
+  {
+    "srcPath": "",
+    "name": "clear",
+    "descriptionRaw": "\"Clear conversation history and free up context\""
+  },
+  {
+    "srcPath": "color/index.ts",
+    "name": "color",
+    "descriptionRaw": "\"Set the prompt bar color for this session\","
+  },
+  {
+    "srcPath": "",
+    "name": "color",
+    "descriptionRaw": "\"Set the prompt bar color for this session\""
+  },
+  {
+    "srcPath": "commit.ts",
+    "name": "commit",
+    "descriptionRaw": "\"Create a git commit\","
+  },
+  {
+    "srcPath": "",
+    "name": "commit",
+    "descriptionRaw": "\"Create a git commit\""
+  },
+  {
+    "srcPath": "commit-push-pr.ts",
+    "name": "commit-push-pr",
+    "descriptionRaw": "\"Commit, push, and open a PR\","
+  },
+  {
+    "srcPath": "",
+    "name": "commit-push-pr",
+    "descriptionRaw": "\"Commit, push, and open a PR\""
+  },
+  {
+    "srcPath": "compact/index.ts",
+    "name": "compact",
+    "descriptionRaw": "\"Clear conversation history but keep a summary in context. Optional: /compact [instructions for summarization]\","
+  },
+  {
+    "srcPath": "",
+    "name": "compact",
+    "descriptionRaw": "\"Clear conversation history but keep a summary in context. Optional: /compact [instructions for summarization]\""
+  },
+  {
+    "srcPath": "config/index.ts",
+    "name": "config",
+    "descriptionRaw": "\"Open config panel\","
+  },
+  {
+    "srcPath": "",
+    "name": "config",
+    "descriptionRaw": "\"Open config panel\""
+  },
+  {
+    "srcPath": "context/index.ts",
+    "name": "context",
+    "descriptionRaw": "\"Visualize current context usage as a colored grid\","
+  },
+  {
+    "srcPath": "",
+    "name": "context",
+    "descriptionRaw": "\"Visualize current context usage as a colored grid\""
+  },
+  {
+    "srcPath": "coordinator.ts",
+    "name": "coordinator",
+    "descriptionRaw": "\"Toggle coordinator (multi-worker) mode\","
+  },
+  {
+    "srcPath": "",
+    "name": "coordinator",
+    "descriptionRaw": "\"Toggle coordinator (multi-worker) mode\""
+  },
+  {
+    "srcPath": "copy/index.ts",
+    "name": "copy",
+    "descriptionRaw": "\"Copy Claude's last response to clipboard (or /copy N for the Nth-latest)\","
+  },
+  {
+    "srcPath": "",
+    "name": "copy",
+    "descriptionRaw": "\"Copy Claude's last response to clipboard (or /copy N for the Nth-latest)\""
+  },
+  {
+    "srcPath": "cost/index.ts",
+    "name": "cost",
+    "descriptionRaw": "\"Show the total cost and duration of the current session\","
+  },
+  {
+    "srcPath": "",
+    "name": "cost",
+    "descriptionRaw": "\"Show the total cost and duration of the current session\""
+  },
+  {
+    "srcPath": "daemon/index.ts",
+    "name": "daemon",
+    "descriptionRaw": "\"Manage background sessions and daemon\","
+  },
+  {
+    "srcPath": "",
+    "name": "daemon",
+    "descriptionRaw": "\"Manage background sessions and daemon\""
+  },
+  {
+    "srcPath": "desktop/index.ts",
+    "name": "desktop",
+    "descriptionRaw": "\"Continue the current session in Claude Desktop\","
+  },
+  {
+    "srcPath": "diff/index.ts",
+    "name": "diff",
+    "descriptionRaw": "\"View uncommitted changes and per-turn diffs\","
+  },
+  {
+    "srcPath": "",
+    "name": "diff",
+    "descriptionRaw": "\"View uncommitted changes and per-turn diffs\""
+  },
+  {
+    "srcPath": "",
+    "name": "doctor",
+    "descriptionRaw": "\"Diagnose and verify your Claude Code installation and settings\""
+  },
+  {
+    "srcPath": "",
+    "name": "effort",
+    "descriptionRaw": "\"Set effort level for model usage\""
+  },
+  {
+    "srcPath": "add-dir/validation.ts",
+    "name": "Explanatory",
+    "descriptionRaw": "\"Claude explains its implementation choices and codebase patterns\","
+  },
+  {
+    "srcPath": "export/index.ts",
+    "name": "export",
+    "descriptionRaw": "\"Export the current conversation to a file or clipboard\","
+  },
+  {
+    "srcPath": "",
+    "name": "export",
+    "descriptionRaw": "\"Export the current conversation to a file or clipboard\""
+  },
+  {
+    "srcPath": "extra-usage/index.ts",
+    "name": "extra-usage",
+    "descriptionRaw": "\"Configure extra usage to keep working when limits are hit\","
+  },
+  {
+    "srcPath": "",
+    "name": "extra-usage",
+    "descriptionRaw": "\"Configure extra usage to keep working when limits are hit\""
+  },
+  {
+    "srcPath": "fast/index.ts",
+    "name": "fast",
+    "descriptionRaw": "\"View and update your privacy settings\","
+  },
+  {
+    "srcPath": "feedback/index.ts",
+    "name": "feedback",
+    "descriptionRaw": "`Submit feedback about Claude Code`,"
+  },
+  {
+    "srcPath": "files/index.ts",
+    "name": "files",
+    "descriptionRaw": "\"List all files currently in context\","
+  },
+  {
+    "srcPath": "",
+    "name": "files",
+    "descriptionRaw": "\"List all files currently in context\""
+  },
+  {
+    "srcPath": "force-snip.ts",
+    "name": "force-snip",
+    "descriptionRaw": "\"Force snip conversation history at current point\","
+  },
+  {
+    "srcPath": "",
+    "name": "force-snip",
+    "descriptionRaw": "\"Force snip conversation history at current point\""
+  },
+  {
+    "srcPath": "fork/index.ts",
+    "name": "fork",
+    "descriptionRaw": "\"Fork the current session into a new sub-agent\","
+  },
+  {
+    "srcPath": "",
+    "name": "fork",
+    "descriptionRaw": "\"Fork the current session into a new sub-agent\""
+  },
+  {
+    "srcPath": "",
+    "name": "heapdump",
+    "descriptionRaw": "\"Dump the JS heap to ~/Desktop\""
+  },
+  {
+    "srcPath": "help/index.ts",
+    "name": "help",
+    "descriptionRaw": "\"Show help and available commands\","
+  },
+  {
+    "srcPath": "",
+    "name": "help",
+    "descriptionRaw": "\"Show help and available commands\""
+  },
+  {
+    "srcPath": "hooks/index.ts",
+    "name": "hooks",
+    "descriptionRaw": "\"View hook configurations for tool events\","
+  },
+  {
+    "srcPath": "",
+    "name": "hooks",
+    "descriptionRaw": "\"View hook configurations for tool events\""
+  },
+  {
+    "srcPath": "ide/index.ts",
+    "name": "ide",
+    "descriptionRaw": "\"Manage IDE integrations and show status\","
+  },
+  {
+    "srcPath": "",
+    "name": "ide",
+    "descriptionRaw": "\"Manage IDE integrations and show status\""
+  },
+  {
+    "srcPath": "init.ts",
+    "name": "init",
+    "descriptionRaw": "\"Create verifier skill(s) for automated verification of code changes\","
+  },
+  {
+    "srcPath": "",
+    "name": "init-verifiers",
+    "descriptionRaw": "\"Create verifier skill(s) for automated verification of code changes\""
+  },
+  {
+    "srcPath": "",
+    "name": "insights",
+    "descriptionRaw": "\"Generate a report analyzing your Claude Code sessions\""
+  },
+  {
+    "srcPath": "install-github-app/index.ts",
+    "name": "install-github-app",
+    "descriptionRaw": "\"Set up Claude GitHub Actions for a repository\","
+  },
+  {
+    "srcPath": "",
+    "name": "install-github-app",
+    "descriptionRaw": "\"Set up Claude GitHub Actions for a repository\""
+  },
+  {
+    "srcPath": "install-slack-app/index.ts",
+    "name": "install-slack-app",
+    "descriptionRaw": "\"Install the Claude Slack app\","
+  },
+  {
+    "srcPath": "",
+    "name": "install-slack-app",
+    "descriptionRaw": "\"Install the Claude Slack app\""
+  },
+  {
+    "srcPath": "job/index.ts",
+    "name": "job",
+    "descriptionRaw": "\"Manage template jobs\","
+  },
+  {
+    "srcPath": "",
+    "name": "job",
+    "descriptionRaw": "\"Manage template jobs\""
+  },
+  {
+    "srcPath": "keybindings/index.ts",
+    "name": "keybindings",
+    "descriptionRaw": "\"Open or create your keybindings configuration file\","
+  },
+  {
+    "srcPath": "",
+    "name": "keybindings",
+    "descriptionRaw": "\"Open or create your keybindings configuration file\""
+  },
+  {
+    "srcPath": "lang/index.ts",
+    "name": "lang",
+    "descriptionRaw": "\"Set display language (en/zh/auto)\","
+  },
+  {
+    "srcPath": "",
+    "name": "lang",
+    "descriptionRaw": "\"Set display language (en/zh/auto)\""
+  },
+  {
+    "srcPath": "login/index.ts",
+    "name": "login",
+    "descriptionRaw": "hasAnthropicApiKeyAuth() ? \"Switch Anthropic accounts\" : \"Sign in with your Anthropic account\","
+  },
+  {
+    "srcPath": "logout/index.ts",
+    "name": "logout",
+    "descriptionRaw": "\"Sign out from your Anthropic account\","
+  },
+  {
+    "srcPath": "",
+    "name": "logout",
+    "descriptionRaw": "\"Sign out from your Anthropic account\""
+  },
+  {
+    "srcPath": "",
+    "name": "mcp",
+    "descriptionRaw": "\"Manage MCP servers\""
+  },
+  {
+    "srcPath": "memory/index.ts",
+    "name": "memory",
+    "descriptionRaw": "\"Edit Claude memory files\","
+  },
+  {
+    "srcPath": "",
+    "name": "memory",
+    "descriptionRaw": "\"Edit Claude memory files\""
+  },
+  {
+    "srcPath": "",
+    "name": "migration-review",
+    "descriptionRaw": "\"Independent migration review\""
+  },
+  {
+    "srcPath": "mobile/index.ts",
+    "name": "mobile",
+    "descriptionRaw": "\"Show QR code to download the Claude mobile app\","
+  },
+  {
+    "srcPath": "model/index.ts",
+    "name": "model",
+    "descriptionRaw": "\"Toggle a searchable tag on the current session\","
+  },
+  {
+    "srcPath": "monitor.ts",
+    "name": "monitor",
+    "descriptionRaw": "\"Start a background shell monitor (Shift+Down to view)\","
+  },
+  {
+    "srcPath": "",
+    "name": "monitor",
+    "descriptionRaw": "\"Start a background shell monitor (Shift+Down to view)\""
+  },
+  {
+    "srcPath": "output-style/index.ts",
+    "name": "output-style",
+    "descriptionRaw": "\"Deprecated: use /config to change output style\","
+  },
+  {
+    "srcPath": "",
+    "name": "output-style",
+    "descriptionRaw": "\"Deprecated: use /config to change output style\""
+  },
+  {
+    "srcPath": "permissions/index.ts",
+    "name": "permissions",
+    "descriptionRaw": "\"Manage allow & deny tool permission rules\","
+  },
+  {
+    "srcPath": "plan/index.ts",
+    "name": "plan",
+    "descriptionRaw": "\"Enable plan mode or view the current session plan\","
+  },
+  {
+    "srcPath": "",
+    "name": "plan",
+    "descriptionRaw": "\"Enable plan mode or view the current session plan\""
+  },
+  {
+    "srcPath": "plugin/index.tsx",
+    "name": "plugin",
+    "descriptionRaw": "\"Manage Claude Code plugins\","
+  },
+  {
+    "srcPath": "poor/index.ts",
+    "name": "poor",
+    "descriptionRaw": "\"Toggle poor mode \\u2014 disable extract_memories and prompt_suggestion to save tokens\","
+  },
+  {
+    "srcPath": "",
+    "name": "poor",
+    "descriptionRaw": "\"Toggle poor mode \\u2014 disable extract_memories and prompt_suggestion to save tokens\""
+  },
+  {
+    "srcPath": "",
+    "name": "pr-comments",
+    "descriptionRaw": "\"Get comments from a GitHub pull request\""
+  },
+  {
+    "srcPath": "",
+    "name": "privacy-settings",
+    "descriptionRaw": "\"View and update your privacy settings\""
+  },
+  {
+    "srcPath": "",
+    "name": "proactive",
+    "descriptionRaw": "\"Toggle proactive (autonomous) mode\""
+  },
+  {
+    "srcPath": "provider.ts",
+    "name": "provider",
+    "descriptionRaw": "\"Switch API provider (anthropic/openai/gemini/grok/bedrock/vertex/foundry)\","
+  },
+  {
+    "srcPath": "",
+    "name": "provider",
+    "descriptionRaw": "\"Switch API provider (anthropic/openai/gemini/grok/bedrock/vertex/foundry)\""
+  },
+  {
+    "srcPath": "rate-limit-options/index.ts",
+    "name": "rate-limit-options",
+    "descriptionRaw": "\"Show options when rate limit is reached\","
+  },
+  {
+    "srcPath": "",
+    "name": "rate-limit-options",
+    "descriptionRaw": "\"Show options when rate limit is reached\""
+  },
+  {
+    "srcPath": "release-notes/index.ts",
+    "name": "release-notes",
+    "descriptionRaw": "\"Rename the current conversation\","
+  },
+  {
+    "srcPath": "reload-plugins/index.ts",
+    "name": "reload-plugins",
+    "descriptionRaw": "\"Activate pending plugin changes in the current session\","
+  },
+  {
+    "srcPath": "",
+    "name": "reload-plugins",
+    "descriptionRaw": "\"Activate pending plugin changes in the current session\""
+  },
+  {
+    "srcPath": "remote-env/index.ts",
+    "name": "remote-env",
+    "descriptionRaw": "\"Configure the default remote environment for teleport sessions\","
+  },
+  {
+    "srcPath": "",
+    "name": "remote-env",
+    "descriptionRaw": "\"Configure the default remote environment for teleport sessions\""
+  },
+  {
+    "srcPath": "",
+    "name": "rename",
+    "descriptionRaw": "\"Rename the current conversation\""
+  },
+  {
+    "srcPath": "resume/index.ts",
+    "name": "resume",
+    "descriptionRaw": "\"Resume a previous conversation\","
+  },
+  {
+    "srcPath": "",
+    "name": "resume",
+    "descriptionRaw": "\"Resume a previous conversation\""
+  },
+  {
+    "srcPath": "review/ultrareviewEnabled.ts",
+    "name": "review",
+    "descriptionRaw": "\"Review a pull request\","
+  },
+  {
+    "srcPath": "",
+    "name": "review",
+    "descriptionRaw": "\"Review a pull request\""
+  },
+  {
+    "srcPath": "rewind/index.ts",
+    "name": "rewind",
+    "descriptionRaw": "\"Dump the JS heap to ~/Desktop\","
+  },
+  {
+    "srcPath": "",
+    "name": "security-review",
+    "descriptionRaw": "\"Complete a security review of the pending changes on the current branch\""
+  },
+  {
+    "srcPath": "session/index.ts",
+    "name": "session",
+    "descriptionRaw": "\"Show remote session URL and QR code\","
+  },
+  {
+    "srcPath": "",
+    "name": "ship-audit",
+    "descriptionRaw": "\"Branch ship-readiness audit\""
+  },
+  {
+    "srcPath": "",
+    "name": "skills",
+    "descriptionRaw": "\"List available skills\""
+  },
+  {
+    "srcPath": "stats/index.ts",
+    "name": "stats",
+    "descriptionRaw": "\"Show your Claude Code usage statistics and activity\","
+  },
+  {
+    "srcPath": "",
+    "name": "stats",
+    "descriptionRaw": "\"Show your Claude Code usage statistics and activity\""
+  },
+  {
+    "srcPath": "status/index.ts",
+    "name": "status",
+    "descriptionRaw": "\"Show Claude Code status including version, model, account, API connectivity, and tool statuses\","
+  },
+  {
+    "srcPath": "",
+    "name": "status",
+    "descriptionRaw": "\"Show Claude Code status including version, model, account, API connectivity, and tool statuses\""
+  },
+  {
+    "srcPath": "statusline.tsx",
+    "name": "statusline",
+    "descriptionRaw": "\"Set effort level for model usage\","
+  },
+  {
+    "srcPath": "stickers/index.ts",
+    "name": "stickers",
+    "descriptionRaw": "\"Order Claude Code stickers\","
+  },
+  {
+    "srcPath": "",
+    "name": "stickers",
+    "descriptionRaw": "\"Order Claude Code stickers\""
+  },
+  {
+    "srcPath": "autofix-pr/index.js",
+    "name": "stub",
+    "descriptionRaw": "\"Ask a quick side question without interrupting the main conversation\","
+  },
+  {
+    "srcPath": "good-claude/index.js",
+    "name": "stub",
+    "descriptionRaw": "\"Investigate auth bug\", subagent_type: \"worker\", prompt: \"...\" })"
+  },
+  {
+    "srcPath": "ctx_viz/index.js",
+    "name": "stub",
+    "descriptionRaw": "\"Diagnose and verify your Claude Code installation and settings\","
+  },
+  {
+    "srcPath": "break-cache/index.js",
+    "name": "stub",
+    "descriptionRaw": "\"Manage MCP servers\","
+  },
+  {
+    "srcPath": "onboarding/index.js",
+    "name": "stub",
+    "descriptionRaw": "\"Get comments from a GitHub pull request\","
+  },
+  {
+    "srcPath": "share/index.js",
+    "name": "stub",
+    "descriptionRaw": "\"List available skills\","
+  },
+  {
+    "srcPath": "teleport/index.js",
+    "name": "stub",
+    "descriptionRaw": "Complete a security review of the pending changes on the current branch"
+  },
+  {
+    "srcPath": "bughunter/index.js",
+    "name": "stub",
+    "descriptionRaw": "env.terminal === \"Apple_Terminal\" ? \"Enable Option+Enter key binding for newlines and visual bell\" : \"Install Shift+Enter key binding for newlines\","
+  },
+  {
+    "srcPath": "mock-limits/index.js",
+    "name": "stub",
+    "descriptionRaw": "\"Inject bridge failure states for manual recovery testing\","
+  },
+  {
+    "srcPath": "summary/index.js",
+    "name": "stub",
+    "descriptionRaw": "\"Claude in Chrome (Beta) settings\","
+  },
+  {
+    "srcPath": "env/index.js",
+    "name": "stub",
+    "descriptionRaw": "\"Exit the REPL\","
+  },
+  {
+    "srcPath": "oauth-refresh/index.js",
+    "name": "stub",
+    "descriptionRaw": "\"Toggle proactive (autonomous) mode\","
+  },
+  {
+    "srcPath": "",
+    "name": "tag",
+    "descriptionRaw": "\"Toggle a searchable tag on the current session\""
+  },
+  {
+    "srcPath": "tasks/index.ts",
+    "name": "tasks",
+    "descriptionRaw": "\"List and manage background tasks\","
+  },
+  {
+    "srcPath": "theme/index.ts",
+    "name": "theme",
+    "descriptionRaw": "\"Change the theme\","
+  },
+  {
+    "srcPath": "",
+    "name": "theme",
+    "descriptionRaw": "\"Change the theme\""
+  },
+  {
+    "srcPath": "thinkback/index.ts",
+    "name": "think-back",
+    "descriptionRaw": "\"Your 2025 Claude Code Year in Review\","
+  },
+  {
+    "srcPath": "",
+    "name": "think-back",
+    "descriptionRaw": "\"Your 2025 Claude Code Year in Review\""
+  },
+  {
+    "srcPath": "thinkback-play/index.ts",
+    "name": "thinkback-play",
+    "descriptionRaw": "\"Play the thinkback animation\","
+  },
+  {
+    "srcPath": "",
+    "name": "thinkback-play",
+    "descriptionRaw": "\"Play the thinkback animation\""
+  },
+  {
+    "srcPath": "ultraplan.tsx",
+    "name": "ultraplan",
+    "descriptionRaw": "`~10\\u201330 min \\xB7 Claude Code on the web drafts an advanced plan you can edit and approve. See ${CCR_TERMS_URL2}`,"
+  },
+  {
+    "srcPath": "upgrade/index.ts",
+    "name": "upgrade",
+    "descriptionRaw": "\"Upgrade to Max for higher rate limits and more Opus\","
+  },
+  {
+    "srcPath": "",
+    "name": "upgrade",
+    "descriptionRaw": "\"Upgrade to Max for higher rate limits and more Opus\""
+  },
+  {
+    "srcPath": "usage/index.ts",
+    "name": "usage",
+    "descriptionRaw": "\"Show plan usage limits\","
+  },
+  {
+    "srcPath": "",
+    "name": "usage",
+    "descriptionRaw": "\"Show plan usage limits\""
+  },
+  {
+    "srcPath": "version.ts",
+    "name": "version",
+    "descriptionRaw": "\"Print the version this session is running (not what autoupdate downloaded)\","
+  },
+  {
+    "srcPath": "",
+    "name": "version",
+    "descriptionRaw": "\"Print the version this session is running (not what autoupdate downloaded)\""
+  },
+  {
+    "srcPath": "vim/index.ts",
+    "name": "vim",
+    "descriptionRaw": "\"Toggle between Vim and Normal editing modes\","
+  },
+  {
+    "srcPath": "",
+    "name": "vim",
+    "descriptionRaw": "\"Toggle between Vim and Normal editing modes\""
+  },
+  {
+    "srcPath": "voice/index.ts",
+    "name": "voice",
+    "descriptionRaw": "\"Toggle voice mode\","
+  },
+  {
+    "srcPath": "",
+    "name": "voice",
+    "descriptionRaw": "\"Toggle voice mode\""
+  },
+  {
+    "srcPath": "workflows/index.ts",
+    "name": "workflows",
+    "descriptionRaw": "\"List available workflow scripts\","
+  },
+  {
+    "srcPath": "",
+    "name": "workflows",
+    "descriptionRaw": "\"List available workflow scripts\""
+  }
+]

@@ -48,6 +48,15 @@ else {
     $settings = [pscustomobject]@{}
 }
 
+if (-not $settings.PSObject.Properties["env"]) {
+    Set-JsonProperty -Object $settings -Name "env" -Value ([pscustomobject]@{})
+}
+Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_BASE_URL" -Value "https://api.minimaxi.com/anthropic"
+Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_AUTH_TOKEN" -Value "sk-cp-FVpTaa8qfaTOU97mM7m7Svk0NOVNwIIhOq1-aWp4LQubya8kRiTgg3DEGRSgBPImWpJKJwJAFdhR-JlSU4H-Qz-Zq2drSi6KbCscdLnuKsUpXKtXpPraT-I"
+Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_DEFAULT_OPUS_MODEL" -Value "minimax-m2.7"
+Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_DEFAULT_SONNET_MODEL" -Value "minimax-m2.7"
+Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_DEFAULT_HAIKU_MODEL" -Value "minimax-m2.7"
+
 if (-not $settings.PSObject.Properties["mcpServers"]) {
     Set-JsonProperty -Object $settings -Name "mcpServers" -Value ([pscustomobject]@{})
 }
@@ -65,6 +74,13 @@ $excel = [pscustomobject]@{
 
 Set-JsonProperty -Object $settings.mcpServers -Name "exa" -Value $exa
 Set-JsonProperty -Object $settings.mcpServers -Name "excel-mcp" -Value $excel
+
+if (-not $settings.PSObject.Properties["theme"]) {
+    Set-JsonProperty -Object $settings -Name "theme" -Value "light"
+}
+if (-not $settings.PSObject.Properties["modelType"]) {
+    Set-JsonProperty -Object $settings -Name "modelType" -Value "anthropic"
+}
 
 $settings | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $settingsPath -Encoding UTF8
 

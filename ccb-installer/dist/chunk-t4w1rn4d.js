@@ -219,15 +219,15 @@ function MemoryFileSelector({
   const depths = new Map;
   const memoryOptions = allMemoryFiles.map((file) => {
     const displayPath = getDisplayPath(file.path);
-    const existsLabel = file.exists ? "" : " (new)";
+    const existsLabel = file.exists ? "" : " \uff08\u65b0\u5efa\uff09";
     const depth = file.parent ? (depths.get(file.parent) ?? 0) + 1 : 0;
     depths.set(file.path, depth);
     const indent = depth > 0 ? "  ".repeat(depth - 1) : "";
     let label;
     if (file.type === "User" && !file.isNested && file.path === userMemoryPath) {
-      label = `User memory`;
+      label = `\u7528\u6237\u8bb0\u5fc6`;
     } else if (file.type === "Project" && !file.isNested && file.path === projectMemoryPath) {
-      label = `Project memory`;
+      label = `\u9879\u76ee\u8bb0\u5fc6`;
     } else if (depth > 0) {
       label = `${indent}L ${displayPath}${existsLabel}`;
     } else {
@@ -236,13 +236,13 @@ function MemoryFileSelector({
     let description;
     const isGit = projectIsInGitRepo(getOriginalCwd());
     if (file.type === "User" && !file.isNested) {
-      description = "Saved in ~/.claude/CLAUDE.md";
+      description = "\u4fdd\u5b58\u4e8e ~/.claude/CLAUDE.md";
     } else if (file.type === "Project" && !file.isNested && file.path === projectMemoryPath) {
-      description = `${isGit ? "Checked in at" : "Saved in"} ./CLAUDE.md`;
+      description = `${isGit ? "\u68c0\u5165\u4e8e" : "\u4fdd\u5b58\u4e8e"} ./CLAUDE.md`;
     } else if (file.parent) {
-      description = "@-imported";
+      description = "@ \u5bfc\u5165";
     } else if (file.isNested) {
-      description = "dynamically loaded";
+      description = "\u6309\u9700\u52a0\u8f7d";
     } else {
       description = "";
     }
@@ -256,7 +256,7 @@ function MemoryFileSelector({
   const agentDefinitions = useAppState((s) => s.agentDefinitions);
   if (isAutoMemoryEnabled()) {
     folderOptions.push({
-      label: "Open auto-memory folder",
+      label: "\u6253\u5f00\u81ea\u52a8\u8bb0\u5fc6\u76ee\u5f55",
       value: `${OPEN_FOLDER_PREFIX}${getAutoMemPath()}`,
       description: ""
     });
@@ -265,9 +265,9 @@ function MemoryFileSelector({
       if (agent.memory) {
         const agentDir = getAgentMemoryDir(agent.agentType, agent.memory);
         folderOptions.push({
-          label: `Open ${source_default.bold(agent.agentType)} agent memory`,
+          label: `\u6253\u5f00 ${source_default.bold(agent.agentType)} agent \u8bb0\u5fc6`,
           value: `${OPEN_FOLDER_PREFIX}${agentDir}`,
-          description: `${agent.memory} scope`
+          description: `${agent.memory} \u8303\u56f4`
         });
       }
     }
@@ -284,7 +284,7 @@ function MemoryFileSelector({
       return;
     readLastConsolidatedAt().then(setLastDreamAt);
   }, [showDreamRow, isDreamRunning]);
-  const dreamStatus = isDreamRunning ? "running" : lastDreamAt === null ? "" : lastDreamAt === 0 ? "never" : `last ran ${formatRelativeTimeAgo(new Date(lastDreamAt))}`;
+  const dreamStatus = isDreamRunning ? "\u8fd0\u884c\u4e2d" : lastDreamAt === null ? "" : lastDreamAt === 0 ? "\u4ece\u672a" : `\u4e0a\u6b21\u8fd0\u884c ${formatRelativeTimeAgo(new Date(lastDreamAt))}`;
   const [focusedToggle, setFocusedToggle] = import_react.useState(null);
   const toggleFocused = focusedToggle !== null;
   const lastToggleIndex = showDreamRow ? 1 : 0;
@@ -326,8 +326,8 @@ function MemoryFileSelector({
             isFocused: focusedToggle === 0,
             children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               children: [
-                "Auto-memory: ",
-                autoMemoryOn ? "on" : "off"
+                "\u81ea\u52a8\u8bb0\u5fc6\uff1a ",
+                autoMemoryOn ? "\u5f00" : "\u5173"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this),
@@ -337,8 +337,8 @@ function MemoryFileSelector({
             children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               color: focusedToggle === 1 ? "suggestion" : undefined,
               children: [
-                "Auto-dream: ",
-                autoDreamOn ? "on" : "off",
+                "\u81ea\u52a8 dream\uff1a ",
+                autoDreamOn ? "\u5f00" : "\u5173",
                 dreamStatus && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                   dimColor: true,
                   children: [
@@ -446,21 +446,21 @@ function MemoryCommand({
         editorSource = "$EDITOR";
         editorValue = process.env.EDITOR;
       }
-      const editorInfo = editorSource !== "default" ? `Using ${editorSource}="${editorValue}".` : "";
-      const editorHint = editorInfo ? `> ${editorInfo} To change editor, set $EDITOR or $VISUAL environment variable.` : `> To use a different editor, set the $EDITOR or $VISUAL environment variable.`;
-      onDone(`Opened memory file at ${getRelativeMemoryPath(memoryPath)}
+      const editorInfo = editorSource !== "default" ? `\u4f7f\u7528 ${editorSource}="${editorValue}"\u3002` : "";
+      const editorHint = editorInfo ? `> ${editorInfo} \u8981\u66f4\u6362\u7f16\u8f91\u5668\uff0c\u8bf7\u8bbe\u7f6e $EDITOR \u6216 $VISUAL \u73af\u5883\u53d8\u91cf\u3002` : `> \u8981\u4f7f\u7528\u5176\u4ed6\u7f16\u8f91\u5668\uff0c\u8bf7\u8bbe\u7f6e $EDITOR \u6216 $VISUAL \u73af\u5883\u53d8\u91cf\u3002`;
+      onDone(`\u5df2\u6253\u5f00\u8bb0\u5fc6\u6587\u4ef6 ${getRelativeMemoryPath(memoryPath)}
 
 ${editorHint}`, { display: "system" });
     } catch (error) {
       logError(error);
-      onDone(`Error opening memory file: ${error}`);
+      onDone(`\u6253\u5f00\u8bb0\u5fc6\u6587\u4ef6\u5931\u8d25\uff1a${error}`);
     }
   };
   const handleCancel = () => {
-    onDone("Cancelled memory editing", { display: "system" });
+    onDone("\u5df2\u53d6\u6d88\u8bb0\u5fc6\u7f16\u8f91", { display: "system" });
   };
   return /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(Dialog, {
-    title: "Memory",
+    title: "\u8bb0\u5fc6",
     onCancel: handleCancel,
     color: "remember",
     children: /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedBox_default, {
@@ -478,7 +478,7 @@ ${editorHint}`, { display: "system" });
           children: /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Learn more: ",
+              "\u4e86\u89e3\u66f4\u591a\uff1a ",
               /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(Link, {
                 url: "https://code.claude.com/docs/en/memory"
               }, undefined, false, undefined, this)

@@ -243,12 +243,12 @@ function AddMarketplace({
   const handleAdd = async () => {
     const input = inputValue.trim();
     if (!input) {
-      setError("Please enter a marketplace source");
+      setError("\u8bf7\u8f93\u5165\u5e02\u573a\u6765\u6e90");
       return;
     }
     const parsed = await parseMarketplaceInput(input);
     if (!parsed) {
-      setError("Invalid marketplace source format. Try: owner/repo, https://..., or ./path");
+      setError("\u5e02\u573a\u6765\u6e90\u683c\u5f0f\u65e0\u6548\u3002\u8bd5\u8bd5\uff1aowner/repo\u3001https://...\u6216 ./path");
       return;
     }
     if ("error" in parsed) {
@@ -277,7 +277,7 @@ function AddMarketplace({
       setProgressMessage("");
       setLoading(false);
       if (cliMode) {
-        setResult(`Successfully added marketplace: ${name}`);
+        setResult(`\u5df2\u6210\u529f\u6dfb\u52a0\u5e02\u573a\uff1a${name}`);
       } else {
         setViewState({ type: "browse-marketplace", targetMarketplace: name });
       }
@@ -288,7 +288,7 @@ function AddMarketplace({
       setProgressMessage("");
       setLoading(false);
       if (cliMode) {
-        setResult(`Error: ${error2.message}`);
+        setResult(`\u9519\u8bef\uff1a${error2.message}`);
       } else {
         setResult(null);
       }
@@ -312,18 +312,18 @@ function AddMarketplace({
             marginBottom: 1,
             children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               bold: true,
-              children: "Add Marketplace"
+              children: "\u6dfb\u52a0\u5e02\u573a"
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
             flexDirection: "column",
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-                children: "Enter marketplace source:"
+                children: "\u8f93\u5165\u5e02\u573a\u6765\u6e90\uff1a"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 dimColor: true,
-                children: "Examples:"
+                children: "\u793a\u4f8b\uff1a"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 dimColor: true,
@@ -361,7 +361,7 @@ function AddMarketplace({
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Spinner, {}, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-                children: progressMessage || "Adding marketplace to configuration\u2026"
+                children: progressMessage || "\u6b63\u5728\u5c06\u5e02\u573a\u6dfb\u52a0\u5230\u914d\u7f6e\u2026"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this),
@@ -389,13 +389,13 @@ function AddMarketplace({
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "add"
+                action: "\u6dfb\u52a0"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Settings",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -562,7 +562,7 @@ function PluginOptionsDialog({
           /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Field ",
+              "\u5b57\u6bb5 ",
               currentFieldIndex + 1,
               " of ",
               fields.length
@@ -570,11 +570,11 @@ function PluginOptionsDialog({
           }, undefined, true, undefined, this),
           currentFieldIndex < fields.length - 1 && /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Tab: Next field \xB7 Enter: Save and continue"
+            children: "Tab \u4e0b\u4e00\u5b57\u6bb5 \xb7 Enter \u4fdd\u5b58\u5e76\u7ee7\u7eed"
           }, undefined, false, undefined, this),
           currentFieldIndex === fields.length - 1 && /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Enter: Save configuration"
+            children: "Enter \u4fdd\u5b58\u914d\u7f6e"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this)
@@ -608,8 +608,8 @@ function PluginOptionsFlow({
     if (Object.keys(unconfigured).length > 0) {
       result.push({
         key: "top-level",
-        title: `Configure ${plugin.name}`,
-        subtitle: "Plugin options",
+        title: `\u914d\u7f6e ${plugin.name}`,
+        subtitle: "\u63d2\u4ef6\u9009\u9879",
         schema: unconfigured,
         load: () => loadPluginOptions(pluginId),
         save: (values) => savePluginOptions(pluginId, values, plugin.manifest.userConfig)
@@ -619,7 +619,7 @@ function PluginOptionsFlow({
     for (const channel of channels) {
       result.push({
         key: `channel:${channel.server}`,
-        title: `Configure ${channel.displayName}`,
+        title: `\u914d\u7f6e ${channel.displayName}`,
         subtitle: `Plugin: ${plugin.name}`,
         schema: channel.configSchema,
         load: () => loadMcpServerUserConfig(pluginId, channel.server) ?? undefined,
@@ -692,7 +692,7 @@ function PluginTrustWarning() {
         dimColor: true,
         italic: true,
         children: [
-          "Make sure you trust a plugin before installing, updating, or using it. Anthropic does not control what MCP servers, files, or other software are included in plugins and cannot verify that they will work as intended or that they won't change. See each plugin's homepage for more information.",
+          "\u5b89\u88c5\u3001\u66f4\u65b0\u6216\u4f7f\u7528\u524d\u8bf7\u786e\u8ba4\u4f60\u4fe1\u4efb\u8be5\u63d2\u4ef6\u3002Anthropic \u65e0\u6cd5\u63a7\u5236\u63d2\u4ef6\u4e2d\u5305\u542b\u54ea\u4e9b MCP \u670d\u52a1\u5668\u3001\u6587\u4ef6\u6216\u5176\u4ed6\u8f6f\u4ef6\uff0c\u4e5f\u65e0\u6cd5\u4fdd\u8bc1\u5176\u6309\u9884\u671f\u5de5\u4f5c\u6216\u4e0d\u4f1a\u53d8\u66f4\u3002\u8be6\u60c5\u8bf7\u89c1\u5404\u63d2\u4ef6\u4e3b\u9875\u3002",
           customMessage ? ` ${customMessage}` : ""
         ]
       }, undefined, true, undefined, this)
@@ -717,23 +717,23 @@ function extractGitHubRepo(plugin) {
 }
 function buildPluginDetailsMenuOptions(hasHomepage, githubRepo) {
   const options = [
-    { label: "Install for you (user scope)", action: "install-user" },
+    { label: "\u4e3a\u4f60\u5b89\u88c5\uff08\u7528\u6237\u8303\u56f4\uff09", action: "install-user" },
     {
-      label: "Install for all collaborators on this repository (project scope)",
+      label: "\u4e3a\u672c\u4ed3\u5e93\u6240\u6709\u534f\u4f5c\u8005\u5b89\u88c5\uff08\u9879\u76ee\u8303\u56f4\uff09",
       action: "install-project"
     },
     {
-      label: "Install for you, in this repo only (local scope)",
+      label: "\u4ec5\u5728\u672c\u4ed3\u5e93\u4e3a\u4f60\u5b89\u88c5\uff08\u672c\u5730\u8303\u56f4\uff09",
       action: "install-local"
     }
   ];
   if (hasHomepage) {
-    options.push({ label: "Open homepage", action: "homepage" });
+    options.push({ label: "\u6253\u5f00\u4e3b\u9875", action: "homepage" });
   }
   if (githubRepo) {
-    options.push({ label: "View on GitHub", action: "github" });
+    options.push({ label: "\u5728 GitHub \u67e5\u770b", action: "github" });
   }
-  options.push({ label: "Back to plugin list", action: "back" });
+  options.push({ label: "\u8fd4\u56de\u63d2\u4ef6\u5217\u8868", action: "back" });
   return options;
 }
 function PluginSelectionKeyHint({
@@ -769,7 +769,7 @@ function PluginSelectionKeyHint({
             action: "confirm:no",
             context: "Confirmation",
             fallback: "Esc",
-            description: "back"
+            description: "\u8fd4\u56de"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this)
@@ -982,14 +982,14 @@ function BrowseMarketplace({
             const pluginId = foundPlugin.pluginId;
             const globallyInstalled = isPluginGloballyInstalled(pluginId);
             if (globallyInstalled) {
-              setError(`Plugin '${pluginId}' is already installed globally. Use '/plugin' to manage existing plugins.`);
+              setError(`\u63d2\u4ef6 '${pluginId}' \u5df2\u5168\u5c40\u5b89\u88c5\u3002\u4f7f\u7528 '/plugin' \u7ba1\u7406\u5df2\u5b89\u88c5\u63d2\u4ef6\u3002`);
             } else {
               setSelectedMarketplace(foundMarketplace);
               setSelectedPlugin(foundPlugin);
               setViewState("plugin-details");
             }
           } else {
-            setError(`Plugin "${targetPlugin}" not found in any marketplace`);
+            setError(`\u5728\u4efb\u4f55\u5e02\u573a\u672a\u627e\u5230\u63d2\u4ef6 "${targetPlugin}"`);
           }
         } else if (targetMarketplace) {
           const marketplaceExists = marketplaceInfos.some((m) => m.name === targetMarketplace);
@@ -997,11 +997,11 @@ function BrowseMarketplace({
             setSelectedMarketplace(targetMarketplace);
             setViewState("plugin-list");
           } else {
-            setError(`Marketplace "${targetMarketplace}" not found`);
+            setError(`\u672a\u627e\u5230\u5e02\u573a "${targetMarketplace}"`);
           }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load marketplaces");
+        setError(err instanceof Error ? err.message : "\u52a0\u8f7d\u5e02\u573a\u5931\u8d25");
       } finally {
         setLoading(false);
       }
@@ -1019,7 +1019,7 @@ function BrowseMarketplace({
         if (cancelled)
           return;
         if (!marketplace) {
-          throw new Error(`Failed to load marketplace: ${marketplaceName}`);
+          throw new Error(`\u52a0\u8f7d\u5e02\u573a\u5931\u8d25\uff1a${marketplaceName}`);
         }
         const installablePlugins = [];
         for (const entry of marketplace.plugins) {
@@ -1061,7 +1061,7 @@ function BrowseMarketplace({
       } catch (err) {
         if (cancelled)
           return;
-        setError(err instanceof Error ? err.message : "Failed to load plugins");
+        setError(err instanceof Error ? err.message : "\u52a0\u8f7d\u63d2\u4ef6\u5931\u8d25");
       } finally {
         setLoading(false);
       }
@@ -1100,12 +1100,12 @@ function BrowseMarketplace({
     setSelectedForInstall(new Set);
     clearAllCaches();
     if (failureCount === 0) {
-      const message = `\u2713 Installed ${successCount} ${plural(successCount, "plugin")}. ` + `Run /reload-plugins to activate.`;
+      const message = `\u2713 \u5df2\u5b89\u88c5 ${successCount} \u4e2a\u63d2\u4ef6\u3002 ` + `\u8fd0\u884c /reload-plugins \u4ee5\u6fc0\u6d3b\u3002`;
       setResult(message);
     } else if (successCount === 0) {
-      setError(`Failed to install: ${formatFailureDetails(newFailedPlugins, true)}`);
+      setError(`\u5b89\u88c5\u5931\u8d25\uff1a${formatFailureDetails(newFailedPlugins, true)}`);
     } else {
-      const message = `\u2713 Installed ${successCount} of ${successCount + failureCount} plugins. ` + `Failed: ${formatFailureDetails(newFailedPlugins, false)}. ` + `Run /reload-plugins to activate successfully installed plugins.`;
+      const message = `\u2713 \u5df2\u5b89\u88c5 ${successCount}/${successCount + failureCount} \u4e2a\u63d2\u4ef6\u3002 ` + `\u5931\u8d25\uff1a${formatFailureDetails(newFailedPlugins, false)}\u3002 ` + `\u8fd0\u884c /reload-plugins \u4ee5\u6fc0\u6d3b\u5df2\u6210\u529f\u5b89\u88c5\u7684\u63d2\u4ef6\u3002`;
       setResult(message);
     }
     if (successCount > 0) {
@@ -1281,13 +1281,13 @@ function BrowseMarketplace({
       onDone: (outcome, detail) => {
         switch (outcome) {
           case "configured":
-            finish(`\u2713 Installed and configured ${plugin.name}. Run /reload-plugins to apply.`);
+            finish(`\u2713 \u5df2\u5b89\u88c5\u5e76\u914d\u7f6e ${plugin.name}\u3002\u8fd0\u884c /reload-plugins \u4ee5\u5e94\u7528\u3002`);
             break;
           case "skipped":
-            finish(`\u2713 Installed ${plugin.name}. Run /reload-plugins to apply.`);
+            finish(`\u2713 \u5df2\u5b89\u88c5 ${plugin.name}\u3002\u8fd0\u884c /reload-plugins \u4ee5\u5e94\u7528\u3002`);
             break;
           case "error":
-            finish(`Installed but failed to save config: ${detail}`);
+            finish(`\u5df2\u5b89\u88c5\u4f46\u4fdd\u5b58\u914d\u7f6e\u5931\u8d25\uff1a${detail}`);
             break;
         }
       }
@@ -1295,7 +1295,7 @@ function BrowseMarketplace({
   }
   if (loading) {
     return /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
-      children: "Loading\u2026"
+      children: "\u52a0\u8f7d\u4e2d\u2026"
     }, undefined, false, undefined, this);
   }
   if (error) {
@@ -1313,17 +1313,17 @@ function BrowseMarketplace({
             marginBottom: 1,
             children: /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
               bold: true,
-              children: "Select marketplace"
+              children: "\u9009\u62e9\u5e02\u573a"
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
-            children: "No marketplaces configured."
+            children: "\u672a\u914d\u7f6e\u5e02\u573a\u3002"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Add a marketplace first using ",
-              "'Add marketplace'",
+              "\u8bf7\u5148\u4f7f\u7528 ",
+              "'\u6dfb\u52a0\u5e02\u573a'",
               "."
             ]
           }, undefined, true, undefined, this),
@@ -1336,7 +1336,7 @@ function BrowseMarketplace({
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "go back"
+                description: "\u8fd4\u56de"
               }, undefined, false, undefined, this)
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this)
@@ -1350,7 +1350,7 @@ function BrowseMarketplace({
           marginBottom: 1,
           children: /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
             bold: true,
-            children: "Select marketplace"
+            children: "\u9009\u62e9\u5e02\u573a"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         warning && /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedBox_default, {
@@ -1386,9 +1386,9 @@ function BrowseMarketplace({
                 children: [
                   marketplace.totalPlugins,
                   " ",
-                  plural(marketplace.totalPlugins, "plugin"),
-                  " available",
-                  marketplace.installedCount > 0 && ` \xB7 ${marketplace.installedCount} already installed`,
+                  "\u4e2a\u63d2\u4ef6",
+                  " \u53ef\u7528",
+                  marketplace.installedCount > 0 && ` \xb7 ${marketplace.installedCount} \u5df2\u5b89\u88c5`,
                   marketplace.source && ` \xB7 ${marketplace.source}`
                 ]
               }, undefined, true, undefined, this)
@@ -1412,7 +1412,7 @@ function BrowseMarketplace({
                   action: "confirm:no",
                   context: "Confirmation",
                   fallback: "Esc",
-                  description: "go back"
+                  description: "\u8fd4\u56de"
                 }, undefined, false, undefined, this)
               ]
             }, undefined, true, undefined, this)
@@ -1432,7 +1432,7 @@ function BrowseMarketplace({
           marginBottom: 1,
           children: /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
             bold: true,
-            children: "Plugin Details"
+            children: "\u63d2\u4ef6\u8be6\u60c5"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedBox_default, {
@@ -1461,7 +1461,7 @@ function BrowseMarketplace({
               children: /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
                 dimColor: true,
                 children: [
-                  "By:",
+                  "\u4f5c\u8005\uff1a",
                   " ",
                   typeof selectedPlugin.entry.author === "string" ? selectedPlugin.entry.author : selectedPlugin.entry.author.name
                 ]
@@ -1475,7 +1475,7 @@ function BrowseMarketplace({
           children: [
             /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
               bold: true,
-              children: "Will install:"
+              children: "\u5c06\u5b89\u88c5\uff1a"
             }, undefined, false, undefined, this),
             selectedPlugin.entry.commands && /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
               dimColor: true,
@@ -1505,16 +1505,16 @@ function BrowseMarketplace({
               children: [
                 "\xB7 MCP Servers:",
                 " ",
-                Array.isArray(selectedPlugin.entry.mcpServers) ? selectedPlugin.entry.mcpServers.join(", ") : typeof selectedPlugin.entry.mcpServers === "object" ? Object.keys(selectedPlugin.entry.mcpServers).join(", ") : "configured"
+                Array.isArray(selectedPlugin.entry.mcpServers) ? selectedPlugin.entry.mcpServers.join(", ") : typeof selectedPlugin.entry.mcpServers === "object" ? Object.keys(selectedPlugin.entry.mcpServers).join(", ") : "\u5df2\u914d\u7f6e"
               ]
             }, undefined, true, undefined, this),
             !selectedPlugin.entry.commands && !selectedPlugin.entry.agents && !selectedPlugin.entry.hooks && !selectedPlugin.entry.mcpServers && /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(jsx_dev_runtime6.Fragment, {
               children: typeof selectedPlugin.entry.source === "object" && "source" in selectedPlugin.entry.source && (selectedPlugin.entry.source.source === "github" || selectedPlugin.entry.source.source === "url" || selectedPlugin.entry.source.source === "npm" || selectedPlugin.entry.source.source === "pip") ? /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
                 dimColor: true,
-                children: "\xB7 Component summary not available for remote plugin"
+                children: "\xb7 \u8fdc\u7a0b\u63d2\u4ef6\u65e0\u6cd5\u663e\u793a\u7ec4\u4ef6\u6458\u8981"
               }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
                 dimColor: true,
-                children: "\xB7 Components will be discovered at installation"
+                children: "\xb7 \u5b89\u88c5\u540e\u5c06\u81ea\u52a8\u53d1\u73b0\u7ec4\u4ef6"
               }, undefined, false, undefined, this)
             }, undefined, false, undefined, this)
           ]
@@ -1525,7 +1525,7 @@ function BrowseMarketplace({
           children: /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
             color: "error",
             children: [
-              "Error: ",
+              "\u9519\u8bef\uff1a ",
               installError
             ]
           }, undefined, true, undefined, this)
@@ -1564,7 +1564,7 @@ function BrowseMarketplace({
                   action: "confirm:no",
                   context: "Confirmation",
                   fallback: "Esc",
-                  description: "back"
+                  description: "\u8fd4\u56de"
                 }, undefined, false, undefined, this)
               ]
             }, undefined, true, undefined, this)
@@ -1581,16 +1581,16 @@ function BrowseMarketplace({
           marginBottom: 1,
           children: /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
             bold: true,
-            children: "Install plugins"
+            children: "\u5b89\u88c5\u63d2\u4ef6"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "No new plugins available to install."
+          children: "\u6ca1\u6709\u53ef\u5b89\u88c5\u7684\u65b0\u63d2\u4ef6\u3002"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "All plugins from this marketplace are already installed."
+          children: "\u6b64\u5e02\u573a\u7684\u63d2\u4ef6\u5df2\u5168\u90e8\u5b89\u88c5\u3002"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedBox_default, {
           marginLeft: 3,
@@ -1601,7 +1601,7 @@ function BrowseMarketplace({
               action: "confirm:no",
               context: "Confirmation",
               fallback: "Esc",
-              description: "go back"
+              description: "\u8fd4\u56de"
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this)
@@ -1616,7 +1616,7 @@ function BrowseMarketplace({
         marginBottom: 1,
         children: /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
           bold: true,
-          children: "Install Plugins"
+          children: "\u5b89\u88c5\u63d2\u4ef6"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       pagination.scrollPosition.canScrollUp && /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedBox_default, {
@@ -1625,7 +1625,7 @@ function BrowseMarketplace({
           children: [
             " ",
             figures_default.arrowUp,
-            " more above"
+            " \u4e0a\u65b9\u66f4\u591a"
           ]
         }, undefined, true, undefined, this)
       }, undefined, false, undefined, this),
@@ -1708,7 +1708,7 @@ function BrowseMarketplace({
           children: [
             " ",
             figures_default.arrowDown,
-            " more below"
+            " \u4e0b\u65b9\u66f4\u591a"
           ]
         }, undefined, true, undefined, this)
       }, undefined, false, undefined, this),
@@ -1872,17 +1872,17 @@ function DiscoverPlugins({
           const foundPlugin = allPlugins.find((p) => p.entry.name === targetPlugin);
           if (foundPlugin) {
             if (foundPlugin.isInstalled) {
-              setError(`Plugin '${foundPlugin.pluginId}' is already installed. Use '/plugin' to manage existing plugins.`);
+              setError(`\u63d2\u4ef6 '${foundPlugin.pluginId}' \u5df2\u5b89\u88c5\u3002\u4f7f\u7528 '/plugin' \u7ba1\u7406\u5df2\u5b89\u88c5\u63d2\u4ef6\u3002`);
             } else {
               setSelectedPlugin(foundPlugin);
               setViewState("plugin-details");
             }
           } else {
-            setError(`Plugin "${targetPlugin}" not found in any marketplace`);
+            setError(`\u5728\u4efb\u4f55\u5e02\u573a\u672a\u627e\u5230\u63d2\u4ef6 "${targetPlugin}"`);
           }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load plugins");
+        setError(err instanceof Error ? err.message : "\u52a0\u8f7d\u63d2\u4ef6\u5931\u8d25");
       } finally {
         setLoading(false);
       }
@@ -1918,12 +1918,12 @@ function DiscoverPlugins({
     setSelectedForInstall(new Set);
     clearAllCaches();
     if (failureCount === 0) {
-      const message = `\u2713 Installed ${successCount} ${plural(successCount, "plugin")}. ` + `Run /reload-plugins to activate.`;
+      const message = `\u2713 \u5df2\u5b89\u88c5 ${successCount} \u4e2a\u63d2\u4ef6\u3002 ` + `\u8fd0\u884c /reload-plugins \u4ee5\u6fc0\u6d3b\u3002`;
       setResult(message);
     } else if (successCount === 0) {
-      setError(`Failed to install: ${formatFailureDetails(newFailedPlugins, true)}`);
+      setError(`\u5b89\u88c5\u5931\u8d25\uff1a${formatFailureDetails(newFailedPlugins, true)}`);
     } else {
-      const message = `\u2713 Installed ${successCount} of ${successCount + failureCount} plugins. ` + `Failed: ${formatFailureDetails(newFailedPlugins, false)}. ` + `Run /reload-plugins to activate successfully installed plugins.`;
+      const message = `\u2713 \u5df2\u5b89\u88c5 ${successCount}/${successCount + failureCount} \u4e2a\u63d2\u4ef6\u3002 ` + `\u5931\u8d25\uff1a${formatFailureDetails(newFailedPlugins, false)}\u3002 ` + `\u8fd0\u884c /reload-plugins \u4ee5\u6fc0\u6d3b\u5df2\u6210\u529f\u5b89\u88c5\u7684\u63d2\u4ef6\u3002`;
       setResult(message);
     }
     if (successCount > 0) {
@@ -2113,13 +2113,13 @@ function DiscoverPlugins({
       onDone: (outcome, detail) => {
         switch (outcome) {
           case "configured":
-            finish(`\u2713 Installed and configured ${plugin.name}. Run /reload-plugins to apply.`);
+            finish(`\u2713 \u5df2\u5b89\u88c5\u5e76\u914d\u7f6e ${plugin.name}\u3002\u8fd0\u884c /reload-plugins \u4ee5\u5e94\u7528\u3002`);
             break;
           case "skipped":
-            finish(`\u2713 Installed ${plugin.name}. Run /reload-plugins to apply.`);
+            finish(`\u2713 \u5df2\u5b89\u88c5 ${plugin.name}\u3002\u8fd0\u884c /reload-plugins \u4ee5\u5e94\u7528\u3002`);
             break;
           case "error":
-            finish(`Installed but failed to save config: ${detail}`);
+            finish(`\u5df2\u5b89\u88c5\u4f46\u4fdd\u5b58\u914d\u7f6e\u5931\u8d25\uff1a${detail}`);
             break;
         }
       }
@@ -2127,7 +2127,7 @@ function DiscoverPlugins({
   }
   if (loading) {
     return /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
-      children: "Loading\u2026"
+      children: "\u52a0\u8f7d\u4e2d\u2026"
     }, undefined, false, undefined, this);
   }
   if (error) {
@@ -2147,7 +2147,7 @@ function DiscoverPlugins({
           marginBottom: 1,
           children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             bold: true,
-            children: "Plugin details"
+            children: "\u63d2\u4ef6\u8be6\u60c5"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedBox_default, {
@@ -2183,7 +2183,7 @@ function DiscoverPlugins({
               children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
                 dimColor: true,
                 children: [
-                  "By:",
+                  "\u4f5c\u8005\uff1a",
                   " ",
                   typeof selectedPlugin.entry.author === "string" ? selectedPlugin.entry.author : selectedPlugin.entry.author.name
                 ]
@@ -2197,7 +2197,7 @@ function DiscoverPlugins({
           children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             color: "error",
             children: [
-              "Error: ",
+              "\u9519\u8bef\uff1a ",
               installError
             ]
           }, undefined, true, undefined, this)
@@ -2235,7 +2235,7 @@ function DiscoverPlugins({
                   action: "confirm:no",
                   context: "Confirmation",
                   fallback: "Esc",
-                  description: "back"
+                  description: "\u8fd4\u56de"
                 }, undefined, false, undefined, this)
               ]
             }, undefined, true, undefined, this)
@@ -2252,7 +2252,7 @@ function DiscoverPlugins({
           marginBottom: 1,
           children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             bold: true,
-            children: "Discover plugins"
+            children: "\u53d1\u73b0\u63d2\u4ef6"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(EmptyStateMessage, {
@@ -2263,7 +2263,7 @@ function DiscoverPlugins({
           children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
             italic: true,
-            children: "Esc to go back"
+            children: "Esc \u8fd4\u56de"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this)
       ]
@@ -2277,7 +2277,7 @@ function DiscoverPlugins({
         children: [
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             bold: true,
-            children: "Discover plugins"
+            children: "\u53d1\u73b0\u63d2\u4ef6"
           }, undefined, false, undefined, this),
           pagination.needsPagination && /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
@@ -2318,7 +2318,7 @@ function DiscoverPlugins({
         children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            'No plugins match "',
+            '\u65e0\u5339\u914d\u63d2\u4ef6 "',
             searchQuery,
             '"'
           ]
@@ -2330,7 +2330,7 @@ function DiscoverPlugins({
           children: [
             " ",
             figures_default.arrowUp,
-            " more above"
+            " \u4e0a\u65b9\u66f4\u591a"
           ]
         }, undefined, true, undefined, this)
       }, undefined, false, undefined, this),
@@ -2398,7 +2398,7 @@ function DiscoverPlugins({
           children: [
             " ",
             figures_default.arrowDown,
-            " more below"
+            " \u4e0b\u65b9\u66f4\u591a"
           ]
         }, undefined, true, undefined, this)
       }, undefined, false, undefined, this),
@@ -2439,7 +2439,7 @@ function DiscoverPluginsKeyHint({
             bold: true
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
-            children: "type to search"
+            children: "\u8f93\u5165\u4ee5\u641c\u7d22"
           }, undefined, false, undefined, this),
           canToggle && /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ConfigurableShortcutHint, {
             action: "plugin:toggle",
@@ -2457,7 +2457,7 @@ function DiscoverPluginsKeyHint({
             action: "confirm:no",
             context: "Confirmation",
             fallback: "Esc",
-            description: "back"
+            description: "\u8fd4\u56de"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this)
@@ -2473,11 +2473,11 @@ function EmptyStateMessage({
         children: [
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Git is required to install marketplaces."
+            children: "\u5b89\u88c5\u5e02\u573a\u9700\u8981 Git\u3002"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Please install git and restart Claude Code."
+            children: "\u8bf7\u5b89\u88c5 git \u5e76\u91cd\u542f Claude Code\u3002"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this);
@@ -2486,11 +2486,11 @@ function EmptyStateMessage({
         children: [
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Your organization policy does not allow any external marketplaces."
+            children: "\u7ec4\u7ec7\u7b56\u7565\u4e0d\u5141\u8bb8\u4efb\u4f55\u5916\u90e8\u5e02\u573a\u3002"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Contact your administrator."
+            children: "\u8bf7\u8054\u7cfb\u7ba1\u7406\u5458\u3002"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this);
@@ -2499,11 +2499,11 @@ function EmptyStateMessage({
         children: [
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Your organization restricts which marketplaces can be added."
+            children: "\u7ec4\u7ec7\u9650\u5236\u53ef\u6dfb\u52a0\u7684\u5e02\u573a\u3002"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Switch to the Marketplaces tab to view allowed sources."
+            children: "\u8bf7\u5207\u6362\u5230\u300c\u5e02\u573a\u300d\u6807\u7b7e\u67e5\u770b\u5141\u8bb8\u7684\u6765\u6e90\u3002"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this);
@@ -2512,11 +2512,11 @@ function EmptyStateMessage({
         children: [
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Failed to load marketplace data."
+            children: "\u52a0\u8f7d\u5e02\u573a\u6570\u636e\u5931\u8d25\u3002"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Check your network connection."
+            children: "\u8bf7\u68c0\u67e5\u7f51\u7edc\u8fde\u63a5\u3002"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this);
@@ -2525,11 +2525,11 @@ function EmptyStateMessage({
         children: [
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "All available plugins are already installed."
+            children: "\u6240\u6709\u53ef\u7528\u63d2\u4ef6\u5df2\u5b89\u88c5\u3002"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Check for new plugins later or add more marketplaces."
+            children: "\u7a0d\u540e\u518d\u67e5\u65b0\u63d2\u4ef6\uff0c\u6216\u6dfb\u52a0\u66f4\u591a\u5e02\u573a\u3002"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this);
@@ -2539,11 +2539,11 @@ function EmptyStateMessage({
         children: [
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "No plugins available."
+            children: "\u65e0\u53ef\u7528\u63d2\u4ef6\u3002"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Add a marketplace first using the Marketplaces tab."
+            children: "\u8bf7\u5148\u5728\u300c\u5e02\u573a\u300d\u6807\u7b7e\u6dfb\u52a0\u5e02\u573a\u3002"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this);
@@ -2663,14 +2663,14 @@ function ManageMarketplaces({
               setInternalView("details");
             }
           } else if (setError) {
-            setError(`Marketplace not found: ${targetMarketplace}`);
+            setError(`\u672a\u627e\u5230\u5e02\u573a\uff1a${targetMarketplace}`);
           }
         }
       } catch (err) {
         if (setError) {
-          setError(err instanceof Error ? err.message : "Failed to load marketplaces");
+          setError(err instanceof Error ? err.message : "\u52a0\u8f7d\u5e02\u573a\u5931\u8d25");
         }
-        setProcessError(err instanceof Error ? err.message : "Failed to load marketplaces");
+        setProcessError(err instanceof Error ? err.message : "\u52a0\u8f7d\u5e02\u573a\u5931\u8d25");
       } finally {
         setLoading(false);
       }
@@ -2771,11 +2771,11 @@ function ManageMarketplaces({
       }
       const actions = [];
       if (updatedCount > 0) {
-        const pluginPart = updatedPluginCount > 0 ? ` (${updatedPluginCount} ${plural(updatedPluginCount, "plugin")} bumped)` : "";
-        actions.push(`Updated ${updatedCount} ${plural(updatedCount, "marketplace")}${pluginPart}`);
+        const pluginPart = updatedPluginCount > 0 ? `\uff08${updatedPluginCount} \u4e2a\u63d2\u4ef6\u5df2\u5347\u7ea7\uff09` : "";
+        actions.push(`\u5df2\u66f4\u65b0 ${updatedCount} \u4e2a\u5e02\u573a${pluginPart}`);
       }
       if (removedCount > 0) {
-        actions.push(`Removed ${removedCount} ${plural(removedCount, "marketplace")}`);
+        actions.push(`\u5df2\u79fb\u9664 ${removedCount} \u4e2a\u5e02\u573a`);
       }
       if (actions.length > 0) {
         const successMsg = `${figures_default.tick} ${actions.join(", ")}`;
@@ -2811,22 +2811,22 @@ function ManageMarketplaces({
       return [];
     const options = [
       {
-        label: `Browse plugins (${marketplace.pluginCount ?? 0})`,
+        label: `\u6d4f\u89c8\u63d2\u4ef6\uff08${marketplace.pluginCount ?? 0}\uff09`,
         value: "browse"
       },
       {
-        label: "Update marketplace",
-        secondaryLabel: marketplace.lastUpdated ? `(last updated ${new Date(marketplace.lastUpdated).toLocaleDateString()})` : undefined,
+        label: "\u66f4\u65b0\u5e02\u573a",
+        secondaryLabel: marketplace.lastUpdated ? `\uff08\u4e0a\u6b21\u66f4\u65b0 ${new Date(marketplace.lastUpdated).toLocaleDateString()}\uff09` : undefined,
         value: "update"
       }
     ];
     if (!shouldSkipPluginAutoupdate()) {
       options.push({
-        label: marketplace.autoUpdate ? "Disable auto-update" : "Enable auto-update",
+        label: marketplace.autoUpdate ? "\u7981\u7528\u81ea\u52a8\u66f4\u65b0" : "\u542f\u7528\u81ea\u52a8\u66f4\u65b0",
         value: "toggle-auto-update"
       });
     }
-    options.push({ label: "Remove marketplace", value: "remove" });
+    options.push({ label: "\u79fb\u9664\u5e02\u573a", value: "remove" });
     return options;
   };
   const handleToggleAutoUpdate = async (marketplace) => {
@@ -2836,7 +2836,7 @@ function ManageMarketplaces({
       setMarketplaceStates((prev) => prev.map((state) => state.name === marketplace.name ? { ...state, autoUpdate: newAutoUpdate } : state));
       setSelectedMarketplace((prev) => prev ? { ...prev, autoUpdate: newAutoUpdate } : prev);
     } catch (err) {
-      setProcessError(err instanceof Error ? err.message : "Failed to update setting");
+      setProcessError(err instanceof Error ? err.message : "\u66f4\u65b0\u8bbe\u7f6e\u5931\u8d25");
     }
   };
   useKeybinding("confirm:no", () => {
@@ -2941,7 +2941,7 @@ function ManageMarketplaces({
   }, { isActive: !isProcessing && internalView === "confirm-remove" });
   if (loading) {
     return /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
-      children: "Loading marketplaces\u2026"
+      children: "\u6b63\u5728\u52a0\u8f7d\u5e02\u573a\u2026"
     }, undefined, false, undefined, this);
   }
   if (marketplaceStates.length === 0) {
@@ -2952,7 +2952,7 @@ function ManageMarketplaces({
           marginBottom: 1,
           children: /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
             bold: true,
-            children: "Manage marketplaces"
+            children: "\u7ba1\u7406\u5e02\u573a"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedBox_default, {
@@ -2969,7 +2969,7 @@ function ManageMarketplaces({
             /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
               bold: true,
               color: "suggestion",
-              children: "Add Marketplace"
+              children: "\u6dfb\u52a0\u5e02\u573a"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
@@ -2980,7 +2980,7 @@ function ManageMarketplaces({
             italic: true,
             children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(jsx_dev_runtime8.Fragment, {
               children: [
-                "Press ",
+                "\u6309 ",
                 exitState.keyName,
                 " again to go back"
               ]
@@ -2996,7 +2996,7 @@ function ManageMarketplaces({
                   action: "confirm:no",
                   context: "Confirmation",
                   fallback: "Esc",
-                  description: "go back"
+                  description: "\u8fd4\u56de"
                 }, undefined, false, undefined, this)
               ]
             }, undefined, true, undefined, this)
@@ -3014,7 +3014,7 @@ function ManageMarketplaces({
           bold: true,
           color: "warning",
           children: [
-            "Remove marketplace ",
+            "\u79fb\u9664\u5e02\u573a ",
             /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
               italic: true,
               children: selectedMarketplace.name
@@ -3030,11 +3030,11 @@ function ManageMarketplaces({
               children: /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
                 color: "warning",
                 children: [
-                  "This will also uninstall ",
+                  "\u8fd8\u5c06\u5378\u8f7d\u6b64\u5e02\u573a\u7684 ",
                   pluginCount,
                   " ",
-                  plural(pluginCount, "plugin"),
-                  " from this marketplace:"
+                  "\u4e2a\u63d2\u4ef6",
+                  "\uff1a"
                 ]
               }, undefined, true, undefined, this)
             }, undefined, false, undefined, this),
@@ -3054,17 +3054,17 @@ function ManageMarketplaces({
               marginTop: 1,
               children: /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
                 children: [
-                  "Press ",
+                  "\u6309 ",
                   /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
                     bold: true,
                     children: "y"
                   }, undefined, false, undefined, this),
-                  " to confirm or ",
+                  " \u786e\u8ba4\u6216 ",
                   /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
                     bold: true,
                     children: "n"
                   }, undefined, false, undefined, this),
-                  " to cancel"
+                  " \u53d6\u6d88"
                 ]
               }, undefined, true, undefined, this)
             }, undefined, false, undefined, this)
@@ -3092,9 +3092,7 @@ function ManageMarketplaces({
           children: /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
             children: [
               selectedMarketplace.pluginCount || 0,
-              " available",
-              " ",
-              plural(selectedMarketplace.pluginCount || 0, "plugin")
+              "\u4e2a\u53ef\u7528\u63d2\u4ef6"
             ]
           }, undefined, true, undefined, this)
         }, undefined, false, undefined, this),
@@ -3105,7 +3103,7 @@ function ManageMarketplaces({
             /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
               bold: true,
               children: [
-                "Installed plugins (",
+                "\u5df2\u5b89\u88c5\u63d2\u4ef6\uff08",
                 selectedMarketplace.installedPlugins.length,
                 "):"
               ]
@@ -3143,7 +3141,7 @@ function ManageMarketplaces({
           children: [
             /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
               color: "claude",
-              children: "Updating marketplace\u2026"
+              children: "\u6b63\u5728\u66f4\u65b0\u5e02\u573a\u2026"
             }, undefined, false, undefined, this),
             progressMessage && /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
               dimColor: true,
@@ -3197,7 +3195,7 @@ function ManageMarketplaces({
           marginTop: 1,
           children: /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Auto-update enabled. Claude Code will automatically update this marketplace and its installed plugins."
+            children: "\u5df2\u542f\u7528\u81ea\u52a8\u66f4\u65b0\u3002Claude Code \u5c06\u81ea\u52a8\u66f4\u65b0\u6b64\u5e02\u573a\u53ca\u5df2\u5b89\u88c5\u63d2\u4ef6\u3002"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedBox_default, {
@@ -3206,7 +3204,7 @@ function ManageMarketplaces({
             dimColor: true,
             italic: true,
             children: isUpdating ? /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(jsx_dev_runtime8.Fragment, {
-              children: "Please wait\u2026"
+              children: "\u8bf7\u7a0d\u5019\u2026"
             }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(Byline, {
               children: [
                 /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ConfigurableShortcutHint, {
@@ -3219,7 +3217,7 @@ function ManageMarketplaces({
                   action: "confirm:no",
                   context: "Confirmation",
                   fallback: "Esc",
-                  description: "go back"
+                  description: "\u8fd4\u56de"
                 }, undefined, false, undefined, this)
               ]
             }, undefined, true, undefined, this)
@@ -3236,7 +3234,7 @@ function ManageMarketplaces({
         marginBottom: 1,
         children: /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
           bold: true,
-          children: "Manage marketplaces"
+          children: "\u7ba1\u7406\u5e02\u573a"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedBox_default, {
@@ -3254,7 +3252,7 @@ function ManageMarketplaces({
           /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
             bold: true,
             color: selectedIndex === 0 ? "suggestion" : undefined,
-            children: "Add Marketplace"
+            children: "\u6dfb\u52a0\u5e02\u573a"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this),
@@ -3324,7 +3322,7 @@ function ManageMarketplaces({
                       state.pluginCount !== undefined && /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(jsx_dev_runtime8.Fragment, {
                         children: [
                           state.pluginCount,
-                          " available"
+                          " \u53ef\u7528"
                         ]
                       }, undefined, true, undefined, this),
                       state.installedPlugins && state.installedPlugins.length > 0 && /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(jsx_dev_runtime8.Fragment, {
@@ -3358,30 +3356,30 @@ function ManageMarketplaces({
             children: [
               /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
                 bold: true,
-                children: "Pending changes:"
+                children: "\u5f85\u5904\u7406\u66f4\u6539\uff1a"
               }, undefined, false, undefined, this),
               " ",
               /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
                 dimColor: true,
-                children: "Enter to apply"
+                children: "Enter \u5e94\u7528"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this),
           updateCount > 0 && /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
             children: [
-              "\u2022 Update ",
+              "\u2022 \u66f4\u65b0 ",
               updateCount,
               " ",
-              plural(updateCount, "marketplace")
+              "\u4e2a\u5e02\u573a"
             ]
           }, undefined, true, undefined, this),
           removeCount > 0 && /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
             color: "warning",
             children: [
-              "\u2022 Remove ",
+              "\u2022 \u79fb\u9664 ",
               removeCount,
               " ",
-              plural(removeCount, "marketplace")
+              "\u4e2a\u5e02\u573a"
             ]
           }, undefined, true, undefined, this)
         ]
@@ -3390,7 +3388,7 @@ function ManageMarketplaces({
         marginTop: 1,
         children: /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedText, {
           color: "claude",
-          children: "Processing changes\u2026"
+          children: "\u6b63\u5728\u5904\u7406\u66f4\u6539\u2026"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       processError && /* @__PURE__ */ jsx_dev_runtime8.jsxDEV(ThemedBox_default, {
@@ -3418,7 +3416,7 @@ function ManageMarketplacesKeyHints({
         dimColor: true,
         italic: true,
         children: [
-          "Press ",
+          "\u6309 ",
           exitState.keyName,
           " again to go back"
         ]
@@ -3506,7 +3504,7 @@ function CapabilitiesSection({
     children: [
       /* @__PURE__ */ jsx_dev_runtime9.jsxDEV(ThemedText, {
         bold: true,
-        children: "Capabilities: "
+        children: "\u80fd\u529b\uff1a "
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime9.jsxDEV(ThemedText, {
         color: "text",
@@ -3529,29 +3527,29 @@ function handleReconnectResult(result, serverName) {
   switch (result.client.type) {
     case "connected":
       return {
-        message: `Reconnected to ${serverName}.`,
+        message: `\u5df2\u91cd\u8fde ${serverName}\u3002`,
         success: true
       };
     case "needs-auth":
       return {
-        message: `${serverName} requires authentication. Use the 'Authenticate' option.`,
+        message: `${serverName} \u9700\u8981\u8ba4\u8bc1\u3002\u8bf7\u4f7f\u7528\u300c\u8ba4\u8bc1\u300d\u9009\u9879\u3002`,
         success: false
       };
     case "failed":
       return {
-        message: `Failed to reconnect to ${serverName}.`,
+        message: `\u91cd\u8fde ${serverName} \u5931\u8d25\u3002`,
         success: false
       };
     default:
       return {
-        message: `Unknown result when reconnecting to ${serverName}.`,
+        message: `\u91cd\u8fde ${serverName} \u65f6\u8fd4\u56de\u672a\u77e5\u7ed3\u679c\u3002`,
         success: false
       };
   }
 }
 function handleReconnectError(error, serverName) {
   const errorMessage2 = error instanceof Error ? error.message : String(error);
-  return `Error reconnecting to ${serverName}: ${errorMessage2}`;
+  return `\u91cd\u8fde ${serverName} \u9519\u8bef\uff1a${errorMessage2}`;
 }
 var init_reconnectHelpers = () => {};
 
@@ -3603,11 +3601,11 @@ function MCPRemoteServerMenu({
       const success = result.client.type === "connected";
       logEvent("tengu_claudeai_mcp_auth_completed", { success });
       if (success) {
-        onComplete?.(`Authentication successful. Connected to ${server.name}.`);
+        onComplete?.(`\u8ba4\u8bc1\u6210\u529f\uff0c\u5df2\u8fde\u63a5 ${server.name}\u3002`);
       } else if (result.client.type === "needs-auth") {
-        onComplete?.("Authentication successful, but server still requires authentication. You may need to manually restart Claude Code.");
+        onComplete?.("\u8ba4\u8bc1\u6210\u529f\uff0c\u4f46\u670d\u52a1\u5668\u4ecd\u9700\u8ba4\u8bc1\u3002\u53ef\u80fd\u9700\u8981\u624b\u52a8\u91cd\u542f Claude Code\u3002");
       } else {
-        onComplete?.("Authentication successful, but server reconnection failed. You may need to manually restart Claude Code for the changes to take effect.");
+        onComplete?.("\u8ba4\u8bc1\u6210\u529f\uff0c\u4f46\u670d\u52a1\u5668\u91cd\u8fde\u5931\u8d25\u3002\u53ef\u80fd\u9700\u8981\u624b\u52a8\u91cd\u542f Claude Code \u4f7f\u66f4\u6539\u751f\u6548\u3002");
       }
     } catch (err) {
       logEvent("tengu_claudeai_mcp_auth_completed", { success: false });
@@ -3638,7 +3636,7 @@ function MCPRemoteServerMenu({
       };
     });
     logEvent("tengu_claudeai_mcp_clear_auth_completed", {});
-    onComplete?.(`Disconnected from ${server.name}.`);
+    onComplete?.(`\u5df2\u65ad\u5f00\u4e0e ${server.name} \u7684\u8fde\u63a5\u3002`);
     setIsClaudeAIClearingAuth(false);
     setClaudeAIClearAuthUrl(null);
     setClaudeAIClearAuthBrowserOpened(false);
@@ -3768,13 +3766,13 @@ function MCPRemoteServerMenu({
         });
         const result = await reconnectMcpServer(server.name);
         if (result.client.type === "connected") {
-          const message = isEffectivelyAuthenticated ? `Authentication successful. Reconnected to ${server.name}.` : `Authentication successful. Connected to ${server.name}.`;
+          const message = isEffectivelyAuthenticated ? `\u8ba4\u8bc1\u6210\u529f\uff0c\u5df2\u91cd\u8fde ${server.name}\u3002` : `\u8ba4\u8bc1\u6210\u529f\uff0c\u5df2\u8fde\u63a5 ${server.name}\u3002`;
           onComplete?.(message);
         } else if (result.client.type === "needs-auth") {
-          onComplete?.("Authentication successful, but server still requires authentication. You may need to manually restart Claude Code.");
+          onComplete?.("\u8ba4\u8bc1\u6210\u529f\uff0c\u4f46\u670d\u52a1\u5668\u4ecd\u9700\u8ba4\u8bc1\u3002\u53ef\u80fd\u9700\u8981\u624b\u52a8\u91cd\u542f Claude Code\u3002");
         } else {
           logMCPDebug(server.name, `Reconnection failed after authentication`);
-          onComplete?.("Authentication successful, but server reconnection failed. You may need to manually restart Claude Code for the changes to take effect.");
+          onComplete?.("\u8ba4\u8bc1\u6210\u529f\uff0c\u4f46\u670d\u52a1\u5668\u91cd\u8fde\u5931\u8d25\u3002\u53ef\u80fd\u9700\u8981\u624b\u52a8\u91cd\u542f Claude Code \u4f7f\u66f4\u6539\u751f\u6548\u3002");
         }
       }
     } catch (err) {
@@ -3825,7 +3823,7 @@ function MCPRemoteServerMenu({
     }
   };
   if (isAuthenticating) {
-    const authCopy = server.config.type !== "claudeai-proxy" && server.config.oauth?.xaa ? " Authenticating via your identity provider" : " A browser window will open for authentication";
+    const authCopy = server.config.type !== "claudeai-proxy" && server.config.oauth?.xaa ? " \u901a\u8fc7\u8eab\u4efd\u63d0\u4f9b\u65b9\u8ba4\u8bc1\u4e2d" : " \u5c06\u6253\u5f00\u6d4f\u89c8\u5668\u8fdb\u884c\u8ba4\u8bc1";
     return /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedBox_default, {
       flexDirection: "column",
       gap: 1,
@@ -3834,7 +3832,7 @@ function MCPRemoteServerMenu({
         /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
           color: "claude",
           children: [
-            "Authenticating with ",
+            "\u6b63\u5728\u4e0e ",
             server.name,
             "\u2026"
           ]
@@ -3855,18 +3853,18 @@ function MCPRemoteServerMenu({
                 /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                   dimColor: true,
                   children: [
-                    "If your browser doesn't open automatically, copy this URL manually",
+                    "\u82e5\u6d4f\u89c8\u5668\u672a\u81ea\u52a8\u6253\u5f00\uff0c\u8bf7\u624b\u52a8\u590d\u5236\u6b64 URL",
                     " "
                   ]
                 }, undefined, true, undefined, this),
                 urlCopied ? /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                   color: "success",
-                  children: "(Copied!)"
+                  children: "(\u5df2\u590d\u5236!)"
                 }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                   dimColor: true,
                   children: /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(KeyboardShortcutHint, {
                     shortcut: "c",
-                    action: "copy",
+                    action: "\u590d\u5236",
                     parens: true
                   }, undefined, false, undefined, this)
                 }, undefined, false, undefined, this)
@@ -3883,7 +3881,7 @@ function MCPRemoteServerMenu({
           children: [
             /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "If the redirect page shows a connection error, paste the URL from your browser's address bar:"
+              children: "\u82e5\u91cd\u5b9a\u5411\u9875\u663e\u793a\u8fde\u63a5\u9519\u8bef\uff0c\u8bf7\u7c98\u8d34\u6d4f\u89c8\u5668\u5730\u5740\u680f\u4e2d\u7684 URL\uff1a"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedBox_default, {
               children: [
@@ -3914,7 +3912,7 @@ function MCPRemoteServerMenu({
           marginLeft: 3,
           children: /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Return here after authenticating in your browser. Press Esc to go back."
+            children: "\u6d4f\u89c8\u5668\u8ba4\u8bc1\u540e\u8bf7\u8fd4\u56de\u6b64\u5904\u3002\u6309 Esc \u8fd4\u56de\u3002"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this)
       ]
@@ -3929,7 +3927,7 @@ function MCPRemoteServerMenu({
         /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
           color: "claude",
           children: [
-            "Authenticating with ",
+            "\u6b63\u5728\u4e0e ",
             server.name,
             "\u2026"
           ]
@@ -3950,18 +3948,18 @@ function MCPRemoteServerMenu({
                 /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                   dimColor: true,
                   children: [
-                    "If your browser doesn't open automatically, copy this URL manually",
+                    "\u82e5\u6d4f\u89c8\u5668\u672a\u81ea\u52a8\u6253\u5f00\uff0c\u8bf7\u624b\u52a8\u590d\u5236\u6b64 URL",
                     " "
                   ]
                 }, undefined, true, undefined, this),
                 urlCopied ? /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                   color: "success",
-                  children: "(Copied!)"
+                  children: "(\u5df2\u590d\u5236!)"
                 }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                   dimColor: true,
                   children: /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(KeyboardShortcutHint, {
                     shortcut: "c",
-                    action: "copy",
+                    action: "\u590d\u5236",
                     parens: true
                   }, undefined, false, undefined, this)
                 }, undefined, false, undefined, this)
@@ -3979,7 +3977,7 @@ function MCPRemoteServerMenu({
             /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
               color: "permission",
               children: [
-                "Press ",
+                "\u6309 ",
                 /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                   bold: true,
                   children: "Enter"
@@ -3994,7 +3992,7 @@ function MCPRemoteServerMenu({
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "back"
+                description: "\u8fd4\u56de"
               }, undefined, false, undefined, this)
             }, undefined, false, undefined, this)
           ]
@@ -4011,14 +4009,14 @@ function MCPRemoteServerMenu({
         /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
           color: "claude",
           children: [
-            "Clear authentication for ",
+            "\u6e05\u9664\u8ba4\u8bc1\uff1a ",
             server.name
           ]
         }, undefined, true, undefined, this),
         claudeAIClearAuthBrowserOpened ? /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(jsx_dev_runtime10.Fragment, {
           children: [
             /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
-              children: 'Find the MCP server in the browser and click "Disconnect".'
+              children: "\u5728\u6d4f\u89c8\u5668\u4e2d\u627e\u5230\u8be5 MCP \u670d\u52a1\u5668\u5e76\u70b9\u51fb\u201cDisconnect\u201d\u3002"
             }, undefined, false, undefined, this),
             claudeAIClearAuthUrl && /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedBox_default, {
               flexDirection: "column",
@@ -4028,18 +4026,18 @@ function MCPRemoteServerMenu({
                     /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                       dimColor: true,
                       children: [
-                        "If your browser didn't open automatically, copy this URL manually",
+                        "\u82e5\u6d4f\u89c8\u5668\u672a\u81ea\u52a8\u6253\u5f00\uff0c\u8bf7\u624b\u52a8\u590d\u5236\u6b64 URL",
                         " "
                       ]
                     }, undefined, true, undefined, this),
                     urlCopied ? /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                       color: "success",
-                      children: "(Copied!)"
+                      children: "(\u5df2\u590d\u5236!)"
                     }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                       dimColor: true,
                       children: /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(KeyboardShortcutHint, {
                         shortcut: "c",
-                        action: "copy",
+                        action: "\u590d\u5236",
                         parens: true
                       }, undefined, false, undefined, this)
                     }, undefined, false, undefined, this)
@@ -4057,12 +4055,12 @@ function MCPRemoteServerMenu({
                 /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                   color: "permission",
                   children: [
-                    "Press ",
+                    "\u6309 ",
                     /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                       bold: true,
                       children: "Enter"
                     }, undefined, false, undefined, this),
-                    " when done."
+                    " \u5b8c\u6210\u3002"
                   ]
                 }, undefined, true, undefined, this),
                 /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
@@ -4072,7 +4070,7 @@ function MCPRemoteServerMenu({
                     action: "confirm:no",
                     context: "Confirmation",
                     fallback: "Esc",
-                    description: "back"
+                    description: "\u8fd4\u56de"
                   }, undefined, false, undefined, this)
                 }, undefined, false, undefined, this)
               ]
@@ -4081,7 +4079,7 @@ function MCPRemoteServerMenu({
         }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(jsx_dev_runtime10.Fragment, {
           children: [
             /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
-              children: 'This will open claude.ai in the browser. Find the MCP server in the list and click "Disconnect".'
+              children: "\u5c06\u5728\u6d4f\u89c8\u5668\u4e2d\u6253\u5f00 claude.ai\uff0c\u5728\u5217\u8868\u4e2d\u627e\u5230\u8be5 MCP \u670d\u52a1\u5668\u5e76\u70b9\u51fb\u201cDisconnect\u201d\u3002"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedBox_default, {
               marginLeft: 3,
@@ -4090,12 +4088,12 @@ function MCPRemoteServerMenu({
                 /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                   color: "permission",
                   children: [
-                    "Press ",
+                    "\u6309 ",
                     /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                       bold: true,
                       children: "Enter"
                     }, undefined, false, undefined, this),
-                    " to open the browser."
+                    " \u6253\u5f00\u6d4f\u89c8\u5668\u3002"
                   ]
                 }, undefined, true, undefined, this),
                 /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
@@ -4105,7 +4103,7 @@ function MCPRemoteServerMenu({
                     action: "confirm:no",
                     context: "Confirmation",
                     fallback: "Esc",
-                    description: "back"
+                    description: "\u8fd4\u56de"
                   }, undefined, false, undefined, this)
                 }, undefined, false, undefined, this)
               ]
@@ -4124,7 +4122,7 @@ function MCPRemoteServerMenu({
         /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
           color: "text",
           children: [
-            "Connecting to ",
+            "\u6b63\u5728\u8fde\u63a5 ",
             /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
               bold: true,
               children: server.name
@@ -4142,7 +4140,7 @@ function MCPRemoteServerMenu({
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "This may take a few moments."
+          children: "\u53ef\u80fd\u9700\u8981\u7247\u523b\u3002"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this);
@@ -4150,42 +4148,42 @@ function MCPRemoteServerMenu({
   const menuOptions = [];
   if (server.client.type === "disabled") {
     menuOptions.push({
-      label: "Enable",
+      label: "\u542f\u7528",
       value: "toggle-enabled"
     });
   }
   if (server.client.type === "connected" && serverToolsCount > 0) {
     menuOptions.push({
-      label: "View tools",
+      label: "\u67e5\u770b\u5de5\u5177",
       value: "tools"
     });
   }
   if (server.config.type === "claudeai-proxy") {
     if (server.client.type === "connected") {
       menuOptions.push({
-        label: "Clear authentication",
+        label: "\u6e05\u9664\u8ba4\u8bc1",
         value: "claudeai-clear-auth"
       });
     } else if (server.client.type !== "disabled") {
       menuOptions.push({
-        label: "Authenticate",
+        label: "\u8ba4\u8bc1",
         value: "claudeai-auth"
       });
     }
   } else {
     if (isEffectivelyAuthenticated) {
       menuOptions.push({
-        label: "Re-authenticate",
+        label: "\u91cd\u65b0\u8ba4\u8bc1",
         value: "reauth"
       });
       menuOptions.push({
-        label: "Clear authentication",
+        label: "\u6e05\u9664\u8ba4\u8bc1",
         value: "clear-auth"
       });
     }
     if (!isEffectivelyAuthenticated) {
       menuOptions.push({
-        label: "Authenticate",
+        label: "\u8ba4\u8bc1",
         value: "auth"
       });
     }
@@ -4193,18 +4191,18 @@ function MCPRemoteServerMenu({
   if (server.client.type !== "disabled") {
     if (server.client.type !== "needs-auth") {
       menuOptions.push({
-        label: "Reconnect",
+        label: "\u91cd\u8fde",
         value: "reconnectMcpServer"
       });
     }
     menuOptions.push({
-      label: "Disable",
+      label: "\u7981\u7528",
       value: "toggle-enabled"
     });
   }
   if (menuOptions.length === 0) {
     menuOptions.push({
-      label: "Back",
+      label: "\u8fd4\u56de",
       value: "back"
     });
   }
@@ -4234,17 +4232,17 @@ function MCPRemoteServerMenu({
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "Status: "
+                    children: "\u72b6\u6001\uff1a "
                   }, undefined, false, undefined, this),
                   server.client.type === "disabled" ? /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     children: [
                       color("inactive", theme)(figures_default.radioOff),
-                      " disabled"
+                      " \u5df2\u7981\u7528"
                     ]
                   }, undefined, true, undefined, this) : server.client.type === "connected" ? /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     children: [
                       color("success", theme)(figures_default.tick),
-                      " connected"
+                      " \u5df2\u8fde\u63a5"
                     ]
                   }, undefined, true, undefined, this) : server.client.type === "pending" ? /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(jsx_dev_runtime10.Fragment, {
                     children: [
@@ -4253,18 +4251,18 @@ function MCPRemoteServerMenu({
                         children: figures_default.radioOff
                       }, undefined, false, undefined, this),
                       /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
-                        children: " connecting\u2026"
+                        children: " \u8fde\u63a5\u4e2d\u2026"
                       }, undefined, false, undefined, this)
                     ]
                   }, undefined, true, undefined, this) : server.client.type === "needs-auth" ? /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     children: [
                       color("warning", theme)(figures_default.triangleUpOutline),
-                      " needs authentication"
+                      " \u9700\u8981\u8ba4\u8bc1"
                     ]
                   }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     children: [
                       color("error", theme)(figures_default.cross),
-                      " failed"
+                      " \u5931\u8d25"
                     ]
                   }, undefined, true, undefined, this)
                 ]
@@ -4273,17 +4271,17 @@ function MCPRemoteServerMenu({
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "Auth: "
+                    children: "\u8ba4\u8bc1\uff1a "
                   }, undefined, false, undefined, this),
                   isEffectivelyAuthenticated ? /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     children: [
                       color("success", theme)(figures_default.tick),
-                      " authenticated"
+                      " \u5df2\u8ba4\u8bc1"
                     ]
                   }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     children: [
                       color("error", theme)(figures_default.cross),
-                      " not authenticated"
+                      " \u672a\u8ba4\u8bc1"
                     ]
                   }, undefined, true, undefined, this)
                 ]
@@ -4292,7 +4290,7 @@ function MCPRemoteServerMenu({
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "URL: "
+                    children: "URL\uff1a "
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -4304,7 +4302,7 @@ function MCPRemoteServerMenu({
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "Config location: "
+                    children: "\u914d\u7f6e\u4f4d\u7f6e\uff1a "
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -4321,7 +4319,7 @@ function MCPRemoteServerMenu({
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "Tools: "
+                    children: "\u5de5\u5177\uff1a "
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -4339,7 +4337,7 @@ function MCPRemoteServerMenu({
             children: /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
               color: "error",
               children: [
-                "Error: ",
+                "\u9519\u8bef\uff1a ",
                 error
               ]
             }, undefined, true, undefined, this)
@@ -4408,25 +4406,25 @@ function MCPRemoteServerMenu({
           italic: true,
           children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(jsx_dev_runtime10.Fragment, {
             children: [
-              "Press ",
+              "\u6309 ",
               exitState.keyName,
-              " again to exit"
+              " \u518d\u6309\u4e00\u6b21\u9000\u51fa"
             ]
           }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(Byline, {
             children: [
               /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "\u2191\u2193",
-                action: "navigate"
+                action: "\u5bfc\u822a"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "select"
+                action: "\u9009\u62e9"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "back"
+                description: "\u8fd4\u56de"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -4496,23 +4494,23 @@ function MCPStdioServerMenu({
   const menuOptions = [];
   if (server.client.type !== "disabled" && serverToolsCount > 0) {
     menuOptions.push({
-      label: "View tools",
+      label: "\u67e5\u770b\u5de5\u5177",
       value: "tools"
     });
   }
   if (server.client.type !== "disabled") {
     menuOptions.push({
-      label: "Reconnect",
+      label: "\u91cd\u8fde",
       value: "reconnectMcpServer"
     });
   }
   menuOptions.push({
-    label: server.client.type !== "disabled" ? "Disable" : "Enable",
+    label: server.client.type !== "disabled" ? "\u7981\u7528" : "\u542f\u7528",
     value: "toggle-enabled"
   });
   if (menuOptions.length === 0) {
     menuOptions.push({
-      label: "Back",
+      label: "\u8fd4\u56de",
       value: "back"
     });
   }
@@ -4525,7 +4523,7 @@ function MCPStdioServerMenu({
         /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
           color: "text",
           children: [
-            "Reconnecting to ",
+            "\u6b63\u5728\u91cd\u8fde ",
             /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
               bold: true,
               children: server.name
@@ -4536,13 +4534,13 @@ function MCPStdioServerMenu({
           children: [
             /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(Spinner, {}, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
-              children: " Restarting MCP server process"
+              children: " \u6b63\u5728\u91cd\u542f MCP \u670d\u52a1\u5668\u8fdb\u7a0b"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "This may take a few moments."
+          children: "\u53ef\u80fd\u9700\u8981\u7247\u523b\u3002"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this);
@@ -4573,17 +4571,17 @@ function MCPStdioServerMenu({
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "Status: "
+                    children: "\u72b6\u6001\uff1a "
                   }, undefined, false, undefined, this),
                   server.client.type === "disabled" ? /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
                     children: [
                       color("inactive", theme)(figures_default.radioOff),
-                      " disabled"
+                      " \u5df2\u7981\u7528"
                     ]
                   }, undefined, true, undefined, this) : server.client.type === "connected" ? /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
                     children: [
                       color("success", theme)(figures_default.tick),
-                      " connected"
+                      " \u5df2\u8fde\u63a5"
                     ]
                   }, undefined, true, undefined, this) : server.client.type === "pending" ? /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(jsx_dev_runtime11.Fragment, {
                     children: [
@@ -4592,13 +4590,13 @@ function MCPStdioServerMenu({
                         children: figures_default.radioOff
                       }, undefined, false, undefined, this),
                       /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
-                        children: " connecting\u2026"
+                        children: " \u8fde\u63a5\u4e2d\u2026"
                       }, undefined, false, undefined, this)
                     ]
                   }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
                     children: [
                       color("error", theme)(figures_default.cross),
-                      " failed"
+                      " \u5931\u8d25"
                     ]
                   }, undefined, true, undefined, this)
                 ]
@@ -4607,7 +4605,7 @@ function MCPStdioServerMenu({
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "Command: "
+                    children: "\u547d\u4ee4\uff1a "
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -4619,7 +4617,7 @@ function MCPStdioServerMenu({
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "Args: "
+                    children: "\u53c2\u6570\uff1a "
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -4631,7 +4629,7 @@ function MCPStdioServerMenu({
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "Config location: "
+                    children: "\u914d\u7f6e\u4f4d\u7f6e\uff1a "
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -4648,7 +4646,7 @@ function MCPStdioServerMenu({
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "Tools: "
+                    children: "\u5de5\u5177\uff1a "
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -4697,25 +4695,25 @@ function MCPStdioServerMenu({
           italic: true,
           children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(jsx_dev_runtime11.Fragment, {
             children: [
-              "Press ",
+              "\u6309 ",
               exitState.keyName,
-              " again to exit"
+              " \u518d\u6309\u4e00\u6b21\u9000\u51fa"
             ]
           }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(Byline, {
             children: [
               /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "\u2191\u2193",
-                action: "navigate"
+                action: "\u5bfc\u822a"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "select"
+                action: "\u9009\u62e9"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "back"
+                description: "\u8fd4\u56de"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -4775,7 +4773,7 @@ function MCPToolDetailView({
         });
         setToolDescription(desc);
       } catch {
-        setToolDescription("Failed to load description");
+        setToolDescription("\u52a0\u8f7d\u63cf\u8ff0\u5931\u8d25");
       }
     }
     loadDescription();
@@ -4785,15 +4783,15 @@ function MCPToolDetailView({
       displayName,
       isReadOnly && /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
         color: "success",
-        children: " [read-only]"
+        children: " [\u53ea\u8bfb]"
       }, undefined, false, undefined, this),
       isDestructive && /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
         color: "error",
-        children: " [destructive]"
+        children: " [\u7834\u574f\u6027]"
       }, undefined, false, undefined, this),
       isOpenWorld && /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
         dimColor: true,
-        children: " [open-world]"
+        children: " [\u5f00\u653e]"
       }, undefined, false, undefined, this)
     ]
   }, undefined, true, undefined, this);
@@ -4803,15 +4801,15 @@ function MCPToolDetailView({
     onCancel: onBack,
     inputGuide: (exitState) => exitState.pending ? /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
       children: [
-        "Press ",
+        "\u6309 ",
         exitState.keyName,
-        " again to exit"
+        " \u518d\u6309\u4e00\u6b21\u9000\u51fa"
       ]
     }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ConfigurableShortcutHint, {
       action: "confirm:no",
       context: "Confirmation",
       fallback: "Esc",
-      description: "go back"
+      description: "\u8fd4\u56de"
     }, undefined, false, undefined, this),
     children: /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedBox_default, {
       flexDirection: "column",
@@ -4820,7 +4818,7 @@ function MCPToolDetailView({
           children: [
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               bold: true,
-              children: "Tool name: "
+              children: "\u5de5\u5177\u540d\uff1a "
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               dimColor: true,
@@ -4832,7 +4830,7 @@ function MCPToolDetailView({
           children: [
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               bold: true,
-              children: "Full name: "
+              children: "\u5b8c\u6574\u540d\u79f0\uff1a "
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               dimColor: true,
@@ -4846,7 +4844,7 @@ function MCPToolDetailView({
           children: [
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               bold: true,
-              children: "Description:"
+              children: "\u63cf\u8ff0\uff1a"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               wrap: "wrap",
@@ -4860,7 +4858,7 @@ function MCPToolDetailView({
           children: [
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               bold: true,
-              children: "Parameters:"
+              children: "\u53c2\u6570\uff1a"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedBox_default, {
               marginLeft: 2,
@@ -4930,11 +4928,11 @@ function MCPToolListView({
     const isOpenWorld = tool.isOpenWorld?.({}) ?? false;
     const annotations = [];
     if (isReadOnly)
-      annotations.push("read-only");
+      annotations.push("\u53ea\u8bfb");
     if (isDestructive)
-      annotations.push("destructive");
+      annotations.push("\u7834\u574f\u6027");
     if (isOpenWorld)
-      annotations.push("open-world");
+      annotations.push("\u5f00\u653e");
     return {
       label: displayName,
       value: index.toString(),
@@ -4943,36 +4941,36 @@ function MCPToolListView({
     };
   });
   return /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(Dialog, {
-    title: `Tools for ${server.name}`,
-    subtitle: `${serverTools.length} ${plural(serverTools.length, "tool")}`,
+    title: `${server.name} \u7684\u5de5\u5177`,
+    subtitle: `${serverTools.length} \u4e2a\u5de5\u5177`,
     onCancel: onBack,
     inputGuide: (exitState) => exitState.pending ? /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
       children: [
-        "Press ",
+        "\u6309 ",
         exitState.keyName,
-        " again to exit"
+        " \u518d\u6309\u4e00\u6b21\u9000\u51fa"
       ]
     }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(KeyboardShortcutHint, {
           shortcut: "\u2191\u2193",
-          action: "navigate"
+          action: "\u5bfc\u822a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Enter",
-          action: "select"
+          action: "\u9009\u62e9"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "back"
+          description: "\u8fd4\u56de"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
     children: serverTools.length === 0 ? /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
       dimColor: true,
-      children: "No tools available"
+      children: "\u6682\u65e0\u53ef\u7528\u5de5\u5177"
     }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(Select, {
       options: toolOptions,
       onChange: (value) => {
@@ -5004,55 +5002,55 @@ var init_MCPToolListView = __esm(() => {
 function formatErrorMessage(error) {
   switch (error.type) {
     case "path-not-found":
-      return `${error.component} path not found: ${error.path}`;
+      return `\u672a\u627e\u5230 ${error.component} \u8def\u5f84\uff1a${error.path}`;
     case "git-auth-failed":
-      return `Git ${error.authType.toUpperCase()} authentication failed for ${error.gitUrl}`;
+      return `Git ${error.authType.toUpperCase()} \u8ba4\u8bc1\u5931\u8d25\uff1a${error.gitUrl}`;
     case "git-timeout":
-      return `Git ${error.operation} timed out for ${error.gitUrl}`;
+      return `Git ${error.operation} \u8d85\u65f6\uff1a${error.gitUrl}`;
     case "network-error":
-      return `Network error accessing ${error.url}${error.details ? `: ${error.details}` : ""}`;
+      return `\u8bbf\u95ee ${error.url} \u7f51\u7edc\u9519\u8bef${error.details ? `\uff1a${error.details}` : ""}`;
     case "manifest-parse-error":
-      return `Failed to parse manifest at ${error.manifestPath}: ${error.parseError}`;
+      return `\u89e3\u6790\u6e05\u5355\u5931\u8d25 ${error.manifestPath}\uff1a${error.parseError}`;
     case "manifest-validation-error":
-      return `Invalid manifest at ${error.manifestPath}: ${error.validationErrors.join(", ")}`;
+      return `\u6e05\u5355\u65e0\u6548 ${error.manifestPath}\uff1a${error.validationErrors.join(", ")}`;
     case "plugin-not-found":
-      return `Plugin "${error.pluginId}" not found in marketplace "${error.marketplace}"`;
+      return `\u5728\u5e02\u573a "${error.marketplace}" \u672a\u627e\u5230\u63d2\u4ef6 "${error.pluginId}"`;
     case "marketplace-not-found":
-      return `Marketplace "${error.marketplace}" not found`;
+      return `\u672a\u627e\u5230\u5e02\u573a "${error.marketplace}"`;
     case "marketplace-load-failed":
-      return `Failed to load marketplace "${error.marketplace}": ${error.reason}`;
+      return `\u52a0\u8f7d\u5e02\u573a "${error.marketplace}" \u5931\u8d25\uff1a${error.reason}`;
     case "mcp-config-invalid":
-      return `Invalid MCP server config for "${error.serverName}": ${error.validationError}`;
+      return `MCP \u670d\u52a1\u5668 "${error.serverName}" \u914d\u7f6e\u65e0\u6548\uff1a${error.validationError}`;
     case "mcp-server-suppressed-duplicate": {
-      const dup = error.duplicateOf.startsWith("plugin:") ? `server provided by plugin "${error.duplicateOf.split(":")[1] ?? "?"}"` : `already-configured "${error.duplicateOf}"`;
-      return `MCP server "${error.serverName}" skipped \u2014 same command/URL as ${dup}`;
+      const dup = error.duplicateOf.startsWith("plugin:") ? `\u63d2\u4ef6 "${error.duplicateOf.split(":")[1] ?? "?"}" \u63d0\u4f9b\u7684\u670d\u52a1\u5668` : `\u5df2\u914d\u7f6e\u7684 "${error.duplicateOf}"`;
+      return `MCP \u670d\u52a1\u5668 "${error.serverName}" \u5df2\u8df3\u8fc7 \u2014 \u4e0e ${dup} \u547d\u4ee4/URL \u76f8\u540c`;
     }
     case "hook-load-failed":
-      return `Failed to load hooks from ${error.hookPath}: ${error.reason}`;
+      return `\u4ece ${error.hookPath} \u52a0\u8f7d hooks \u5931\u8d25\uff1a${error.reason}`;
     case "component-load-failed":
-      return `Failed to load ${error.component} from ${error.path}: ${error.reason}`;
+      return `\u4ece ${error.path} \u52a0\u8f7d ${error.component} \u5931\u8d25\uff1a${error.reason}`;
     case "mcpb-download-failed":
-      return `Failed to download MCPB from ${error.url}: ${error.reason}`;
+      return `\u4ece ${error.url} \u4e0b\u8f7d MCPB \u5931\u8d25\uff1a${error.reason}`;
     case "mcpb-extract-failed":
-      return `Failed to extract MCPB ${error.mcpbPath}: ${error.reason}`;
+      return `\u89e3\u538b MCPB ${error.mcpbPath} \u5931\u8d25\uff1a${error.reason}`;
     case "mcpb-invalid-manifest":
-      return `MCPB manifest invalid at ${error.mcpbPath}: ${error.validationError}`;
+      return `MCPB \u6e05\u5355\u65e0\u6548 ${error.mcpbPath}\uff1a${error.validationError}`;
     case "marketplace-blocked-by-policy":
-      return error.blockedByBlocklist ? `Marketplace "${error.marketplace}" is blocked by enterprise policy` : `Marketplace "${error.marketplace}" is not in the allowed marketplace list`;
+      return error.blockedByBlocklist ? `\u5e02\u573a "${error.marketplace}" \u88ab\u4f01\u4e1a\u7b56\u7565\u7981\u7528` : `\u5e02\u573a "${error.marketplace}" \u4e0d\u5728\u5141\u8bb8\u7684\u5e02\u573a\u5217\u8868\u4e2d`;
     case "dependency-unsatisfied":
-      return error.reason === "not-enabled" ? `Dependency "${error.dependency}" is disabled` : `Dependency "${error.dependency}" is not installed`;
+      return error.reason === "not-enabled" ? `\u4f9d\u8d56 "${error.dependency}" \u5df2\u7981\u7528` : `\u4f9d\u8d56 "${error.dependency}" \u672a\u5b89\u88c5`;
     case "lsp-config-invalid":
-      return `Invalid LSP server config for "${error.serverName}": ${error.validationError}`;
+      return `LSP \u670d\u52a1\u5668 "${error.serverName}" \u914d\u7f6e\u65e0\u6548\uff1a${error.validationError}`;
     case "lsp-server-start-failed":
-      return `LSP server "${error.serverName}" failed to start: ${error.reason}`;
+      return `LSP \u670d\u52a1\u5668 "${error.serverName}" \u542f\u52a8\u5931\u8d25\uff1a${error.reason}`;
     case "lsp-server-crashed":
-      return error.signal ? `LSP server "${error.serverName}" crashed with signal ${error.signal}` : `LSP server "${error.serverName}" crashed with exit code ${error.exitCode ?? "unknown"}`;
+      return error.signal ? `LSP \u670d\u52a1\u5668 "${error.serverName}" \u5d29\u6e83\uff08\u4fe1\u53f7 ${error.signal}\uff09` : `LSP \u670d\u52a1\u5668 "${error.serverName}" \u5d29\u6e83\uff08\u9000\u51fa\u7801 ${error.exitCode ?? "unknown"}\uff09`;
     case "lsp-request-timeout":
-      return `LSP server "${error.serverName}" timed out on ${error.method} after ${error.timeoutMs}ms`;
+      return `LSP \u670d\u52a1\u5668 "${error.serverName}" \u8c03\u7528 ${error.method} \u8d85\u65f6\uff08${error.timeoutMs}ms\uff09`;
     case "lsp-request-failed":
-      return `LSP server "${error.serverName}" ${error.method} failed: ${error.error}`;
+      return `LSP \u670d\u52a1\u5668 "${error.serverName}" ${error.method} \u5931\u8d25\uff1a${error.error}`;
     case "plugin-cache-miss":
-      return `Plugin "${error.plugin}" not cached at ${error.installPath}`;
+      return `\u63d2\u4ef6 "${error.plugin}" \u672a\u7f13\u5b58\u4e8e ${error.installPath}`;
     case "generic-error":
       return error.error;
   }
@@ -5062,55 +5060,55 @@ function formatErrorMessage(error) {
 function getErrorGuidance(error) {
   switch (error.type) {
     case "path-not-found":
-      return "Check that the path in your manifest or marketplace config is correct";
+      return "\u8bf7\u68c0\u67e5\u6e05\u5355\u6216\u5e02\u573a\u914d\u7f6e\u4e2d\u7684\u8def\u5f84\u662f\u5426\u6b63\u786e";
     case "git-auth-failed":
-      return error.authType === "ssh" ? "Configure SSH keys or use HTTPS URL instead" : "Configure credentials or use SSH URL instead";
+      return error.authType === "ssh" ? "\u8bf7\u914d\u7f6e SSH \u5bc6\u94a5\u6216\u6539\u7528 HTTPS URL" : "\u8bf7\u914d\u7f6e\u51ed\u8bc1\u6216\u6539\u7528 SSH URL";
     case "git-timeout":
     case "network-error":
-      return "Check your internet connection and try again";
+      return "\u8bf7\u68c0\u67e5\u7f51\u7edc\u8fde\u63a5\u540e\u91cd\u8bd5";
     case "manifest-parse-error":
-      return "Check manifest file syntax in the plugin directory";
+      return "\u8bf7\u68c0\u67e5\u63d2\u4ef6\u76ee\u5f55\u4e2d\u6e05\u5355\u6587\u4ef6\u8bed\u6cd5";
     case "manifest-validation-error":
-      return "Check manifest file follows the required schema";
+      return "\u8bf7\u68c0\u67e5\u6e05\u5355\u662f\u5426\u7b26\u5408\u6240\u9700\u67b6\u6784";
     case "plugin-not-found":
-      return `Plugin may not exist in marketplace "${error.marketplace}"`;
+      return `\u63d2\u4ef6\u53ef\u80fd\u4e0d\u5b58\u5728\u4e8e\u5e02\u573a "${error.marketplace}"`;
     case "marketplace-not-found":
-      return error.availableMarketplaces.length > 0 ? `Available marketplaces: ${error.availableMarketplaces.join(", ")}` : "Add the marketplace first using /plugin marketplace add";
+      return error.availableMarketplaces.length > 0 ? `\u53ef\u7528\u5e02\u573a\uff1a${error.availableMarketplaces.join(", ")}` : "\u8bf7\u5148\u4f7f\u7528 /plugin marketplace add \u6dfb\u52a0\u5e02\u573a";
     case "mcp-config-invalid":
-      return "Check MCP server configuration in .mcp.json or manifest";
+      return "\u8bf7\u68c0\u67e5 .mcp.json \u6216\u6e05\u5355\u4e2d\u7684 MCP \u670d\u52a1\u5668\u914d\u7f6e";
     case "mcp-server-suppressed-duplicate": {
       if (error.duplicateOf.startsWith("plugin:")) {
-        const winningPlugin = error.duplicateOf.split(":")[1] ?? "the other plugin";
-        return `Disable plugin "${winningPlugin}" if you want this plugin's version instead`;
+        const winningPlugin = error.duplicateOf.split(":")[1] ?? "\u53e6\u4e00\u4e2a\u63d2\u4ef6";
+        return `\u8981\u4f7f\u7528\u6b64\u63d2\u4ef6\u7248\u672c\uff0c\u8bf7\u7981\u7528\u63d2\u4ef6 "${winningPlugin}"`;
       }
-      return `Remove "${error.duplicateOf}" from your MCP config if you want the plugin's version instead`;
+      return `\u8981\u4f7f\u7528\u63d2\u4ef6\u7248\u672c\uff0c\u8bf7\u4ece MCP \u914d\u7f6e\u4e2d\u79fb\u9664 "${error.duplicateOf}"`;
     }
     case "hook-load-failed":
-      return "Check hooks.json file syntax and structure";
+      return "\u8bf7\u68c0\u67e5 hooks.json \u6587\u4ef6\u8bed\u6cd5\u4e0e\u7ed3\u6784";
     case "component-load-failed":
-      return `Check ${error.component} directory structure and file permissions`;
+      return `\u8bf7\u68c0\u67e5 ${error.component} \u76ee\u5f55\u7ed3\u6784\u4e0e\u6587\u4ef6\u6743\u9650`;
     case "mcpb-download-failed":
-      return "Check your internet connection and URL accessibility";
+      return "\u8bf7\u68c0\u67e5\u7f51\u7edc\u8fde\u63a5\u4e0e URL \u53ef\u8bbf\u95ee\u6027";
     case "mcpb-extract-failed":
-      return "Verify the MCPB file is valid and not corrupted";
+      return "\u8bf7\u786e\u8ba4 MCPB \u6587\u4ef6\u6709\u6548\u4e14\u672a\u635f\u574f";
     case "mcpb-invalid-manifest":
-      return "Contact the plugin author about the invalid manifest";
+      return "\u8bf7\u8054\u7cfb\u63d2\u4ef6\u4f5c\u8005\u5904\u7406\u65e0\u6548\u6e05\u5355";
     case "marketplace-blocked-by-policy":
       if (error.blockedByBlocklist) {
-        return "This marketplace source is explicitly blocked by your administrator";
+        return "\u6b64\u5e02\u573a\u6765\u6e90\u88ab\u7ba1\u7406\u5458\u660e\u786e\u7981\u7528";
       }
-      return error.allowedSources.length > 0 ? `Allowed sources: ${error.allowedSources.join(", ")}` : "Contact your administrator to configure allowed marketplace sources";
+      return error.allowedSources.length > 0 ? `\u5141\u8bb8\u7684\u6765\u6e90\uff1a${error.allowedSources.join(", ")}` : "\u8bf7\u8054\u7cfb\u7ba1\u7406\u5458\u914d\u7f6e\u5141\u8bb8\u7684\u5e02\u573a\u6765\u6e90";
     case "dependency-unsatisfied":
-      return error.reason === "not-enabled" ? `Enable "${error.dependency}" or uninstall "${error.plugin}"` : `Install "${error.dependency}" or uninstall "${error.plugin}"`;
+      return error.reason === "not-enabled" ? `\u8bf7\u542f\u7528 "${error.dependency}" \u6216\u5378\u8f7d "${error.plugin}"` : `\u8bf7\u5b89\u88c5 "${error.dependency}" \u6216\u5378\u8f7d "${error.plugin}"`;
     case "lsp-config-invalid":
-      return "Check LSP server configuration in the plugin manifest";
+      return "\u8bf7\u68c0\u67e5\u63d2\u4ef6\u6e05\u5355\u4e2d\u7684 LSP \u670d\u52a1\u5668\u914d\u7f6e";
     case "lsp-server-start-failed":
     case "lsp-server-crashed":
     case "lsp-request-timeout":
     case "lsp-request-failed":
-      return "Check LSP server logs with --debug for details";
+      return "\u8bf7\u4f7f\u7528 --debug \u67e5\u770b LSP \u670d\u52a1\u5668\u65e5\u5fd7\u4e86\u89e3\u8be6\u60c5";
     case "plugin-cache-miss":
-      return "Run /plugins to refresh the plugin cache";
+      return "\u8bf7\u8fd0\u884c /plugins \u5237\u65b0\u63d2\u4ef6\u7f13\u5b58";
     case "marketplace-load-failed":
     case "generic-error":
       return null;
@@ -5133,10 +5131,10 @@ function UnifiedInstalledCell({
     let statusText2;
     if (item.pendingToggle) {
       statusIcon2 = color("suggestion", theme)(figures_default.arrowRight);
-      statusText2 = item.pendingToggle === "will-enable" ? "will enable" : "will disable";
+      statusText2 = item.pendingToggle === "will-enable" ? "\u5c06\u542f\u7528" : "\u5c06\u7981\u7528";
     } else if (item.errorCount > 0) {
       statusIcon2 = color("error", theme)(figures_default.cross);
-      statusText2 = `${item.errorCount} ${plural(item.errorCount, "error")}`;
+      statusText2 = `${item.errorCount} \u4e2a\u9519\u8bef`;
     } else if (!item.isEnabled) {
       statusIcon2 = color("inactive", theme)(figures_default.radioOff);
       statusText2 = "disabled";
@@ -5160,7 +5158,7 @@ function UnifiedInstalledCell({
             " ",
             /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(ThemedText, {
               backgroundColor: "userMessageBackground",
-              children: "Plugin"
+              children: "\u63d2\u4ef6"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
@@ -5204,7 +5202,7 @@ function UnifiedInstalledCell({
             " ",
             /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(ThemedText, {
               backgroundColor: "userMessageBackground",
-              children: "Plugin"
+              children: "\u63d2\u4ef6"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
@@ -5225,14 +5223,14 @@ function UnifiedInstalledCell({
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(ThemedText, {
           dimColor: !isSelected,
-          children: "removed"
+          children: "\u5df2\u79fb\u9664"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this);
   }
   if (item.type === "failed-plugin") {
     const statusIcon2 = color("error", theme)(figures_default.cross);
-    const statusText2 = `failed to load \xB7 ${item.errorCount} ${plural(item.errorCount, "error")}`;
+    const statusText2 = `\u52a0\u8f7d\u5931\u8d25 \xb7 ${item.errorCount} \u4e2a\u9519\u8bef`;
     return /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(ThemedBox_default, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(ThemedText, {
@@ -5249,7 +5247,7 @@ function UnifiedInstalledCell({
             " ",
             /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(ThemedText, {
               backgroundColor: "userMessageBackground",
-              children: "Plugin"
+              children: "\u63d2\u4ef6"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
@@ -5279,19 +5277,19 @@ function UnifiedInstalledCell({
   let statusText;
   if (item.status === "connected") {
     statusIcon = color("success", theme)(figures_default.tick);
-    statusText = "connected";
+    statusText = "\u5df2\u8fde\u63a5";
   } else if (item.status === "disabled") {
     statusIcon = color("inactive", theme)(figures_default.radioOff);
-    statusText = "disabled";
+    statusText = "\u5df2\u7981\u7528";
   } else if (item.status === "pending") {
     statusIcon = color("inactive", theme)(figures_default.radioOff);
-    statusText = "connecting\u2026";
+    statusText = "\u8fde\u63a5\u4e2d\u2026";
   } else if (item.status === "needs-auth") {
     statusIcon = color("warning", theme)(figures_default.triangleUpOutline);
-    statusText = "Enter to auth";
+    statusText = "Enter \u8ba4\u8bc1";
   } else {
     statusIcon = color("error", theme)(figures_default.cross);
-    statusText = "failed";
+    statusText = "\u5931\u8d25";
   }
   if (item.indented) {
     return /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(ThemedBox_default, {
@@ -5440,7 +5438,7 @@ function PluginComponentsDisplay({
               mcpServers: mcpServerNames.length > 0 ? mcpServerNames : null
             });
           } else {
-            setError(`Built-in plugin ${plugin.name} not found`);
+            setError(`\u672a\u627e\u5230\u5185\u7f6e\u63d2\u4ef6 ${plugin.name}`);
           }
           setLoading(false);
           return;
@@ -5512,10 +5510,10 @@ function PluginComponentsDisplay({
             mcpServers: mcpServersList.length > 0 ? mcpServersList : null
           });
         } else {
-          setError(`Plugin ${plugin.name} not found in marketplace`);
+          setError(`\u5728\u5e02\u573a\u672a\u627e\u5230\u63d2\u4ef6 ${plugin.name}`);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load components");
+        setError(err instanceof Error ? err.message : "\u52a0\u8f7d\u7ec4\u4ef6\u5931\u8d25");
       } finally {
         setLoading(false);
       }
@@ -5543,12 +5541,12 @@ function PluginComponentsDisplay({
       children: [
         /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
           bold: true,
-          children: "Components:"
+          children: "\u7ec4\u4ef6\uff1a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            "Error: ",
+            "\u9519\u8bef\uff1a ",
             error
           ]
         }, undefined, true, undefined, this)
@@ -5568,12 +5566,12 @@ function PluginComponentsDisplay({
     children: [
       /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
         bold: true,
-        children: "Installed components:"
+        children: "\u5df2\u5b89\u88c5\u7ec4\u4ef6\uff1a"
       }, undefined, false, undefined, this),
       components.commands ? /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
         dimColor: true,
         children: [
-          "\u2022 Commands:",
+          "\u2022 \u547d\u4ee4\uff1a",
           " ",
           typeof components.commands === "string" ? components.commands : Array.isArray(components.commands) ? components.commands.join(", ") : Object.keys(components.commands).join(", ")
         ]
@@ -5581,7 +5579,7 @@ function PluginComponentsDisplay({
       components.agents ? /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
         dimColor: true,
         children: [
-          "\u2022 Agents:",
+          "\u2022 Agent\uff1a",
           " ",
           typeof components.agents === "string" ? components.agents : Array.isArray(components.agents) ? components.agents.join(", ") : Object.keys(components.agents).join(", ")
         ]
@@ -5605,7 +5603,7 @@ function PluginComponentsDisplay({
       components.mcpServers ? /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
         dimColor: true,
         children: [
-          "\u2022 MCP Servers:",
+          "\u2022 MCP \u670d\u52a1\uff1a",
           " ",
           typeof components.mcpServers === "string" ? components.mcpServers : Array.isArray(components.mcpServers) ? components.mcpServers.map(String).join(", ") : typeof components.mcpServers === "object" && components.mcpServers !== null ? Object.keys(components.mcpServers).join(", ") : String(components.mcpServers)
         ]
@@ -5617,7 +5615,7 @@ async function checkIfLocalPlugin(pluginName, marketplaceName) {
   const marketplace = await getMarketplace(marketplaceName);
   const entry = marketplace?.plugins.find((p) => p.name === pluginName);
   if (entry && typeof entry.source === "string") {
-    return `Local plugins cannot be updated remotely. To update, modify the source at: ${entry.source}`;
+    return `\u672c\u5730\u63d2\u4ef6\u65e0\u6cd5\u8fdc\u7a0b\u66f4\u65b0\u3002\u8981\u66f4\u65b0\u8bf7\u4fee\u6539\u6e90\uff1a${entry.source}`;
   }
   return null;
 }
@@ -5680,7 +5678,7 @@ function ManagePlugins({
     } else if (typeof viewState === "object" && (viewState.type === "plugin-options" || viewState.type === "configuring-options")) {
       setViewState("plugin-list");
       setSelectedPlugin(null);
-      setResult("Plugin enabled. Configuration skipped \u2014 run /reload-plugins to apply.");
+      setResult("\u63d2\u4ef6\u5df2\u542f\u7528\uff0c\u5df2\u8df3\u8fc7\u914d\u7f6e \u2014 \u8bf7\u8fd0\u884c /reload-plugins \u4ee5\u5e94\u7528\u3002");
       if (onManageComplete) {
         onManageComplete();
       }
@@ -5696,7 +5694,7 @@ function ManagePlugins({
       setViewState({ type: "mcp-tools", client: viewState.client });
     } else {
       if (pendingToggles.size > 0) {
-        setResult("Run /reload-plugins to apply plugin changes.");
+        setResult("\u8bf7\u8fd0\u884c /reload-plugins \u4ee5\u5e94\u7528\u63d2\u4ef6\u66f4\u6539\u3002");
         return;
       }
       setParentViewState({ type: "menu" });
@@ -5868,7 +5866,7 @@ function ManagePlugins({
         marketplace,
         scope: "flagged",
         reason: "delisted",
-        text: "Removed from marketplace",
+        text: "\u5df2\u4ece\u5e02\u573a\u79fb\u9664",
         flaggedAt: entry.flaggedAt
       });
     }
@@ -6064,7 +6062,7 @@ function ManagePlugins({
       }
       if (!hasAutoNavigated.current && action) {
         hasAutoNavigated.current = true;
-        setResult(`Plugin "${targetPlugin}" is not installed in this project`);
+        setResult(`\u6b64\u9879\u76ee\u672a\u5b89\u88c5\u63d2\u4ef6 "${targetPlugin}"`);
       }
     }
   }, [
@@ -6082,11 +6080,11 @@ function ManagePlugins({
     const pluginScope = selectedPlugin.scope || "user";
     const isBuiltin = pluginScope === "builtin";
     if (isBuiltin && (operation === "update" || operation === "uninstall")) {
-      setProcessError("Built-in plugins cannot be updated or uninstalled.");
+      setProcessError("\u5185\u7f6e\u63d2\u4ef6\u65e0\u6cd5\u66f4\u65b0\u6216\u5378\u8f7d\u3002");
       return;
     }
     if (!isBuiltin && !isInstallableScope(pluginScope) && operation !== "update") {
-      setProcessError("This plugin is managed by your organization. Contact your admin to disable it.");
+      setProcessError("\u6b64\u63d2\u4ef6\u7531\u7ec4\u7ec7\u7ba1\u7406\u3002\u8981\u7981\u7528\u8bf7\u8054\u7cfb\u7ba1\u7406\u5458\u3002");
       return;
     }
     setIsProcessing(true);
@@ -6143,7 +6141,7 @@ function ManagePlugins({
             throw new Error(result.message);
           }
           if (result.alreadyUpToDate) {
-            setResult(`${selectedPlugin.plugin.name} is already at the latest version (${result.newVersion}).`);
+            setResult(`${selectedPlugin.plugin.name} \u5df2\u662f\u6700\u65b0\u7248\u672c\uff08${result.newVersion}\uff09\u3002`);
             if (onManageComplete) {
               await onManageComplete();
             }
@@ -6162,9 +6160,9 @@ function ManagePlugins({
         setViewState({ type: "plugin-options" });
         return;
       }
-      const operationName = operation === "enable" ? "Enabled" : operation === "disable" ? "Disabled" : operation === "update" ? "Updated" : "Uninstalled";
-      const depWarn = reverseDependents && reverseDependents.length > 0 ? ` \xB7 required by ${reverseDependents.join(", ")}` : "";
-      const message = `\u2713 ${operationName} ${selectedPlugin.plugin.name}${depWarn}. Run /reload-plugins to apply.`;
+      const operationName = operation === "enable" ? "\u5df2\u542f\u7528" : operation === "disable" ? "\u5df2\u7981\u7528" : operation === "update" ? "\u5df2\u66f4\u65b0" : "\u5df2\u5378\u8f7d";
+      const depWarn = reverseDependents && reverseDependents.length > 0 ? ` \xb7 \u88ab ${reverseDependents.join(", ")} \u4f9d\u8d56` : "";
+      const message = `\u2713 ${operationName} ${selectedPlugin.plugin.name}${depWarn}\u3002\u8bf7\u8fd0\u884c /reload-plugins \u4ee5\u5e94\u7528\u3002`;
       setResult(message);
       if (onManageComplete) {
         await onManageComplete();
@@ -6173,7 +6171,7 @@ function ManagePlugins({
     } catch (error) {
       setIsProcessing(false);
       const errorMessage2 = error instanceof Error ? error.message : String(error);
-      setProcessError(`Failed to ${operation}: ${errorMessage2}`);
+      setProcessError(`\u64cd\u4f5c\u5931\u8d25\uff08${operation}\uff09\uff1a${errorMessage2}`);
       logError(toError(error));
     }
   };
@@ -6326,12 +6324,12 @@ function ManagePlugins({
     const isBuiltin = selectedPlugin.marketplace === "builtin";
     const menuItems = [];
     menuItems.push({
-      label: isEnabled ? "Disable plugin" : "Enable plugin",
+      label: isEnabled ? "\u7981\u7528\u63d2\u4ef6" : "\u542f\u7528\u63d2\u4ef6",
       action: () => void handleSingleOperation(isEnabled ? "disable" : "enable")
     });
     if (!isBuiltin) {
       menuItems.push({
-        label: selectedPlugin.pendingUpdate ? "Unmark for update" : "Mark for update",
+        label: selectedPlugin.pendingUpdate ? "\u53d6\u6d88\u6807\u8bb0\u66f4\u65b0" : "\u6807\u8bb0\u66f4\u65b0",
         action: async () => {
           try {
             const localError = await checkIfLocalPlugin(selectedPlugin.plugin.name, selectedPlugin.marketplace);
@@ -6350,13 +6348,13 @@ function ManagePlugins({
               });
             }
           } catch (error) {
-            setProcessError(error instanceof Error ? error.message : "Failed to check plugin update availability");
+            setProcessError(error instanceof Error ? error.message : "\u68c0\u67e5\u63d2\u4ef6\u66f4\u65b0\u53ef\u7528\u6027\u5931\u8d25");
           }
         }
       });
       if (selectedPluginHasMcpb) {
         menuItems.push({
-          label: "Configure",
+          label: "\u914d\u7f6e",
           action: async () => {
             setIsLoadingConfig(true);
             try {
@@ -6373,7 +6371,7 @@ function ManagePlugins({
                 }
               }
               if (!mcpbPath) {
-                setProcessError("No MCPB file found in plugin");
+                setProcessError("\u63d2\u4ef6\u4e2d\u672a\u627e\u5230 MCPB \u6587\u4ef6");
                 setIsLoadingConfig(false);
                 return;
               }
@@ -6383,11 +6381,11 @@ function ManagePlugins({
                 setConfigNeeded(result);
                 setViewState("configuring");
               } else {
-                setProcessError("Failed to load MCPB for configuration");
+                setProcessError("\u52a0\u8f7d MCPB \u914d\u7f6e\u5931\u8d25");
               }
             } catch (err) {
               const errorMsg = errorMessage(err);
-              setProcessError(`Failed to load configuration: ${errorMsg}`);
+              setProcessError(`\u52a0\u8f7d\u914d\u7f6e\u5931\u8d25\uff1a${errorMsg}`);
             } finally {
               setIsLoadingConfig(false);
             }
@@ -6396,7 +6394,7 @@ function ManagePlugins({
       }
       if (selectedPlugin.plugin.manifest.userConfig && Object.keys(selectedPlugin.plugin.manifest.userConfig).length > 0) {
         menuItems.push({
-          label: "Configure options",
+          label: "\u914d\u7f6e\u9009\u9879",
           action: () => {
             setViewState({
               type: "configuring-options",
@@ -6406,28 +6404,28 @@ function ManagePlugins({
         });
       }
       menuItems.push({
-        label: "Update now",
+        label: "\u7acb\u5373\u66f4\u65b0",
         action: () => void handleSingleOperation("update")
       });
       menuItems.push({
-        label: "Uninstall",
+        label: "\u5378\u8f7d",
         action: () => void handleSingleOperation("uninstall")
       });
     }
     if (selectedPlugin.plugin.manifest.homepage) {
       menuItems.push({
-        label: "Open homepage",
+        label: "\u6253\u5f00\u4e3b\u9875",
         action: () => void openBrowser(selectedPlugin.plugin.manifest.homepage)
       });
     }
     if (selectedPlugin.plugin.manifest.repository) {
       menuItems.push({
-        label: "View repository",
+        label: "\u67e5\u770b\u4ed3\u5e93",
         action: () => void openBrowser(selectedPlugin.plugin.manifest.repository)
       });
     }
     menuItems.push({
-      label: "Back to plugin list",
+      label: "\u8fd4\u56de\u63d2\u4ef6\u5217\u8868",
       action: () => {
         setViewState("plugin-list");
         setSelectedPlugin(null);
@@ -6518,11 +6516,11 @@ function ManagePlugins({
       });
       if (error) {
         setIsProcessing(false);
-        setProcessError(`Failed to write settings: ${error.message}`);
+        setProcessError(`\u5199\u5165\u8bbe\u7f6e\u5931\u8d25\uff1a${error.message}`);
         return;
       }
       clearAllCaches();
-      setResult(`\u2713 Disabled ${selectedPlugin.plugin.name} in .claude/settings.local.json. Run /reload-plugins to apply.`);
+      setResult(`\u2713 \u5df2\u5728 .claude/settings.local.json \u7981\u7528 ${selectedPlugin.plugin.name}\u3002\u8bf7\u8fd0\u884c /reload-plugins \u4ee5\u5e94\u7528\u3002`);
       if (onManageComplete)
         onManageComplete();
       setParentViewState({ type: "menu" });
@@ -6591,7 +6589,7 @@ function ManagePlugins({
   }, { isActive: viewState === "plugin-list" });
   if (loading) {
     return /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
-      children: "Loading installed plugins\u2026"
+      children: "\u6b63\u5728\u52a0\u8f7d\u5df2\u5b89\u88c5\u63d2\u4ef6\u2026"
     }, undefined, false, undefined, this);
   }
   if (unifiedItems.length === 0) {
@@ -6602,17 +6600,17 @@ function ManagePlugins({
           marginBottom: 1,
           children: /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
             bold: true,
-            children: "Manage plugins"
+            children: "\u7ba1\u7406\u63d2\u4ef6"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
-          children: "No plugins or MCP servers installed."
+          children: "\u672a\u5b89\u88c5\u63d2\u4ef6\u6216 MCP \u670d\u52a1\u5668\u3002"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedBox_default, {
           marginTop: 1,
           children: /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Esc to go back"
+            children: "Esc \u8fd4\u56de"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this)
       ]
@@ -6633,13 +6631,13 @@ function ManagePlugins({
       onDone: (outcome, detail) => {
         switch (outcome) {
           case "configured":
-            finish(`\u2713 Enabled and configured ${selectedPlugin.plugin.name}. Run /reload-plugins to apply.`);
+            finish(`\u2713 \u5df2\u542f\u7528\u5e76\u914d\u7f6e ${selectedPlugin.plugin.name}\u3002\u8fd0\u884c /reload-plugins \u4ee5\u5e94\u7528\u3002`);
             break;
           case "skipped":
-            finish(`\u2713 Enabled ${selectedPlugin.plugin.name}. Run /reload-plugins to apply.`);
+            finish(`\u2713 \u5df2\u542f\u7528 ${selectedPlugin.plugin.name}\u3002\u8fd0\u884c /reload-plugins \u4ee5\u5e94\u7528\u3002`);
             break;
           case "error":
-            finish(`Failed to save configuration: ${detail}`);
+            finish(`\u4fdd\u5b58\u914d\u7f6e\u5931\u8d25\uff1a${detail}`);
             break;
         }
       }
@@ -6648,17 +6646,17 @@ function ManagePlugins({
   if (typeof viewState === "object" && viewState.type === "configuring-options" && selectedPlugin) {
     const pluginId = `${selectedPlugin.plugin.name}@${selectedPlugin.marketplace}`;
     return /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(PluginOptionsDialog, {
-      title: `Configure ${selectedPlugin.plugin.name}`,
-      subtitle: "Plugin options",
+      title: `\u914d\u7f6e ${selectedPlugin.plugin.name}`,
+      subtitle: "\u63d2\u4ef6\u9009\u9879",
       configSchema: viewState.schema,
       initialValues: loadPluginOptions(pluginId),
       onSave: (values) => {
         try {
           savePluginOptions(pluginId, values, viewState.schema);
           clearAllCaches();
-          setResult("Configuration saved. Run /reload-plugins for changes to take effect.");
+          setResult("\u914d\u7f6e\u5df2\u4fdd\u5b58\u3002\u8fd0\u884c /reload-plugins \u4f7f\u66f4\u6539\u751f\u6548\u3002");
         } catch (err) {
-          setProcessError(`Failed to save configuration: ${errorMessage(err)}`);
+          setProcessError(`\u4fdd\u5b58\u914d\u7f6e\u5931\u8d25\uff1a${errorMessage(err)}`);
         }
         setViewState("plugin-details");
       },
@@ -6688,7 +6686,7 @@ function ManagePlugins({
           }
         }
         if (!mcpbPath) {
-          setProcessError("No MCPB file found");
+          setProcessError("\u672a\u627e\u5230 MCPB \u6587\u4ef6");
           setViewState("plugin-details");
           return;
         }
@@ -6696,15 +6694,15 @@ function ManagePlugins({
         setProcessError(null);
         setConfigNeeded(null);
         setViewState("plugin-details");
-        setResult("Configuration saved. Run /reload-plugins for changes to take effect.");
+        setResult("\u914d\u7f6e\u5df2\u4fdd\u5b58\u3002\u8fd0\u884c /reload-plugins \u4f7f\u66f4\u6539\u751f\u6548\u3002");
       } catch (err) {
         const errorMsg = errorMessage(err);
-        setProcessError(`Failed to save configuration: ${errorMsg}`);
+        setProcessError(`\u4fdd\u5b58\u914d\u7f6e\u5931\u8d25\uff1a${errorMsg}`);
         setViewState("plugin-details");
       }
     }
     return /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(PluginOptionsDialog, {
-      title: `Configure ${configNeeded.manifest.name}`,
+      title: `\u914d\u7f6e ${configNeeded.manifest.name}`,
       subtitle: `Plugin: ${selectedPlugin.plugin.name}`,
       configSchema: configNeeded.configSchema,
       initialValues: configNeeded.existingConfig,
@@ -6732,11 +6730,11 @@ function ManagePlugins({
           children: [
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Status: "
+              children: "\u72b6\u6001\uff1a "
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               color: "error",
-              children: "Removed"
+              children: "\u5df2\u79fb\u9664"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
@@ -6747,7 +6745,7 @@ function ManagePlugins({
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               color: "error",
               children: [
-                "Removed from marketplace \xB7 reason: ",
+                "\u5df2\u4ece\u5e02\u573a\u79fb\u9664 \xb7 \u539f\u56e0\uff1a ",
                 fp.reason
               ]
             }, undefined, true, undefined, this),
@@ -6757,7 +6755,7 @@ function ManagePlugins({
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               dimColor: true,
               children: [
-                "Flagged on ",
+                "\u6807\u8bb0\u4e8e ",
                 new Date(fp.flaggedAt).toLocaleDateString()
               ]
             }, undefined, true, undefined, this)
@@ -6776,7 +6774,7 @@ function ManagePlugins({
               }, undefined, true, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
                 color: "suggestion",
-                children: "Dismiss"
+                children: "\u5173\u95ed"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -6787,13 +6785,13 @@ function ManagePlugins({
               action: "select:accept",
               context: "Select",
               fallback: "Enter",
-              description: "dismiss"
+              description: "\u5173\u95ed"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ConfigurableShortcutHint, {
               action: "confirm:no",
               context: "Confirmation",
               fallback: "Esc",
-              description: "back"
+              description: "\u8fd4\u56de"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this)
@@ -6809,7 +6807,7 @@ function ManagePlugins({
           color: "warning",
           children: [
             selectedPlugin.plugin.name,
-            " is enabled in .claude/settings.json (shared with your team)"
+            " \u5df2\u5728 .claude/settings.json \u4e2d\u542f\u7528\uff08\u4e0e\u56e2\u961f\u5171\u4eab\uff09"
           ]
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedBox_default, {
@@ -6817,11 +6815,11 @@ function ManagePlugins({
           flexDirection: "column",
           children: [
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
-              children: "Disable it just for you in .claude/settings.local.json?"
+              children: "\u662f\u5426\u4ec5\u5728 .claude/settings.local.json \u4e2d\u4e3a\u4f60\u7981\u7528\uff1f"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "This has the same effect as uninstalling, without affecting other contributors."
+              children: "\u6548\u679c\u4e0e\u5378\u8f7d\u76f8\u540c\uff0c\u4f46\u4e0d\u5f71\u54cd\u5176\u4ed6\u534f\u4f5c\u8005\u3002"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
@@ -6836,20 +6834,20 @@ function ManagePlugins({
           marginTop: 1,
           children: isProcessing ? /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Disabling\u2026"
+            children: "\u6b63\u5728\u7981\u7528\u2026"
           }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(Byline, {
             children: [
               /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:yes",
                 context: "Confirmation",
                 fallback: "y",
-                description: "disable"
+                description: "\u7981\u7528"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -6865,9 +6863,9 @@ function ManagePlugins({
           bold: true,
           children: [
             selectedPlugin.plugin.name,
-            " has ",
+            " \u6709 ",
             viewState.size.human,
-            " of persistent data"
+            " \u6301\u4e45\u6570\u636e"
           ]
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedBox_default, {
@@ -6875,7 +6873,7 @@ function ManagePlugins({
           flexDirection: "column",
           children: [
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
-              children: "Delete it along with the plugin?"
+              children: "\u662f\u5426\u8fde\u540c\u63d2\u4ef6\u4e00\u8d77\u5220\u9664\uff1f"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               dimColor: true,
@@ -6894,25 +6892,25 @@ function ManagePlugins({
           marginTop: 1,
           children: isProcessing ? /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Uninstalling\u2026"
+            children: "\u6b63\u5728\u5378\u8f7d\u2026"
           }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
             children: [
               /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
                 bold: true,
                 children: "y"
               }, undefined, false, undefined, this),
-              " to delete \xB7 ",
+              " \u5220\u9664 \xb7 ",
               /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
                 bold: true,
                 children: "n"
               }, undefined, false, undefined, this),
-              " to keep \xB7",
+              " \u4fdd\u7559 \xb7",
               " ",
               /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
                 bold: true,
                 children: "esc"
               }, undefined, false, undefined, this),
-              " to cancel"
+              " \u53d6\u6d88"
             ]
           }, undefined, true, undefined, this)
         }, undefined, false, undefined, this)
@@ -6934,7 +6932,7 @@ function ManagePlugins({
           children: [
             filteredPluginErrors.length,
             " ",
-            plural(filteredPluginErrors.length, "error"),
+            "\u9519\u8bef",
             ":"
           ]
         }, undefined, true, undefined, this),
@@ -6979,7 +6977,7 @@ function ManagePlugins({
           children: [
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Scope: "
+              children: "\u8303\u56f4\uff1a "
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               children: selectedPlugin.scope || "user"
@@ -6990,7 +6988,7 @@ function ManagePlugins({
           children: [
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Version: "
+              children: "\u7248\u672c\uff1a "
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               children: selectedPlugin.plugin.manifest.version
@@ -7007,7 +7005,7 @@ function ManagePlugins({
           children: [
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Author: "
+              children: "\u4f5c\u8005\uff1a "
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               children: selectedPlugin.plugin.manifest.author.name
@@ -7019,7 +7017,7 @@ function ManagePlugins({
           children: [
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Status: "
+              children: "\u72b6\u6001\uff1a "
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               color: isEnabled ? "success" : "warning",
@@ -7054,7 +7052,7 @@ function ManagePlugins({
                 }, undefined, false, undefined, this),
                 /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
                   bold: isSelected,
-                  color: item.label.includes("Uninstall") ? "error" : item.label.includes("Update") ? "suggestion" : undefined,
+                  color: item.label.includes("\u5378\u8f7d") ? "error" : item.label.includes("\u66f4\u65b0") ? "suggestion" : undefined,
                   children: item.label
                 }, undefined, false, undefined, this)
               ]
@@ -7064,7 +7062,7 @@ function ManagePlugins({
         isProcessing && /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedBox_default, {
           marginTop: 1,
           children: /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
-            children: "Processing\u2026"
+            children: "\u6b63\u5728\u5904\u7406\u2026"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         processError && /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedBox_default, {
@@ -7097,7 +7095,7 @@ function ManagePlugins({
                   action: "confirm:no",
                   context: "Confirmation",
                   fallback: "Esc",
-                  description: "back"
+                  description: "\u8fd4\u56de"
                 }, undefined, false, undefined, this)
               ]
             }, undefined, true, undefined, this)
@@ -7109,7 +7107,7 @@ function ManagePlugins({
   if (typeof viewState === "object" && viewState.type === "failed-plugin-details") {
     const failedPlugin = viewState.plugin;
     const firstError = failedPlugin.errors[0];
-    const errorMessage2 = firstError ? formatErrorMessage(firstError) : "Failed to load";
+    const errorMessage2 = firstError ? formatErrorMessage(firstError) : "\u52a0\u8f7d\u5931\u8d25";
     return /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedBox_default, {
       flexDirection: "column",
       children: [
@@ -7144,7 +7142,7 @@ function ManagePlugins({
           marginTop: 1,
           children: /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Managed by your organization \u2014 contact your admin"
+            children: "\u7531\u7ec4\u7ec7\u7ba1\u7406 \u2014 \u8bf7\u8054\u7cfb\u7ba1\u7406\u5458"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedBox_default, {
           marginTop: 1,
@@ -7158,12 +7156,12 @@ function ManagePlugins({
             }, undefined, true, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               bold: true,
-              children: "Remove"
+              children: "\u79fb\u9664"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
         isProcessing && /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
-          children: "Processing\u2026"
+          children: "\u6b63\u5728\u5904\u7406\u2026"
         }, undefined, false, undefined, this),
         processError && /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
           color: "error",
@@ -7180,13 +7178,13 @@ function ManagePlugins({
                   action: "select:accept",
                   context: "Select",
                   fallback: "Enter",
-                  description: "remove"
+                  description: "\u79fb\u9664"
                 }, undefined, false, undefined, this),
                 /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ConfigurableShortcutHint, {
                   action: "confirm:no",
                   context: "Confirmation",
                   fallback: "Esc",
-                  description: "back"
+                  description: "\u8fd4\u56de"
                 }, undefined, false, undefined, this)
               ]
             }, undefined, true, undefined, this)
@@ -7398,7 +7396,7 @@ function ManagePlugins({
         children: /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            'No items match "',
+            '\u65e0\u5339\u914d\u9879 "',
             searchQuery,
             '"'
           ]
@@ -7410,7 +7408,7 @@ function ManagePlugins({
           children: [
             " ",
             figures_default.arrowUp,
-            " more above"
+            " \u4e0a\u65b9\u66f4\u591a"
           ]
         }, undefined, true, undefined, this)
       }, undefined, false, undefined, this),
@@ -7422,21 +7420,21 @@ function ManagePlugins({
         const getScopeLabel = (scope) => {
           switch (scope) {
             case "flagged":
-              return "Flagged";
+              return "\u5df2\u6807\u8bb0";
             case "project":
-              return "Project";
+              return "\u9879\u76ee";
             case "local":
-              return "Local";
+              return "\u672c\u5730";
             case "user":
-              return "User";
+              return "\u7528\u6237";
             case "enterprise":
-              return "Enterprise";
+              return "\u4f01\u4e1a";
             case "managed":
-              return "Managed";
+              return "\u6258\u7ba1";
             case "builtin":
-              return "Built-in";
+              return "\u5185\u7f6e";
             case "dynamic":
-              return "Built-in";
+              return "\u5185\u7f6e";
             default:
               return scope;
           }
@@ -7466,7 +7464,7 @@ function ManagePlugins({
           children: [
             " ",
             figures_default.arrowDown,
-            " more below"
+            " \u4e0b\u65b9\u66f4\u591a"
           ]
         }, undefined, true, undefined, this)
       }, undefined, false, undefined, this),
@@ -7479,7 +7477,7 @@ function ManagePlugins({
           children: /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(Byline, {
             children: [
               /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
-                children: "type to search"
+                children: "\u8f93\u5165\u4ee5\u641c\u7d22"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ConfigurableShortcutHint, {
                 action: "plugin:toggle",
@@ -7497,7 +7495,7 @@ function ManagePlugins({
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "back"
+                description: "\u8fd4\u56de"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -7508,7 +7506,7 @@ function ManagePlugins({
         children: /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
           dimColor: true,
           italic: true,
-          children: "Run /reload-plugins to apply changes"
+          children: "\u8fd0\u884c /reload-plugins \u4ee5\u5e94\u7528\u66f4\u6539"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this)
     ]
@@ -7650,11 +7648,11 @@ function ValidatePlugin({ onComplete, path: path2 }) {
       try {
         const result = await validateManifest(path2);
         let output = "";
-        output += `Validating ${result.fileType} manifest: ${result.filePath}
+        output += `\u6b63\u5728\u9a8c\u8bc1 ${result.fileType} \u6e05\u5355\uff1a${result.filePath}
 
 `;
         if (result.errors.length > 0) {
-          output += `${figures_default.cross} Found ${result.errors.length} ${plural(result.errors.length, "error")}:
+          output += `${figures_default.cross} \u53d1\u73b0 ${result.errors.length} \u4e2a\u9519\u8bef\uff1a
 
 `;
           result.errors.forEach((error) => {
@@ -7665,7 +7663,7 @@ function ValidatePlugin({ onComplete, path: path2 }) {
 `;
         }
         if (result.warnings.length > 0) {
-          output += `${figures_default.warning} Found ${result.warnings.length} ${plural(result.warnings.length, "warning")}:
+          output += `${figures_default.warning} \u53d1\u73b0 ${result.warnings.length} \u4e2a\u8b66\u544a\uff1a
 
 `;
           result.warnings.forEach((warning) => {
@@ -7677,15 +7675,15 @@ function ValidatePlugin({ onComplete, path: path2 }) {
         }
         if (result.success) {
           if (result.warnings.length > 0) {
-            output += `${figures_default.tick} Validation passed with warnings
+            output += `${figures_default.tick} \u9a8c\u8bc1\u901a\u8fc7\uff08\u6709\u8b66\u544a\uff09
 `;
           } else {
-            output += `${figures_default.tick} Validation passed
+            output += `${figures_default.tick} \u9a8c\u8bc1\u901a\u8fc7
 `;
           }
           process.exitCode = 0;
         } else {
-          output += `${figures_default.cross} Validation failed
+          output += `${figures_default.cross} \u9a8c\u8bc1\u5931\u8d25
 `;
           process.exitCode = 1;
         }
@@ -7693,7 +7691,7 @@ function ValidatePlugin({ onComplete, path: path2 }) {
       } catch (error) {
         process.exitCode = 2;
         logError(error);
-        onComplete(`${figures_default.cross} Unexpected error during validation: ${errorMessage(error)}`);
+        onComplete(`${figures_default.cross} \u9a8c\u8bc1\u65f6\u53d1\u751f\u610f\u5916\u9519\u8bef\uff1a${errorMessage(error)}`);
       }
     }
     runValidation();
@@ -7701,7 +7699,7 @@ function ValidatePlugin({ onComplete, path: path2 }) {
   return /* @__PURE__ */ jsx_dev_runtime16.jsxDEV(ThemedBox_default, {
     flexDirection: "column",
     children: /* @__PURE__ */ jsx_dev_runtime16.jsxDEV(ThemedText, {
-      children: "Running validation..."
+      children: "\u9a8c\u8bc1\u4e2d..."
     }, undefined, false, undefined, this)
   }, undefined, false, undefined, this);
 }
@@ -7727,7 +7725,7 @@ function MarketplaceList({
         const config = await loadKnownMarketplacesConfig();
         const names = Object.keys(config);
         if (names.length === 0) {
-          onComplete("No marketplaces configured");
+          onComplete("\u672a\u914d\u7f6e\u5e02\u573a");
         } else {
           onComplete(`Configured marketplaces:
 ${names.map((n) => `  \u2022 ${n}`).join(`
@@ -7740,7 +7738,7 @@ ${names.map((n) => `  \u2022 ${n}`).join(`
     loadList();
   }, [onComplete]);
   return /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-    children: "Loading marketplaces..."
+    children: "\u6b63\u5728\u52a0\u8f7d\u5e02\u573a\u2026"
   }, undefined, false, undefined, this);
 }
 function McpRedirectBanner() {
@@ -7846,7 +7844,7 @@ function buildErrorRows(failedMarketplaces, extraMarketplaceErrors, pluginLoadin
     rows.push({
       label: pluginName ?? error.source,
       message: formatErrorMessage(error),
-      guidance: "Restart to retry loading plugins",
+      guidance: "\u91cd\u542f\u540e\u91cd\u8bd5\u52a0\u8f7d\u63d2\u4ef6",
       action: { kind: "none" }
     });
   }
@@ -7858,8 +7856,8 @@ function buildErrorRows(failedMarketplaces, extraMarketplaceErrors, pluginLoadin
     const scope = sourceInfo.isInPolicy ? "managed" : sourceInfo.editableSources[0]?.scope;
     rows.push({
       label: m.name,
-      message: m.error ?? "Installation failed",
-      guidance: action.kind === "managed-only" ? "Managed by your organization \u2014 contact your admin" : undefined,
+      message: m.error ?? "\u5b89\u88c5\u5931\u8d25",
+      guidance: action.kind === "managed-only" ? "\u7531\u7ec4\u7ec7\u7ba1\u7406 \u2014 \u8bf7\u8054\u7cfb\u7ba1\u7406\u5458" : undefined,
       action,
       scope
     });
@@ -7875,7 +7873,7 @@ function buildErrorRows(failedMarketplaces, extraMarketplaceErrors, pluginLoadin
     rows.push({
       label: marketplace,
       message: formatErrorMessage(e),
-      guidance: action.kind === "managed-only" ? "Managed by your organization \u2014 contact your admin" : getErrorGuidance(e),
+      guidance: action.kind === "managed-only" ? "\u7531\u7ec4\u7ec7\u7ba1\u7406 \u2014 \u8bf7\u8054\u7cfb\u7ba1\u7406\u5458" : getErrorGuidance(e),
       action,
       scope
     });
@@ -8018,7 +8016,7 @@ function ErrorsTabContent({
             }
           }
         }));
-        setActionMessage(`${figures_default.tick} Removed "${action.name}" from ${scopes} settings`);
+        setActionMessage(`${figures_default.tick} \u5df2\u4ece ${scopes} \u8bbe\u7f6e\u4e2d\u79fb\u9664\u201c${action.name}\u201d`);
         markPluginsChanged();
         break;
       }
@@ -8028,10 +8026,10 @@ function ErrorsTabContent({
             await removeMarketplaceSource(action.name);
             clearAllCaches();
             setMarketplaceLoadFailures((prev) => prev.filter((f) => f.name !== action.name));
-            setActionMessage(`${figures_default.tick} Removed marketplace "${action.name}"`);
+            setActionMessage(`${figures_default.tick} \u5df2\u79fb\u9664\u5e02\u573a\u201c${action.name}\u201d`);
             markPluginsChanged();
           } catch (err) {
-            setActionMessage(`Failed to remove "${action.name}": ${err instanceof Error ? err.message : String(err)}`);
+            setActionMessage(`\u79fb\u9664\u201c${action.name}\u201d\u5931\u8d25\uff1a${err instanceof Error ? err.message : String(err)}`);
           }
         })();
         break;
@@ -8061,7 +8059,7 @@ function ErrorsTabContent({
           marginLeft: 1,
           children: /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "No plugin errors"
+            children: "\u65e0\u63d2\u4ef6\u9519\u8bef"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedBox_default, {
@@ -8073,7 +8071,7 @@ function ErrorsTabContent({
               action: "confirm:no",
               context: "Confirmation",
               fallback: "Esc",
-              description: "back"
+              description: "\u8fd4\u56de"
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this)
@@ -8162,7 +8160,7 @@ function ErrorsTabContent({
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "back"
+                description: "\u8fd4\u56de"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -8272,7 +8270,7 @@ function PluginSettings({
     }
     return count2;
   });
-  const errorsTabTitle = pluginErrorCount > 0 ? `Errors (${pluginErrorCount})` : "Errors";
+  const errorsTabTitle = pluginErrorCount > 0 ? `\u9519\u8bef (${pluginErrorCount})` : "\u9519\u8bef";
   const exitState = useExitOnCtrlCDWithKeybindings();
   const cliMode = parsedCommand.type === "marketplace" && parsedCommand.action === "add" && parsedCommand.target !== undefined;
   const markPluginsChanged = import_react13.useCallback(() => {
@@ -8332,103 +8330,31 @@ function PluginSettings({
       children: [
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
           bold: true,
-          children: "Plugin Command Usage:"
+          children: "\u63d2\u4ef6\u547d\u4ee4\u7528\u6cd5\uff1a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
           children: " "
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Installation:"
+          children: "\u5b89\u88c5\uff1a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugin install - Browse and install plugins"
+          children: " /plugin install - \u6d4f\u89c8\u5e76\u5b89\u88c5\u63d2\u4ef6"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
           children: [
             " ",
-            "/plugin install <marketplace> - Install from specific marketplace"
+            "/plugin install <marketplace> - \u4ece\u6307\u5b9a\u5e02\u573a\u5b89\u88c5"
           ]
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugin install <plugin> - Install specific plugin"
+          children: " /plugin install <plugin> - \u5b89\u88c5\u6307\u5b9a\u63d2\u4ef6"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
           children: [
             " ",
-            "/plugin install <plugin>@<market> - Install plugin from marketplace"
-          ]
-        }, undefined, true, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " "
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          dimColor: true,
-          children: "Management:"
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugin manage - Manage installed plugins"
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugin enable <plugin> - Enable a plugin"
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugin disable <plugin> - Disable a plugin"
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugin uninstall <plugin> - Uninstall a plugin"
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " "
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          dimColor: true,
-          children: "Marketplaces:"
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugin marketplace - Marketplace management menu"
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugin marketplace add - Add a marketplace"
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: [
-            " ",
-            "/plugin marketplace add <path/url> - Add marketplace directly"
-          ]
-        }, undefined, true, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugin marketplace update - Update marketplaces"
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: [
-            " ",
-            "/plugin marketplace update <name> - Update specific marketplace"
-          ]
-        }, undefined, true, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugin marketplace remove - Remove a marketplace"
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: [
-            " ",
-            "/plugin marketplace remove <name> - Remove specific marketplace"
-          ]
-        }, undefined, true, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugin marketplace list - List all marketplaces"
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " "
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          dimColor: true,
-          children: "Validation:"
-        }, undefined, false, undefined, this),
-        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: [
-            " ",
-            "/plugin validate <path> - Validate a manifest file or directory"
+            "/plugin install <plugin>@<market> - \u4ece\u5e02\u573a\u5b89\u88c5\u6307\u5b9a\u63d2\u4ef6"
           ]
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
@@ -8436,16 +8362,88 @@ function PluginSettings({
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Other:"
+          children: "\u7ba1\u7406\uff1a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugin - Main plugin menu"
+          children: " /plugin manage - \u7ba1\u7406\u5df2\u5b89\u88c5\u63d2\u4ef6"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugin help - Show this help"
+          children: " /plugin enable <plugin> - \u542f\u7528\u63d2\u4ef6"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
-          children: " /plugins - Alias for /plugin"
+          children: " /plugin disable <plugin> - \u7981\u7528\u63d2\u4ef6"
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: " /plugin uninstall <plugin> - \u5378\u8f7d\u63d2\u4ef6"
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: " "
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          dimColor: true,
+          children: "\u5e02\u573a\uff1a"
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: " /plugin marketplace - \u5e02\u573a\u7ba1\u7406\u83dc\u5355"
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: " /plugin marketplace add - \u6dfb\u52a0\u5e02\u573a"
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: [
+            " ",
+            "/plugin marketplace add <path/url> - \u76f4\u63a5\u6dfb\u52a0\u5e02\u573a"
+          ]
+        }, undefined, true, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: " /plugin marketplace update - \u66f4\u65b0\u5e02\u573a"
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: [
+            " ",
+            "/plugin marketplace update <name> - \u66f4\u65b0\u6307\u5b9a\u5e02\u573a"
+          ]
+        }, undefined, true, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: " /plugin marketplace remove - \u79fb\u9664\u5e02\u573a"
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: [
+            " ",
+            "/plugin marketplace remove <name> - \u79fb\u9664\u6307\u5b9a\u5e02\u573a"
+          ]
+        }, undefined, true, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: " /plugin marketplace list - \u5217\u51fa\u6240\u6709\u5e02\u573a"
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: " "
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          dimColor: true,
+          children: "\u9a8c\u8bc1\uff1a"
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: [
+            " ",
+            "/plugin validate <path> - \u9a8c\u8bc1\u6e05\u5355\u6587\u4ef6\u6216\u76ee\u5f55"
+          ]
+        }, undefined, true, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: " "
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          dimColor: true,
+          children: "\u5176\u4ed6\uff1a"
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: " /plugin - \u63d2\u4ef6\u4e3b\u83dc\u5355"
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: " /plugin help - \u663e\u793a\u6b64\u5e2e\u52a9"
+        }, undefined, false, undefined, this),
+        /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ThemedText, {
+          children: " /plugins - /plugin \u522b\u540d"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this);
@@ -8483,7 +8481,7 @@ function PluginSettings({
   return /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(Pane, {
     color: "suggestion",
     children: /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(Tabs, {
-      title: "Plugins",
+      title: "\u63d2\u4ef6",
       selectedTab: activeTab,
       onTabChange: handleTabChange,
       color: "suggestion",
@@ -8492,7 +8490,7 @@ function PluginSettings({
       children: [
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(Tab, {
           id: "discover",
-          title: "Discover",
+          title: "\u53d1\u73b0",
           children: viewState.type === "browse-marketplace" ? /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(BrowseMarketplace, {
             error,
             setError,
@@ -8515,7 +8513,7 @@ function PluginSettings({
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(Tab, {
           id: "installed",
-          title: "Installed",
+          title: "\u5df2\u5b89\u88c5",
           children: /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ManagePlugins, {
             setViewState,
             setResult,
@@ -8528,7 +8526,7 @@ function PluginSettings({
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(Tab, {
           id: "marketplaces",
-          title: "Marketplaces",
+          title: "\u5e02\u573a",
           children: /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ManageMarketplaces, {
             setViewState,
             error,

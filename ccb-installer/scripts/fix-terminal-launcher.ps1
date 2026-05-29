@@ -43,34 +43,40 @@ function New-Shortcut {
     $shortcut.Save()
 }
 
-function Get-ShortcutArgs {
+function Get-WtArgs {
     param(
         [Parameter(Mandatory = $true)][string]$InstallDir,
         [Parameter(Mandatory = $true)][string]$Launcher,
-        [switch]$Flat
+        [switch]$PowerShell
     )
 
-    if ($Flat) {
-        return ('-d "{0}" cmd /k "set CCB_DISABLE_FULLSCREEN=1&& ""{1}"""' -f $InstallDir, $Launcher)
+    if ($PowerShell) {
+        return ('-d "{0}" powershell.exe -NoLogo -NoExit -ExecutionPolicy Bypass -File "{1}"' -f $InstallDir, $Launcher)
     }
 
-    return ('-d "{0}" cmd /k """{1}"""' -f $InstallDir, $Launcher)
+    return ('-d "{0}" cmd /k "chcp 65001 > nul && call ""{1}"""' -f $InstallDir, $Launcher)
 }
 
 try {
     [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
     $OutputEncoding = [Console]::OutputEncoding
 } catch {
-    # Older hosts may reject OutputEncoding changes. The repair still works.
 }
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $installDir = Split-Path -Parent $scriptDir
 $launcher = Join-Path $installDir "ccb.cmd"
+$psLauncher = Join-Path $installDir "scripts\launch-ccb.ps1"
+$safeLauncher = Join-Path $installDir "ccb-safe.cmd"
+$textLauncher = Join-Path $installDir "ccb-text.cmd"
+$flatLauncher = Join-Path $installDir "ccb-flat.cmd"
 $icon = Join-Path $installDir "ccb.ico"
 
 if (-not (Test-Path -LiteralPath $launcher)) {
     throw "CCB launcher was not found: $launcher"
+}
+if (-not (Test-Path -LiteralPath $psLauncher)) {
+    throw "CCB PowerShell launcher was not found: $psLauncher"
 }
 
 Write-Step "Install dir: $installDir"
@@ -99,8 +105,8 @@ if (-not $wt) {
 if (-not $wt) {
     Write-Host ""
     Write-Host "Windows Terminal is still not available."
-    Write-Host "Desktop shortcuts were left using the standard CCB launcher."
-    Write-Host "Install Windows Terminal from Microsoft Store, then run CCB Terminal Fix again."
+    Write-Host "Shortcuts were left using the standard CCB launcher."
+    Write-Host "Install Windows Terminal, then run CCB Terminal Fix again."
     Write-Host ""
     Write-Host "Temporary fallback:"
     Write-Host ('  & "{0}" -p' -f $launcher)
@@ -116,21 +122,48 @@ $startMenuDir = Join-Path $programs "CCB (Claude Code Best)"
 
 $desktopModern = Join-Path $desktop "CCB.lnk"
 $desktopFlat = Join-Path $desktop "CCB Flat Mode.lnk"
+$desktopSafe = Join-Path $desktop "CCB Safe Mode.lnk"
+$desktopText = Join-Path $desktop "CCB Text Mode.lnk"
 $startModern = Join-Path $startMenuDir "CCB.lnk"
 $startFlat = Join-Path $startMenuDir "CCB Flat Mode.lnk"
+$startSafe = Join-Path $startMenuDir "CCB Safe Mode.lnk"
+$startText = Join-Path $startMenuDir "CCB Text Mode.lnk"
 
-$modernArgs = Get-ShortcutArgs -InstallDir $installDir -Launcher $launcher
-$flatArgs = Get-ShortcutArgs -InstallDir $installDir -Launcher $launcher -Flat
+$modernArgs = Get-WtArgs -InstallDir $installDir -Launcher $psLauncher -PowerShell
+$flatArgs = Get-WtArgs -InstallDir $installDir -Launcher $flatLauncher
+$safeArgs = Get-WtArgs -InstallDir $installDir -Launcher $safeLauncher
+$textArgs = Get-WtArgs -InstallDir $installDir -Launcher $textLauncher
 
 New-Shortcut -Path $desktopModern -TargetPath $wtPath -Arguments $modernArgs -WorkingDirectory $installDir -IconLocation $icon
-New-Shortcut -Path $desktopFlat -TargetPath $wtPath -Arguments $flatArgs -WorkingDirectory $installDir -IconLocation $icon
+if (Test-Path -LiteralPath $flatLauncher) {
+    New-Shortcut -Path $desktopFlat -TargetPath $wtPath -Arguments $flatArgs -WorkingDirectory $installDir -IconLocation $icon
+}
+if (Test-Path -LiteralPath $safeLauncher) {
+    New-Shortcut -Path $desktopSafe -TargetPath $wtPath -Arguments $safeArgs -WorkingDirectory $installDir -IconLocation $icon
+}
+if (Test-Path -LiteralPath $textLauncher) {
+    New-Shortcut -Path $desktopText -TargetPath $wtPath -Arguments $textArgs -WorkingDirectory $installDir -IconLocation $icon
+}
+
 New-Shortcut -Path $startModern -TargetPath $wtPath -Arguments $modernArgs -WorkingDirectory $installDir -IconLocation $icon
-New-Shortcut -Path $startFlat -TargetPath $wtPath -Arguments $flatArgs -WorkingDirectory $installDir -IconLocation $icon
+if (Test-Path -LiteralPath $flatLauncher) {
+    New-Shortcut -Path $startFlat -TargetPath $wtPath -Arguments $flatArgs -WorkingDirectory $installDir -IconLocation $icon
+}
+if (Test-Path -LiteralPath $safeLauncher) {
+    New-Shortcut -Path $startSafe -TargetPath $wtPath -Arguments $safeArgs -WorkingDirectory $installDir -IconLocation $icon
+}
+if (Test-Path -LiteralPath $textLauncher) {
+    New-Shortcut -Path $startText -TargetPath $wtPath -Arguments $textArgs -WorkingDirectory $installDir -IconLocation $icon
+}
 
 Write-Step "Created Windows Terminal shortcuts:"
 Write-Host "  $desktopModern"
-Write-Host "  $desktopFlat"
+if (Test-Path -LiteralPath $flatLauncher) { Write-Host "  $desktopFlat" }
+if (Test-Path -LiteralPath $safeLauncher) { Write-Host "  $desktopSafe" }
+if (Test-Path -LiteralPath $textLauncher) { Write-Host "  $desktopText" }
 Write-Host "  $startModern"
-Write-Host "  $startFlat"
+if (Test-Path -LiteralPath $flatLauncher) { Write-Host "  $startFlat" }
+if (Test-Path -LiteralPath $safeLauncher) { Write-Host "  $startSafe" }
+if (Test-Path -LiteralPath $textLauncher) { Write-Host "  $startText" }
 Write-Host ""
-Write-Host "Use CCB first. If the screen is black or not redrawn, use CCB Flat Mode."
+Write-Step "Main CCB shortcut now uses PowerShell UTF-8 launcher directly, without cmd /k."

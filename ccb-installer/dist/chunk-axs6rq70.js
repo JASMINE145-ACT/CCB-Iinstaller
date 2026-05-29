@@ -255,39 +255,39 @@ function Feedback({
     }
   });
   return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Dialog, {
-    title: "Submit Feedback / Bug Report",
+    title: "\u63d0\u4ea4\u53cd\u9988 / \u7f3a\u9677\u62a5\u544a",
     onCancel: handleCancel,
     isCancelActive: step !== "userInput",
     inputGuide: (exitState) => exitState.pending ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
       children: [
-        "Press ",
+        "\u6309 ",
         exitState.keyName,
-        " again to exit"
+        " \u518d\u6b21\u9000\u51fa"
       ]
     }, undefined, true, undefined, this) : step === "userInput" ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Enter",
-          action: "continue"
+          action: "\u7ee7\u7eed"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "cancel"
+          description: "\u53d6\u6d88"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this) : step === "consent" ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Enter",
-          action: "submit"
+          action: "\u63d0\u4ea4"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "cancel"
+          description: "\u53d6\u6d88"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this) : null,
@@ -297,7 +297,7 @@ function Feedback({
         gap: 1,
         children: [
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-            children: "Describe the issue below:"
+            children: "\u8bf7\u5728\u4e0b\u65b9\u63cf\u8ff0\u95ee\u9898\uff1a"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(TextInput, {
             value: description,
@@ -324,7 +324,7 @@ function Feedback({
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 dimColor: true,
-                children: "Edit and press Enter to retry, or Esc to cancel"
+                children: "\u7f16\u8f91\u540e\u6309 Enter \u91cd\u8bd5\uff0c\u6216 Esc \u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -334,7 +334,7 @@ function Feedback({
         flexDirection: "column",
         children: [
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-            children: "This report will include:"
+            children: "\u672c\u62a5\u544a\u5c06\u5305\u542b\uff1a"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
             marginLeft: 2,
@@ -342,7 +342,7 @@ function Feedback({
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 children: [
-                  "- Your feedback / bug description:",
+                  "- \u60a8\u7684\u53cd\u9988/\u7f3a\u9677\u63cf\u8ff0\uff1a",
                   " ",
                   /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -352,7 +352,7 @@ function Feedback({
               }, undefined, true, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 children: [
-                  "- Environment info:",
+                  "- \u73af\u5883\u4fe1\u606f\uff1a",
                   " ",
                   /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -368,7 +368,7 @@ function Feedback({
               }, undefined, true, undefined, this),
               envInfo.gitState && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 children: [
-                  "- Git repo metadata:",
+                  "- Git \u4ed3\u5e93\u5143\u6570\u636e\uff1a",
                   " ",
                   /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -376,14 +376,14 @@ function Feedback({
                       envInfo.gitState.branchName,
                       envInfo.gitState.commitHash ? `, ${envInfo.gitState.commitHash.slice(0, 7)}` : "",
                       envInfo.gitState.remoteUrl ? ` @ ${envInfo.gitState.remoteUrl}` : "",
-                      !envInfo.gitState.isHeadOnRemote && ", not synced",
-                      !envInfo.gitState.isClean && ", has local changes"
+                      !envInfo.gitState.isHeadOnRemote && ", \u672a\u540c\u6b65",
+                      !envInfo.gitState.isClean && ", \u6709\u672c\u5730\u66f4\u6539"
                     ]
                   }, undefined, true, undefined, this)
                 ]
               }, undefined, true, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-                children: "- Current session transcript"
+                children: "- \u5f53\u524d\u4f1a\u8bdd\u8bb0\u5f55"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this),
@@ -393,9 +393,9 @@ function Feedback({
               wrap: "wrap",
               dimColor: true,
               children: [
-                "We will use your feedback to debug related issues or to improve",
+                "\u6211\u4eec\u5c06\u4f7f\u7528\u60a8\u7684\u53cd\u9988\u6765\u6392\u67e5\u76f8\u5173\u95ee\u9898\u6216\u6539\u8fdb",
                 " ",
-                "Claude Code's functionality (eg. to reduce the risk of bugs occurring in the future)."
+                "Claude Code \u7684\u529f\u80fd\uff08\u4f8b\u5982\u964d\u4f4e\u672a\u6765\u51fa\u73b0 bug \u7684\u6982\u7387\uff09\u3002"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this),
@@ -403,12 +403,12 @@ function Feedback({
             marginTop: 1,
             children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               children: [
-                "Press ",
+                "\u6309 ",
                 /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                   bold: true,
                   children: "Enter"
                 }, undefined, false, undefined, this),
-                " to confirm and submit."
+                " \u786e\u8ba4\u5e76\u63d0\u4ea4\u3002"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this)
@@ -418,7 +418,7 @@ function Feedback({
         flexDirection: "row",
         gap: 1,
         children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-          children: "Submitting report\u2026"
+          children: "\u6b63\u5728\u63d0\u4ea4\u62a5\u544a\u2026"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       step === "done" && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
@@ -429,12 +429,12 @@ function Feedback({
             children: error
           }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             color: "success",
-            children: "Thank you for your report!"
+            children: "\u611f\u8c22\u60a8\u7684\u62a5\u544a\uff01"
           }, undefined, false, undefined, this),
           feedbackId && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Feedback ID: ",
+              "\u53cd\u9988 ID\uff1a ",
               feedbackId
             ]
           }, undefined, true, undefined, this),
@@ -442,14 +442,14 @@ function Feedback({
             marginTop: 1,
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-                children: "Press "
+                children: "\u6309 "
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 bold: true,
                 children: "Enter "
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-                children: "to open your browser and draft a GitHub issue, or any other key to close."
+                children: "\u6253\u5f00\u6d4f\u89c8\u5668\u8349\u521d GitHub Issue\uff0c\u6216\u6309\u5176\u4ed6\u952e\u5173\u95ed\u3002"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)

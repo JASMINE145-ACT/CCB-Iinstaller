@@ -340,7 +340,7 @@ function getNewAgentFilePath(agent) {
 }
 function getActualAgentFilePath(agent) {
   if (agent.source === "built-in") {
-    return "Built-in";
+    return "\u5185\u7f6e";
   }
   if (agent.source === "plugin") {
     throw new Error("Cannot get file path for plugin agents");
@@ -351,20 +351,20 @@ function getActualAgentFilePath(agent) {
 }
 function getNewRelativeAgentFilePath(agent) {
   if (agent.source === "built-in") {
-    return "Built-in";
+    return "\u5185\u7f6e";
   }
   const dirPath = getRelativeAgentDirectoryPath(agent.source);
   return join(dirPath, `${agent.agentType}.md`);
 }
 function getActualRelativeAgentFilePath(agent) {
   if (isBuiltInAgent(agent)) {
-    return "Built-in";
+    return "\u5185\u7f6e";
   }
   if (isPluginAgent(agent)) {
-    return `Plugin: ${agent.plugin || "Unknown"}`;
+    return `\u63d2\u4ef6\uff1a${agent.plugin || "Unknown"}`;
   }
   if (agent.source === "flagSettings") {
-    return "CLI argument";
+    return "CLI \u53c2\u6570";
   }
   const dirPath = getRelativeAgentDirectoryPath(agent.source);
   const filename = agent.filename || agent.agentType;
@@ -446,12 +446,12 @@ function AgentDetail({ agent, tools, onBack }) {
   function renderToolsList() {
     if (resolvedTools.hasWildcard) {
       return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-        children: "All tools"
+        children: "\u5168\u90e8\u5de5\u5177"
       }, undefined, false, undefined, this);
     }
     if (!agent.tools || agent.tools.length === 0) {
       return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-        children: "None"
+        children: "\u65e0"
       }, undefined, false, undefined, this);
     }
     return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
@@ -489,7 +489,7 @@ function AgentDetail({ agent, tools, onBack }) {
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 bold: true,
-                children: "Description"
+                children: "\u63cf\u8ff0"
               }, undefined, false, undefined, this),
               " (tells Claude when to use this agent):"
             ]
@@ -508,7 +508,7 @@ function AgentDetail({ agent, tools, onBack }) {
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 bold: true,
-                children: "Tools"
+                children: "\u5de5\u5177"
               }, undefined, false, undefined, this),
               ":",
               " "
@@ -521,7 +521,7 @@ function AgentDetail({ agent, tools, onBack }) {
         children: [
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             bold: true,
-            children: "Model"
+            children: "\u6a21\u578b"
           }, undefined, false, undefined, this),
           ": ",
           getAgentModelDisplay(agent.model)
@@ -531,7 +531,7 @@ function AgentDetail({ agent, tools, onBack }) {
         children: [
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             bold: true,
-            children: "Permission mode"
+            children: "\u6743\u9650\u6a21\u5f0f"
           }, undefined, false, undefined, this),
           ": ",
           agent.permissionMode
@@ -541,7 +541,7 @@ function AgentDetail({ agent, tools, onBack }) {
         children: [
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             bold: true,
-            children: "Memory"
+            children: "\u8bb0\u5fc6"
           }, undefined, false, undefined, this),
           ": ",
           getMemoryScopeDisplay(agent.memory)
@@ -573,7 +573,7 @@ function AgentDetail({ agent, tools, onBack }) {
           children: [
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               bold: true,
-              children: "Color"
+              children: "\u989c\u8272"
             }, undefined, false, undefined, this),
             ":",
             " ",
@@ -596,7 +596,7 @@ function AgentDetail({ agent, tools, onBack }) {
               children: [
                 /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                   bold: true,
-                  children: "System prompt"
+                  children: "\u7cfb\u7edf\u63d0\u793a\u8bcd"
                 }, undefined, false, undefined, this),
                 ":"
               ]
@@ -671,7 +671,7 @@ function ColorPicker({
               }, undefined, false, undefined, this),
               option === "automatic" ? /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                 bold: isSelected,
-                children: "Automatic color"
+                children: "\u81ea\u52a8\u989c\u8272"
               }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
                 gap: 1,
                 children: [
@@ -694,7 +694,7 @@ function ColorPicker({
         marginTop: 1,
         children: [
           /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
-            children: "Preview: "
+            children: "\u9884\u89c8\uff1a "
           }, undefined, false, undefined, this),
           selectedValue === undefined || selectedValue === "automatic" ? /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
             inverse: true,
@@ -745,7 +745,7 @@ function ModelSelector({
         {
           value: initialModel,
           label: initialModel,
-          description: "Current model (custom ID)"
+          description: "\u5f53\u524d\u6a21\u578b\uff08\u81ea\u5b9a\u4e49 ID\uff09"
         },
         ...base
       ];
@@ -760,7 +760,7 @@ function ModelSelector({
         marginBottom: 1,
         children: /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Model determines the agent's reasoning capabilities and speed."
+          children: "Agent \u6240\u7528\u6a21\u578b\u51b3\u5b9a\u5176\u63a8\u7406\u80fd\u529b\u4e0e\u901f\u5ea6\u3002"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(Select, {
@@ -785,7 +785,7 @@ var init_ModelSelector = __esm(() => {
 function getToolBuckets() {
   return {
     READ_ONLY: {
-      name: "Read-only tools",
+      name: "\u53ea\u8bfb\u5de5\u5177",
       toolNames: new Set([
         GlobTool.name,
         GrepTool.name,
@@ -801,7 +801,7 @@ function getToolBuckets() {
       ])
     },
     EDIT: {
-      name: "Edit tools",
+      name: "\u7f16\u8f91\u5de5\u5177",
       toolNames: new Set([
         FileEditTool.name,
         FileWriteTool.name,
@@ -809,7 +809,7 @@ function getToolBuckets() {
       ])
     },
     EXECUTION: {
-      name: "Execution tools",
+      name: "\u6267\u884c\u5de5\u5177",
       toolNames: new Set([
         BashTool.name,
         process.env.USER_TYPE === "ant" ? TungstenTool.name : undefined
@@ -821,7 +821,7 @@ function getToolBuckets() {
       isMcp: true
     },
     OTHER: {
-      name: "Other tools",
+      name: "\u5176\u4ed6\u5de5\u5177",
       toolNames: new Set
     }
   };
@@ -913,7 +913,7 @@ function ToolSelector({
   const navigableItems = [];
   navigableItems.push({
     id: "continue",
-    label: "Continue",
+    label: "\u7ee7\u7eed",
     action: handleConfirm,
     isContinue: true
   });
@@ -967,7 +967,7 @@ function ToolSelector({
   const toggleButtonIndex = navigableItems.length;
   navigableItems.push({
     id: "toggle-individual",
-    label: showIndividualTools ? "Hide advanced options" : "Show advanced options",
+    label: showIndividualTools ? "\u9690\u85cf\u9ad8\u7ea7\u9009\u9879" : "\u663e\u793a\u9ad8\u7ea7\u9009\u9879",
     action: () => {
       setShowIndividualTools(!showIndividualTools);
       if (showIndividualTools && focusIndex > toggleButtonIndex) {
@@ -981,7 +981,7 @@ function ToolSelector({
     if (mcpServerBuckets.length > 0) {
       navigableItems.push({
         id: "mcp-servers-header",
-        label: "MCP Servers:",
+        label: "MCP \u670d\u52a1\uff1a",
         action: () => {},
         isHeader: true
       });
@@ -999,7 +999,7 @@ function ToolSelector({
       });
       navigableItems.push({
         id: "tools-header",
-        label: "Individual Tools:",
+        label: "\u5355\u4e2a\u5de5\u5177\uff1a",
         action: () => {},
         isHeader: true
       });
@@ -1095,7 +1095,7 @@ function ToolSelector({
         flexDirection: "column",
         children: /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
           dimColor: true,
-          children: isAllSelected ? "All tools selected" : `${selectedSet.size} of ${customAgentTools.length} tools selected`
+          children: isAllSelected ? "\u5df2\u9009\u62e9\u5168\u90e8\u5de5\u5177" : `\u5df2\u9009 ${selectedSet.size}/${customAgentTools.length} \u4e2a\u5de5\u5177`
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this)
     ]
@@ -1136,13 +1136,13 @@ var init_ToolSelector = __esm(() => {
 // src/components/agents/utils.ts
 function getAgentSourceDisplayName(source) {
   if (source === "all") {
-    return "Agents";
+    return "\u5168\u90e8 agent";
   }
   if (source === "built-in") {
-    return "Built-in agents";
+    return "\u5185\u7f6e agent";
   }
   if (source === "plugin") {
-    return "Plugin agents";
+    return "\u63d2\u4ef6 agent";
   }
   return capitalize_default(getSettingSourceName(source));
 }
@@ -1213,10 +1213,10 @@ function AgentEditor({
     }
   }, [agent, selectedColor, onSaved, setAppState]);
   const menuItems = import_react3.useMemo(() => [
-    { label: "Open in editor", action: handleOpenInEditor },
-    { label: "Edit tools", action: () => setEditMode("edit-tools") },
-    { label: "Edit model", action: () => setEditMode("edit-model") },
-    { label: "Edit color", action: () => setEditMode("edit-color") }
+    { label: "\u5728\u7f16\u8f91\u5668\u4e2d\u6253\u5f00", action: handleOpenInEditor },
+    { label: "\u7f16\u8f91\u5de5\u5177", action: () => setEditMode("edit-tools") },
+    { label: "\u7f16\u8f91\u6a21\u578b", action: () => setEditMode("edit-model") },
+    { label: "\u7f16\u8f91\u989c\u8272", action: () => setEditMode("edit-color") }
   ], [handleOpenInEditor]);
   const handleEscape = import_react3.useCallback(() => {
     setError(null);
@@ -1330,7 +1330,7 @@ var init_AgentEditor = __esm(() => {
 
 // src/components/agents/AgentNavigationFooter.tsx
 function AgentNavigationFooter({
-  instructions = "Press \u2191\u2193 to navigate \xB7 Enter to select \xB7 Esc to go back"
+  instructions = "\u2191\u2193 \u5bfc\u822a \xB7 Enter \u9009\u62e9 \xB7 Esc \u8fd4\u56de"
 }) {
   const exitState = useExitOnCtrlCDWithKeybindings();
   return /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedBox_default, {
@@ -1375,7 +1375,7 @@ function AgentsList({
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
           color: isCreateNewSelected ? "suggestion" : undefined,
-          children: "Create new agent"
+          children: "\u521b\u5efa\u65b0 agent"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this);
@@ -1482,7 +1482,7 @@ function AgentsList({
       }
     }
   };
-  const renderBuiltInAgentsSection = (title = "Built-in (always available):") => {
+  const renderBuiltInAgentsSection = (title = "\u5185\u7f6e\uff08\u59cb\u7ec8\u53ef\u7528\uff09\uff1a") => {
     const builtInAgents2 = sortedAgents.filter((a) => a.source === "built-in");
     return /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedBox_default, {
       flexDirection: "column",
@@ -1534,7 +1534,7 @@ function AgentsList({
   if (hasNoAgents) {
     return /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Dialog, {
       title: sourceTitle,
-      subtitle: "No agents found",
+      subtitle: "\u672a\u627e\u5230 agent",
       onCancel: onBack,
       hideInputGuide: true,
       children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedBox_default, {
@@ -1549,15 +1549,15 @@ function AgentsList({
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "No agents found. Create specialized subagents that Claude can delegate to."
+            children: "\u672a\u627e\u5230 agent\u3002\u521b\u5efa\u4e13\u95e8\u7684\u5b50 agent \u4f9b Claude \u59d4\u6258\u4efb\u52a1\u3002"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Each subagent has its own context window, custom system prompt, and specific tools."
+            children: "\u6bcf\u4e2a\u5b50 agent \u6709\u72ec\u7acb\u4e0a\u4e0b\u6587\u3001\u81ea\u5b9a\u4e49\u7cfb\u7edf\u63d0\u793a\u8bcd\u548c\u6307\u5b9a\u5de5\u5177\u3002"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Try creating: Code Reviewer, Code Simplifier, Security Reviewer, Tech Lead, or UX Reviewer."
+            children: "\u53ef\u5c1d\u8bd5\u521b\u5efa\uff1aCode Reviewer\u3001Code Simplifier\u3001Security Reviewer\u3001Tech Lead \u6216 UX Reviewer\u3002"
           }, undefined, false, undefined, this),
           source !== "built-in" && sortedAgents.some((a) => a.source === "built-in") && /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(jsx_dev_runtime7.Fragment, {
             children: [
@@ -1607,7 +1607,7 @@ function AgentsList({
                     children: [
                       /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
                         bold: true,
-                        children: "Built-in agents"
+                        children: "\u5185\u7f6e agent"
                       }, undefined, false, undefined, this),
                       " (always available)"
                     ]
@@ -1621,7 +1621,7 @@ function AgentsList({
               /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
                 dimColor: true,
                 italic: true,
-                children: "Built-in agents are provided by default and cannot be modified."
+                children: "\u5185\u7f6e agent \u9ed8\u8ba4\u63d0\u4f9b\uff0c\u65e0\u6cd5\u4fee\u6539\u3002"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedBox_default, {
                 marginTop: 1,
@@ -1777,17 +1777,17 @@ function WizardNavigationFooter({
     children: [
       /* @__PURE__ */ jsx_dev_runtime9.jsxDEV(KeyboardShortcutHint, {
         shortcut: "\u2191\u2193",
-        action: "navigate"
+        action: "\u5bfc\u822a"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime9.jsxDEV(KeyboardShortcutHint, {
         shortcut: "Enter",
-        action: "select"
+        action: "\u9009\u62e9"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime9.jsxDEV(ConfigurableShortcutHint, {
         action: "confirm:no",
         context: "Confirmation",
         fallback: "Esc",
-        description: "go back"
+        description: "\u8fd4\u56de"
       }, undefined, false, undefined, this)
     ]
   }, undefined, true, undefined, this)
@@ -1881,22 +1881,22 @@ function ColorStep() {
     goNext();
   };
   return /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(WizardDialogLayout, {
-    subtitle: "Choose background color",
+    subtitle: "\u9009\u62e9\u80cc\u666f\u8272",
     footerText: /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(KeyboardShortcutHint, {
           shortcut: "\u2191\u2193",
-          action: "navigate"
+          action: "\u5bfc\u822a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Enter",
-          action: "select"
+          action: "\u9009\u62e9"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "go back"
+          description: "\u8fd4\u56de"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
@@ -1923,16 +1923,16 @@ var init_ColorStep = __esm(() => {
 // src/components/agents/validateAgent.ts
 function validateAgentType(agentType) {
   if (!agentType) {
-    return "Agent type is required";
+    return "Agent \u6807\u8bc6\u7b26\u4e0d\u80fd\u4e3a\u7a7a";
   }
   if (!/^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$/.test(agentType)) {
-    return "Agent type must start and end with alphanumeric characters and contain only letters, numbers, and hyphens";
+    return "Agent \u6807\u8bc6\u7b26\u987b\u4ee5\u5b57\u6bcd\u6216\u6570\u5b57\u5f00\u5934\u548c\u7ed3\u5c3e\uff0c\u4e14\u53ea\u80fd\u5305\u542b\u5b57\u6bcd\u3001\u6570\u5b57\u548c\u8fde\u5b57\u7b26";
   }
   if (agentType.length < 3) {
-    return "Agent type must be at least 3 characters long";
+    return "Agent \u6807\u8bc6\u7b26\u81f3\u5c11 3 \u4e2a\u5b57\u7b26";
   }
   if (agentType.length > 50) {
-    return "Agent type must be less than 50 characters";
+    return "Agent \u6807\u8bc6\u7b26\u4e0d\u80fd\u8d85\u8fc7 50 \u4e2a\u5b57\u7b26";
   }
   return null;
 }
@@ -1964,7 +1964,7 @@ function validateAgent(agent, availableTools, existingAgents) {
     if (agent.tools === undefined) {
       warnings.push("Agent has access to all tools");
     } else if (agent.tools.length === 0) {
-      warnings.push("No tools selected - agent will have very limited capabilities");
+      warnings.push("\u672a\u9009\u62e9\u5de5\u5177 - \u4ee3\u7406\u80fd\u529b\u5c06\u975e\u5e38\u6709\u9650");
     }
     const resolvedTools = resolveAgentTools(agent, availableTools, false);
     if (resolvedTools.invalidTools.length > 0) {
@@ -2015,9 +2015,9 @@ function ConfirmStep({
   const whenToUsePreview = truncateToWidth(agent.whenToUse, 240);
   const getToolsDisplay = (toolNames) => {
     if (toolNames === undefined)
-      return "All tools";
+      return "\u5168\u90e8\u5de5\u5177";
     if (toolNames.length === 0)
-      return "None";
+      return "\u65e0";
     if (toolNames.length === 1)
       return toolNames[0] || "None";
     if (toolNames.length === 2)
@@ -2028,29 +2028,29 @@ function ConfirmStep({
     children: [
       /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
         bold: true,
-        children: "Memory"
+        children: "\u8bb0\u5fc6"
       }, undefined, false, undefined, this),
       ": ",
       getMemoryScopeDisplay(agent.memory)
     ]
   }, undefined, true, undefined, this) : null;
   return /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(WizardDialogLayout, {
-    subtitle: "Confirm and save",
+    subtitle: "\u786e\u8ba4\u5e76\u4fdd\u5b58",
     footerText: /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(KeyboardShortcutHint, {
           shortcut: "s/Enter",
-          action: "save"
+          action: "\u4fdd\u5b58"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(KeyboardShortcutHint, {
           shortcut: "e",
-          action: "edit in your editor"
+          action: "\u5728\u7f16\u8f91\u5668\u4e2d\u6253\u5f00"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "cancel"
+          description: "\u53d6\u6d88"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
@@ -2064,7 +2064,7 @@ function ConfirmStep({
           children: [
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               bold: true,
-              children: "Name"
+              children: "\u540d\u79f0"
             }, undefined, false, undefined, this),
             ": ",
             agent.agentType
@@ -2074,7 +2074,7 @@ function ConfirmStep({
           children: [
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               bold: true,
-              children: "Location"
+              children: "\u4f4d\u7f6e"
             }, undefined, false, undefined, this),
             ":",
             " ",
@@ -2088,7 +2088,7 @@ function ConfirmStep({
           children: [
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               bold: true,
-              children: "Tools"
+              children: "\u5de5\u5177"
             }, undefined, false, undefined, this),
             ": ",
             getToolsDisplay(agent.tools)
@@ -2098,7 +2098,7 @@ function ConfirmStep({
           children: [
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               bold: true,
-              children: "Model"
+              children: "\u6a21\u578b"
             }, undefined, false, undefined, this),
             ": ",
             getAgentModelDisplay(agent.model)
@@ -2111,7 +2111,7 @@ function ConfirmStep({
             children: [
               /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
                 bold: true,
-                children: "Description"
+                children: "\u63cf\u8ff0"
               }, undefined, false, undefined, this),
               " (tells Claude when to use this agent):"
             ]
@@ -2130,7 +2130,7 @@ function ConfirmStep({
             children: [
               /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
                 bold: true,
-                children: "System prompt"
+                children: "\u7cfb\u7edf\u63d0\u793a\u8bcd"
               }, undefined, false, undefined, this),
               ":"
             ]
@@ -2149,7 +2149,7 @@ function ConfirmStep({
           children: [
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               color: "warning",
-              children: "Warnings:"
+              children: "\u8b66\u544a\uff1a"
             }, undefined, false, undefined, this),
             validation.warnings.map((warning, i) => /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               dimColor: true,
@@ -2167,7 +2167,7 @@ function ConfirmStep({
           children: [
             /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               color: "error",
-              children: "Errors:"
+              children: "\u9519\u8bef\uff1a"
             }, undefined, false, undefined, this),
             validation.errors.map((err, i) => /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
               color: "error",
@@ -2334,28 +2334,28 @@ function DescriptionStep() {
     goNext();
   };
   return /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(WizardDialogLayout, {
-    subtitle: "Description (tell Claude when to use this agent)",
+    subtitle: "\u63cf\u8ff0\uff08\u544a\u8bc9 Claude \u4f55\u65f6\u4f7f\u7528\u6b64 agent\uff09",
     footerText: /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Type",
-          action: "enter text"
+          action: "\u8f93\u5165\u6587\u672c"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Enter",
-          action: "continue"
+          action: "\u7ee7\u7eed"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(ConfigurableShortcutHint, {
           action: "chat:externalEditor",
           context: "Chat",
           fallback: "ctrl+g",
-          description: "open in editor"
+          description: "\u5728\u7f16\u8f91\u5668\u4e2d\u6253\u5f00"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Settings",
           fallback: "Esc",
-          description: "go back"
+          description: "\u8fd4\u56de"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
@@ -2363,7 +2363,7 @@ function DescriptionStep() {
       flexDirection: "column",
       children: [
         /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(ThemedText, {
-          children: "When should Claude use this agent?"
+          children: "\u4f55\u65f6\u8ba9 Claude \u4f7f\u7528\u6b64 agent\uff1f"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime14.jsxDEV(ThemedBox_default, {
           marginTop: 1,
@@ -2654,7 +2654,7 @@ function GenerateStep() {
         action: "confirm:no",
         context: "Settings",
         fallback: "Esc",
-        description: "cancel"
+        description: "\u53d6\u6d88"
       }, undefined, false, undefined, this),
       children: /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedBox_default, {
         flexDirection: "row",
@@ -2677,19 +2677,19 @@ function GenerateStep() {
           action: "confirm:yes",
           context: "Confirmation",
           fallback: "Enter",
-          description: "submit"
+          description: "\u63d0\u4ea4"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ConfigurableShortcutHint, {
           action: "chat:externalEditor",
           context: "Chat",
           fallback: "ctrl+g",
-          description: "open in editor"
+          description: "\u5728\u7f16\u8f91\u5668\u4e2d\u6253\u5f00"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Settings",
           fallback: "Esc",
-          description: "go back"
+          description: "\u8fd4\u56de"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
@@ -2741,31 +2741,31 @@ function LocationStep() {
   const { goNext, updateWizardData, cancel } = useWizard();
   const locationOptions = [
     {
-      label: "Project (.claude/agents/)",
+      label: "\u9879\u76ee\uff08.claude/agents/\uff09",
       value: "projectSettings"
     },
     {
-      label: "Personal (~/.claude/agents/)",
+      label: "\u4e2a\u4eba\uff08~/.claude/agents/\uff09",
       value: "userSettings"
     }
   ];
   return /* @__PURE__ */ jsx_dev_runtime16.jsxDEV(WizardDialogLayout, {
-    subtitle: "Choose location",
+    subtitle: "\u9009\u62e9\u4fdd\u5b58\u4f4d\u7f6e",
     footerText: /* @__PURE__ */ jsx_dev_runtime16.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime16.jsxDEV(KeyboardShortcutHint, {
           shortcut: "\u2191\u2193",
-          action: "navigate"
+          action: "\u5bfc\u822a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime16.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Enter",
-          action: "select"
+          action: "\u9009\u62e9"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime16.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "cancel"
+          description: "\u53d6\u6d88"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
@@ -2798,20 +2798,20 @@ function MemoryStep() {
   const isUserScope = wizardData.location === "userSettings";
   const memoryOptions = isUserScope ? [
     {
-      label: "User scope (~/.claude/agent-memory/) (Recommended)",
+      label: "\u7528\u6237\u8303\u56f4\uff08~/.claude/agent-memory/\uff09\uff08\u63a8\u8350\uff09",
       value: "user"
     },
-    { label: "None (no persistent memory)", value: "none" },
-    { label: "Project scope (.claude/agent-memory/)", value: "project" },
-    { label: "Local scope (.claude/agent-memory-local/)", value: "local" }
+    { label: "\u65e0\uff08\u65e0\u6301\u4e45\u8bb0\u5fc6\uff09", value: "none" },
+    { label: "\u9879\u76ee\u8303\u56f4\uff08.claude/agent-memory/\uff09", value: "project" },
+    { label: "\u672c\u5730\u8303\u56f4\uff08.claude/agent-memory-local/\uff09", value: "local" }
   ] : [
     {
-      label: "Project scope (.claude/agent-memory/) (Recommended)",
+      label: "\u9879\u76ee\u8303\u56f4\uff08.claude/agent-memory/\uff09\uff08\u63a8\u8350\uff09",
       value: "project"
     },
-    { label: "None (no persistent memory)", value: "none" },
-    { label: "User scope (~/.claude/agent-memory/)", value: "user" },
-    { label: "Local scope (.claude/agent-memory-local/)", value: "local" }
+    { label: "\u65e0\uff08\u65e0\u6301\u4e45\u8bb0\u5fc6\uff09", value: "none" },
+    { label: "\u7528\u6237\u8303\u56f4\uff08~/.claude/agent-memory/\uff09", value: "user" },
+    { label: "\u672c\u5730\u8303\u56f4\uff08.claude/agent-memory-local/\uff09", value: "local" }
   ];
   const handleSelect = (value) => {
     const memory = value === "none" ? undefined : value;
@@ -2829,22 +2829,22 @@ function MemoryStep() {
     goNext();
   };
   return /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(WizardDialogLayout, {
-    subtitle: "Configure agent memory",
+    subtitle: "\u914d\u7f6e agent \u8bb0\u5fc6",
     footerText: /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(KeyboardShortcutHint, {
           shortcut: "\u2191\u2193",
-          action: "navigate"
+          action: "\u5bfc\u822a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Enter",
-          action: "select"
+          action: "\u9009\u62e9"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime17.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "go back"
+          description: "\u8fd4\u56de"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
@@ -2875,31 +2875,31 @@ function MethodStep() {
   const { goNext, goBack, updateWizardData, goToStep } = useWizard();
   const methodOptions = [
     {
-      label: "Generate with Claude (recommended)",
+      label: "\u7531 Claude \u751f\u6210\uff08\u63a8\u8350\uff09",
       value: "generate"
     },
     {
-      label: "Manual configuration",
+      label: "\u624b\u52a8\u914d\u7f6e",
       value: "manual"
     }
   ];
   return /* @__PURE__ */ jsx_dev_runtime18.jsxDEV(WizardDialogLayout, {
-    subtitle: "Creation method",
+    subtitle: "\u521b\u5efa\u65b9\u5f0f",
     footerText: /* @__PURE__ */ jsx_dev_runtime18.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime18.jsxDEV(KeyboardShortcutHint, {
           shortcut: "\u2191\u2193",
-          action: "navigate"
+          action: "\u5bfc\u822a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime18.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Enter",
-          action: "select"
+          action: "\u9009\u62e9"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime18.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "go back"
+          description: "\u8fd4\u56de"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
@@ -2941,22 +2941,22 @@ function ModelStep() {
     goNext();
   };
   return /* @__PURE__ */ jsx_dev_runtime19.jsxDEV(WizardDialogLayout, {
-    subtitle: "Select model",
+    subtitle: "\u9009\u62a9\u6a21\u578b",
     footerText: /* @__PURE__ */ jsx_dev_runtime19.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime19.jsxDEV(KeyboardShortcutHint, {
           shortcut: "\u2191\u2193",
-          action: "navigate"
+          action: "\u5bfc\u822a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime19.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Enter",
-          action: "select"
+          action: "\u9009\u62e9"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime19.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "go back"
+          description: "\u8fd4\u56de"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
@@ -3005,28 +3005,28 @@ function PromptStep() {
     goNext();
   };
   return /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(WizardDialogLayout, {
-    subtitle: "System prompt",
+    subtitle: "\u7cfb\u7edf\u63d0\u793a\u8bcd",
     footerText: /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Type",
-          action: "enter text"
+          action: "\u8f93\u5165\u6587\u672c"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Enter",
-          action: "continue"
+          action: "\u7ee7\u7eed"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ConfigurableShortcutHint, {
           action: "chat:externalEditor",
           context: "Chat",
           fallback: "ctrl+g",
-          description: "open in editor"
+          description: "\u5728\u7f16\u8f91\u5668\u4e2d\u6253\u5f00"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Settings",
           fallback: "Esc",
-          description: "go back"
+          description: "\u8fd4\u56de"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
@@ -3034,11 +3034,11 @@ function PromptStep() {
       flexDirection: "column",
       children: [
         /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
-          children: "Enter the system prompt for your agent:"
+          children: "\u8f93\u5165 agent \u7684\u7cfb\u7edf\u63d0\u793a\u8bcd\uff1a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Be comprehensive for best results"
+          children: "\u5185\u5bb9\u8d8a\u8be6\u7ec6\u6548\u679c\u8d8a\u597d"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime20.jsxDEV(ThemedBox_default, {
           marginTop: 1,
@@ -3087,22 +3087,22 @@ function ToolsStep({ tools }) {
   };
   const initialTools = wizardData.selectedTools;
   return /* @__PURE__ */ jsx_dev_runtime21.jsxDEV(WizardDialogLayout, {
-    subtitle: "Select tools",
+    subtitle: "\u9009\u62e9\u5de5\u5177",
     footerText: /* @__PURE__ */ jsx_dev_runtime21.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime21.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Enter",
-          action: "toggle selection"
+          action: "\u5207\u6362\u9009\u62e9"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime21.jsxDEV(KeyboardShortcutHint, {
           shortcut: "\u2191\u2193",
-          action: "navigate"
+          action: "\u5bfc\u822a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime21.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "go back"
+          description: "\u8fd4\u56de"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
@@ -3143,22 +3143,22 @@ function TypeStep(_props) {
     goNext();
   };
   return /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(WizardDialogLayout, {
-    subtitle: "Agent type (identifier)",
+    subtitle: "Agent \u6807\u8bc6\u7b26",
     footerText: /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Type",
-          action: "enter text"
+          action: "\u8f93\u5165\u6587\u672c"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Enter",
-          action: "continue"
+          action: "\u7ee7\u7eed"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Settings",
           fallback: "Esc",
-          description: "go back"
+          description: "\u8fd4\u56de"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
@@ -3166,7 +3166,7 @@ function TypeStep(_props) {
       flexDirection: "column",
       children: [
         /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(ThemedText, {
-          children: "Enter a unique identifier for your agent:"
+          children: "\u8f93\u5165 agent \u7684\u552f\u4e00\u6807\u8bc6\u7b26\uff1a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime22.jsxDEV(ThemedBox_default, {
           marginTop: 1,
@@ -3239,7 +3239,7 @@ function CreateAgentWizard({
     initialData: {},
     onComplete: () => {},
     onCancel,
-    title: "Create new agent",
+    title: "\u521b\u5efa\u65b0 agent",
     showStepCounter: false
   }, undefined, false, undefined, this);
 }
@@ -3362,12 +3362,12 @@ ${changes.join(`
       const agentToUse = freshAgent || modeState.agent;
       const isEditable = agentToUse.source !== "built-in" && agentToUse.source !== "plugin" && agentToUse.source !== "flagSettings";
       const menuItems = [
-        { label: "View agent", value: "view" },
+        { label: "\u67e5\u770b agent", value: "view" },
         ...isEditable ? [
-          { label: "Edit agent", value: "edit" },
-          { label: "Delete agent", value: "delete" }
+          { label: "\u7f16\u8f91 agent", value: "edit" },
+          { label: "\u5220\u9664 agent", value: "delete" }
         ] : [],
-        { label: "Back", value: "back" }
+        { label: "\u8fd4\u56de", value: "back" }
       ];
       const handleMenuSelect = (value) => {
         switch (value) {
@@ -3450,20 +3450,20 @@ ${changes.join(`
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime24.jsxDEV(AgentNavigationFooter, {
-            instructions: "Press Enter or Esc to go back"
+            instructions: "Enter \u6216 Esc \u8fd4\u56de"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this);
     }
     case "delete-confirm": {
       const deleteOptions = [
-        { label: "Yes, delete", value: "yes" },
-        { label: "No, cancel", value: "no" }
+        { label: "\u662f\uff0c\u5220\u9664", value: "yes" },
+        { label: "\u5426\uff0c\u53d6\u6d88", value: "no" }
       ];
       return /* @__PURE__ */ jsx_dev_runtime24.jsxDEV(jsx_dev_runtime24.Fragment, {
         children: [
           /* @__PURE__ */ jsx_dev_runtime24.jsxDEV(Dialog, {
-            title: "Delete agent",
+            title: "\u5220\u9664 agent",
             onCancel: () => {
               if ("previousMode" in modeState)
                 setModeState(modeState.previousMode);
@@ -3472,7 +3472,7 @@ ${changes.join(`
             children: [
               /* @__PURE__ */ jsx_dev_runtime24.jsxDEV(ThemedText, {
                 children: [
-                  "Are you sure you want to delete the agent",
+                  "\u786e\u5b9a\u8981\u5220\u9664 agent",
                   " ",
                   /* @__PURE__ */ jsx_dev_runtime24.jsxDEV(ThemedText, {
                     bold: true,
@@ -3514,7 +3514,7 @@ ${changes.join(`
             ]
           }, undefined, true, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime24.jsxDEV(AgentNavigationFooter, {
-            instructions: "Press \u2191\u2193 to navigate, Enter to select, Esc to cancel"
+            instructions: "\u2191\u2193 \u5bfc\u822a\uff0cEnter \u9009\u62e9\uff0cEsc \u53d6\u6d88"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this);

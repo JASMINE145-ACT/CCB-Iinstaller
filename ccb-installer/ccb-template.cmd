@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul 2>&1
 setlocal
 
 set "CCB_CONFIG_DIR=%LOCALAPPDATA%\CCB\.claude"
@@ -13,28 +14,28 @@ call :try_bash "%CLAUDE_CODE_GIT_BASH_PATH%"
 if errorlevel 1 call :try_bash "%ProgramFiles%\Git\bin\bash.exe"
 if errorlevel 1 call :try_bash "%LOCALAPPDATA%\Programs\Git\bin\bash.exe"
 if errorlevel 1 (
-    echo [CCB] No working Git Bash was found.
+    echo [CCB] 未找到可用的 Git Bash。
     goto :fail
 )
 
 if not exist "%CCB_INSTALL_DIR%\vendor\bun\bun.exe" (
-    echo [CCB] Missing Bun runtime: "%CCB_INSTALL_DIR%\vendor\bun\bun.exe"
+    echo [CCB] 缺少 Bun 运行时: "%CCB_INSTALL_DIR%\vendor\bun\bun.exe"
     goto :fail
 )
 
 if not exist "%CCB_INSTALL_DIR%\dist\cli.js" (
-    echo [CCB] Missing CCB entry: "%CCB_INSTALL_DIR%\dist\cli.js"
+    echo [CCB] 缺少 CCB 入口文件: "%CCB_INSTALL_DIR%\dist\cli.js"
     goto :fail
 )
 
 "%CCB_INSTALL_DIR%\vendor\bun\bun.exe" --version >"%CCB_PREFLIGHT_LOG%" 2>&1
 if errorlevel 1 (
-    echo [CCB] Bun exists but cannot run.
+    echo [CCB] Bun 存在但无法运行。
     goto :preflight_fail
 )
 "%CCB_INSTALL_DIR%\vendor\bun\bun.exe" "%CCB_INSTALL_DIR%\dist\cli.js" --version >>"%CCB_PREFLIGHT_LOG%" 2>&1
 if errorlevel 1 (
-    echo [CCB] The application files failed the startup check.
+    echo [CCB] 应用程序文件启动检查失败。
     goto :preflight_fail
 )
 del /q "%CCB_PREFLIGHT_LOG%" >nul 2>&1
@@ -45,7 +46,7 @@ if not exist "%CCB_CONFIG_DIR%" (
 
 if exist "%CCB_INSTALL_DIR%\scripts\ensure-mcp-settings.ps1" (
     powershell -NoProfile -ExecutionPolicy Bypass -File "%CCB_INSTALL_DIR%\scripts\ensure-mcp-settings.ps1" -InstallDir "%CCB_INSTALL_DIR%" -ConfigDir "%CCB_CONFIG_DIR%" >nul 2>&1
-    if errorlevel 1 echo [CCB] Warning: MCP default configuration could not be updated.
+    if errorlevel 1 echo [CCB] 警告：无法更新 MCP 默认配置。
 )
 
 chcp 65001 >nul 2>&1
@@ -60,9 +61,6 @@ if not defined CLAUDE_CODE_NO_FLICKER (
         set "CLAUDE_CODE_NO_FLICKER=0"
     )
 )
-set "CLAUDE_CODE_DISABLE_VIRTUAL_SCROLL=1"
-set "CLAUDE_CODE_DISABLE_MOUSE=1"
-if not "%CCB_ENABLE_TUI_RESIZE%"=="1" set "CLAUDE_CODE_DISABLE_TUI_RESIZE=1"
 
 cd /d "%CCB_INSTALL_DIR%"
 if exist "%CCB_INSTALL_DIR%\ccb-mcp.json" (
@@ -74,9 +72,9 @@ set "CCB_EXIT_CODE=%ERRORLEVEL%"
 
 if not "%CCB_EXIT_CODE%"=="0" (
     echo.
-    echo [CCB] Exited with code %CCB_EXIT_CODE%.
-    echo [CCB] Install dir: "%CCB_INSTALL_DIR%"
-    echo [CCB] Config dir: "%CCB_CONFIG_DIR%"
+    echo [CCB] 退出码：%CCB_EXIT_CODE%
+    echo [CCB] 安装目录："%CCB_INSTALL_DIR%"
+    echo [CCB] 配置目录："%CCB_CONFIG_DIR%"
     if not "%CCB_NO_PAUSE%"=="1" pause
 )
 
@@ -84,13 +82,13 @@ exit /b %CCB_EXIT_CODE%
 
 :fail
 echo.
-echo [CCB] Installation is incomplete or corrupted.
-echo [CCB] Reinstall CCB or restore quarantined files, then try again.
+echo [CCB] 安装不完整或已损坏。
+echo [CCB] 请重新安装 CCB 或恢复被隔离的文件后再试。
 if not "%CCB_NO_PAUSE%"=="1" pause
 exit /b 1
 
 :preflight_fail
-echo [CCB] Details were written to: "%CCB_PREFLIGHT_LOG%"
+echo [CCB] 详细信息已写入："%CCB_PREFLIGHT_LOG%"
 goto :fail
 
 :try_bash

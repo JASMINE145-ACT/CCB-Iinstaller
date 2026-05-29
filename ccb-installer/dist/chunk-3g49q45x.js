@@ -180,14 +180,14 @@ function FastModePicker({
     color: "fastMode",
     inputGuide: (exitState) => exitState.pending ? /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
       children: [
-        "Press ",
+        "\u518d\u6309 ",
         exitState.keyName,
-        " again to exit"
+        " \u9000\u51fa"
       ]
     }, undefined, true, undefined, this) : isUnavailable ? /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
-      children: "Esc to cancel"
+      children: "Esc \u53d6\u6d88"
     }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
-      children: "Tab to toggle \xB7 Enter to confirm \xB7 Esc to cancel"
+      children: "Tab \u5207\u6362 \u00b7 Enter \u786e\u8ba4 \u00b7 Esc \u53d6\u6d88"
     }, undefined, false, undefined, this),
     children: [
       unavailableReason ? /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {

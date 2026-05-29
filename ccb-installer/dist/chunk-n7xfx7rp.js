@@ -238,7 +238,7 @@ function NewInstallWizard({ defaultDir, onInstalled, onCancel, onError }) {
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Enter to select \xB7 Esc to cancel"
+          children: "Enter \u9009\u62e9 \u00b7 Esc \u53d6\u6d88"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this)

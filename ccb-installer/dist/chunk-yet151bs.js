@@ -173,7 +173,7 @@ function ExportDialog({
       const raw = await setClipboard(content);
       if (raw)
         process.stdout.write(raw);
-      onDone({ success: true, message: "Conversation copied to clipboard" });
+      onDone({ success: true, message: "\u5bf9\u8bdd\u5df2\u590d\u5236\u5230\u526a\u8d34\u677f" });
     } else if (value === "file") {
       setSelectedOption("file");
       setShowFilenameInput(true);
@@ -189,12 +189,12 @@ function ExportDialog({
       });
       onDone({
         success: true,
-        message: `Conversation exported to: ${filepath}`
+        message: `\u5bf9\u8bdd\u5df2\u5bfc\u51fa\u81f3\uff1a ${filepath}`
       });
     } catch (error) {
       onDone({
         success: false,
-        message: `Failed to export conversation: ${error instanceof Error ? error.message : "Unknown error"}`
+        message: `\u5bfc\u51fa\u5bf9\u8bdd\u5931\u8d25\uff1a ${error instanceof Error ? error.message : "\u672a\u77e5\u9519\u8bef"}`
       });
     }
   };
@@ -202,19 +202,19 @@ function ExportDialog({
     if (showFilenameInput) {
       handleGoBack();
     } else {
-      onDone({ success: false, message: "Export cancelled" });
+      onDone({ success: false, message: "\u5bfc\u51fa\u5df2\u53d6\u6d88" });
     }
   }, [showFilenameInput, handleGoBack, onDone]);
   const options = [
     {
-      label: "Copy to clipboard",
+      label: "\u590d\u5236\u5230\u526a\u8d34\u677f",
       value: "clipboard",
-      description: "Copy the conversation to your system clipboard"
+      description: "\u5c06\u5bf9\u8bdd\u590d\u5236\u5230\u7cfb\u7edf\u526a\u8d34\u677f"
     },
     {
-      label: "Save to file",
+      label: "\u4fdd\u5b58\u5230\u6587\u4ef6",
       value: "file",
-      description: "Save the conversation to a file in the current directory"
+      description: "\u5c06\u5bf9\u8bdd\u4fdd\u5b58\u5230\u5f53\u524d\u76ee\u5f55\u7684\u6587\u4ef6"
     }
   ];
   function renderInputGuide(exitState) {
@@ -223,13 +223,13 @@ function ExportDialog({
         children: [
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
             shortcut: "Enter",
-            action: "save"
+            action: "\u4fdd\u5b58"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
             action: "confirm:no",
             context: "Confirmation",
             fallback: "Esc",
-            description: "go back"
+            description: "\u8fd4\u56de"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this);
@@ -237,9 +237,9 @@ function ExportDialog({
     if (exitState.pending) {
       return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
         children: [
-          "Press ",
+          "\u6309 ",
           exitState.keyName,
-          " again to exit"
+          " \u518d\u6b21\u9000\u51fa"
         ]
       }, undefined, true, undefined, this);
     }
@@ -247,7 +247,7 @@ function ExportDialog({
       action: "confirm:no",
       context: "Confirmation",
       fallback: "Esc",
-      description: "cancel"
+      description: "\u53d6\u6d88"
     }, undefined, false, undefined, this);
   }
   useKeybinding("confirm:no", handleCancel, {
@@ -255,8 +255,8 @@ function ExportDialog({
     isActive: showFilenameInput
   });
   return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Dialog, {
-    title: "Export Conversation",
-    subtitle: "Select export method:",
+    title: "\u5bfc\u51fa\u5bf9\u8bdd",
+    subtitle: "\u9009\u62e9\u5bfc\u51fa\u65b9\u5f0f\uff1a",
     color: "permission",
     onCancel: handleCancel,
     inputGuide: renderInputGuide,
@@ -269,7 +269,7 @@ function ExportDialog({
       flexDirection: "column",
       children: [
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-          children: "Enter filename:"
+          children: "\u8f93\u5165\u6587\u4ef6\u540d\uff1a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
           flexDirection: "row",
@@ -360,10 +360,10 @@ async function call(onDone, context, args) {
         encoding: "utf-8",
         flush: true
       });
-      onDone(`Conversation exported to: ${filepath}`);
+      onDone(`\u5bf9\u8bdd\u5df2\u5bfc\u51fa\u81f3\uff1a ${filepath}`);
       return null;
     } catch (error) {
-      onDone(`Failed to export conversation: ${error instanceof Error ? error.message : "Unknown error"}`);
+      onDone(`\u5bfc\u51fa\u5bf9\u8bdd\u5931\u8d25\uff1a ${error instanceof Error ? error.message : "\u672a\u77e5\u9519\u8bef"}`);
       return null;
     }
   }

@@ -7699,15 +7699,15 @@ function getCanonicalName(fullModelName) {
 function getClaudeAiUserDefaultModelDescription(fastMode = false) {
   if (isMaxSubscriber() || isTeamPremiumSubscriber()) {
     if (isOpus1mMergeEnabled()) {
-      return `Opus 4.6 with 1M context \xB7 Most capable for complex work${fastMode ? getOpus46PricingSuffix(true) : ""}`;
+      return `Opus 4.6\uff081M \u4e0a\u4e0b\u6587\uff09\xb7 \u590d\u6742\u4efb\u52a1\u6700\u5f3a${fastMode ? getOpus46PricingSuffix(true) : ""}`;
     }
-    return `Opus 4.6 \xB7 Most capable for complex work${fastMode ? getOpus46PricingSuffix(true) : ""}`;
+    return `Opus 4.6 \xb7 \u590d\u6742\u4efb\u52a1\u6700\u5f3a${fastMode ? getOpus46PricingSuffix(true) : ""}`;
   }
-  return "Sonnet 4.6 \xB7 Best for everyday tasks";
+  return "Sonnet 4.6 \xb7 \u9002\u5408\u65e5\u5e38\u4efb\u52a1";
 }
 function renderDefaultModelSetting(setting) {
   if (setting === "opusplan") {
-    return "Opus 4.6 in plan mode, else Sonnet 4.6";
+    return "Opus 4.6 \u8ba1\u5212\u6a21\u5f0f\uff0c\u5176\u4f59 Sonnet 4.6";
   }
   return renderModelName(parseUserSpecifiedModel(setting));
 }
@@ -7729,7 +7729,7 @@ function isOpus1mMergeEnabled() {
 }
 function renderModelSetting(setting) {
   if (setting === "opusplan") {
-    return "Opus Plan";
+    return "Opus \u8ba1\u5212";
   }
   if (isModelAlias(setting)) {
     return capitalize(setting);
@@ -7860,9 +7860,9 @@ function isLegacyModelRemapEnabled() {
 function modelDisplayString(model) {
   if (model === null) {
     if (process.env.USER_TYPE === "ant") {
-      return `Default for Ants (${renderDefaultModelSetting(getDefaultMainLoopModelSetting())})`;
+      return `Ant \u9ed8\u8ba4\uff08${renderDefaultModelSetting(getDefaultMainLoopModelSetting())}\uff09`;
     } else if (isClaudeAISubscriber()) {
-      return `Default (${getClaudeAiUserDefaultModelDescription()})`;
+      return `\u9ed8\u8ba4\uff08${getClaudeAiUserDefaultModelDescription()}\uff09`;
     }
     return `Default (${getDefaultMainLoopModel()})`;
   }
@@ -11179,36 +11179,36 @@ var init_PermissionMode = __esm(() => {
   externalPermissionModeSchema = lazySchema(() => v4_default.enum(EXTERNAL_PERMISSION_MODES));
   PERMISSION_MODE_CONFIG = {
     default: {
-      title: "Default",
-      shortTitle: "Default",
+      title: "\u9ed8\u8ba4",
+      shortTitle: "\u9ed8\u8ba4",
       symbol: "",
       color: "text",
       external: "default"
     },
     plan: {
-      title: "Plan Mode",
-      shortTitle: "Plan",
+      title: "\u8ba1\u5212\u6a21\u5f0f",
+      shortTitle: "\u8ba1\u5212",
       symbol: PAUSE_ICON,
       color: "planMode",
       external: "plan"
     },
     acceptEdits: {
-      title: "Accept edits",
-      shortTitle: "Accept",
+      title: "\u81ea\u52a8\u63a5\u53d7\u7f16\u8f91",
+      shortTitle: "\u63a5\u53d7",
       symbol: "\u23F5\u23F5",
       color: "autoAccept",
       external: "acceptEdits"
     },
     bypassPermissions: {
-      title: "Bypass Permissions",
-      shortTitle: "Bypass",
+      title: "\u7ed5\u8fc7\u6743\u9650",
+      shortTitle: "\u7ed5\u8fc7",
       symbol: "\u23F5\u23F5",
       color: "error",
       external: "bypassPermissions"
     },
     dontAsk: {
-      title: "Don't Ask",
-      shortTitle: "DontAsk",
+      title: "\u4e0d\u518d\u8be2\u95ee",
+      shortTitle: "\u4e0d\u8be2\u95ee",
       symbol: "\u23F5\u23F5",
       color: "error",
       external: "dontAsk"

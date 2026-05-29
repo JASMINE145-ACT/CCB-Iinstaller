@@ -178,12 +178,12 @@ function Passes({ onDone }) {
             italic: true,
             children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
               children: [
-                "Press ",
+                "\u518d\u6309 ",
                 exitState.keyName,
-                " again to exit"
+                " \u9000\u51fa"
               ]
             }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
-              children: "Esc to cancel"
+              children: "Esc \u53d6\u6d88"
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this)
         ]
@@ -204,12 +204,12 @@ function Passes({ onDone }) {
             italic: true,
             children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
               children: [
-                "Press ",
+                "\u518d\u6309 ",
                 exitState.keyName,
-                " again to exit"
+                " \u9000\u51fa"
               ]
             }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
-              children: "Esc to cancel"
+              children: "Esc \u53d6\u6d88"
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this)
         ]
@@ -307,12 +307,12 @@ function Passes({ onDone }) {
             italic: true,
             children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
               children: [
-                "Press ",
+                "\u518d\u6309 ",
                 exitState.keyName,
-                " again to exit"
+                " \u9000\u51fa"
               ]
             }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
-              children: "Enter to copy link \xB7 Esc to cancel"
+              children: "Enter \u590d\u5236\u94fe\u63a5 \u00b7 Esc \u53d6\u6d88"
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this)

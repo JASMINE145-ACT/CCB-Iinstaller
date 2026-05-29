@@ -210,7 +210,7 @@ function PermissionRuleDescription({
           return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Any Bash command starting with",
+              "\u4ee5\u6b64\u5f00\u5934\u7684 Bash \u547d\u4ee4",
               " ",
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 bold: true,
@@ -222,7 +222,7 @@ function PermissionRuleDescription({
           return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "The Bash command ",
+              "Bash \u547d\u4ee4 ",
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 bold: true,
                 children: ruleValue.ruleContent
@@ -233,7 +233,7 @@ function PermissionRuleDescription({
       } else {
         return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Any Bash command"
+          children: "\u4efb\u610f Bash \u547d\u4ee4"
         }, undefined, false, undefined, this);
       }
     }
@@ -242,12 +242,12 @@ function PermissionRuleDescription({
         return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            "Any use of the ",
+            "\u4efb\u610f\u4f7f\u7528 ",
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               bold: true,
               children: ruleValue.toolName
             }, undefined, false, undefined, this),
-            " tool"
+            " \u5de5\u5177"
           ]
         }, undefined, true, undefined, this);
       } else {
@@ -268,20 +268,20 @@ function optionForPermissionSaveDestination(saveDestination) {
   switch (saveDestination) {
     case "localSettings":
       return {
-        label: "Project settings (local)",
-        description: `Saved in ${getRelativeSettingsFilePathForSource("localSettings")}`,
+        label: "\u9879\u76ee\u8bbe\u7f6e\uff08\u672c\u5730\uff09",
+        description: `\u4fdd\u5b58\u4e8e ${getRelativeSettingsFilePathForSource("localSettings")}`,
         value: saveDestination
       };
     case "projectSettings":
       return {
-        label: "Project settings",
-        description: `Checked in at ${getRelativeSettingsFilePathForSource("projectSettings")}`,
+        label: "\u9879\u76ee\u8bbe\u7f6e",
+        description: `\u68c0\u5165\u4e8e ${getRelativeSettingsFilePathForSource("projectSettings")}`,
         value: saveDestination
       };
     case "userSettings":
       return {
-        label: "User settings",
-        description: `Saved in at ~/.claude/settings.json`,
+        label: "\u7528\u6237\u8bbe\u7f6e",
+        description: `\u4fdd\u5b58\u4e8e ~/.claude/settings.json`,
         value: saveDestination
       };
   }
@@ -361,7 +361,7 @@ function AddPermissionRules({
         marginY: 1,
         children: [
           /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
-            children: ruleValues.length === 1 ? "Where should this rule be saved?" : "Where should these rules be saved?"
+            children: ruleValues.length === 1 ? "\u6b64\u89c4\u5219\u4fdd\u5b58\u5230\u54ea\u91cc\uff1f" : "\u8fd9\u4e9b\u89c4\u5219\u4fdd\u5b58\u5230\u54ea\u91cc\uff1f"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Select, {
             options: allOptions,
@@ -422,9 +422,9 @@ function PermissionRuleInput({
             bold: true,
             color: "permission",
             children: [
-              "Add ",
+              "\u6dfb\u52a0 ",
               ruleBehavior,
-              " permission rule"
+              " \u6743\u9650\u89c4\u5219"
             ]
           }, undefined, true, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedBox_default, {
@@ -432,9 +432,9 @@ function PermissionRuleInput({
             children: [
               /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                 children: [
-                  "Permission rules are a tool name, optionally followed by a specifier in parentheses.",
+                  "\u6743\u9650\u89c4\u5219\u4e3a\u5de5\u5177\u540d\uff0c\u53ef\u9009\u62ec\u53f7\u5185\u9650\u5b9a\u7b26\u3002",
                   /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(Newline, {}, undefined, false, undefined, this),
-                  "e.g.,",
+                  "\u4f8b\u5982\uff1a",
                   " ",
                   /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                     bold: true,
@@ -442,7 +442,7 @@ function PermissionRuleInput({
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                     bold: false,
-                    children: " or "
+                    children: " \u6216 "
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
                     bold: true,
@@ -478,13 +478,13 @@ function PermissionRuleInput({
         children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            "Press ",
+            "\u6309 ",
             exitState.keyName,
-            " again to exit"
+            " \u518d\u6b21\u9000\u51fa"
           ]
         }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Enter to submit \xB7 Esc to cancel"
+          children: "Enter \u63d0\u4ea4 \u00b7 Esc \u53d6\u6d88"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this)
     ]
@@ -557,12 +557,12 @@ function RecentDenialsTab({
   if (denials.length === 0) {
     return /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
       dimColor: true,
-      children: "No recent denials. Commands denied by the auto mode classifier will appear here."
+      children: "\u6682\u65e0\u6700\u8fd1\u62d2\u7edd\u8bb0\u5f55\u3002\u81ea\u52a8\u6a21\u5f0f\u5206\u7c7b\u5668\u62d2\u7edd\u7684\u547d\u4ee4\u5c06\u663e\u793a\u5728\u6b64\u5904\u3002"
     }, undefined, false, undefined, this);
   }
   const options = denials.map((d, idx) => {
     const isApproved = approved.has(idx);
-    const suffix = retry.has(idx) ? " (retry)" : "";
+    const suffix = retry.has(idx) ? " \uff08\u91cd\u8bd5\uff09" : "";
     return {
       label: /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
         children: [
@@ -584,7 +584,7 @@ function RecentDenialsTab({
     flexDirection: "column",
     children: [
       /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
-        children: "Commands recently denied by the auto mode classifier."
+        children: "\u6700\u8fd1\u88ab\u81ea\u52a8\u6a21\u5f0f\u5206\u7c7b\u5668\u62d2\u7edd\u7684\u547d\u4ee4\u3002"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedBox_default, {
         marginTop: 1,
@@ -635,7 +635,7 @@ function RemoveWorkspaceDirectory({
     }
   }, [handleRemove, onCancel]);
   return /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(Dialog, {
-    title: "Remove directory from workspace?",
+    title: "\u4ece\u5de5\u4f5c\u533a\u79fb\u9664\u76ee\u5f55\uff1f",
     onCancel,
     color: "error",
     children: [
@@ -648,14 +648,14 @@ function RemoveWorkspaceDirectory({
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
-        children: "Claude Code will no longer have access to files in this directory."
+        children: "Claude Code \u5c06\u65e0\u6cd5\u518d\u8bbf\u95ee\u6b64\u76ee\u5f55\u4e2d\u7684\u6587\u4ef6\u3002"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(Select, {
         onChange: handleSelect,
         onCancel,
         options: [
-          { label: "Yes", value: "yes" },
-          { label: "No", value: "no" }
+          { label: "\u662f", value: "yes" },
+          { label: "\u5426", value: "no" }
         ]
       }, undefined, false, undefined, this)
     ]
@@ -700,14 +700,14 @@ function WorkspaceTab({
       onRequestRemoveDirectory(directory.path);
     }
   }, [additionalDirectories, onRequestAddDirectory, onRequestRemoveDirectory]);
-  const handleCancel = import_react5.useCallback(() => onExit("Workspace dialog dismissed", { display: "system" }), [onExit]);
+  const handleCancel = import_react5.useCallback(() => onExit("\u5df2\u5173\u95ed\u5de5\u4f5c\u533a\u5bf9\u8bdd\u6846", { display: "system" }), [onExit]);
   const options = React.useMemo(() => {
     const opts = additionalDirectories.map((dir) => ({
       label: dir.path,
       value: dir.path
     }));
     opts.push({
-      label: `Add directory${figures_default.ellipsis}`,
+      label: `\u6dfb\u52a0\u76ee\u5f55${figures_default.ellipsis}`,
       value: "add-directory"
     });
     return opts;
@@ -727,7 +727,7 @@ function WorkspaceTab({
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "(Original working directory)"
+            children: "\uff08\u539f\u59cb\u5de5\u4f5c\u76ee\u5f55\uff09"
           }, undefined, false, undefined, this)
         ]
       }, undefined, true, undefined, this),
@@ -757,17 +757,17 @@ var init_WorkspaceTab = __esm(() => {
 function RuleSourceText({ rule }) {
   return /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
     dimColor: true,
-    children: `From ${permissionRuleSourceDisplayString(rule.source)}`
+    children: `\u6765\u81ea ${permissionRuleSourceDisplayString(rule.source)}`
   }, undefined, false, undefined, this);
 }
 function getRuleBehaviorLabel(ruleBehavior) {
   switch (ruleBehavior) {
     case "allow":
-      return "allowed";
+      return "\u5df2\u5141\u8bb8";
     case "deny":
-      return "denied";
+      return "\u5df2\u62d2\u7edd";
     case "ask":
-      return "ask";
+      return "\u8be2\u95ee";
   }
 }
 function RuleDetails({
@@ -798,13 +798,13 @@ function RuleDetails({
     children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
       dimColor: true,
       children: [
-        "Press ",
+        "\u518d\u6309 ",
         exitState.keyName,
-        " again to exit"
+        " \u9000\u51fa"
       ]
     }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
       dimColor: true,
-      children: "Esc to cancel"
+      children: "Esc \u53d6\u6d88"
     }, undefined, false, undefined, this)
   }, undefined, false, undefined, this);
   if (rule.source === "policySettings") {
@@ -821,16 +821,16 @@ function RuleDetails({
             /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
               bold: true,
               color: "permission",
-              children: "Rule details"
+              children: "\u89c4\u5219\u8be6\u60c5"
             }, undefined, false, undefined, this),
             ruleDescription,
             /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
               italic: true,
               children: [
-                "This rule is configured by managed settings and cannot be modified.",
+                "\u6b64\u89c4\u5219\u7531\u6258\u7ba1\u8bbe\u7f6e\u914d\u7f6e\uff0c\u65e0\u6cd5\u4fee\u6539\u3002",
                 `
 `,
-                "Contact your system administrator for more information."
+                "\u8bf7\u8054\u7cfb\u7cfb\u7edf\u7ba1\u7406\u5458\u4e86\u89e3\u66f4\u591a\u4fe1\u606f\u3002"
               ]
             }, undefined, true, undefined, this)
           ]
@@ -853,21 +853,21 @@ function RuleDetails({
             bold: true,
             color: "error",
             children: [
-              "Delete ",
+              "\u5220\u9664 ",
               getRuleBehaviorLabel(rule.ruleBehavior),
-              " tool?"
+              " \u5de5\u5177\uff1f"
             ]
           }, undefined, true, undefined, this),
           ruleDescription,
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
-            children: "Are you sure you want to delete this permission rule?"
+            children: "\u786e\u5b9a\u8981\u5220\u9664\u6b64\u6743\u9650\u89c4\u5219\uff1f"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Select, {
             onChange: (_) => _ === "yes" ? onDelete() : onCancel(),
             onCancel,
             options: [
-              { label: "Yes", value: "yes" },
-              { label: "No", value: "no" }
+              { label: "\u662f", value: "yes" },
+              { label: "\u5426", value: "no" }
             ]
           }, undefined, false, undefined, this)
         ]
@@ -1272,7 +1272,7 @@ function PermissionRuleList({
       color: "permission",
       children: [
         /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Tabs, {
-          title: "Permissions:",
+          title: "\u6743\u9650\uff1a",
           color: "permission",
           defaultTab,
           hidden: isHidden,
@@ -1281,7 +1281,7 @@ function PermissionRuleList({
           children: [
             /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Tab, {
               id: "recent",
-              title: "Recently denied",
+              title: "\u6700\u8fd1\u62d2\u7edd",
               children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(RecentDenialsTab, {
                 onHeaderFocusChange: handleHeaderFocusChange,
                 onStateChange: handleDenialStateChange
@@ -1289,7 +1289,7 @@ function PermissionRuleList({
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Tab, {
               id: "allow",
-              title: "Allow",
+              title: "\u5141\u8bb8",
               children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(PermissionRulesTab, {
                 tab: "allow",
                 ...sharedRulesProps
@@ -1297,7 +1297,7 @@ function PermissionRuleList({
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Tab, {
               id: "ask",
-              title: "Ask",
+              title: "\u8be2\u95ee",
               children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(PermissionRulesTab, {
                 tab: "ask",
                 ...sharedRulesProps
@@ -1305,7 +1305,7 @@ function PermissionRuleList({
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Tab, {
               id: "deny",
-              title: "Deny",
+              title: "\u62d2\u7edd",
               children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(PermissionRulesTab, {
                 tab: "deny",
                 ...sharedRulesProps
@@ -1313,12 +1313,12 @@ function PermissionRuleList({
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(Tab, {
               id: "workspace",
-              title: "Workspace",
+              title: "\u5de5\u4f5c\u533a",
               children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedBox_default, {
                 flexDirection: "column",
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
-                    children: "Claude Code can read files in the workspace, and make edits when auto-accept edits is on."
+                    children: "Claude Code \u53ef\u8bfb\u53d6\u5de5\u4f5c\u533a\u6587\u4ef6\uff0c\u5f00\u542f\u81ea\u52a8\u63a5\u53d7\u7f16\u8f91\u65f6\u53ef\u8fdb\u884c\u4fee\u6539\u3002"
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(WorkspaceTab, {
                     onExit,
@@ -1339,18 +1339,18 @@ function PermissionRuleList({
             dimColor: true,
             children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(jsx_dev_runtime7.Fragment, {
               children: [
-                "Press ",
+                "\u6309 ",
                 exitState.keyName,
-                " again to exit"
+                " \u518d\u6b21\u9000\u51fa"
               ]
             }, undefined, true, undefined, this) : headerFocused ? /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(jsx_dev_runtime7.Fragment, {
-              children: "\u2190/\u2192 tab switch \xB7 \u2193 return \xB7 Esc cancel"
+              children: "\u2190/\u2192 \u5207\u6362\u6807\u7b7e \xB7 \u2193 \u8fd4\u56de \xB7 Esc \u53d6\u6d88"
             }, undefined, false, undefined, this) : isSearchMode ? /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(jsx_dev_runtime7.Fragment, {
-              children: "Type to filter \xB7 Enter/\u2193 select \xB7 \u2191 tabs \xB7 Esc clear"
+              children: "\u8f93\u5165\u8fc7\u6ee4 \xB7 Enter/\u2193 \u9009\u62e9 \xB7 \u2191 \u6807\u7b7e \xB7 Esc \u6e05\u9664"
             }, undefined, false, undefined, this) : hasDenials && defaultTab === "recent" ? /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(jsx_dev_runtime7.Fragment, {
-              children: "Enter approve \xB7 r retry \xB7 \u2191\u2193 navigate \xB7 \u2190/\u2192 switch \xB7 Esc cancel"
+              children: "Enter \u6279\u51c6 \xB7 r \u91cd\u8bd5 \xB7 \u2191\u2193 \u5bfc\u822a \xB7 \u2190/\u2192 \u5207\u6362 \xB7 Esc \u53d6\u6d88"
             }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(jsx_dev_runtime7.Fragment, {
-              children: "\u2191\u2193 navigate \xB7 Enter select \xB7 Type to search \xB7 \u2190/\u2192 switch \xB7 Esc cancel"
+              children: "\u2191\u2193 \u5bfc\u822a \xB7 Enter \u9009\u62e9 \xB7 \u8f93\u5165\u641c\u7d22 \xB7 \u2190/\u2192 \u5207\u6362 \xB7 Esc \u53d6\u6d88"
             }, undefined, false, undefined, this)
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this)

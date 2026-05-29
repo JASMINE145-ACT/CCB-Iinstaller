@@ -242,7 +242,7 @@ function MCPAgentServerMenu({
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           color: "claude",
           children: [
-            "Authenticating with ",
+            "\u6b63\u5728\u4e0e ",
             agentServer.name,
             "\u2026"
           ]
@@ -251,7 +251,7 @@ function MCPAgentServerMenu({
           children: [
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Spinner, {}, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-              children: " A browser window will open for authentication"
+              children: " \u5c06\u6253\u5f00\u6d4f\u89c8\u5668\u7a97\u53e3\u8fdb\u884c\u8ba4\u8bc1"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
@@ -260,7 +260,7 @@ function MCPAgentServerMenu({
           children: [
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "If your browser doesn't open automatically, copy this URL manually:"
+              children: "\u82e5\u6d4f\u89c8\u5668\u672a\u81ea\u52a8\u6253\u5f00\uff0c\u8bf7\u624b\u52a8\u590d\u5236\u6b64 URL\uff1a"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Link, {
               url: authorizationUrl
@@ -272,13 +272,13 @@ function MCPAgentServerMenu({
           children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Return here after authenticating in your browser.",
+              "\u8ba4\u8bc1\u540e\u8bf7\u8fd4\u56de\u6b64\u5904\u3002",
               " ",
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "go back"
+                description: "\u8fd4\u56de"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -289,39 +289,39 @@ function MCPAgentServerMenu({
   const menuOptions = [];
   if (agentServer.needsAuth) {
     menuOptions.push({
-      label: agentServer.isAuthenticated ? "Re-authenticate" : "Authenticate",
+      label: agentServer.isAuthenticated ? "\u91cd\u65b0\u8ba4\u8bc1" : "\u8ba4\u8bc1",
       value: "auth"
     });
   }
   menuOptions.push({
-    label: "Back",
+    label: "\u8fd4\u56de",
     value: "back"
   });
   return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Dialog, {
     title: `${capitalizedServerName} MCP Server`,
-    subtitle: "agent-only",
+    subtitle: "agent \u4e13\u7528",
     onCancel,
     inputGuide: (exitState) => exitState.pending ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
       children: [
-        "Press ",
+        "\u6309 ",
         exitState.keyName,
-        " again to exit"
+        " \u518d\u6b21\u9000\u51fa"
       ]
     }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Byline, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
           shortcut: "\u2191\u2193",
-          action: "navigate"
+          action: "\u5bfc\u822a"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
           shortcut: "Enter",
-          action: "confirm"
+          action: "\u786e\u8ba4"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
           action: "confirm:no",
           context: "Confirmation",
           fallback: "Esc",
-          description: "go back"
+          description: "\u8fd4\u56de"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this),
@@ -334,7 +334,7 @@ function MCPAgentServerMenu({
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 bold: true,
-                children: "Type: "
+                children: "\u7c7b\u578b\uff1a "
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 dimColor: true,
@@ -346,7 +346,7 @@ function MCPAgentServerMenu({
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 bold: true,
-                children: "URL: "
+                children: "URL\uff1a "
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 dimColor: true,
@@ -358,7 +358,7 @@ function MCPAgentServerMenu({
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 bold: true,
-                children: "Command: "
+                children: "\u547d\u4ee4\uff1a "
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 dimColor: true,
@@ -370,7 +370,7 @@ function MCPAgentServerMenu({
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 bold: true,
-                children: "Used by: "
+                children: "\u4f7f\u7528\u8005\uff1a "
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 dimColor: true,
@@ -383,12 +383,12 @@ function MCPAgentServerMenu({
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 bold: true,
-                children: "Status: "
+                children: "\u72b6\u6001\uff1a "
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 children: [
                   color("inactive", theme)(figures_default.radioOff),
-                  " not connected (agent-only)"
+                  " \u672a\u8fde\u63a5\uff08agent \u4e13\u7528\uff09"
                 ]
               }, undefined, true, undefined, this)
             ]
@@ -397,17 +397,17 @@ function MCPAgentServerMenu({
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 bold: true,
-                children: "Auth: "
+                children: "\u8ba4\u8bc1\uff1a "
               }, undefined, false, undefined, this),
               agentServer.isAuthenticated ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 children: [
                   color("success", theme)(figures_default.tick),
-                  " authenticated"
+                  " \u5df2\u8ba4\u8bc1"
                 ]
               }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 children: [
                   color("warning", theme)(figures_default.triangleUpOutline),
-                  " may need authentication"
+                  " \u53ef\u80fd\u9700\u8981\u8ba4\u8bc1"
                 ]
               }, undefined, true, undefined, this)
             ]
@@ -417,14 +417,14 @@ function MCPAgentServerMenu({
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
         children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "This server connects only when running the agent."
+          children: "\u6b64\u670d\u52a1\u5668\u4ec5\u5728\u8fd0\u884c agent \u65f6\u8fde\u63a5\u3002"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       error && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
         children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           color: "error",
           children: [
-            "Error: ",
+            "\u9519\u8bef\uff1a ",
             error
           ]
         }, undefined, true, undefined, this)
@@ -467,15 +467,15 @@ var init_MCPAgentServerMenu = __esm(() => {
 function getScopeHeading(scope) {
   switch (scope) {
     case "project":
-      return { label: "Project MCPs", path: describeMcpConfigFilePath(scope) };
+      return { label: "\u9879\u76ee MCP", path: describeMcpConfigFilePath(scope) };
     case "user":
-      return { label: "User MCPs", path: describeMcpConfigFilePath(scope) };
+      return { label: "\u7528\u6237 MCP", path: describeMcpConfigFilePath(scope) };
     case "local":
-      return { label: "Local MCPs", path: describeMcpConfigFilePath(scope) };
+      return { label: "\u672c\u5730 MCP", path: describeMcpConfigFilePath(scope) };
     case "enterprise":
-      return { label: "Enterprise MCPs" };
+      return { label: "\u4f01\u4e1a MCP" };
     case "dynamic":
-      return { label: "Built-in MCPs", path: "always available" };
+      return { label: "\u5185\u7f6e MCP", path: "\u59cb\u7ec8\u53ef\u7528" };
     default:
       return { label: scope };
   }
@@ -530,7 +530,7 @@ function MCPListPanel({
     return items;
   }, [serversByScope, claudeAiServers, agentServers, dynamicServers]);
   const handleCancel = import_react2.useCallback(() => {
-    onComplete("MCP dialog dismissed", {
+    onComplete("MCP \u5bf9\u8bdd\u6846\u5df2\u5173\u95ed", {
       display: "system"
     });
   }, [onComplete]);
@@ -568,24 +568,24 @@ function MCPListPanel({
     let statusText = "";
     if (server.client.type === "disabled") {
       statusIcon = color("inactive", theme)(figures_default.radioOff);
-      statusText = "disabled";
+      statusText = "\u5df2\u7981\u7528";
     } else if (server.client.type === "connected") {
       statusIcon = color("success", theme)(figures_default.tick);
-      statusText = "connected";
+      statusText = "\u5df2\u8fde\u63a5";
     } else if (server.client.type === "pending") {
       statusIcon = color("inactive", theme)(figures_default.radioOff);
       const { reconnectAttempt, maxReconnectAttempts } = server.client;
       if (reconnectAttempt && maxReconnectAttempts) {
-        statusText = `reconnecting (${reconnectAttempt}/${maxReconnectAttempts})\u2026`;
+        statusText = `\u91cd\u8fde\u4e2d (${reconnectAttempt}/${maxReconnectAttempts})\u2026`;
       } else {
-        statusText = "connecting\u2026";
+        statusText = "\u8fde\u63a5\u4e2d\u2026";
       }
     } else if (server.client.type === "needs-auth") {
       statusIcon = color("warning", theme)(figures_default.triangleUpOutline);
-      statusText = "needs authentication";
+      statusText = "\u9700\u8981\u8ba4\u8bc1";
     } else {
       statusIcon = color("error", theme)(figures_default.cross);
-      statusText = "failed";
+      statusText = "\u5931\u8d25";
     }
     return /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
       children: [
@@ -616,7 +616,7 @@ function MCPListPanel({
     const index = getAgentServerIndex(agentServer);
     const isSelected = selectedIndex === index;
     const statusIcon = agentServer.needsAuth ? color("warning", theme)(figures_default.triangleUpOutline) : color("inactive", theme)(figures_default.radioOff);
-    const statusText = agentServer.needsAuth ? "may need auth" : "agent-only";
+    const statusText = agentServer.needsAuth ? "\u53ef\u80fd\u9700\u8981\u8ba4\u8bc1" : "agent \u4e13\u7528";
     return /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
@@ -648,8 +648,8 @@ function MCPListPanel({
     children: [
       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(McpParsingWarnings, {}, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Dialog, {
-        title: "Manage MCP servers",
-        subtitle: `${totalServers} ${plural(totalServers, "server")}`,
+        title: "\u7ba1\u7406 MCP \u670d\u52a1\u5668",
+        subtitle: `\u5171 ${totalServers} \u4e2a\u670d\u52a1\u5668`,
         onCancel: handleCancel,
         hideInputGuide: true,
         children: /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
@@ -707,7 +707,7 @@ function MCPListPanel({
                   paddingLeft: 2,
                   children: /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "Agent MCPs"
+                    children: "Agent MCP"
                   }, undefined, false, undefined, this)
                 }, undefined, false, undefined, this),
                 [...new Set(agentServers.flatMap((s) => s.sourceAgents))].map((agentName) => /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
@@ -768,7 +768,7 @@ function MCPListPanel({
                       children: "https://code.claude.com/docs/en/mcp"
                     }, undefined, false, undefined, this),
                     " ",
-                    "for help"
+                    "\u83b7\u53d6\u5e2e\u52a9"
                   ]
                 }, undefined, true, undefined, this)
               ]
@@ -785,17 +785,17 @@ function MCPListPanel({
             children: [
               /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "\u2191\u2193",
-                action: "navigate"
+                action: "\u5bfc\u822a"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "confirm"
+                action: "\u786e\u8ba4"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -837,33 +837,33 @@ function MCPReconnect({
         if (!server) {
           setError(`MCP server "${serverName}" not found`);
           setIsReconnecting(false);
-          onComplete(`MCP server "${serverName}" not found`);
+          onComplete(`\u672a\u627e\u5230 MCP \u670d\u52a1\u5668 "${serverName}"`);
           return;
         }
         const result = await reconnectMcpServer(serverName);
         switch (result.client.type) {
           case "connected":
             setIsReconnecting(false);
-            onComplete(`Successfully reconnected to ${serverName}`);
+            onComplete(`\u5df2\u6210\u529f\u91cd\u8fde ${serverName}`);
             break;
           case "needs-auth":
             setError(`${serverName} requires authentication`);
             setIsReconnecting(false);
-            onComplete(`${serverName} requires authentication. Use /mcp to authenticate.`);
+            onComplete(`${serverName} \u9700\u8981\u8ba4\u8bc1\u3002\u4f7f\u7528 /mcp \u8fdb\u884c\u8ba4\u8bc1\u3002`);
             break;
           case "pending":
           case "failed":
           case "disabled":
             setError(`Failed to reconnect to ${serverName}`);
             setIsReconnecting(false);
-            onComplete(`Failed to reconnect to ${serverName}`);
+            onComplete(`\u91cd\u8fde ${serverName} \u5931\u8d25`);
             break;
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : String(err);
         setError(errorMessage);
         setIsReconnecting(false);
-        onComplete(`Error: ${errorMessage}`);
+        onComplete(`\u9519\u8bef\uff1a${errorMessage}`);
       }
     }
     attemptReconnect();
@@ -877,7 +877,7 @@ function MCPReconnect({
         /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
           color: "text",
           children: [
-            "Reconnecting to ",
+            "\u6b63\u5728\u91cd\u8fde ",
             /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
               bold: true,
               children: serverName
@@ -888,7 +888,7 @@ function MCPReconnect({
           children: [
             /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(Spinner, {}, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
-              children: " Establishing connection to MCP server"
+              children: " \u6b63\u5728\u8fde\u63a5 MCP \u670d\u52a1\u5668"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this)
@@ -912,7 +912,7 @@ function MCPReconnect({
             /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
               color: "error",
               children: [
-                "Failed to reconnect to ",
+                "\u91cd\u8fde\u5931\u8d25 ",
                 serverName
               ]
             }, undefined, true, undefined, this)
@@ -921,7 +921,7 @@ function MCPReconnect({
         /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            "Error: ",
+            "\u9519\u8bef\uff1a ",
             error
           ]
         }, undefined, true, undefined, this)
@@ -1016,7 +1016,7 @@ function MCPSettings({ onComplete }) {
       return;
     }
     if (servers.length === 0 && agentMcpServers.length === 0) {
-      onComplete("No MCP servers configured. Please run /doctor if this is unexpected. Otherwise, run `claude mcp --help` or visit https://code.claude.com/docs/en/mcp to learn more.");
+      onComplete("\u672a\u914d\u7f6e MCP \u670d\u52a1\u5668\u3002\u82e5\u610f\u5916\u8bf7\u8fd0\u884c /doctor\u3002\u5426\u5219\u8fd0\u884c `claude mcp --help` \u6216\u8bbf\u95ee https://code.claude.com/docs/en/mcp \u4e86\u89e3\u66f4\u591a\u3002");
     }
   }, [
     servers.length,
@@ -1131,13 +1131,13 @@ function MCPToggle({
     const clients = mcpClients.filter((c) => c.name !== "ide");
     const toToggle = target === "all" ? clients.filter((c) => isEnabling ? c.type === "disabled" : c.type !== "disabled") : clients.filter((c) => c.name === target);
     if (toToggle.length === 0) {
-      onComplete(target === "all" ? `All MCP servers are already ${isEnabling ? "enabled" : "disabled"}` : `MCP server "${target}" not found`);
+      onComplete(target === "all" ? `\u6240\u6709 MCP \u670d\u52a1\u5668\u5df2${isEnabling ? "\u542f\u7528" : "\u7981\u7528"}` : `\u672a\u627e\u5230 MCP \u670d\u52a1\u5668 "${target}"`);
       return;
     }
     for (const s of toToggle) {
       toggleMcpServer(s.name);
     }
-    onComplete(target === "all" ? `${isEnabling ? "Enabled" : "Disabled"} ${toToggle.length} MCP server(s)` : `MCP server "${target}" ${isEnabling ? "enabled" : "disabled"}`);
+    onComplete(target === "all" ? `${isEnabling ? "\u5df2\u542f\u7528" : "\u5df2\u7981\u7528"} ${toToggle.length} \u4e2a MCP \u670d\u52a1\u5668` : `MCP \u670d\u52a1\u5668 "${target}" \u5df2${isEnabling ? "\u542f\u7528" : "\u7981\u7528"}`);
   }, [action, target, mcpClients, toggleMcpServer, onComplete]);
   return null;
 }

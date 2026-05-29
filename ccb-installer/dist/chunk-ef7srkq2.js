@@ -172,8 +172,8 @@ function checkNearCapacity(data, suggestions) {
   if (data.percentage >= NEAR_CAPACITY_PERCENT) {
     suggestions.push({
       severity: "warning",
-      title: `Context is ${data.percentage}% full`,
-      detail: data.isAutoCompactEnabled ? "Autocompact will trigger soon, which discards older messages. Use /compact now to control what gets kept." : "Autocompact is disabled. Use /compact to free space, or enable autocompact in /config."
+      title: `\u4e0a\u4e0b\u6587\u5df2\u4f7f\u7528 ${data.percentage}%`,
+      detail: data.isAutoCompactEnabled ? "\u5373\u5c06\u89e6\u53d1\u81ea\u52a8\u538b\u7f29\uff0c\u65e7\u6d88\u606f\u5c06\u88ab\u820d\u5f03\u3002\u73b0\u5728\u8fd0\u884c /compact \u53ef\u63a7\u5236\u4fdd\u7559\u5185\u5bb9\u3002" : "\u5df2\u7981\u7528\u81ea\u52a8\u538b\u7f29\u3002\u8fd0\u884c /compact \u91ca\u653e\u7a7a\u95f4\uff0c\u6216\u5728 /config \u4e2d\u542f\u7528\u3002"
     });
   }
 }
@@ -198,37 +198,37 @@ function getLargeToolSuggestion(toolName, tokens, percent) {
     case BASH_TOOL_NAME:
       return {
         severity: "warning",
-        title: `Bash results using ${tokenStr} tokens (${percent.toFixed(0)}%)`,
-        detail: "Pipe output through head, tail, or grep to reduce result size. Avoid cat on large files \u2014 use Read with offset/limit instead.",
+        title: `Bash \u7ed3\u679c\u5360\u7528 ${tokenStr} tokens\uff08${percent.toFixed(0)}%\uff09`,
+        detail: "\u7528 head\u3001tail \u6216 grep \u8fc7\u6ee4\u8f93\u51fa\u4ee5\u51cf\u5c0f\u7ed3\u679c\u3002\u5927\u6587\u4ef6\u52ff\u7528 cat\uff0c\u6539\u7528 Read \u7684 offset/limit\u3002",
         savingsTokens: Math.floor(tokens * 0.5)
       };
     case FILE_READ_TOOL_NAME:
       return {
         severity: "info",
-        title: `Read results using ${tokenStr} tokens (${percent.toFixed(0)}%)`,
-        detail: "Use offset and limit parameters to read only the sections you need. Avoid re-reading entire files when you only need a few lines.",
+        title: `\u8bfb\u53d6\u7ed3\u679c\u5360\u7528 ${tokenStr} tokens\uff08${percent.toFixed(0)}%\uff09`,
+        detail: "\u4f7f\u7528 offset \u548c limit \u53ea\u8bfb\u53d6\u6240\u9700\u90e8\u5206\u3002\u53ea\u9700\u51e0\u884c\u65f6\u52ff\u91cd\u590d\u8bfb\u6574\u4e2a\u6587\u4ef6\u3002",
         savingsTokens: Math.floor(tokens * 0.3)
       };
     case GREP_TOOL_NAME:
       return {
         severity: "info",
-        title: `Grep results using ${tokenStr} tokens (${percent.toFixed(0)}%)`,
-        detail: "Add more specific patterns or use the glob or type parameter to narrow file types. Consider Glob for file discovery instead of Grep.",
+        title: `Grep \u7ed3\u679c\u5360\u7528 ${tokenStr} tokens\uff08${percent.toFixed(0)}%\uff09`,
+        detail: "\u4f7f\u7528\u66f4\u5177\u4f53\u7684\u6a21\u5f0f\u6216 glob/type \u7f29\u5c0f\u8303\u56f4\u3002\u53d1\u73b0\u6587\u4ef6\u53ef\u4f18\u5148\u7528 Glob \u800c\u975e Grep\u3002",
         savingsTokens: Math.floor(tokens * 0.3)
       };
     case WEB_FETCH_TOOL_NAME:
       return {
         severity: "info",
-        title: `WebFetch results using ${tokenStr} tokens (${percent.toFixed(0)}%)`,
-        detail: "Web page content can be very large. Consider extracting only the specific information needed.",
+        title: `WebFetch \u7ed3\u679c\u5360\u7528 ${tokenStr} tokens\uff08${percent.toFixed(0)}%\uff09`,
+        detail: "\u7f51\u9875\u5185\u5bb9\u53ef\u80fd\u5f88\u5927\uff0c\u5c3d\u91cf\u53ea\u63d0\u53d6\u6240\u9700\u4fe1\u606f\u3002",
         savingsTokens: Math.floor(tokens * 0.4)
       };
     default:
       if (percent >= 20) {
         return {
           severity: "info",
-          title: `${toolName} using ${tokenStr} tokens (${percent.toFixed(0)}%)`,
-          detail: `This tool is consuming a significant portion of context.`,
+          title: `${toolName} \u5360\u7528 ${tokenStr} tokens\uff08${percent.toFixed(0)}%\uff09`,
+          detail: `\u6b64\u5de5\u5177\u5360\u7528\u4e86\u8f83\u591a\u4e0a\u4e0b\u6587\u3002`,
           savingsTokens: Math.floor(tokens * 0.2)
         };
       }
@@ -251,8 +251,8 @@ function checkReadResultBloat(data, suggestions) {
   if (readPercent >= READ_BLOAT_PERCENT && readTool.resultTokens >= LARGE_TOOL_RESULT_TOKENS) {
     suggestions.push({
       severity: "info",
-      title: `File reads using ${formatTokens(readTool.resultTokens)} tokens (${readPercent.toFixed(0)}%)`,
-      detail: "If you are re-reading files, consider referencing earlier reads. Use offset/limit for large files.",
+      title: `\u6587\u4ef6\u8bfb\u53d6\u5360\u7528 ${formatTokens(readTool.resultTokens)} tokens\uff08${readPercent.toFixed(0)}%\uff09`,
+      detail: "\u82e5\u91cd\u590d\u8bfb\u6587\u4ef6\uff0c\u53ef\u5f15\u7528\u65e9\u5148\u7684\u8bfb\u53d6\u7ed3\u679c\u3002\u5927\u6587\u4ef6\u8bf7\u7528 offset/limit\u3002",
       savingsTokens: Math.floor(readTool.resultTokens * 0.3)
     });
   }
@@ -267,8 +267,8 @@ function checkMemoryBloat(data, suggestions) {
     }).join(", ");
     suggestions.push({
       severity: "info",
-      title: `Memory files using ${formatTokens(totalMemoryTokens)} tokens (${memoryPercent.toFixed(0)}%)`,
-      detail: `Largest: ${largestFiles}. Use /memory to review and prune stale entries.`,
+      title: `\u8bb0\u5fc6\u6587\u4ef6\u5360\u7528 ${formatTokens(totalMemoryTokens)} tokens\uff08${memoryPercent.toFixed(0)}%\uff09`,
+      detail: `\u6700\u5927\uff1a${largestFiles}\u3002\u4f7f\u7528 /memory \u67e5\u770b\u5e76\u6e05\u7406\u8fc7\u671f\u6761\u76ee\u3002`,
       savingsTokens: Math.floor(totalMemoryTokens * 0.3)
     });
   }
@@ -277,8 +277,8 @@ function checkAutoCompactDisabled(data, suggestions) {
   if (!data.isAutoCompactEnabled && data.percentage >= 50 && data.percentage < NEAR_CAPACITY_PERCENT) {
     suggestions.push({
       severity: "info",
-      title: "Autocompact is disabled",
-      detail: "Without autocompact, you will hit context limits and lose the conversation. Enable it in /config or use /compact manually."
+      title: "\u5df2\u7981\u7528\u81ea\u52a8\u538b\u7f29",
+      detail: "\u672a\u542f\u7528\u81ea\u52a8\u538b\u7f29\u65f6\u4f1a\u89e6\u53bb\u4e0a\u9650\u5e76\u4e22\u5931\u5bf9\u8bdd\u3002\u5728 /config \u4e2d\u542f\u7528\u6216\u624b\u52a8\u8fd0\u884c /compact\u3002"
     });
   }
 }
@@ -302,7 +302,7 @@ function ContextSuggestions({ suggestions }) {
     children: [
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
         bold: true,
-        children: "Suggestions"
+        children: "\u5efa\u8bae"
       }, undefined, false, undefined, this),
       suggestions.map((suggestion, i) => /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
         flexDirection: "column",
@@ -323,7 +323,7 @@ function ContextSuggestions({ suggestions }) {
                 children: [
                   " ",
                   figures_default.arrowRight,
-                  " save ~",
+                  " \u7ea6\u53ef\u8282\u7701 ~",
                   formatTokens(suggestion.savingsTokens)
                 ]
               }, undefined, true, undefined, this) : null
@@ -450,7 +450,7 @@ function ContextVisualization({ data }) {
     children: [
       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
         bold: true,
-        children: "Context Usage"
+        children: "\u4e0a\u4e0b\u6587\u7528\u91cf"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
         flexDirection: "row",
@@ -508,7 +508,7 @@ function ContextVisualization({ data }) {
               /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                 dimColor: true,
                 italic: true,
-                children: "Estimated usage by category"
+                children: "\u6309\u7c7b\u522b\u4f30\u7b97\u7528\u91cf"
               }, undefined, false, undefined, this),
               visibleCategories.map((cat, index) => {
                 const tokenDisplay = formatTokens(cat.tokens);
@@ -548,7 +548,7 @@ function ContextVisualization({ data }) {
                     children: "\u26F6"
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
-                    children: " Free space: "
+                    children: " \u5269\u4f59\u7a7a\u95f4\uff1a "
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -603,14 +603,14 @@ function ContextVisualization({ data }) {
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "MCP tools"
+                    children: "MCP \u5de5\u5177"
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     dimColor: true,
                     children: [
                       " ",
                       "\xB7 /mcp",
-                      hasDeferredMcpTools ? " (loaded on-demand)" : ""
+                      hasDeferredMcpTools ? " (\u6309\u9700\u52a0\u8f7d)" : ""
                     ]
                   }, undefined, true, undefined, this)
                 ]
@@ -621,7 +621,7 @@ function ContextVisualization({ data }) {
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     dimColor: true,
-                    children: "Loaded"
+                    children: "\u5df2\u52a0\u8f7d"
                   }, undefined, false, undefined, this),
                   mcpTools.filter((t) => t.isLoaded).map((tool, i) => /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
                     children: [
@@ -649,7 +649,7 @@ function ContextVisualization({ data }) {
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     dimColor: true,
-                    children: "Available"
+                    children: "\u53ef\u7528"
                   }, undefined, false, undefined, this),
                   mcpTools.filter((t) => !t.isLoaded).map((tool, i) => /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
                     children: /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
@@ -704,7 +704,7 @@ function ContextVisualization({ data }) {
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     dimColor: true,
-                    children: "Loaded"
+                    children: "\u5df2\u52a0\u8f7d"
                   }, undefined, false, undefined, this),
                   systemTools?.map((tool, i) => /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
                     children: [
@@ -750,7 +750,7 @@ function ContextVisualization({ data }) {
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     dimColor: true,
-                    children: "Available"
+                    children: "\u53ef\u7528"
                   }, undefined, false, undefined, this),
                   deferredBuiltinTools.filter((t) => !t.isLoaded).map((tool, i) => /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
                     children: /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
@@ -801,7 +801,7 @@ function ContextVisualization({ data }) {
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "Custom agents"
+                    children: "\u81ea\u5b9a\u4e49 agent"
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -847,7 +847,7 @@ function ContextVisualization({ data }) {
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "Memory files"
+                    children: "\u8bb0\u5fc6\u6587\u4ef6"
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -883,7 +883,7 @@ function ContextVisualization({ data }) {
                 children: [
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     bold: true,
-                    children: "Skills"
+                    children: "\u6280\u80fd"
                   }, undefined, false, undefined, this),
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                     dimColor: true,
@@ -936,7 +936,7 @@ function ContextVisualization({ data }) {
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
                     children: [
                       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
-                        children: "Tool calls: "
+                        children: "\u5de5\u5177\u8c03\u7528\uff1a "
                       }, undefined, false, undefined, this),
                       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                         dimColor: true,
@@ -950,7 +950,7 @@ function ContextVisualization({ data }) {
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
                     children: [
                       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
-                        children: "Tool results: "
+                        children: "\u5de5\u5177\u7ed3\u679c\uff1a "
                       }, undefined, false, undefined, this),
                       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                         dimColor: true,
@@ -964,7 +964,7 @@ function ContextVisualization({ data }) {
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
                     children: [
                       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
-                        children: "Attachments: "
+                        children: "\u9644\u4ef6\uff1a "
                       }, undefined, false, undefined, this),
                       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                         dimColor: true,
@@ -978,7 +978,7 @@ function ContextVisualization({ data }) {
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
                     children: [
                       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
-                        children: "Assistant messages (non-tool): "
+                        children: "\u52a9\u624b\u6d88\u606f\uff08\u975e\u5de5\u5177\uff09\uff1a "
                       }, undefined, false, undefined, this),
                       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                         dimColor: true,
@@ -992,7 +992,7 @@ function ContextVisualization({ data }) {
                   /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
                     children: [
                       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
-                        children: "User messages (non-tool-result): "
+                        children: "\u7528\u6237\u6d88\u606f\uff08\u975e\u5de5\u5177\u7ed3\u679c\uff09\uff1a "
                       }, undefined, false, undefined, this),
                       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                         dimColor: true,

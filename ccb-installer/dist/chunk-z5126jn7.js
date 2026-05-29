@@ -224,7 +224,7 @@ init_Spinner();
 init_TeleportError();
 var import_react2 = __toESM(require_react(), 1);
 var jsx_dev_runtime = __toESM(require_jsx_dev_runtime(), 1);
-var UPDATED_STRING = "Updated";
+var UPDATED_STRING = "\u66f4\u65b0";
 var SPACE_BETWEEN_TABLE_COLUMNS = "  ";
 function ResumeTask({
   onSelect,
@@ -312,13 +312,13 @@ function ResumeTask({
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Spinner, {}, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               bold: true,
-              children: "Loading Claude Code sessions\u2026"
+              children: "\u6b63\u5728\u52a0\u8f7d Claude Code \u4f1a\u8bdd\u2026"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
-          children: retrying ? "Retrying\u2026" : "Fetching your Claude Code sessions\u2026"
+          children: retrying ? "\u6b63\u5728\u91cd\u8bd5\u2026" : "\u6b63\u5728\u83b7\u53d6 Claude Code \u4f1a\u8bdd\u2026"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this);
@@ -331,24 +331,24 @@ function ResumeTask({
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           bold: true,
           color: "error",
-          children: "Error loading Claude Code sessions"
+          children: "\u52a0\u8f7d Claude Code \u4f1a\u8bdd\u5931\u8d25"
         }, undefined, false, undefined, this),
         renderErrorSpecificGuidance(loadErrorType),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            "Press ",
+            "\u6309 ",
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               bold: true,
               children: "Ctrl+R"
             }, undefined, false, undefined, this),
-            " to retry \xB7 Press",
+            " \u91cd\u8bd5 \xb7 \u6309",
             " ",
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               bold: true,
               children: escKey
             }, undefined, false, undefined, this),
-            " to cancel"
+            " \u53d6\u6d88"
           ]
         }, undefined, true, undefined, this)
       ]
@@ -362,11 +362,12 @@ function ResumeTask({
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           bold: true,
           children: [
-            "No Claude Code sessions found",
+            "\u672a\u627e\u5230 Claude Code \u4f1a\u8bdd",
             currentRepo && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               children: [
-                " for ",
-                currentRepo
+                " \uff08",
+                currentRepo,
+                "\uff09"
               ]
             }, undefined, true, undefined, this)
           ]
@@ -376,12 +377,12 @@ function ResumeTask({
           children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Press ",
+              "\u6309 ",
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 bold: true,
                 children: escKey
               }, undefined, false, undefined, this),
-              " to cancel"
+              " \u53d6\u6d88"
             ]
           }, undefined, true, undefined, this)
         }, undefined, false, undefined, this)
@@ -412,24 +413,24 @@ function ResumeTask({
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
         bold: true,
         children: [
-          "Select a session to resume",
+          "\u9009\u62e9\u8981\u6062\u590d\u7684\u4f1a\u8bdd",
           showScrollPosition && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
               " ",
-              "(",
+              "\uff08",
               focusedIndex,
-              " of ",
+              " / ",
               sessions.length,
-              ")"
+              "\uff09"
             ]
           }, undefined, true, undefined, this),
           currentRepo && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              " (",
+              " \uff08",
               currentRepo,
-              ")"
+              "\uff09"
             ]
           }, undefined, true, undefined, this),
           ":"
@@ -447,7 +448,7 @@ function ResumeTask({
               children: [
                 UPDATED_STRING.padEnd(maxTimeStringLength, " "),
                 SPACE_BETWEEN_TABLE_COLUMNS,
-                "Session Title"
+                "\u4f1a\u8bdd\u6807\u9898"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this),
@@ -477,17 +478,17 @@ function ResumeTask({
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "\u2191/\u2193",
-                action: "select"
+                action: "\u9009\u62e9"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "confirm"
+                action: "\u786e\u8ba4"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -517,7 +518,7 @@ function renderErrorSpecificGuidance(errorType) {
         flexDirection: "column",
         children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Check your internet connection"
+          children: "\u8bf7\u68c0\u67e5\u7f51\u7edc\u8fde\u63a5"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this);
     case "auth":
@@ -527,17 +528,17 @@ function renderErrorSpecificGuidance(errorType) {
         children: [
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Teleport requires a Claude account"
+            children: "Teleport \u9700\u8981 Claude \u8d26\u6237"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Run ",
+              "\u8fd0\u884c ",
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                 bold: true,
                 children: "/login"
               }, undefined, false, undefined, this),
-              ' and select "Claude account with subscription"'
+              ' \u5e76\u9009\u62e9\u201cClaude account with subscription\u201d'
             ]
           }, undefined, true, undefined, this)
         ]
@@ -548,7 +549,7 @@ function renderErrorSpecificGuidance(errorType) {
         flexDirection: "column",
         children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Sorry, Claude encountered an error"
+          children: "\u62b1\u6b49\uff0cClaude \u9047\u5230\u9519\u8bef"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this);
     case "other":
@@ -557,7 +558,7 @@ function renderErrorSpecificGuidance(errorType) {
         flexDirection: "row",
         children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Sorry, Claude Code encountered an error"
+          children: "\u62b1\u6b49\uff0cClaude Code \u9047\u5230\u9519\u8bef"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this);
   }
@@ -608,14 +609,14 @@ function TeleportResumeWrapper({
             /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Spinner, {}, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
               bold: true,
-              children: "Resuming session\u2026"
+              children: "\u6b63\u5728\u6062\u590d\u4f1a\u8bdd\u2026"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            'Loading "',
+            '\u6b63\u5728\u52a0\u8f7d\u201c',
             selectedSession.title,
             '"\u2026'
           ]
@@ -631,7 +632,7 @@ function TeleportResumeWrapper({
         /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
           bold: true,
           color: "error",
-          children: "Failed to resume session"
+          children: "\u6062\u590d\u4f1a\u8bdd\u5931\u8d25"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
           dimColor: true,
@@ -642,12 +643,12 @@ function TeleportResumeWrapper({
           children: /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Press ",
+              "\u6309 ",
               /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
                 bold: true,
                 children: "Esc"
               }, undefined, false, undefined, this),
-              " to cancel"
+              " \u53d6\u6d88"
             ]
           }, undefined, true, undefined, this)
         }, undefined, false, undefined, this)

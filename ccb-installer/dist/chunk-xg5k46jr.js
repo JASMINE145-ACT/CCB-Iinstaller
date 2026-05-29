@@ -1598,7 +1598,7 @@ var init_add_dir = __esm(() => {
   addDir = {
     type: "local-jsx",
     name: "add-dir",
-    description: "Add a new working directory",
+    description: "\u6dfb\u52a0\u65b0\u7684\u5de5\u4f5c\u76ee\u5f55",
     argumentHint: "<path>",
     load: () => import("./chunk-xbvyhzf4.js")
   };
@@ -1623,7 +1623,7 @@ var init_btw = __esm(() => {
   btw = {
     type: "local-jsx",
     name: "btw",
-    description: "Ask a quick side question without interrupting the main conversation",
+    description: "\u5feb\u901f\u63d0\u95ee\uff0c\u4e0d\u6253\u65ad\u4e3b\u5bf9\u8bdd",
     immediate: true,
     argumentHint: "<question>",
     load: () => import("./chunk-wxzqze7x.js")
@@ -94090,7 +94090,7 @@ function getAgentModelOptions() {
     {
       value: "haiku",
       label: "Haiku",
-      description: "Fast and efficient for simple tasks"
+      description: "Fast and efficient \u9002\u5408\u7b80\u5355\u4efb\u52a1"
     },
     {
       value: "inherit",
@@ -125351,7 +125351,7 @@ var init_extra_usage = __esm(() => {
   extraUsage = {
     type: "local-jsx",
     name: "extra-usage",
-    description: "Configure extra usage to keep working when limits are hit",
+    description: "\u914d\u7f6e\u989d\u5916\u7528\u91cf\uff0c\u5728\u8fbe\u5230\u9650\u5236\u540e\u7ee7\u7eed\u5de5\u4f5c",
     isEnabled: () => isExtraUsageAllowed() && !getIsNonInteractiveSession(),
     load: () => import("./chunk-ge7yk5aj.js")
   };
@@ -125359,7 +125359,7 @@ var init_extra_usage = __esm(() => {
     type: "local",
     name: "extra-usage",
     supportsNonInteractive: true,
-    description: "Configure extra usage to keep working when limits are hit",
+    description: "\u914d\u7f6e\u989d\u5916\u7528\u91cf\uff0c\u5728\u8fbe\u5230\u9650\u5236\u540e\u7ee7\u7eed\u5de5\u4f5c",
     isEnabled: () => isExtraUsageAllowed() && getIsNonInteractiveSession(),
     get isHidden() {
       return !getIsNonInteractiveSession();
@@ -137643,7 +137643,7 @@ function getEnterPlanModeToolPromptExternal() {
 
 ## When NOT to Use This Tool
 
-Only skip EnterPlanMode for simple tasks:
+Only skip EnterPlanMode \u9002\u5408\u7b80\u5355\u4efb\u52a1:
 - Single-line or few-line fixes (typos, obvious bugs, small tweaks)
 - Adding a single function with clear requirements
 - Tasks where the user has given very specific, detailed instructions
@@ -138367,23 +138367,23 @@ function getDefaultOptionForUser(fastMode = false) {
     const currentModel = renderDefaultModelSetting(getDefaultMainLoopModelSetting());
     return {
       value: null,
-      label: "Default (recommended)",
-      description: `Use the default model for Ants (currently ${currentModel})`,
+      label: "\u9ed8\u8ba4\uff08\u63a8\u8350\uff09",
+      description: `\u4f7f\u7528 Ant \u9ed8\u8ba4\u6a21\u578b\uff08\u5f53\u524d ${currentModel}\uff09`,
       descriptionForModel: `Default model (currently ${currentModel})`
     };
   }
   if (isClaudeAISubscriber()) {
     return {
       value: null,
-      label: "Default (recommended)",
+      label: "\u9ed8\u8ba4\uff08\u63a8\u8350\uff09",
       description: getClaudeAiUserDefaultModelDescription(fastMode)
     };
   }
   const is3P = getAPIProvider() !== "firstParty";
   return {
     value: null,
-    label: "Default (recommended)",
-    description: `Use the default model (currently ${renderDefaultModelSetting(getDefaultMainLoopModelSetting())})${is3P ? "" : ` \xB7 ${formatModelPricing(COST_TIER_3_15)}`}`
+    label: "\u9ed8\u8ba4\uff08\u63a8\u8350\uff09",
+    description: `\u4f7f\u7528\u9ed8\u8ba4\u6a21\u578b\uff08\u5f53\u524d ${renderDefaultModelSetting(getDefaultMainLoopModelSetting())}\uff09${is3P ? "" : ` \xB7 ${formatModelPricing(COST_TIER_3_15)}`}`
   };
 }
 function getCustomSonnetOption() {
@@ -138407,7 +138407,7 @@ function getSonnet46Option() {
   return {
     value: is3P ? getModelStrings().sonnet46 : "sonnet",
     label: "Sonnet",
-    description: `Sonnet 4.6 \xB7 Best for everyday tasks${is3P ? "" : ` \xB7 ${formatModelPricing(COST_TIER_3_15)}`}`,
+    description: `Sonnet 4.6 \xB7 \u9002\u5408\u65e5\u5e38\u4efb\u52a1${is3P ? "" : ` \xB7 ${formatModelPricing(COST_TIER_3_15)}`}`,
     descriptionForModel: "Sonnet 4.6 - best for everyday tasks. Generally recommended for most coding tasks"
   };
 }
@@ -138431,7 +138431,7 @@ function getOpus41Option() {
   return {
     value: "opus",
     label: "Opus 4.1",
-    description: `Opus 4.1 \xB7 Legacy`,
+    description: `Opus 4.1 \xb7 \u65e7\u7248`,
     descriptionForModel: "Opus 4.1 - legacy version"
   };
 }
@@ -138440,7 +138440,7 @@ function getOpus46Option(fastMode = false) {
   return {
     value: is3P ? getModelStrings().opus46 : "opus",
     label: "Opus",
-    description: `Opus 4.6 \xB7 Most capable for complex work${getOpus46PricingSuffix(fastMode)}`,
+    description: `Opus 4.6 \xB7 \u590d\u6742\u4efb\u52a1\u6700\u5f3a${getOpus46PricingSuffix(fastMode)}`,
     descriptionForModel: "Opus 4.6 - most capable for complex work"
   };
 }
@@ -138448,18 +138448,18 @@ function getSonnet46_1MOption() {
   const is3P = getAPIProvider() !== "firstParty";
   return {
     value: is3P ? getModelStrings().sonnet46 + "[1m]" : "sonnet[1m]",
-    label: "Sonnet (1M context)",
-    description: `Sonnet 4.6 for long sessions${is3P ? "" : ` \xB7 ${formatModelPricing(COST_TIER_3_15)}`}`,
-    descriptionForModel: "Sonnet 4.6 with 1M context window - for long sessions with large codebases"
+    label: "Sonnet\uff081M \u4e0a\u4e0b\u6587\uff09",
+    description: `Sonnet 4.6 \u9002\u5408\u957f\u4f1a\u8bdd${is3P ? "" : ` \xB7 ${formatModelPricing(COST_TIER_3_15)}`}`,
+    descriptionForModel: "Sonnet 4.6\uff081M \u4e0a\u4e0b\u6587\uff09\xb7 \u9002\u5408\u5927\u578b\u4ee3\u7801\u5e93\u957f\u4f1a\u8bdd"
   };
 }
 function getOpus46_1MOption(fastMode = false) {
   const is3P = getAPIProvider() !== "firstParty";
   return {
     value: is3P ? getModelStrings().opus46 + "[1m]" : "opus[1m]",
-    label: "Opus (1M context)",
-    description: `Opus 4.6 for long sessions${getOpus46PricingSuffix(fastMode)}`,
-    descriptionForModel: "Opus 4.6 with 1M context window - for long sessions with large codebases"
+    label: "Opus\uff081M \u4e0a\u4e0b\u6587\uff09",
+    description: `Opus 4.6 \u9002\u5408\u957f\u4f1a\u8bdd${getOpus46PricingSuffix(fastMode)}`,
+    descriptionForModel: "Opus 4.6\uff081M \u4e0a\u4e0b\u6587\uff09\xb7 \u9002\u5408\u5927\u578b\u4ee3\u7801\u5e93\u957f\u4f1a\u8bdd"
   };
 }
 function getCustomHaikuOption() {
@@ -138482,7 +138482,7 @@ function getHaiku45Option() {
   return {
     value: "haiku",
     label: "Haiku",
-    description: `Haiku 4.5 \xB7 Fastest for quick answers${is3P ? "" : ` \xB7 ${formatModelPricing(COST_HAIKU_45)}`}`,
+    description: `Haiku 4.5 \xB7 \u5feb\u901f\u56de\u7b54\u6700\u5feb${is3P ? "" : ` \xB7 ${formatModelPricing(COST_HAIKU_45)}`}`,
     descriptionForModel: "Haiku 4.5 - fastest for quick answers. Lower cost but less capable than Sonnet 4.6."
   };
 }
@@ -138491,8 +138491,8 @@ function getHaiku35Option() {
   return {
     value: "haiku",
     label: "Haiku",
-    description: `Haiku 3.5 for simple tasks${is3P ? "" : ` \xB7 ${formatModelPricing(COST_HAIKU_35)}`}`,
-    descriptionForModel: "Haiku 3.5 - faster and lower cost, but less capable than Sonnet. Use for simple tasks."
+    description: `Haiku 3.5 \u9002\u5408\u7b80\u5355\u4efb\u52a1${is3P ? "" : ` \xB7 ${formatModelPricing(COST_HAIKU_35)}`}`,
+    descriptionForModel: "Haiku 3.5 \xb7 \u66f4\u5feb\u66f4\u4fbf\u5b9c\uff0c\u80fd\u529b\u4f4e\u4e8e Sonnet\uff0c\u9002\u5408\u7b80\u5355\u4efb\u52a1"
   };
 }
 function getHaikuOption() {
@@ -138503,40 +138503,40 @@ function getMaxOpusOption(fastMode = false) {
   return {
     value: "opus",
     label: "Opus",
-    description: `Opus 4.6 \xB7 Most capable for complex work${fastMode ? getOpus46PricingSuffix(true) : ""}`
+    description: `Opus 4.6 \xB7 \u590d\u6742\u4efb\u52a1\u6700\u5f3a${fastMode ? getOpus46PricingSuffix(true) : ""}`
   };
 }
 function getMaxSonnet46_1MOption() {
   const is3P = getAPIProvider() !== "firstParty";
-  const billingInfo = isClaudeAISubscriber() ? " \xB7 Billed as extra usage" : "";
+  const billingInfo = isClaudeAISubscriber() ? " \xb7 \u989d\u5916\u7528\u91cf\u8ba1\u8d39" : "";
   return {
     value: "sonnet[1m]",
-    label: "Sonnet (1M context)",
-    description: `Sonnet 4.6 with 1M context${billingInfo}${is3P ? "" : ` \xB7 ${formatModelPricing(COST_TIER_3_15)}`}`
+    label: "Sonnet\uff081M \u4e0a\u4e0b\u6587\uff09",
+    description: `Sonnet 4.6\uff081M \u4e0a\u4e0b\u6587\uff09${billingInfo}${is3P ? "" : ` \xB7 ${formatModelPricing(COST_TIER_3_15)}`}`
   };
 }
 function getMaxOpus46_1MOption(fastMode = false) {
-  const billingInfo = isClaudeAISubscriber() ? " \xB7 Billed as extra usage" : "";
+  const billingInfo = isClaudeAISubscriber() ? " \xb7 \u989d\u5916\u7528\u91cf\u8ba1\u8d39" : "";
   return {
     value: "opus[1m]",
-    label: "Opus (1M context)",
-    description: `Opus 4.6 with 1M context${billingInfo}${getOpus46PricingSuffix(fastMode)}`
+    label: "Opus\uff081M \u4e0a\u4e0b\u6587\uff09",
+    description: `Opus 4.6\uff081M \u4e0a\u4e0b\u6587\uff09${billingInfo}${getOpus46PricingSuffix(fastMode)}`
   };
 }
 function getMergedOpus1MOption(fastMode = false) {
   const is3P = getAPIProvider() !== "firstParty";
   return {
     value: is3P ? getModelStrings().opus46 + "[1m]" : "opus[1m]",
-    label: "Opus (1M context)",
-    description: `Opus 4.6 with 1M context \xB7 Most capable for complex work${!is3P && fastMode ? getOpus46PricingSuffix(fastMode) : ""}`,
+    label: "Opus\uff081M \u4e0a\u4e0b\u6587\uff09",
+    description: `Opus 4.6\uff081M \u4e0a\u4e0b\u6587\uff09\xb7 \u590d\u6742\u4efb\u52a1\u6700\u5f3a${!is3P && fastMode ? getOpus46PricingSuffix(fastMode) : ""}`,
     descriptionForModel: "Opus 4.6 with 1M context - most capable for complex work"
   };
 }
 function getOpusPlanOption() {
   return {
     value: "opusplan",
-    label: "Opus Plan Mode",
-    description: "Use Opus 4.6 in plan mode, Sonnet 4.6 otherwise"
+    label: "Opus \u8ba1\u5212\u6a21\u5f0f",
+    description: "\u8ba1\u5212\u6a21\u5f0f\u7528 Opus 4.6\uff0c\u5176\u4f59\u7528 Sonnet 4.6"
   };
 }
 function getModelOptionsBase(fastMode = false) {
@@ -138665,7 +138665,7 @@ function getKnownModelOption(model) {
     return {
       value: model,
       label: marketingName,
-      description: `Newer version available \xB7 select ${familyInfo.alias} for ${familyInfo.currentVersionName}`
+      description: `\u6709\u66f4\u65b0\u7248\u672c \xb7 \u9009\u62e9 ${familyInfo.alias} \u4ee5\u4f7f\u7528 ${familyInfo.currentVersionName}`
     };
   }
   return {
@@ -138749,12 +138749,12 @@ var init_modelOptions = __esm(() => {
   MaxSonnet46Option = {
     value: "sonnet",
     label: "Sonnet",
-    description: "Sonnet 4.6 \xB7 Best for everyday tasks"
+    description: "Sonnet 4.6 \xB7 \u9002\u5408\u65e5\u5e38\u4efb\u52a1"
   };
   MaxHaiku45Option = {
     value: "haiku",
     label: "Haiku",
-    description: "Haiku 4.5 \xB7 Fastest for quick answers"
+    description: "Haiku 4.5 \xB7 \u5feb\u901f\u56de\u7b54\u6700\u5feb"
   };
 });
 
@@ -172211,7 +172211,7 @@ var init_feedback = __esm(() => {
     aliases: ["bug"],
     type: "local-jsx",
     name: "feedback",
-    description: `Submit feedback about Claude Code`,
+    description: `\u63d0\u4ea4 Claude Code \u53cd\u9988`,
     argumentHint: "[report]",
     isEnabled: () => !(isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) || isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) || isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY) || isEnvTruthy(process.env.DISABLE_FEEDBACK_COMMAND) || isEnvTruthy(process.env.DISABLE_BUG_COMMAND) || isEssentialTrafficOnly() || process.env.USER_TYPE === "ant" || !isPolicyAllowed("allow_product_feedback")),
     load: () => import("./chunk-4dvd46vc.js")
@@ -172225,7 +172225,7 @@ var init_clear = __esm(() => {
   clear = {
     type: "local",
     name: "clear",
-    description: "Clear conversation history and free up context",
+    description: "\u6e05\u9664\u5bf9\u8bdd\u5386\u53f2\u5e76\u91ca\u653e\u4e0a\u4e0b\u6587",
     aliases: ["reset", "new"],
     supportsNonInteractive: false,
     load: () => import("./chunk-41qkhfbj.js")
@@ -172239,7 +172239,7 @@ var init_color = __esm(() => {
   color2 = {
     type: "local-jsx",
     name: "color",
-    description: "Set the prompt bar color for this session",
+    description: "\u8bbe\u7f6e\u672c\u4f1a\u8bdd\u7684\u8f93\u5165\u680f\u989c\u8272",
     immediate: true,
     argumentHint: "<color|default>",
     load: () => import("./chunk-gyj8qhx3.js")
@@ -172306,7 +172306,7 @@ var init_commit = __esm(() => {
   command = {
     type: "prompt",
     name: "commit",
-    description: "Create a git commit",
+    description: "\u521b\u5efa git \u63d0\u4ea4",
     allowedTools: ALLOWED_TOOLS,
     contentLength: 0,
     progressMessage: "creating commit",
@@ -172341,7 +172341,7 @@ var init_copy = __esm(() => {
   copy = {
     type: "local-jsx",
     name: "copy",
-    description: "Copy Claude's last response to clipboard (or /copy N for the Nth-latest)",
+    description: "\u590d\u5236 Claude \u7684\u4e0a\u4e00\u6761\u56de\u590d\uff08\u6216 /copy N \u590d\u5236\u5012\u6570\u7b2c N \u6761\uff09",
     load: () => import("./chunk-hpfdbp1q.js")
   };
   copy_default = copy;
@@ -172363,7 +172363,7 @@ var init_desktop = __esm(() => {
     type: "local-jsx",
     name: "desktop",
     aliases: ["app"],
-    description: "Continue the current session in Claude Desktop",
+    description: "\u5728 Claude Desktop \u4e2d\u7ee7\u7eed\u5f53\u524d\u4f1a\u8bdd",
     availability: ["claude-ai"],
     isEnabled: isSupportedPlatform3,
     get isHidden() {
@@ -172478,7 +172478,7 @@ var init_commit_push_pr = __esm(() => {
   command2 = {
     type: "prompt",
     name: "commit-push-pr",
-    description: "Commit, push, and open a PR",
+    description: "\u63d0\u4ea4\u3001\u63a8\u9001\u5e76\u521b\u5efa PR",
     allowedTools: ALLOWED_TOOLS2,
     get contentLength() {
       return getPromptContent2("main").length;
@@ -172528,7 +172528,7 @@ var init_compact2 = __esm(() => {
   compact = {
     type: "local",
     name: "compact",
-    description: "Clear conversation history but keep a summary in context. Optional: /compact [instructions for summarization]",
+    description: "\u6e05\u9664\u5bf9\u8bdd\u5386\u53f2\u4f46\u4fdd\u7559\u6458\u8981\u3002\u53ef\u9009\uff1a/compact [\u6458\u8981\u8bf4\u660e]",
     isEnabled: () => !isEnvTruthy(process.env.DISABLE_COMPACT),
     supportsNonInteractive: true,
     argumentHint: "<optional custom summarization instructions>",
@@ -172544,7 +172544,7 @@ var init_config7 = __esm(() => {
     aliases: ["settings"],
     type: "local-jsx",
     name: "config",
-    description: "Open config panel",
+    description: "\u6253\u5f00\u914d\u7f6e\u9762\u677f",
     load: () => import("./chunk-tjw761e3.js")
   };
   config_default = config3;
@@ -172556,7 +172556,7 @@ var init_context3 = __esm(() => {
   init_state();
   context2 = {
     name: "context",
-    description: "Visualize current context usage as a colored grid",
+    description: "\u4ee5\u5f69\u8272\u7f51\u683c\u53ef\u89c6\u5316\u5f53\u524d\u4e0a\u4e0b\u6587\u7528\u91cf",
     isEnabled: () => !getIsNonInteractiveSession(),
     type: "local-jsx",
     load: () => import("./chunk-ef7srkq2.js")
@@ -172583,7 +172583,7 @@ var init_cost = __esm(() => {
   cost = {
     type: "local",
     name: "cost",
-    description: "Show the total cost and duration of the current session",
+    description: "\u663e\u793a\u5f53\u524d\u4f1a\u8bdd\u7684\u603b\u8d39\u7528\u4e0e\u65f6\u957f",
     get isHidden() {
       if (process.env.USER_TYPE === "ant") {
         return false;
@@ -172602,7 +172602,7 @@ var init_diff2 = __esm(() => {
   diff_default = {
     type: "local-jsx",
     name: "diff",
-    description: "View uncommitted changes and per-turn diffs",
+    description: "\u67e5\u770b\u672a\u63d0\u4ea4\u53d8\u66f4\u4e0e\u5404\u8f6e diff",
     load: () => import("./chunk-9k8zakpf.js")
   };
 });
@@ -172619,7 +172619,7 @@ var init_doctor = __esm(() => {
   init_envUtils();
   doctor = {
     name: "doctor",
-    description: "Diagnose and verify your Claude Code installation and settings",
+    description: "\u8bca\u65ad\u5e76\u9a8c\u8bc1 Claude Code \u5b89\u88c5\u4e0e\u8bbe\u7f6e",
     isEnabled: () => !isEnvTruthy(process.env.DISABLE_DOCTOR_COMMAND),
     type: "local-jsx",
     load: () => import("./chunk-qpvdw395.js")
@@ -172633,7 +172633,7 @@ var init_memory = __esm(() => {
   memory = {
     type: "local-jsx",
     name: "memory",
-    description: "Edit Claude memory files",
+    description: "\u7f16\u8f91 Claude \u8bb0\u5fc6\u6587\u4ef6",
     load: () => import("./chunk-t4w1rn4d.js")
   };
   memory_default = memory;
@@ -172645,7 +172645,7 @@ var init_help = __esm(() => {
   help = {
     type: "local-jsx",
     name: "help",
-    description: "Show help and available commands",
+    description: "\u663e\u793a\u5e2e\u52a9\u4e0e\u53ef\u7528\u547d\u4ee4",
     load: () => import("./chunk-q6mvcpth.js")
   };
   help_default = help;
@@ -172657,7 +172657,7 @@ var init_ide2 = __esm(() => {
   ide = {
     type: "local-jsx",
     name: "ide",
-    description: "Manage IDE integrations and show status",
+    description: "\u7ba1\u7406 IDE \u96c6\u6210\u5e76\u663e\u793a\u72b6\u6001",
     argumentHint: "[open]",
     load: () => import("./chunk-23wh2twe.js")
   };
@@ -172891,7 +172891,7 @@ When building the list, work through these checks and include only what applies:
     type: "prompt",
     name: "init",
     get description() {
-      return "Initialize a new CLAUDE.md file with codebase documentation";
+      return "\u521d\u59cb\u5316 CLAUDE.md\uff0c\u5199\u5165\u4ee3\u7801\u5e93\u6587\u6863";
     },
     contentLength: 0,
     progressMessage: "analyzing your codebase",
@@ -172915,7 +172915,7 @@ var init_init_verifiers = __esm(() => {
   command4 = {
     type: "prompt",
     name: "init-verifiers",
-    description: "Create verifier skill(s) for automated verification of code changes",
+    description: "\u521b\u5efa verifier \u6280\u80fd\u4ee5\u81ea\u52a8\u9a8c\u8bc1\u4ee3\u7801\u53d8\u66f4",
     contentLength: 0,
     progressMessage: "analyzing your project and creating verifier skills",
     source: "builtin",
@@ -173178,7 +173178,7 @@ var init_keybindings = __esm(() => {
   init_loadUserBindings();
   keybindings = {
     name: "keybindings",
-    description: "Open or create your keybindings configuration file",
+    description: "\u6253\u5f00\u6216\u521b\u5efa\u5feb\u6377\u952e\u914d\u7f6e\u6587\u4ef6",
     isEnabled: () => isKeybindingCustomizationEnabled(),
     supportsNonInteractive: false,
     type: "local",
@@ -173193,7 +173193,7 @@ var init_lang = __esm(() => {
   lang = {
     type: "local-jsx",
     name: "lang",
-    description: "Set display language (en/zh/auto)",
+    description: "\u8bbe\u7f6e\u663e\u793a\u8bed\u8a00\uff08en/zh/auto\uff09",
     immediate: true,
     argumentHint: "<en|zh|auto>",
     load: () => import("./chunk-7n5f5wa3.js")
@@ -173205,7 +173205,7 @@ var init_lang = __esm(() => {
 var login_default = () => ({
   type: "local-jsx",
   name: "login",
-  description: hasAnthropicApiKeyAuth() ? "Switch Anthropic accounts" : "Sign in with your Anthropic account",
+  description: hasAnthropicApiKeyAuth() ? "\u5207\u6362 Anthropic \u8d26\u6237" : "\u4f7f\u7528 Anthropic \u8d26\u6237\u767b\u5f55",
   isEnabled: () => !isEnvTruthy(process.env.DISABLE_LOGIN_COMMAND),
   load: () => import("./chunk-56b0hvwq.js")
 });
@@ -173221,7 +173221,7 @@ var init_logout2 = __esm(() => {
   logout_default = {
     type: "local-jsx",
     name: "logout",
-    description: "Sign out from your Anthropic account",
+    description: "\u9000\u51fa Anthropic \u8d26\u6237",
     isEnabled: () => !isEnvTruthy(process.env.DISABLE_LOGOUT_COMMAND),
     load: () => import("./chunk-vfpjzy4d.js")
   };
@@ -173234,7 +173234,7 @@ var init_install_github_app = __esm(() => {
   installGitHubApp = {
     type: "local-jsx",
     name: "install-github-app",
-    description: "Set up Claude GitHub Actions for a repository",
+    description: "\u4e3a\u4ed3\u5e93\u914d\u7f6e Claude GitHub Actions",
     availability: ["claude-ai", "console"],
     isEnabled: () => !isEnvTruthy(process.env.DISABLE_INSTALL_GITHUB_APP_COMMAND),
     load: () => import("./chunk-d2s5z7q8.js")
@@ -173248,7 +173248,7 @@ var init_install_slack_app = __esm(() => {
   installSlackApp = {
     type: "local",
     name: "install-slack-app",
-    description: "Install the Claude Slack app",
+    description: "\u5b89\u88c5 Claude Slack \u5e94\u7528",
     availability: ["claude-ai"],
     supportsNonInteractive: false,
     load: () => import("./chunk-5dd9htr4.js")
@@ -173268,7 +173268,7 @@ var init_mcp = __esm(() => {
   mcp = {
     type: "local-jsx",
     name: "mcp",
-    description: "Manage MCP servers",
+    description: "\u7ba1\u7406 MCP \u670d\u52a1\u5668",
     immediate: true,
     argumentHint: "[enable|disable [server-name]]",
     load: () => import("./chunk-h0gyc4zm.js")
@@ -173283,7 +173283,7 @@ var init_mobile = __esm(() => {
     type: "local-jsx",
     name: "mobile",
     aliases: ["ios", "android"],
-    description: "Show QR code to download the Claude mobile app",
+    description: "\u663e\u793a\u4e8c\u7ef4\u7801\u4ee5\u4e0b\u8f7d Claude \u79fb\u52a8\u5e94\u7528",
     load: () => import("./chunk-s3rtbpjr.js")
   };
   mobile_default = mobile;
@@ -173344,7 +173344,7 @@ var init_pr_comments = __esm(() => {
   init_createMovedToPluginCommand();
   pr_comments_default = createMovedToPluginCommand({
     name: "pr-comments",
-    description: "Get comments from a GitHub pull request",
+    description: "\u83b7\u53d6 GitHub PR \u8bc4\u8bba",
     progressMessage: "fetching PR comments",
     pluginName: "pr-comments",
     pluginCommand: "pr-comments",
@@ -173396,8 +173396,7 @@ ${args ? "Additional user input: " + args : ""}
 var releaseNotes, release_notes_default;
 var init_release_notes = __esm(() => {
   releaseNotes = {
-    description: "View release notes",
-    name: "release-notes",
+    description: "\u67e5\u770b\u53d1\u884c\u8bf4\u660e",
     type: "local",
     supportsNonInteractive: true,
     load: () => import("./chunk-14d4xgfb.js")
@@ -173411,7 +173410,7 @@ var init_rename = __esm(() => {
   rename7 = {
     type: "local-jsx",
     name: "rename",
-    description: "Rename the current conversation",
+    description: "\u91cd\u547d\u540d\u5f53\u524d\u5bf9\u8bdd",
     immediate: true,
     argumentHint: "[name]",
     load: () => import("./chunk-6xnnvbva.js")
@@ -173425,7 +173424,7 @@ var init_resume = __esm(() => {
   resume = {
     type: "local-jsx",
     name: "resume",
-    description: "Resume a previous conversation",
+    description: "\u6062\u590d\u4e4b\u524d\u7684\u5bf9\u8bdd",
     aliases: ["continue"],
     argumentHint: "[conversation id or search term]",
     load: () => import("./chunk-5bc1xxzj.js")
@@ -173471,7 +173470,7 @@ var init_review = __esm(() => {
   review = {
     type: "prompt",
     name: "review",
-    description: "Review a pull request",
+    description: "\u5ba1\u67e5 Pull Request",
     progressMessage: "reviewing pull request",
     contentLength: 0,
     source: "builtin",
@@ -173482,7 +173481,7 @@ var init_review = __esm(() => {
   ultrareview = {
     type: "local-jsx",
     name: "ultrareview",
-    description: `~10\u201320 min \xB7 Finds and verifies bugs in your branch. Runs in Claude Code on the web. See ${CCR_TERMS_URL}`,
+    description: `~10\u201320 \u5206\u949f \u00b7 \u5728 Claude Code \u7f51\u9875\u7248\u67e5\u627e\u5e76\u9a8c\u8bc1\u5206\u652f\u4e2d\u7684 bug\u3002\u8be6\u89c1 ${CCR_TERMS_URL}`,
     isEnabled: () => isUltrareviewEnabled(),
     load: () => import("./chunk-26c75gx5.js")
   };
@@ -173497,7 +173496,7 @@ var init_session = __esm(() => {
     type: "local-jsx",
     name: "session",
     aliases: ["remote"],
-    description: "Show remote session URL and QR code",
+    description: "\u663e\u793a\u8fdc\u7a0b\u4f1a\u8bdd URL \u4e0e\u4e8c\u7ef4\u7801",
     isEnabled: () => getIsRemoteMode(),
     get isHidden() {
       return !getIsRemoteMode();
@@ -173519,7 +173518,7 @@ var init_skills = __esm(() => {
   skills = {
     type: "local-jsx",
     name: "skills",
-    description: "List available skills",
+    description: "\u5217\u51fa\u53ef\u7528 skills",
     load: () => import("./chunk-8dbjgkay.js")
   };
   skills_default = skills;
@@ -173531,7 +173530,7 @@ var init_status2 = __esm(() => {
   status = {
     type: "local-jsx",
     name: "status",
-    description: "Show Claude Code status including version, model, account, API connectivity, and tool statuses",
+    description: "\u663e\u793a Claude Code \u72b6\u6001\uff08\u7248\u672c\u3001\u6a21\u578b\u3001\u8d26\u6237\u3001API \u8fde\u63a5\u4e0e\u5de5\u5177\u72b6\u6001\uff09",
     immediate: true,
     load: () => import("./chunk-4k6xkbre.js")
   };
@@ -173545,7 +173544,7 @@ var init_tasks3 = __esm(() => {
     type: "local-jsx",
     name: "tasks",
     aliases: ["bashes"],
-    description: "List and manage background tasks",
+    description: "\u5217\u51fa\u5e76\u7ba1\u7406\u540e\u53f0\u4efb\u52a1",
     load: () => import("./chunk-ev5hsjj3.js")
   };
   tasks_default = tasks;
@@ -173756,7 +173755,7 @@ var init_security_review = __esm(() => {
   init_createMovedToPluginCommand();
   security_review_default = createMovedToPluginCommand({
     name: "security-review",
-    description: "Complete a security review of the pending changes on the current branch",
+    description: "\u5bf9\u5f53\u524d\u5206\u652f\u5f85\u63d0\u4ea4\u7684\u53d8\u66f4\u5b8c\u6210\u5b89\u5168\u5ba1\u67e5",
     progressMessage: "analyzing code changes for security risks",
     pluginName: "security-review",
     pluginCommand: "security-review",
@@ -173808,7 +173807,7 @@ var init_terminalSetup2 = __esm(() => {
   terminalSetup = {
     type: "local-jsx",
     name: "terminal-setup",
-    description: env.terminal === "Apple_Terminal" ? "Enable Option+Enter key binding for newlines and visual bell" : "Install Shift+Enter key binding for newlines",
+    description: env.terminal === "Apple_Terminal" ? "\u542f\u7528 Option+Enter \u6362\u884c\u4e0e\u89c6\u89c9\u63d0\u793a\u97f3" : "\u5b89\u88c5 Shift+Enter \u6362\u884c\u7ed1\u5b9a",
     isHidden: env.terminal !== null && env.terminal in NATIVE_CSIU_TERMINALS,
     load: () => import("./chunk-45j9ecep.js")
   };
@@ -173821,7 +173820,7 @@ var init_usage = __esm(() => {
   usage_default = {
     type: "local-jsx",
     name: "usage",
-    description: "Show plan usage limits",
+    description: "\u663e\u793a\u5957\u9910\u7528\u91cf\u9650\u5236",
     availability: ["claude-ai"],
     load: () => import("./chunk-9wn6ese2.js")
   };
@@ -173833,7 +173832,7 @@ var init_theme2 = __esm(() => {
   theme = {
     type: "local-jsx",
     name: "theme",
-    description: "Change the theme",
+    description: "\u66f4\u6539\u4e3b\u9898",
     load: () => import("./chunk-2d4en8qj.js")
   };
   theme_default = theme;
@@ -173844,7 +173843,7 @@ var command5, vim_default;
 var init_vim = __esm(() => {
   command5 = {
     name: "vim",
-    description: "Toggle between Vim and Normal editing modes",
+    description: "\u5728 Vim \u4e0e\u666e\u901a\u7f16\u8f91\u6a21\u5f0f\u95f4\u5207\u6362",
     supportsNonInteractive: false,
     type: "local",
     load: () => import("./chunk-hfxk11r6.js")
@@ -173859,7 +173858,7 @@ var init_thinkback = __esm(() => {
   thinkback = {
     type: "local-jsx",
     name: "think-back",
-    description: "Your 2025 Claude Code Year in Review",
+    description: "2025 Claude Code \u5e74\u5ea6\u56de\u987e",
     isEnabled: () => checkStatsigFeatureGate_CACHED_MAY_BE_STALE("tengu_thinkback"),
     load: () => import("./chunk-j6db7crq.js")
   };
@@ -173873,7 +173872,7 @@ var init_thinkback_play = __esm(() => {
   thinkbackPlay = {
     type: "local",
     name: "thinkback-play",
-    description: "Play the thinkback animation",
+    description: "\u64ad\u653e thinkback \u52a8\u753b",
     isEnabled: () => checkStatsigFeatureGate_CACHED_MAY_BE_STALE("tengu_thinkback"),
     isHidden: true,
     supportsNonInteractive: false,
@@ -173889,7 +173888,7 @@ var init_permissions3 = __esm(() => {
     type: "local-jsx",
     name: "permissions",
     aliases: ["allowed-tools"],
-    description: "Manage allow & deny tool permission rules",
+    description: "\u7ba1\u7406\u5de5\u5177\u5141\u8bb8\u4e0e\u62d2\u7edd\u89c4\u5219",
     load: () => import("./chunk-28d6zrtg.js")
   };
   permissions_default = permissions;
@@ -173901,7 +173900,7 @@ var init_plan = __esm(() => {
   plan = {
     type: "local-jsx",
     name: "plan",
-    description: "Enable plan mode or view the current session plan",
+    description: "\u542f\u7528\u8ba1\u5212\u6a21\u5f0f\u6216\u67e5\u770b\u5f53\u524d\u4f1a\u8bdd\u8ba1\u5212",
     argumentHint: "[open|<description>]",
     load: () => import("./chunk-3bvbaps0.js")
   };
@@ -173925,7 +173924,7 @@ var init_fast = __esm(() => {
     type: "local-jsx",
     name: "fast",
     get description() {
-      return `Toggle fast mode (${FAST_MODE_MODEL_DISPLAY} only)`;
+      return `\u5207\u6362\u5feb\u901f\u6a21\u5f0f\uff08\u4ec5 ${FAST_MODE_MODEL_DISPLAY}\uff09`;
     },
     availability: ["claude-ai", "console"],
     isEnabled: () => isFastModeEnabled(),
@@ -173951,9 +173950,9 @@ var init_passes = __esm(() => {
     get description() {
       const reward = getCachedReferrerReward();
       if (reward) {
-        return "Share a free week of Claude Code with friends and earn extra usage";
+        return "\u5206\u4eab\u7ed9\u597d\u53cb\u514d\u8d39\u4e00\u5468 Claude Code\uff0c\u5e76\u83b7\u5f97\u989d\u5916\u7528\u91cf";
       }
-      return "Share a free week of Claude Code with friends";
+      return "\u5206\u4eab\u7ed9\u597d\u53cb\u514d\u8d39\u4e00\u5468 Claude Code";
     },
     get isHidden() {
       const { eligible, hasCache } = checkCachedPassesEligibility();
@@ -173970,7 +173969,7 @@ var init_privacy_settings = __esm(() => {
   privacySettings = {
     type: "local-jsx",
     name: "privacy-settings",
-    description: "View and update your privacy settings",
+    description: "\u67e5\u770b\u5e76\u66f4\u65b0\u9690\u79c1\u8bbe\u7f6e",
     isEnabled: () => {
       return isConsumerSubscriber();
     },
@@ -173985,7 +173984,7 @@ var init_hooks = __esm(() => {
   hooks = {
     type: "local-jsx",
     name: "hooks",
-    description: "View hook configurations for tool events",
+    description: "\u67e5\u770b\u5de5\u5177\u4e8b\u4ef6\u7684 hook \u914d\u7f6e",
     immediate: true,
     load: () => import("./chunk-ma1cctc0.js")
   };
@@ -173998,7 +173997,7 @@ var init_files2 = __esm(() => {
   files = {
     type: "local",
     name: "files",
-    description: "List all files currently in context",
+    description: "\u5217\u51fa\u5f53\u524d\u4e0a\u4e0b\u6587\u4e2d\u7684\u6240\u6709\u6587\u4ef6",
     isEnabled: () => process.env.USER_TYPE === "ant",
     supportsNonInteractive: true,
     load: () => import("./chunk-0z0m6mm5.js")
@@ -174013,7 +174012,7 @@ var init_branch = __esm(() => {
     type: "local-jsx",
     name: "branch",
     aliases: [],
-    description: "Create a branch of the current conversation at this point",
+    description: "\u4ece\u5f53\u524d\u8282\u70b9\u521b\u5efa\u5bf9\u8bdd\u5206\u652f",
     argumentHint: "[name]",
     load: () => import("./chunk-v73f9f8z.js")
   };
@@ -174026,7 +174025,7 @@ var init_agents = __esm(() => {
   agents = {
     type: "local-jsx",
     name: "agents",
-    description: "Manage agent configurations",
+    description: "\u7ba1\u7406 agent \u914d\u7f6e",
     load: () => import("./chunk-egfcsh5m.js")
   };
   agents_default = agents;
@@ -174039,7 +174038,7 @@ var init_plugin2 = __esm(() => {
     type: "local-jsx",
     name: "plugin",
     aliases: ["plugins", "marketplace"],
-    description: "Manage Claude Code plugins",
+    description: "\u7ba1\u7406 Claude Code \u63d2\u4ef6",
     immediate: true,
     load: () => import("./chunk-8yn53n3y.js")
   };
@@ -174052,7 +174051,7 @@ var init_reload_plugins = __esm(() => {
   reloadPlugins = {
     type: "local",
     name: "reload-plugins",
-    description: "Activate pending plugin changes in the current session",
+    description: "\u5728\u5f53\u524d\u4f1a\u8bdd\u4e2d\u6fc0\u6d3b\u5f85\u5904\u7406\u7684\u63d2\u4ef6\u53d8\u66f4",
     supportsNonInteractive: false,
     load: () => import("./chunk-ph747rsn.js")
   };
@@ -174063,8 +174062,7 @@ var init_reload_plugins = __esm(() => {
 var rewind, rewind_default;
 var init_rewind = __esm(() => {
   rewind = {
-    description: `Restore the code and/or conversation to a previous point`,
-    name: "rewind",
+    description: `\u5c06\u4ee3\u7801\u548c/\u6216\u5bf9\u8bdd\u6062\u590d\u5230\u4e4b\u524d\u7684\u65f6\u95f4\u70b9`,
     aliases: ["checkpoint"],
     argumentHint: "",
     type: "local",
@@ -174080,7 +174078,7 @@ var init_heapdump = __esm(() => {
   heapDump = {
     type: "local",
     name: "heapdump",
-    description: "Dump the JS heap to ~/Desktop",
+    description: "\u5c06 JS \u5806\u8f6c\u50a8\u5230 ~/Desktop",
     isHidden: true,
     supportsNonInteractive: true,
     load: () => import("./chunk-9btz2st9.js")
@@ -174568,7 +174566,7 @@ var init_bridge_kick = __esm(() => {
   bridgeKick = {
     type: "local",
     name: "bridge-kick",
-    description: "Inject bridge failure states for manual recovery testing",
+    description: "\u6ce8\u5165 bridge \u6545\u969c\u72b6\u6001\u4ee5\u6d4b\u8bd5\u624b\u52a8\u6062\u590d\uff08\u8c03\u8bd5\uff09",
     isEnabled: () => process.env.USER_TYPE === "ant",
     supportsNonInteractive: false,
     load: () => Promise.resolve({ call: call2 })
@@ -174587,7 +174585,7 @@ var init_version = __esm(() => {
   version2 = {
     type: "local",
     name: "version",
-    description: "Print the version this session is running (not what autoupdate downloaded)",
+    description: "\u6253\u5370\u5f53\u524d\u4f1a\u8bdd\u8fd0\u884c\u7248\u672c\uff08\u975e autoupdate \u4e0b\u8f7d\u7248\u672c\uff09",
     isEnabled: () => process.env.USER_TYPE === "ant",
     supportsNonInteractive: true,
     load: () => Promise.resolve({ call: call3 })
@@ -174667,7 +174665,7 @@ var init_chrome = __esm(() => {
   init_state();
   command7 = {
     name: "chrome",
-    description: "Claude in Chrome (Beta) settings",
+    description: "Claude in Chrome\uff08Beta\uff09\u8bbe\u7f6e",
     availability: [],
     isEnabled: () => !getIsNonInteractiveSession(),
     type: "local-jsx",
@@ -174682,7 +174680,7 @@ var init_stickers = __esm(() => {
   stickers = {
     type: "local",
     name: "stickers",
-    description: "Order Claude Code stickers",
+    description: "\u8ba2\u8d2d Claude Code \u8d34\u7eb8",
     supportsNonInteractive: false,
     load: () => import("./chunk-kb2b4rkg.js")
   };
@@ -174769,7 +174767,7 @@ var init_advisor2 = __esm(() => {
   advisor = {
     type: "local",
     name: "advisor",
-    description: "Configure the advisor model",
+    description: "\u914d\u7f6e advisor \u6a21\u578b",
     argumentHint: "[<model>|off]",
     isEnabled: () => canUserConfigureAdvisor(),
     get isHidden() {
@@ -174871,7 +174869,7 @@ var init_autonomy = __esm(() => {
   autonomy = {
     type: "local",
     name: "autonomy",
-    description: "Inspect automatic autonomy runs recorded for proactive ticks and scheduled tasks",
+    description: "\u67e5\u770b proactive \u5b9a\u65f6\u4efb\u52a1\u4e0e\u8ba1\u5212\u4efb\u52a1\u8bb0\u5f55\u7684\u81ea\u52a8 autonomy \u8fd0\u884c",
     supportsNonInteractive: true,
     load: () => Promise.resolve({ call: call5 })
   };
@@ -175296,7 +175294,7 @@ var init_provider = __esm(() => {
   provider2 = {
     type: "local",
     name: "provider",
-    description: "Switch API provider (anthropic/openai/gemini/grok/bedrock/vertex/foundry)",
+    description: "\u5207\u6362 API \u63d0\u4f9b\u5546\uff08anthropic/openai/gemini/grok/bedrock/vertex/foundry\uff09",
     aliases: ["api"],
     argumentHint: "[anthropic|openai|gemini|grok|bedrock|vertex|foundry|unset]",
     supportsNonInteractive: true,
@@ -175434,7 +175432,7 @@ var init_exit = __esm(() => {
     type: "local-jsx",
     name: "exit",
     aliases: ["quit"],
-    description: "Exit the REPL",
+    description: "\u9000\u51fa REPL",
     immediate: true,
     load: () => import("./chunk-3ne4jmmp.js")
   };
@@ -175447,7 +175445,7 @@ var init_export = __esm(() => {
   exportCommand = {
     type: "local-jsx",
     name: "export",
-    description: "Export the current conversation to a file or clipboard",
+    description: "\u5bfc\u51fa\u5f53\u524d\u5bf9\u8bdd\u5230\u6587\u4ef6\u6216\u526a\u8d34\u677f",
     argumentHint: "[filename]",
     load: () => import("./chunk-yet151bs.js")
   };
@@ -175463,7 +175461,7 @@ var init_model2 = __esm(() => {
     type: "local-jsx",
     name: "model",
     get description() {
-      return `Set the AI model for Claude Code (currently ${renderModelName(getMainLoopModel())})`;
+      return `\u8bbe\u7f6e Claude Code \u7684 AI \u6a21\u578b\uff08\u5f53\u524d ${renderModelName(getMainLoopModel())}\uff09`;
     },
     argumentHint: "[model]",
     get immediate() {
@@ -175479,7 +175477,7 @@ var init_tag = __esm(() => {
   tag = {
     type: "local-jsx",
     name: "tag",
-    description: "Toggle a searchable tag on the current session",
+    description: "\u5207\u6362\u5f53\u524d\u4f1a\u8bdd\u7684\u53ef\u641c\u7d22\u6807\u7b7e",
     isEnabled: () => process.env.USER_TYPE === "ant",
     argumentHint: "<tag-name>",
     load: () => import("./chunk-9a3bq62v.js")
@@ -175493,7 +175491,7 @@ var init_output_style = __esm(() => {
   outputStyle = {
     type: "local-jsx",
     name: "output-style",
-    description: "Deprecated: use /config to change output style",
+    description: "\u5df2\u5f03\u7528\uff1a\u8bf7\u7528 /config \u66f4\u6539\u8f93\u51fa\u98ce\u683c",
     isHidden: true,
     load: () => import("./chunk-ase86y73.js")
   };
@@ -175508,7 +175506,7 @@ var init_remote_env = __esm(() => {
   remote_env_default = {
     type: "local-jsx",
     name: "remote-env",
-    description: "Configure the default remote environment for teleport sessions",
+    description: "\u914d\u7f6e teleport \u4f1a\u8bdd\u7684\u9ed8\u8ba4\u8fdc\u7a0b\u73af\u5883",
     isEnabled: () => isClaudeAISubscriber() && isPolicyAllowed("allow_remote_sessions"),
     get isHidden() {
       return !isClaudeAISubscriber() || !isPolicyAllowed("allow_remote_sessions");
@@ -175525,7 +175523,7 @@ var init_upgrade = __esm(() => {
   upgrade = {
     type: "local-jsx",
     name: "upgrade",
-    description: "Upgrade to Max for higher rate limits and more Opus",
+    description: "\u5347\u7ea7\u5230 Max \u4ee5\u83b7\u5f97\u66f4\u9ad8\u9650\u989d\u4e0e\u66f4\u591a Opus",
     availability: ["claude-ai"],
     isEnabled: () => !isEnvTruthy(process.env.DISABLE_UPGRADE_COMMAND) && getSubscriptionType() !== "enterprise",
     load: () => import("./chunk-8e4r0sk2.js")
@@ -175540,7 +175538,7 @@ var init_rate_limit_options = __esm(() => {
   rateLimitOptions = {
     type: "local-jsx",
     name: "rate-limit-options",
-    description: "Show options when rate limit is reached",
+    description: "\u8fbe\u5230\u901f\u7387\u9650\u5236\u65f6\u663e\u793a\u9009\u9879",
     isEnabled: () => {
       if (!isClaudeAISubscriber()) {
         return false;
@@ -175559,10 +175557,7 @@ var init_statusline = __esm(() => {
   init_constants2();
   statusline = {
     type: "prompt",
-    description: "Set up Claude Code's status line UI",
-    contentLength: 0,
-    aliases: [],
-    name: "statusline",
+    description: "\u8bbe\u7f6e Claude Code \u72b6\u6001\u680f UI",
     progressMessage: "setting up statusLine",
     allowedTools: [
       AGENT_TOOL_NAME,
@@ -175591,7 +175586,7 @@ var init_effort2 = __esm(() => {
   effort_default = {
     type: "local-jsx",
     name: "effort",
-    description: "Set effort level for model usage",
+    description: "\u8bbe\u7f6e\u6a21\u578b\u4f7f\u7528\u7684 effort \u7ea7\u522b",
     argumentHint: "[low|medium|high|max|auto]",
     get immediate() {
       return shouldInferenceConfigCommandBeImmediate();
@@ -175606,7 +175601,7 @@ var init_stats = __esm(() => {
   stats = {
     type: "local-jsx",
     name: "stats",
-    description: "Show your Claude Code usage statistics and activity",
+    description: "\u663e\u793a Claude Code \u4f7f\u7528\u7edf\u8ba1\u4e0e\u6d3b\u52a8",
     load: () => import("./chunk-wzf8f31v.js")
   };
   stats_default = stats;
@@ -175654,7 +175649,7 @@ var init_proactive2 = __esm(() => {
   proactive = {
     type: "local-jsx",
     name: "proactive",
-    description: "Toggle proactive (autonomous) mode",
+    description: "\u5207\u6362 proactive\uff08\u81ea\u4e3b\uff09\u6a21\u5f0f",
     isEnabled: () => {
       if (true) {
         return true;
@@ -175714,7 +175709,7 @@ var init_brief = __esm(() => {
   brief = {
     type: "local-jsx",
     name: "brief",
-    description: "Toggle brief-only mode",
+    description: "\u5207\u6362\u4ec5\u7b80\u8981\u56de\u590d\u6a21\u5f0f",
     isEnabled: () => {
       if (true) {
         return getBriefConfig().enable_slash_command;
@@ -175784,7 +175779,7 @@ var init_assistant = __esm(() => {
   assistant = {
     type: "local-jsx",
     name: "assistant",
-    description: "Open the Kairos assistant panel",
+    description: "\u6253\u5f00 Kairos \u52a9\u624b\u9762\u677f",
     isEnabled: isAssistantEnabled,
     get isHidden() {
       return !isAssistantEnabled();
@@ -175806,7 +175801,7 @@ var init_voice2 = __esm(() => {
   voice = {
     type: "local",
     name: "voice",
-    description: "Toggle voice mode",
+    description: "\u5207\u6362\u8bed\u97f3\u6a21\u5f0f",
     availability: ["claude-ai"],
     isEnabled: () => isVoiceGrowthBookEnabled(),
     get isHidden() {
@@ -175828,7 +175823,7 @@ var init_monitor = __esm(() => {
   monitor = {
     type: "local-jsx",
     name: "monitor",
-    description: "Start a background shell monitor (Shift+Down to view)",
+    description: "\u542f\u52a8\u540e\u53f0 shell \u76d1\u89c6\u5668\uff08Shift+Down \u67e5\u770b\uff09",
     isEnabled: () => {
       if (true) {
         return true;
@@ -175894,7 +175889,7 @@ var init_coordinator = __esm(() => {
   coordinator = {
     type: "local-jsx",
     name: "coordinator",
-    description: "Toggle coordinator (multi-worker) mode",
+    description: "\u5207\u6362\u534f\u8c03\u8005\uff08\u591a worker\uff09\u6a21\u5f0f",
     isEnabled: () => {
       if (true) {
         return true;
@@ -175966,7 +175961,7 @@ var init_force_snip = __esm(() => {
   forceSnip = {
     type: "local",
     name: "force-snip",
-    description: "Force snip conversation history at current point",
+    description: "\u5f3a\u5236\u5728\u5f53\u524d\u4f4d\u7f6e\u622a\u65ad\u5bf9\u8bdd\u5386\u53f2",
     supportsNonInteractive: true,
     isHidden: true,
     load: () => Promise.resolve({ call: call7 })
@@ -176127,7 +176122,7 @@ var init_workflows = __esm(() => {
   workflows = {
     type: "local",
     name: "workflows",
-    description: "List available workflow scripts",
+    description: "\u5217\u51fa\u53ef\u7528\u5de5\u4f5c\u6d41\u811a\u672c",
     supportsNonInteractive: true,
     load: () => Promise.resolve({ call: call8 })
   };
@@ -176760,7 +176755,7 @@ var init_ultraplan = __esm(() => {
   ultraplan_default = {
     type: "local-jsx",
     name: "ultraplan",
-    description: `~10\u201330 min \xB7 Claude Code on the web drafts an advanced plan you can edit and approve. See ${CCR_TERMS_URL2}`,
+    description: `~10\u201330 \u5206\u949f \u00b7 Claude Code \u7f51\u9875\u7248\u8d77\u8349\u9ad8\u7ea7\u8ba1\u5212\uff0c\u53ef\u7f16\u8f91\u540e\u6279\u51c6\u3002\u8be6\u89c1 ${CCR_TERMS_URL2}`,
     argumentHint: "<prompt>",
     isEnabled: () => isUltraplanEnabled(),
     load: () => Promise.resolve({ call: call9 })
@@ -176777,7 +176772,7 @@ var init_daemon = __esm(() => {
   daemon = {
     type: "local-jsx",
     name: "daemon",
-    description: "Manage background sessions and daemon",
+    description: "\u7ba1\u7406\u540e\u53f0\u4f1a\u8bdd\u4e0e\u5b88\u62a4\u8fdb\u7a0b",
     argumentHint: "[status|start|stop|bg|attach|logs|kill]",
     isEnabled: () => {
       if (true)
@@ -176801,7 +176796,7 @@ var init_job = __esm(() => {
   job = {
     type: "local-jsx",
     name: "job",
-    description: "Manage template jobs",
+    description: "\u7ba1\u7406\u6a21\u677f\u4efb\u52a1",
     argumentHint: "[list|new|reply|status]",
     isEnabled: () => {
       if (true)
@@ -176823,7 +176818,7 @@ var init_fork = __esm(() => {
   fork = {
     type: "local-jsx",
     name: "fork",
-    description: "Fork the current session into a new sub-agent",
+    description: "\u5c06\u5f53\u524d\u4f1a\u8bdd\u5206\u53c9\u5230\u65b0\u7684\u5b50 agent",
     argumentHint: "<prompt>",
     load: () => import("./chunk-szqrbpd7.js")
   };
@@ -176840,7 +176835,7 @@ var init_poor = __esm(() => {
   poor = {
     type: "local",
     name: "poor",
-    description: "Toggle poor mode \u2014 disable extract_memories and prompt_suggestion to save tokens",
+    description: "\u5207\u6362 poor \u6a21\u5f0f\u2014\u2014\u7981\u7528 extract_memories \u4e0e prompt_suggestion \u4ee5\u8282\u7701 token",
     supportsNonInteractive: false,
     load: () => import("./chunk-bhbqbjbf.js")
   };

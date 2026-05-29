@@ -210,7 +210,7 @@ function ClaudeInChromeMenu({
     label: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-          children: "Manage permissions"
+          children: "\u7ba1\u7406\u6743\u9650"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
@@ -223,7 +223,7 @@ function ClaudeInChromeMenu({
     label: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
       children: [
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-          children: "Reconnect extension"
+          children: "\u91cd\u65b0\u8fde\u63a5\u6269\u5c55"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
@@ -246,15 +246,15 @@ function ClaudeInChromeMenu({
       gap: 1,
       children: [
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-          children: "Claude in Chrome works with the Chrome extension to let you control your browser directly from Claude Code. Navigate websites, fill forms, capture screenshots, record GIFs, and debug with console logs and network requests."
+          children: "Claude in Chrome \u914d\u5408 Chrome \u6269\u5c55\uff0c\u53ef\u4ece Claude Code \u76f4\u63a5\u63a7\u5236\u6d4f\u89c8\u5668\u3002\u6d4f\u89c8\u7f51\u9875\u3001\u586b\u5199\u8868\u5355\u3001\u622a\u56fe\u3001\u5f55\u5236 GIF\uff0c\u4ee5\u53ca\u901a\u8fc7\u63a7\u5236\u53f0\u65e5\u5fd7\u548c\u7f51\u7edc\u8bf7\u6c42\u8c03\u8bd5\u3002"
         }, undefined, false, undefined, this),
         isWSL && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           color: "error",
-          children: "Claude in Chrome is not supported in WSL at this time."
+          children: "Claude in Chrome \u6682\u4e0d\u652f\u6301 WSL\u3002"
         }, undefined, false, undefined, this),
         process.env.USER_TYPE !== "ant" && !isClaudeAISubscriber2 && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           color: "error",
-          children: "Claude in Chrome requires a claude.ai subscription."
+          children: "Claude in Chrome \u9700\u8981 claude.ai \u8ba2\u9605\u3002"
         }, undefined, false, undefined, this),
         !isDisabled && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
           children: [
@@ -267,10 +267,10 @@ function ClaudeInChromeMenu({
                     " ",
                     isConnected ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                       color: "success",
-                      children: "Enabled"
+                      children: "\u5df2\u542f\u7528"
                     }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                       color: "inactive",
-                      children: "Disabled"
+                      children: "\u5df2\u7981\u7528"
                     }, undefined, false, undefined, this)
                   ]
                 }, undefined, true, undefined, this),
@@ -280,10 +280,10 @@ function ClaudeInChromeMenu({
                     " ",
                     isExtensionInstalled ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                       color: "success",
-                      children: "Installed"
+                      children: "\u5df2\u5b89\u88c5"
                     }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                       color: "warning",
-                      children: "Not detected"
+                      children: "\u672a\u68c0\u6d4b\u5230"
                     }, undefined, false, undefined, this)
                   ]
                 }, undefined, true, undefined, this)
@@ -306,7 +306,7 @@ function ClaudeInChromeMenu({
               children: [
                 /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                   dimColor: true,
-                  children: "Usage: "
+                  children: "\u7528\u6cd5\uff1a "
                 }, undefined, false, undefined, this),
                 /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
                   children: "claude --chrome"
@@ -322,13 +322,13 @@ function ClaudeInChromeMenu({
             }, undefined, true, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Site-level permissions are inherited from the Chrome extension. Manage permissions in the Chrome extension settings to control which sites Claude can browse, click, and type on."
+              children: "\u7ad9\u70b9\u6743\u9650\u6765\u81ea Chrome \u6269\u5c55\u3002\u5728\u6269\u5c55\u8bbe\u7f6e\u4e2d\u7ba1\u7406\u6743\u9650\uff0c\u63a7\u5236 Claude \u53ef\u6d4f\u89c8\u3001\u70b9\u51fb\u548c\u8f93\u5165\u7684\u7f51\u7ad9\u3002"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Learn more: https://code.claude.com/docs/en/chrome"
+          children: "\u4e86\u89e3\u66f4\u591a\uff1a https://code.claude.com/docs/en/chrome"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this)

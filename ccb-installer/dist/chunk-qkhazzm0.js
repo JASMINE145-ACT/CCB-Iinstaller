@@ -628,7 +628,7 @@ function NewMessagesPill({ count, onClick }) {
         dimColor: true,
         children: [
           " ",
-          count > 0 ? `${count} new ${plural(count, "message")}` : "Jump to bottom",
+          count > 0 ? `\u6709 ${count} \u6761\u65b0\u6d88\u606f` : "\u8df3\u8f6c\u5230\u5e95\u90e8",
           " ",
           figures_default.arrowDown,
           " "
@@ -1351,10 +1351,10 @@ function createRecentActivityFeed(activities) {
     };
   });
   return {
-    title: "Recent activity",
+    title: "\u8fd1\u671f\u6d3b\u52a8",
     lines,
-    footer: lines.length > 0 ? "/resume for more" : undefined,
-    emptyMessage: "No recent activity"
+    footer: lines.length > 0 ? "/resume \u67e5\u770b\u66f4\u591a" : undefined,
+    emptyMessage: "\u6682\u65e0\u8fd1\u671f\u6d3b\u52a8"
   };
 }
 function createWhatsNewFeed(releaseNotes) {
@@ -1372,11 +1372,11 @@ function createWhatsNewFeed(releaseNotes) {
       text: note
     };
   });
-  const emptyMessage = process.env.USER_TYPE === "ant" ? "Unable to fetch latest claude-cli-internal commits" : "Check the Claude Code changelog for updates";
+  const emptyMessage = process.env.USER_TYPE === "ant" ? "Unable to fetch latest claude-cli-internal commits" : "\u67e5\u770b Claude Code \u66f4\u65b0\u65e5\u5fd7";
   return {
-    title: process.env.USER_TYPE === "ant" ? "What's new [ANT-ONLY: Latest CC commits]" : "What's new",
+    title: process.env.USER_TYPE === "ant" ? "What's new [ANT-ONLY: Latest CC commits]" : "\u6700\u65b0\u52a8\u6001",
     lines,
-    footer: lines.length > 0 ? "/release-notes for more" : undefined,
+    footer: lines.length > 0 ? "/release-notes \u67e5\u770b\u66f4\u591a" : undefined,
     emptyMessage
   };
 }
@@ -1388,22 +1388,22 @@ function createProjectOnboardingFeed(steps) {
       text: `${checkmark}${text}`
     };
   });
-  const warningText = getCwd() === homedir() ? "Note: You have launched claude in your home directory. For the best experience, launch it in a project directory instead." : undefined;
+  const warningText = getCwd() === homedir() ? "\u63d0\u793a\uff1a\u5df2\u5728\u5bb6\u76ee\u5f55\u542f\u52a8 Claude\u3002\u5efa\u8bae\u5207\u6362\u5230\u9879\u76ee\u76ee\u5f55\u4ee5\u83b7\u5f97\u6700\u4f73\u4f53\u9a8c\u3002" : undefined;
   if (warningText) {
     lines.push({
       text: warningText
     });
   }
   return {
-    title: "Tips for getting started",
+    title: "\u5feb\u901f\u5165\u95e8\u63d0\u793a",
     lines
   };
 }
 function createGuestPassesFeed() {
   const reward = getCachedReferrerReward();
-  const subtitle = reward ? `Share Claude Code and earn ${formatCreditAmount(reward)} of extra usage` : "Share Claude Code with friends";
+  const subtitle = reward ? `\u5206\u4eab Claude Code\uff0c\u53ef\u83b7\u5f97 ${formatCreditAmount(reward)} \u989d\u5916\u7528\u91cf` : "\u4e0e\u670b\u53cb\u5206\u4eab Claude Code";
   return {
-    title: "3 guest passes",
+    title: "3 \u5f20\u8bbf\u5ba2\u901a\u884c\u8bc1",
     lines: [],
     customContent: {
       content: /* @__PURE__ */ jsx_dev_runtime6.jsxDEV(jsx_dev_runtime6.Fragment, {
@@ -1569,7 +1569,7 @@ function GuestPassesUpsell() {
       }, undefined, false, undefined, this),
       " \xB7",
       " ",
-      reward ? `Share Claude Code and earn ${formatCreditAmount(reward)} of extra usage \xB7 /passes` : "3 guest passes at /passes"
+      reward ? `\u5206\u4eab Claude Code\uff0c\u53ef\u83b7\u5f97 ${formatCreditAmount(reward)} \u989d\u5916\u7528\u91cf \xB7 /passes` : "3 \u5f20\u8bbf\u5ba2\u901a\u884c\u8bc1\uff0c\u8f93\u5165 /passes"
     ]
   }, undefined, true, undefined, this);
 }
@@ -1808,7 +1808,7 @@ function Opus1mMergeNotice() {
         dimColor: true,
         children: [
           " ",
-          "Opus now defaults to 1M context \xB7 5x more room, same pricing"
+          "Opus \u73b0\u9ed8\u8ba4\u4f7f\u7528 1M \u4e0a\u4e0b\u6587 \u00b7 \u7a7a\u95f4\u6269\u5927 5 \u500d\uff0c\u4ef7\u683c\u4e0d\u53d8"
         ]
       }, undefined, true, undefined, this)
     ]
@@ -1849,7 +1849,7 @@ function VoiceModeNoticeInner() {
       /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(AnimatedAsterisk, {}, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime13.jsxDEV(ThemedText, {
         dimColor: true,
-        children: " Voice mode is now available \xB7 /voice to enable"
+        children: " \u8bed\u97f3\u6a21\u5f0f\u73b0\u5df2\u53ef\u7528 \xb7 /voice \u542f\u7528"
       }, undefined, false, undefined, this)
     ]
   }, undefined, true, undefined, this);
@@ -2150,12 +2150,12 @@ function LogoV2() {
           children: [
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               color: "warning",
-              children: "Debug mode enabled"
+              children: "\u8c03\u8bd5\u6a21\u5f0f\u5df2\u542f\u7528"
             }, undefined, false, undefined, this),
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               dimColor: true,
               children: [
-                "Logging to: ",
+                "\u65e5\u5fd7\u5199\u5165\uff1a ",
                 isDebugToStdErr() ? "stderr" : getDebugLogPath()
               ]
             }, undefined, true, undefined, this)
@@ -2186,7 +2186,7 @@ function LogoV2() {
             !process.env.IS_DEMO && config.oauthAccount?.organizationName && /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               dimColor: true,
               children: [
-                "Message from ",
+                "\u6765\u81ea ",
                 config.oauthAccount.organizationName,
                 ":"
               ]
@@ -2201,7 +2201,7 @@ function LogoV2() {
           flexDirection: "column",
           children: /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Use /issue to report model behavior issues"
+            children: "\u4f7f\u7528 /issue \u62a5\u544a\u6a21\u578b\u884c\u4e3a\u95ee\u9898"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         process.env.USER_TYPE === "ant" && !process.env.DEMO_VERSION && /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedBox_default, {
@@ -2222,14 +2222,14 @@ function LogoV2() {
             /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               dimColor: true,
               children: [
-                "Debug logs: ",
+                "\u8c03\u8bd5\u65e5\u5fd7\uff1a ",
                 getDisplayPath(getDebugLogPath())
               ]
             }, undefined, true, undefined, this),
             isDetailedProfilingEnabled() && /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
               dimColor: true,
               children: [
-                "Startup Perf: ",
+                "\u542f\u52a8\u6027\u80fd\uff1a ",
                 getDisplayPath(getStartupPerfLogPath())
               ]
             }, undefined, true, undefined, this)
@@ -2303,7 +2303,7 @@ function LogoV2() {
           flexDirection: "column",
           children: /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
             color: "warning",
-            children: "Your bash commands will be sandboxed. Disable with /sandbox."
+            children: "bash \u547d\u4ee4\u5c06\u5728\u6c99\u7bb1\u4e2d\u8fd0\u884c\u3002\u4f7f\u7528 /sandbox \u53ef\u5173\u95ed\u3002"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         process.env.USER_TYPE === "ant" && /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(GateOverridesWarning, {}, undefined, false, undefined, this),
@@ -2407,12 +2407,12 @@ function LogoV2() {
         children: [
           /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
             color: "warning",
-            children: "Debug mode enabled"
+            children: "\u8c03\u8bd5\u6a21\u5f0f\u5df2\u542f\u7528"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Logging to: ",
+              "\u65e5\u5fd7\u5199\u5165\uff1a ",
               isDebugToStdErr() ? "stderr" : getDebugLogPath()
             ]
           }, undefined, true, undefined, this)
@@ -2443,7 +2443,7 @@ function LogoV2() {
           !process.env.IS_DEMO && config.oauthAccount?.organizationName && /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Message from ",
+              "\u6765\u81ea ",
               config.oauthAccount.organizationName,
               ":"
             ]
@@ -2458,7 +2458,7 @@ function LogoV2() {
         flexDirection: "column",
         children: /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
           color: "warning",
-          children: "Your bash commands will be sandboxed. Disable with /sandbox."
+          children: "bash \u547d\u4ee4\u5c06\u5728\u6c99\u7bb1\u4e2d\u8fd0\u884c\u3002\u4f7f\u7528 /sandbox \u53ef\u5173\u95ed\u3002"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       process.env.USER_TYPE === "ant" && !process.env.DEMO_VERSION && /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedBox_default, {
@@ -2466,7 +2466,7 @@ function LogoV2() {
         flexDirection: "column",
         children: /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Use /issue to report model behavior issues"
+          children: "\u4f7f\u7528 /issue \u62a5\u544a\u6a21\u578b\u884c\u4e3a\u95ee\u9898"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this),
       process.env.USER_TYPE === "ant" && !process.env.DEMO_VERSION && /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedBox_default, {
@@ -2487,14 +2487,14 @@ function LogoV2() {
           /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Debug logs: ",
+              "\u8c03\u8bd5\u65e5\u5fd7\uff1a ",
               getDisplayPath(getDebugLogPath())
             ]
           }, undefined, true, undefined, this),
           isDetailedProfilingEnabled() && /* @__PURE__ */ jsx_dev_runtime15.jsxDEV(ThemedText, {
             dimColor: true,
             children: [
-              "Startup Perf: ",
+              "\u542f\u52a8\u6027\u80fd\uff1a ",
               getDisplayPath(getStartupPerfLogPath())
             ]
           }, undefined, true, undefined, this)
@@ -4413,7 +4413,7 @@ var React6, import_react15, jsx_dev_runtime23, LogoHeader, proactiveModule, BRIE
         /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(ThemedBox_default, {
           marginTop: 1,
           children: /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(Divider, {
-            title: `${unseenDivider.count} new ${plural(unseenDivider.count, "message")}`,
+            title: `\u6709 ${unseenDivider.count} \u6761\u65b0\u6d88\u606f`,
             width: columns,
             color: "inactive"
           }, undefined, false, undefined, this)
@@ -4449,11 +4449,11 @@ var React6, import_react15, jsx_dev_runtime23, LogoHeader, proactiveModule, BRIE
         agentDefinitions
       }, undefined, false, undefined, this),
       hasTruncatedMessages && /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(Divider, {
-        title: `${toggleShowAllShortcut} to show ${source_default.bold(hiddenMessageCount)} previous messages`,
+        title: `\u6309 ${toggleShowAllShortcut} \u663e\u793a\u4e4b\u524d ${source_default.bold(hiddenMessageCount)} \u6761\u6d88\u606f`,
         width: columns
       }, undefined, false, undefined, this),
       isTranscriptMode && showAllInTranscript && hiddenMessageCount > 0 && !disableRenderCap && /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(Divider, {
-        title: `${toggleShowAllShortcut} to hide ${source_default.bold(hiddenMessageCount)} previous messages`,
+        title: `\u6309 ${toggleShowAllShortcut} \u9690\u85cf\u4e4b\u524d ${source_default.bold(hiddenMessageCount)} \u6761\u6d88\u606f`,
         width: columns
       }, undefined, false, undefined, this),
       virtualScrollRuntimeGate ? /* @__PURE__ */ jsx_dev_runtime23.jsxDEV(InVirtualListContext.Provider, {

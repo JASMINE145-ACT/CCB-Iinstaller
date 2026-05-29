@@ -26,7 +26,8 @@ CCB-Setup-1.0.6.exe
 - 生成运行时 `ccb-mcp.json`，并通过 `--mcp-config` 启动 Claude Code。
 - 升级时保留用户配置。
 - 安装时尝试安装 Windows Terminal。
-- 自动生成 `CCB` 和 `CCB Flat Mode` 快捷方式。
+- 默认 `CCB` 快捷方式启动 Claude Code，**全模式关闭鼠标追踪**，终端原生接管滑轮滚动（scrollback）和拖动选字。
+- 兼容降级：`CCB 平铺模式`、`CCB 安全模式`、`CCB 文本模式`。
 - 提供诊断入口 `ccb-diagnose.cmd`。
 - 提供门户网站静态页 `portal/`。
 
@@ -126,7 +127,7 @@ CCB-Setup-1.0.6.exe
 安装器提供组件：
 
 ```text
-Install Windows Terminal if missing (recommended)
+安装 Windows Terminal (推荐)
 ```
 
 处理顺序：

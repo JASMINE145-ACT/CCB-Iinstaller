@@ -428,12 +428,12 @@ function TrustDialog({ onDone, commands }) {
           dimColor: true,
           children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
             children: [
-              "Press ",
+              "\u518d\u6309 ",
               exitState.keyName,
-              " again to exit"
+              " \u9000\u51fa"
             ]
           }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
-            children: "Enter to confirm \xB7 Esc to cancel"
+            children: "Enter \u786e\u8ba4 \u00b7 Esc \u53d6\u6d88"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this)
       ]

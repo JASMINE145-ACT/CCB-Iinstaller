@@ -1845,7 +1845,7 @@ function StatsContent({
         children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            "Esc to cancel \xB7 r to cycle dates \xB7 ctrl+s to copy",
+            "Esc \u53d6\u6d88 \u00b7 r \u5207\u6362\u65e5\u671f \u00b7 ctrl+s \u590d\u5236",
             copyStatus ? ` \xB7 ${copyStatus}` : ""
           ]
         }, undefined, true, undefined, this)

@@ -227,11 +227,11 @@ function MCPServerDesktopImportDialog({
   const done = import_react.useCallback((importedCount) => {
     if (importedCount > 0) {
       writeToStdout(`
-${color("success", theme)(`Successfully imported ${importedCount} MCP ${plural(importedCount, "server")} to ${scope} config.`)}
+${color("success", theme)(`\u5df2\u6210\u529f\u5c06 ${importedCount} \u4e2a MCP \u670d\u52a1\u5668\u5bfc\u5165 ${scope} \u914d\u7f6e\u3002`)}
 `);
     } else {
       writeToStdout(`
-No servers were imported.`);
+\u672a\u5bfc\u5165\u4efb\u4f55\u670d\u52a1\u5668\u3002`);
     }
     onDone();
     gracefulShutdown();
@@ -242,22 +242,22 @@ No servers were imported.`);
   return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(jsx_dev_runtime.Fragment, {
     children: [
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Dialog, {
-        title: "Import MCP Servers from Claude Desktop",
-        subtitle: `Found ${serverNames.length} MCP ${plural(serverNames.length, "server")} in Claude Desktop.`,
+        title: "\u4ece Claude Desktop \u5bfc\u5165 MCP \u670d\u52a1\u5668",
+        subtitle: `\u5728 Claude Desktop \u4e2d\u53d1\u73b0 ${serverNames.length} \u4e2a MCP \u670d\u52a1\u5668\u3002`,
         color: "success",
         onCancel: handleEscCancel,
         hideInputGuide: true,
         children: [
           collisions.length > 0 && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
             color: "warning",
-            children: "Note: Some servers already exist with the same name. If selected, they will be imported with a numbered suffix."
+            children: "\u6ce8\u610f\uff1a\u90e8\u5206\u670d\u52a1\u5668\u540d\u5df2\u5b58\u5728\u3002\u82e5\u9009\u4e2d\uff0c\u5c06\u4ee5\u7f16\u53f7\u540e\u7f00\u5bfc\u5165\u3002"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-            children: "Please select the servers you want to import:"
+            children: "\u8bf7\u9009\u62e9\u8981\u5bfc\u5165\u7684\u670d\u52a1\u5668\uff1a"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime.jsxDEV(SelectMulti, {
             options: serverNames.map((server) => ({
-              label: `${server}${collisions.includes(server) ? " (already exists)" : ""}`,
+              label: `${server}${collisions.includes(server) ? " \uff08\u5df2\u5b58\u5728\uff09" : ""}`,
               value: server
             })),
             defaultValue: serverNames.filter((name) => !collisions.includes(name)),
@@ -276,17 +276,17 @@ No servers were imported.`);
             children: [
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Space",
-                action: "select"
+                action: "\u9009\u62e9"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "confirm"
+                action: "\u786e\u8ba4"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "cancel"
+                description: "\u53d6\u6d88"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)

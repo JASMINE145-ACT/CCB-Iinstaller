@@ -69,14 +69,14 @@ function getSteps() {
   return [
     {
       key: "workspace",
-      text: "Ask Claude to create a new app or clone a repository",
+      text: "\u8ba9 Claude \u521b\u5efa\u65b0\u5e94\u7528\u6216\u514b\u9686\u4ed3\u5e93",
       isComplete: false,
       isCompletable: true,
       isEnabled: isWorkspaceDirEmpty
     },
     {
       key: "claudemd",
-      text: "Run /init to create a CLAUDE.md file with instructions for Claude",
+      text: "\u8fd0\u884c /init \u521b\u5efa CLAUDE.md\uff0c\u5411 Claude \u63d0\u4f9b\u9879\u76ee\u8bf4\u660e",
       isComplete: hasClaudeMd,
       isCompletable: true,
       isEnabled: !isWorkspaceDirEmpty

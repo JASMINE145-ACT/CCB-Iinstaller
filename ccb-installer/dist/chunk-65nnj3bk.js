@@ -75,9 +75,9 @@ function calculateOptimalLeftWidth(welcomeMessage, truncatedCwd, modelLine) {
 }
 function formatWelcomeMessage(username) {
   if (!username || username.length > MAX_USERNAME_LENGTH) {
-    return "Welcome back!";
+    return "\u6b22\u8fce\u56de\u6765\uff01";
   }
-  return `Welcome back ${username}!`;
+  return `\u6b22\u8fce\u56de\u6765\uff0c${username}\uff01`;
 }
 function truncatePath(path, maxLength) {
   if (stringWidth(path) <= maxLength)
@@ -157,7 +157,7 @@ function getLogoDisplayData() {
   const serverUrl = getDirectConnectServerUrl();
   const displayPath = process.env.DEMO_VERSION ? "/code/claude" : getDisplayPath(getCwd());
   const cwd = serverUrl ? `${displayPath} in ${serverUrl.replace(/^https?:\/\//, "")}` : displayPath;
-  const billingType = isClaudeAISubscriber() ? getSubscriptionName() : "API Usage Billing";
+  const billingType = isClaudeAISubscriber() ? getSubscriptionName() : "API \u7528\u91cf\u8ba1\u8d39";
   const agentName = getInitialSettings().agent;
   return {
     version,

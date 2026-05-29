@@ -187,21 +187,21 @@ function renderInputGuide(exitState) {
     children: [
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
         shortcut: "\u2191\u2193",
-        action: "navigate"
+        action: "\u5bfc\u822a"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
         shortcut: "Space",
-        action: "toggle"
+        action: "\u5207\u6362"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(KeyboardShortcutHint, {
         shortcut: "Enter",
-        action: "confirm"
+        action: "\u786e\u8ba4"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ConfigurableShortcutHint, {
         action: "confirm:no",
         context: "Confirmation",
         fallback: "Esc",
-        description: "cancel"
+        description: "\u53d6\u6d88"
       }, undefined, false, undefined, this)
     ]
   }, undefined, true, undefined, this);
@@ -546,7 +546,7 @@ function ApiKeyStep({
         marginLeft: 3,
         children: /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "\u2191/\u2193 to select \xB7 Enter to continue"
+          children: "\u2191/\u2193 \u9009\u62e9 \xB7 Enter \u7ee7\u7eed"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this)
     ]
@@ -663,7 +663,7 @@ function CheckExistingSecretStep({
         marginLeft: 3,
         children: /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "\u2191/\u2193 to select \xB7 Enter to continue"
+          children: "\u2191/\u2193 \u9009\u62e9 \xB7 Enter \u7ee7\u7eed"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this)
     ]
@@ -807,8 +807,8 @@ function ChooseRepoStep({
         children: /* @__PURE__ */ jsx_dev_runtime5.jsxDEV(ThemedText, {
           dimColor: true,
           children: [
-            currentRepo ? "\u2191/\u2193 to select \xB7 " : "",
-            "Enter to continue"
+            currentRepo ? "\u2191/\u2193 \u9009\u62e9 \xB7 " : "",
+            "Enter \u7ee7\u7eed"
           ]
         }, undefined, true, undefined, this)
       }, undefined, false, undefined, this)
@@ -972,7 +972,7 @@ function ErrorStep({
         marginLeft: 3,
         children: /* @__PURE__ */ jsx_dev_runtime7.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Press any key to exit"
+          children: "\u6309\u4efb\u610f\u952e\u9000\u51fa"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this)
     ]
@@ -1145,7 +1145,7 @@ function InstallAppStep({ repoUrl, onSubmit }) {
           bold: true,
           color: "permission",
           children: [
-            "Press Enter once you've installed the app",
+            "\u5b89\u88c5\u5b8c\u6210\u540e\u6309 Enter \u7ee7\u7eed",
             figures_default.ellipsis
           ]
         }, undefined, true, undefined, this)
@@ -1381,10 +1381,10 @@ function OAuthFlowStep({
             }, undefined, true, undefined, this),
             oauthStatus.toRetry ? /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Press Enter to try again, or any other key to cancel"
+              children: "\u6309 Enter \u91cd\u8bd5\uff0c\u6216\u6309\u5176\u4ed6\u4efb\u610f\u952e\u53d6\u6d88"
             }, undefined, false, undefined, this) : /* @__PURE__ */ jsx_dev_runtime10.jsxDEV(ThemedText, {
               dimColor: true,
-              children: "Press any key to return to API key selection"
+              children: "\u6309\u4efb\u610f\u952e\u8fd4\u56de API Key \u9009\u62e9"
             }, undefined, false, undefined, this)
           ]
         }, undefined, true, undefined, this);
@@ -1586,7 +1586,7 @@ function SuccessStep({
         marginLeft: 3,
         children: /* @__PURE__ */ jsx_dev_runtime11.jsxDEV(ThemedText, {
           dimColor: true,
-          children: "Press any key to exit"
+          children: "\u6309\u4efb\u610f\u952e\u9000\u51fa"
         }, undefined, false, undefined, this)
       }, undefined, false, undefined, this)
     ]
@@ -1875,7 +1875,7 @@ function WarningsStep({ warnings, onContinue }) {
           children: /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedText, {
             bold: true,
             color: "permission",
-            children: "Press Enter to continue anyway, or Ctrl+C to exit and fix issues"
+            children: "\u6309 Enter \u5ffd\u7565\u7ee7\u7eed\uff0c\u6216 Ctrl+C \u9000\u51fa\u540e\u4fee\u590d\u95ee\u9898"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime12.jsxDEV(ThemedBox_default, {

@@ -3071,7 +3071,7 @@ Start by understanding their intent and working through the appropriate workflow
 function registerScheduleRemoteAgentsSkill() {
   registerBundledSkill({
     name: "schedule",
-    description: "Create, update, list, or run scheduled remote agents (triggers) that execute on a cron schedule.",
+    description: "\u521b\u5efa\u3001\u66f4\u65b0\u3001\u5217\u51fa\u6216\u8fd0\u884c\u6309 cron \u8ba1\u5212\u6267\u884c\u7684\u8fdc\u7a0b agent\uff08\u89e6\u53d1\u5668\uff09",
     whenToUse: "When the user wants to schedule a recurring remote agent, set up automated tasks, create a cron job for Claude Code, or manage their scheduled agents/triggers.",
     userInvocable: true,
     isEnabled: () => getFeatureValue_CACHED_MAY_BE_STALE("tengu_surreal_dali", false) && isPolicyAllowed("allow_remote_sessions"),
@@ -3691,11 +3691,11 @@ var jsx_dev_runtime2 = __toESM(require_jsx_dev_runtime(), 1);
 function MCPServerDialogCopy() {
   return /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
     children: [
-      "MCP servers may execute code or access system resources. All tool calls require approval. Learn more in the",
+      "MCP \u670d\u52a1\u5668\u53ef\u80fd\u6267\u884c\u4ee3\u7801\u6216\u8bbf\u95ee\u7cfb\u7edf\u8d44\u6e90\u3002\u6240\u6709\u5de5\u5177\u8c03\u7528\u5747\u9700\u6279\u51c6\u3002\u8be6\u89c1",
       " ",
       /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Link, {
         url: "https://code.claude.com/docs/en/mcp",
-        children: "MCP documentation"
+        children: "MCP \u6587\u6863"
       }, undefined, false, undefined, this),
       "."
     ]
@@ -3744,7 +3744,7 @@ function MCPServerApprovalDialog({
     }
   }
   return /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(Dialog, {
-    title: `New MCP server found in .mcp.json: ${serverName}`,
+    title: `\u5728 .mcp.json \u4e2d\u53d1\u73b0\u65b0 MCP \u670d\u52a1\u5668\uff1a${serverName}`,
     color: "warning",
     onCancel: () => onChange("no"),
     children: [
@@ -3752,11 +3752,11 @@ function MCPServerApprovalDialog({
       /* @__PURE__ */ jsx_dev_runtime3.jsxDEV(Select, {
         options: [
           {
-            label: `Use this and all future MCP servers in this project`,
+            label: `\u4f7f\u7528\u6b64\u670d\u52a1\u5668\u5e76\u5141\u8bb8\u672c\u9879\u76ee\u6240\u6709 MCP \u670d\u52a1\u5668`,
             value: "yes_all"
           },
-          { label: `Use this MCP server`, value: "yes" },
-          { label: `Continue without using this MCP server`, value: "no" }
+          { label: `\u4f7f\u7528\u6b64 MCP \u670d\u52a1\u5668`, value: "yes" },
+          { label: `\u4e0d\u4f7f\u7528\u6b64 MCP \u670d\u52a1\u5668\u5e76\u7ee7\u7eed`, value: "no" }
         ],
         onChange: (value) => onChange(value),
         onCancel: () => onChange("no")
@@ -3820,8 +3820,8 @@ function MCPServerMultiselectDialog({
   return /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(jsx_dev_runtime4.Fragment, {
     children: [
       /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(Dialog, {
-        title: `${serverNames.length} new MCP servers found in .mcp.json`,
-        subtitle: "Select any you wish to enable.",
+        title: `\u5728 .mcp.json \u4e2d\u53d1\u73b0 ${serverNames.length} \u4e2a\u65b0 MCP \u670d\u52a1\u5668`,
+        subtitle: "\u9009\u62e9\u8981\u542f\u7528\u7684\u670d\u52a1\u5668\u3002",
         color: "warning",
         onCancel: handleEscRejectAll,
         hideInputGuide: true,
@@ -3848,17 +3848,17 @@ function MCPServerMultiselectDialog({
             children: [
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Space",
-                action: "select"
+                action: "\u9009\u62e9"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(KeyboardShortcutHint, {
                 shortcut: "Enter",
-                action: "confirm"
+                action: "\u786e\u8ba4"
               }, undefined, false, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ConfigurableShortcutHint, {
                 action: "confirm:no",
                 context: "Confirmation",
                 fallback: "Esc",
-                description: "reject all"
+                description: "\u5168\u90e8\u62d2\u7edd"
               }, undefined, false, undefined, this)
             ]
           }, undefined, true, undefined, this)
@@ -4373,7 +4373,7 @@ Examples:
 function registerBatchSkill() {
   registerBundledSkill({
     name: "batch",
-    description: "Research and plan a large-scale change, then execute it in parallel across 5\u201330 isolated worktree agents that each open a PR.",
+    description: "\u7814\u7a76\u5e76\u89c4\u5212\u5927\u89c4\u6a21\u53d8\u66f4\uff0c\u7136\u540e\u5728 5\u201330 \u4e2a\u72ec\u7acb worktree agent \u4e2d\u5e76\u884c\u6267\u884c\uff0c\u5404\u81ea\u6253\u5f00 PR",
     whenToUse: "Use when the user wants to make a sweeping, mechanical change across many files (migrations, refactors, bulk renames) that can be decomposed into independent parallel units.",
     argumentHint: "<instruction>",
     userInvocable: true,
@@ -4406,7 +4406,7 @@ IMPORTANT: Start by calling mcp__claude-in-chrome__tabs_context_mcp to get infor
 function registerClaudeInChromeSkill() {
   registerBundledSkill({
     name: "claude-in-chrome",
-    description: "Automates your Chrome browser to interact with web pages - clicking elements, filling forms, capturing screenshots, reading console logs, and navigating sites. Opens pages in new tabs within your existing Chrome session. Requires site-level permissions before executing (configured in the extension).",
+    description: "\u81ea\u52a8\u5316 Chrome \u6d4f\u89c8\u5668\uff1a\u70b9\u51fb\u5143\u7d20\u3001\u586b\u8868\u3001\u622a\u56fe\u3001\u8bfb\u53d6\u63a7\u5236\u53f0\u65e5\u5fd7\u4e0e\u5bfc\u822a\u3002\u5728\u73b0\u6709 Chrome \u4f1a\u8bdd\u7684\u65b0\u6807\u7b7e\u9875\u4e2d\u6253\u5f00\u3002\u6267\u884c\u524d\u9700\u5728\u6269\u5c55\u4e2d\u914d\u7f6e\u7ad9\u70b9\u6743\u9650",
     whenToUse: "When the user wants to interact with web pages, automate browser tasks, capture screenshots, read console logs, or perform any browser-based actions. Always invoke BEFORE attempting to use any mcp__claude-in-chrome__* tools.",
     allowedTools: CLAUDE_IN_CHROME_MCP_TOOLS,
     userInvocable: true,
@@ -5183,7 +5183,7 @@ function registerLoremIpsumSkill() {
   }
   registerBundledSkill({
     name: "lorem-ipsum",
-    description: "Generate filler text for long context testing. Specify token count as argument (e.g., /lorem-ipsum 50000). Outputs approximately the requested number of tokens. Ant-only.",
+    description: "\u751f\u6210\u957f\u4e0a\u4e0b\u6587\u6d4b\u8bd5\u586b\u5145\u6587\u672c\u3002\u4ee5 token \u6570\u4e3a\u53c2\u6570\uff08\u5982 /lorem-ipsum 50000\uff09\u3002Ant-only",
     argumentHint: "[token_count]",
     userInvocable: true,
     async getPromptForCommand(args) {
@@ -5282,7 +5282,7 @@ If auto-memory is empty, say so and offer to review CLAUDE.md for cleanup.
 `;
   registerBundledSkill({
     name: "remember",
-    description: "Review auto-memory entries and propose promotions to CLAUDE.md, CLAUDE.local.md, or shared memory. Also detects outdated, conflicting, and duplicate entries across memory layers.",
+    description: "\u5ba1\u67e5 auto-memory \u6761\u76ee\u5e76\u5efa\u8bae\u63d0\u5347\u5230 CLAUDE.md\u3001CLAUDE.local.md \u6216\u5171\u4eab\u8bb0\u5fc6\u3002\u68c0\u6d4b\u8fc7\u65f6\u3001\u51b2\u7a81\u4e0e\u91cd\u590d\u6761\u76ee",
     whenToUse: "Use when the user wants to review, organize, or promote their auto-memory entries. Also useful for cleaning up outdated or conflicting entries across CLAUDE.md, CLAUDE.local.md, and auto-memory.",
     userInvocable: true,
     isEnabled: () => isAutoMemoryEnabled(),
@@ -5355,7 +5355,7 @@ When done, briefly summarize what was fixed (or confirm the code was already cle
 function registerSimplifySkill() {
   registerBundledSkill({
     name: "simplify",
-    description: "Review changed code for reuse, quality, and efficiency, then fix any issues found.",
+    description: "\u5ba1\u67e5\u53d8\u66f4\u4ee3\u7801\u7684\u53ef\u590d\u7528\u6027\u3001\u8d28\u91cf\u4e0e\u6548\u7387\uff0c\u5e76\u4fee\u590d\u53d1\u73b0\u7684\u95ee\u9898",
     userInvocable: true,
     async getPromptForCommand(args) {
       let prompt = SIMPLIFY_PROMPT;
@@ -5527,7 +5527,7 @@ function registerSkillifySkill() {
   }
   registerBundledSkill({
     name: "skillify",
-    description: "Capture this session's repeatable process into a skill. Call at end of the process you want to capture with an optional description.",
+    description: "\u5c06\u4f1a\u8bdd\u4e2d\u53ef\u91cd\u590d\u6d41\u7a0b\u6355\u83b7\u4e3a skill\u3002\u5728\u6d41\u7a0b\u7ed3\u675f\u65f6\u8c03\u7528\uff0c\u53ef\u9009\u63cf\u8ff0",
     allowedTools: [
       "Read",
       "Write",
@@ -5638,7 +5638,7 @@ init_bundledSkills();
 function registerCronListSkill() {
   registerBundledSkill({
     name: "cron-list",
-    description: "List all scheduled cron jobs in this session",
+    description: "\u5217\u51fa\u672c\u4f1a\u8bdd\u4e2d\u6240\u6709\u5df2\u8c03\u5ea6\u7684 cron \u4efb\u52a1",
     whenToUse: "When the user wants to see their scheduled/recurring tasks, check active cron jobs, or review what is currently looping.",
     userInvocable: true,
     isEnabled: isKairosCronEnabled,
@@ -5655,7 +5655,7 @@ function registerCronListSkill() {
 function registerCronDeleteSkill() {
   registerBundledSkill({
     name: "cron-delete",
-    description: "Cancel a scheduled cron job by ID",
+    description: "\u6309 ID \u53d6\u6d88\u5df2\u8c03\u5ea6\u7684 cron \u4efb\u52a1",
     whenToUse: "When the user wants to cancel, stop, or remove a scheduled/recurring task or cron job.",
     argumentHint: "<job-id>",
     userInvocable: true,
@@ -5750,7 +5750,7 @@ ${args}`;
 function registerLoopSkill() {
   registerBundledSkill({
     name: "loop",
-    description: "Run a prompt or slash command on a recurring interval (e.g. /loop 5m /foo, defaults to 10m)",
+    description: "\u6309\u56fa\u5b9a\u95f4\u9694\u8fd0\u884c prompt \u6216\u659c\u6760\u547d\u4ee4\uff08\u5982 /loop 5m /foo\uff0c\u9ed8\u8ba4 10m\uff09",
     whenToUse: 'When the user wants to set up a recurring task, poll for status, or run something repeatedly on an interval (e.g. "check the deploy every 5 minutes", "keep running /babysit-prs"). Do NOT invoke for one-off tasks.',
     argumentHint: "[interval] <prompt>",
     userInvocable: true,
@@ -5780,7 +5780,7 @@ You are performing a manual dream \u2014 a reflective pass over your memory file
 function registerDreamSkill() {
   registerBundledSkill({
     name: "dream",
-    description: "Manually trigger memory consolidation \u2014 review, organize, and prune your auto-memory files.",
+    description: "\u624b\u52a8\u89e6\u53d1\u8bb0\u5fc6\u6574\u7406\u2014\u2014\u5ba1\u67e5\u3001\u7ec4\u7ec7\u5e76\u4fee\u526a auto-memory \u6587\u4ef6",
     whenToUse: "Use when the user says /dream or wants to manually consolidate memories, organize memory files, or clean up stale entries.",
     userInvocable: true,
     isEnabled: () => isAutoMemoryEnabled(),

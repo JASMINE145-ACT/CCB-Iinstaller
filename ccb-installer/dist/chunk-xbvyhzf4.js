@@ -193,14 +193,14 @@ async function call(onDone, context, args) {
     if (remember) {
       try {
         persistPermissionUpdate(permissionUpdate);
-        message = `Added ${source_default.bold(path)} as a working directory and saved to local settings`;
+        message = `\u5df2\u5c06 ${source_default.bold(path)} \u6dfb\u52a0\u4e3a\u5de5\u4f5c\u76ee\u5f55\u5e76\u4fdd\u5b58\u5230\u672c\u5730\u8bbe\u7f6e`;
       } catch (error) {
-        message = `Added ${source_default.bold(path)} as a working directory. Failed to save to local settings: ${error instanceof Error ? error.message : "Unknown error"}`;
+        message = `\u5df2\u5c06 ${source_default.bold(path)} \u6dfb\u52a0\u4e3a\u5de5\u4f5c\u76ee\u5f55\uff0c\u4f46\u4fdd\u5b58\u5230\u672c\u5730\u8bbe\u7f6e\u5931\u8d25\uff1a${error instanceof Error ? error.message : "\u672a\u77e5\u9519\u8bef"}`;
       }
     } else {
-      message = `Added ${source_default.bold(path)} as a working directory for this session`;
+      message = `\u5df2\u5c06 ${source_default.bold(path)} \u6dfb\u52a0\u4e3a\u672c\u6b21\u4f1a\u8bdd\u7684\u5de5\u4f5c\u76ee\u5f55`;
     }
-    const messageWithHint = `${message} ${source_default.dim("\xB7 /permissions to manage")}`;
+    const messageWithHint = `${message} ${source_default.dim("\xb7 /permissions \u7ba1\u7406")}`;
     onDone(messageWithHint);
   };
   if (!directoryPath) {
@@ -208,7 +208,7 @@ async function call(onDone, context, args) {
       permissionContext: appState.toolPermissionContext,
       onAddDirectory: handleAddDirectory,
       onCancel: () => {
-        onDone("Did not add a working directory.");
+        onDone("\u672a\u6dfb\u52a0\u5de5\u4f5c\u76ee\u5f55\u3002");
       }
     }, undefined, false, undefined, this);
   }
@@ -226,7 +226,7 @@ async function call(onDone, context, args) {
     permissionContext: appState.toolPermissionContext,
     onAddDirectory: handleAddDirectory,
     onCancel: () => {
-      onDone(`Did not add ${source_default.bold(result.absolutePath)} as a working directory.`);
+      onDone(`\u672a\u5c06 ${source_default.bold(result.absolutePath)} \u6dfb\u52a0\u4e3a\u5de5\u4f5c\u76ee\u5f55\u3002`);
     }
   }, undefined, false, undefined, this);
 }

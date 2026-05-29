@@ -160,11 +160,11 @@ function IdeAutoConnectDialog({
     onComplete();
   }, [onComplete]);
   const options = [
-    { label: "Yes", value: "yes" },
-    { label: "No", value: "no" }
+    { label: "\u662f", value: "yes" },
+    { label: "\u5426", value: "no" }
   ];
   return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Dialog, {
-    title: "Do you wish to enable auto-connect to IDE?",
+    title: "\u662f\u5426\u542f\u7528\u81ea\u52a8\u8fde\u63a5 IDE\uff1f",
     color: "ide",
     onCancel: onComplete,
     children: [
@@ -175,7 +175,7 @@ function IdeAutoConnectDialog({
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
         dimColor: true,
-        children: "You can also configure this in /config or with the --ide flag"
+        children: "\u4e5f\u53ef\u5728 /config \u4e2d\u914d\u7f6e\uff0c\u6216\u4f7f\u7528 --ide \u6807\u5fd7"
       }, undefined, false, undefined, this)
     ]
   }, undefined, true, undefined, this);
@@ -201,12 +201,12 @@ function IdeDisableAutoConnectDialog({
     onComplete(false);
   }, [onComplete]);
   const options = [
-    { label: "No", value: "no" },
-    { label: "Yes", value: "yes" }
+    { label: "\u5426", value: "no" },
+    { label: "\u662f", value: "yes" }
   ];
   return /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Dialog, {
-    title: "Do you wish to disable auto-connect to IDE?",
-    subtitle: "You can also configure this in /config",
+    title: "\u662f\u5426\u7981\u7528\u81ea\u52a8\u8fde\u63a5 IDE\uff1f",
+    subtitle: "\u4e5f\u53ef\u5728 /config \u4e2d\u914d\u7f6e",
     onCancel: handleCancel,
     color: "ide",
     children: /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Select, {
@@ -263,7 +263,7 @@ function IDEScreen({
       value: ide.port.toString(),
       description: showWorkspace ? formatWorkspaceFolders(ide.workspaceFolders) : undefined
     };
-  }).concat([{ label: "None", value: "None", description: undefined }]);
+  }).concat([{ label: "\u65e0", value: "None", description: undefined }]);
   if (showAutoConnectDialog) {
     return /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(IdeAutoConnectDialog, {
       onComplete: () => handleSelectIDE(selectedValue)
@@ -277,8 +277,8 @@ function IDEScreen({
     }, undefined, false, undefined, this);
   }
   return /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Dialog, {
-    title: "Select IDE",
-    subtitle: "Connect to an IDE for integrated development features.",
+    title: "\u9009\u62e9 IDE",
+    subtitle: "\u8fde\u63a5 IDE \u4ee5\u4f7f\u7528\u96c6\u6210\u5f00\u53d1\u529f\u80fd\u3002",
     onCancel: onClose,
     color: "ide",
     children: /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
@@ -302,14 +302,14 @@ function IDEScreen({
           marginTop: 1,
           children: /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
             color: "warning",
-            children: "Note: Only one Claude Code instance can be connected to VS Code at a time."
+            children: "\u6ce8\u610f\uff1a\u540c\u4e00\u65f6\u95f4\u4ec5\u80fd\u6709\u4e00\u4e2a Claude Code \u5b9e\u4f8b\u8fde\u63a5 VS Code\u3002"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         availableIDEs.length !== 0 && !isSupportedTerminal() && /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
           marginTop: 1,
           children: /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedText, {
             dimColor: true,
-            children: "Tip: You can enable auto-connect to IDE in /config or with the --ide flag"
+            children: "\u63d0\u793a\uff1a\u53ef\u5728 /config \u4e2d\u542f\u7528\u81ea\u52a8\u8fde\u63a5 IDE\uff0c\u6216\u4f7f\u7528 --ide \u6807\u5fd7"
           }, undefined, false, undefined, this)
         }, undefined, false, undefined, this),
         unavailableIDEs.length > 0 && /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(ThemedBox_default, {
@@ -376,7 +376,7 @@ function IDEOpenSelection({
     onDone("IDE selection cancelled", { display: "system" });
   }
   return /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Dialog, {
-    title: "Select an IDE to open the project",
+    title: "\u9009\u62e9\u8981\u6253\u5f00\u9879\u76ee\u7684 IDE",
     onCancel: handleCancel,
     color: "ide",
     children: /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Select, {
@@ -407,7 +407,7 @@ function RunningIDESelector({
     onDone("IDE selection cancelled", { display: "system" });
   }
   return /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Dialog, {
-    title: "Select IDE to install extension",
+    title: "\u9009\u62e9\u8981\u5b89\u88c5\u6269\u5c55\u7684 IDE",
     onCancel: handleCancel,
     color: "ide",
     children: /* @__PURE__ */ jsx_dev_runtime2.jsxDEV(Select, {

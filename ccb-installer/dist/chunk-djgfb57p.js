@@ -217,7 +217,7 @@ function PreflightStep({
       children: [
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(Spinner, {}, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
-          children: "Checking connectivity..."
+          children: "\u6b63\u5728\u68c0\u67e5\u8fde\u63a5\u2026"
         }, undefined, false, undefined, this)
       ]
     }, undefined, true, undefined, this) : !result?.success && !isChecking && /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedBox_default, {
@@ -226,7 +226,7 @@ function PreflightStep({
       children: [
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           color: "error",
-          children: "Unable to connect to Anthropic services"
+          children: "\u65e0\u6cd5\u8fde\u63a5 Anthropic \u670d\u52a1"
         }, undefined, false, undefined, this),
         /* @__PURE__ */ jsx_dev_runtime.jsxDEV(ThemedText, {
           color: "error",
@@ -339,7 +339,7 @@ function Onboarding({ onDone }) {
     children: /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemePicker, {
       onThemeSelect: handleThemeSelection,
       showIntroText: true,
-      helpText: "To change this later, run /theme",
+      helpText: "\u4e4b\u540e\u53ef\u7528 /theme \u66f4\u6539",
       hideEscToCancel: true,
       skipExitHandling: true
     }, undefined, false, undefined, this)
@@ -351,7 +351,7 @@ function Onboarding({ onDone }) {
     children: [
       /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
         bold: true,
-        children: "Security notes:"
+        children: "\u5b89\u5168\u63d0\u793a\uff1a"
       }, undefined, false, undefined, this),
       /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedBox_default, {
         flexDirection: "column",
@@ -361,15 +361,15 @@ function Onboarding({ onDone }) {
             /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(OrderedList.Item, {
               children: [
                 /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
-                  children: "Claude can make mistakes"
+                  children: "Claude \u53ef\u80fd\u4f1a\u51fa\u9519"
                 }, undefined, false, undefined, this),
                 /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
                   dimColor: true,
                   wrap: "wrap",
                   children: [
-                    "You should always review Claude's responses, especially when",
+                    "\u8bf7\u59cb\u7ec8\u68c0\u67e5 Claude \u7684\u56de\u590d\uff0c\u5c24\u5176\u662f",
                     /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(Newline, {}, undefined, false, undefined, this),
-                    "running code.",
+                    "\u8fd0\u884c\u4ee3\u7801\u65f6\u3002",
                     /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(Newline, {}, undefined, false, undefined, this)
                   ]
                 }, undefined, true, undefined, this)
@@ -378,13 +378,13 @@ function Onboarding({ onDone }) {
             /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(OrderedList.Item, {
               children: [
                 /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
-                  children: "Due to prompt injection risks, only use it with code you trust"
+                  children: "\u7531\u4e8e\u63d0\u793a\u6ce8\u5165\u98ce\u9669\uff0c\u8bf7\u53ea\u5728\u4fe1\u4efb\u7684\u4ee3\u7801\u4e0a\u4f7f\u7528"
                 }, undefined, false, undefined, this),
                 /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
                   dimColor: true,
                   wrap: "wrap",
                   children: [
-                    "For more details see:",
+                    "\u8be6\u89c1\uff1a",
                     /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(Newline, {}, undefined, false, undefined, this),
                     /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(Link, {
                       url: "https://code.claude.com/docs/en/security"
@@ -451,7 +451,7 @@ function Onboarding({ onDone }) {
         children: [
           /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
             bold: true,
-            children: "Use Claude Code's terminal setup?"
+            children: "\u662f\u5426\u914d\u7f6e Claude Code \u7ec8\u7aef\uff1f"
           }, undefined, false, undefined, this),
           /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedBox_default, {
             flexDirection: "column",
@@ -460,21 +460,21 @@ function Onboarding({ onDone }) {
             children: [
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
                 children: [
-                  "For the optimal coding experience, enable the recommended settings",
+                  "\u4e3a\u83b7\u5f97\u6700\u4f73\u7f16\u7801\u4f53\u9a8c\uff0c\u8bf7\u542f\u7528\u63a8\u8350\u8bbe\u7f6e",
                   /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(Newline, {}, undefined, false, undefined, this),
-                  "for your terminal:",
+                  "\uff1a",
                   " ",
-                  env.terminal === "Apple_Terminal" ? "Option+Enter for newlines and visual bell" : "Shift+Enter for newlines"
+                  env.terminal === "Apple_Terminal" ? "Option+Enter \u6362\u884c\u5e76\u542f\u7528\u89c6\u89c9\u63d0\u793a" : "Shift+Enter \u6362\u884c"
                 ]
               }, undefined, true, undefined, this),
               /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(Select, {
                 options: [
                   {
-                    label: "Yes, use recommended settings",
+                    label: "\u662f\uff0c\u4f7f\u7528\u63a8\u8350\u8bbe\u7f6e",
                     value: "install"
                   },
                   {
-                    label: "No, maybe later with /terminal-setup",
+                    label: "\u5426\uff0c\u4e4b\u540e\u53ef\u7528 /terminal-setup",
                     value: "no"
                   }
                 ],
@@ -491,12 +491,12 @@ function Onboarding({ onDone }) {
                 dimColor: true,
                 children: exitState.pending ? /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(jsx_dev_runtime4.Fragment, {
                   children: [
-                    "Press ",
+                    "\u6309 ",
                     exitState.keyName,
-                    " again to exit"
+                    " \u518d\u6b21\u9000\u51fa"
                   ]
                 }, undefined, true, undefined, this) : /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(jsx_dev_runtime4.Fragment, {
-                  children: "Enter to confirm \xB7 Esc to skip"
+                  children: "Enter \u786e\u8ba4 \xb7 Esc \u8df3\u8fc7"
                 }, undefined, false, undefined, this)
               }, undefined, false, undefined, this)
             ]
@@ -542,9 +542,9 @@ function Onboarding({ onDone }) {
             children: /* @__PURE__ */ jsx_dev_runtime4.jsxDEV(ThemedText, {
               dimColor: true,
               children: [
-                "Press ",
+                "\u6309 ",
                 exitState.keyName,
-                " again to exit"
+                " \u518d\u6b21\u9000\u51fa"
               ]
             }, undefined, true, undefined, this)
           }, undefined, false, undefined, this)

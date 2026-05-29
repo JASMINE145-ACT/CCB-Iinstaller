@@ -49,13 +49,13 @@ var init_agentDisplay = __esm(() => {
   init_agent();
   init_constants();
   AGENT_SOURCE_GROUPS = [
-    { label: "User agents", source: "userSettings" },
-    { label: "Project agents", source: "projectSettings" },
-    { label: "Local agents", source: "localSettings" },
-    { label: "Managed agents", source: "policySettings" },
-    { label: "Plugin agents", source: "plugin" },
-    { label: "CLI arg agents", source: "flagSettings" },
-    { label: "Built-in agents", source: "built-in" }
+    { label: "\u7528\u6237 agent", source: "userSettings" },
+    { label: "\u9879\u76ee agent", source: "projectSettings" },
+    { label: "\u672c\u5730 agent", source: "localSettings" },
+    { label: "\u6258\u7ba1 agent", source: "policySettings" },
+    { label: "\u63d2\u4ef6 agent", source: "plugin" },
+    { label: "CLI \u53c2\u6570 agent", source: "flagSettings" },
+    { label: "\u5185\u7f6e agent", source: "built-in" }
   ];
 });
 
