@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Best — Windows 最佳 Claude Code 增强工具</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/ccb-tui-mock.css">
+    <style>
+        /* ─── Reset ─── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* ─── Design Tokens ─── */
+        :root {
+            --bg:           #FAFAF8;
+            --surface:      #FFFFFF;
+            --surface-2:    #F4F4F1;
+            --border:       #E6E6E1;
+            --border-mid:   #D0D0CB;
+            --text:         #1A1A18;
+            --text-2:       #6B6B65;
+            --text-3:       #A0A09A;
+            --accent:       #D4502B;
+            --accent-bg:    #FFF0EC;
+            --accent-dark:  #B8421F;
+            --purple:       #7C3AED;
+            --green:        #16A34A;
+            --yellow:       #CA8A04;
+            --r:            12px;
+            --r-sm:         8px;
+            --r-lg:         20px;
+            --shadow-sm:    0 1px 3px rgba(0,0,0,0.07), 0 2px 8px rgba(0,0,0,0.04);
+            --shadow:       0 4px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-lg:    0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+            --ease:         cubic-bezier(0.4, 0, 0.2, 1);
+            --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ─── Scrollbar ─── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 3px; }
+
+        /* ─── NAV ─── */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            background: rgba(250, 250, 248, 0.88);
+            backdrop-filter: blur(16px) saturate(1.8);
+            -webkit-backdrop-filter: blur(16px) saturate(1.8);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 62px;
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: -0.025em;
+        }
+        .logo-mark {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #D4502B 0%, #9333EA 100%);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            flex-shrink: 0;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .nav-link {
+            padding: 7px 14px;
+            border-radius: var(--r-sm);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-2);
+            text-decoration: none;
+            transition: color 0.15s var(--ease), background 0.15s var(--ease);
+        }
+        .nav-link:hover { color: var(--text); background: var(--surface-2); }
+        .nav-cta {
+            margin-left: 8px;
+            padding: 8px 20px;
+            background: var(--text);
+            color: #fff;
+            border-radius: var(--r-sm);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.15s var(--ease), transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+        }
+        .nav-cta:hover { background: #2D2D2B; transform: translateY(-1px); box-shadow: var(--shadow); }
+
+        /* ─── SECTION WRAPPER ─── */
+        .wrap {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding-left: 32px;
+            padding-right: 32px;
+        }
+        .divider { height: 1px; background: var(--border); margin: 0 32px; }
+
+        /* ─── HERO ─── */
+        .hero {
+            padding: 96px 32px 72px;
+            max-width: 1240px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 14px 5px 10px;
+            background: var(--accent-bg);
+            border: 1px solid rgba(212,80,43,0.18);
+            border-radius: 100px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 36px;
+        }
+        .badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: blink 2.4s ease-in-out infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.3; transform: scale(0.7); }
+        }
+        .hero-h1 {
+            font-size: clamp(42px, 6.5vw, 80px);
+            font-weight: 900;
+            letter-spacing: -0.045em;
+            line-height: 1.02;
+            color: var(--text);
+            margin-bottom: 28px;
+        }
+        .hero-h1 .grad {
+            background: linear-gradient(135deg, #D4502B 10%, #9333EA 90%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-sub {
+            font-size: clamp(17px, 2.2vw, 21px);
+            color: var(--text-2);
+            max-width: 540px;
+            margin: 0 auto 52px;
+            line-height: 1.65;
+            font-weight: 400;
+        }
+        .hero-btns {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 72px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 13px 26px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.18s var(--ease);
+        }
+        .btn-dark { background: var(--text); color: #fff; }
+        .btn-dark:hover { background: #2A2A28; transform: translateY(-2px); box-shadow: var(--shadow); }
+        .btn-outline { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); }
+        .btn-outline:hover { border-color: var(--border-mid); transform: translateY(-2px); box-shadow: var(--shadow); }
+        .btn-white { background: #fff; color: var(--text); }
+        .btn-white:hover { background: #f5f5f2; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.25); }
+
+        /* ─── STATS ─── */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: var(--border);
+            gap: 1px;
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            overflow: hidden;
+            margin-bottom: 80px;
+        }
+        .stat {
+            background: var(--surface);
+            padding: 40px 28px;
+            text-align: center;
+        }
+        .stat-n {
+            font-size: 52px;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 1;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .stat-l {
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text-2);
+        }
+
+        /* ─── SECTION HEADERS ─── */
+        .section { padding: 80px 0; }
+        .section-eyebrow {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            margin-bottom: 14px;
+        }
+        .section-h2 {
+            font-size: clamp(28px, 4vw, 46px);
+            font-weight: 800;
+            letter-spacing: -0.035em;
+            line-height: 1.1;
+            color: var(--text);
+            margin-bottom: 18px;
+        }
+        .section-lead {
+            font-size: 17px;
+            color: var(--text-2);
+            line-height: 1.7;
+            max-width: 520px;
+            margin-bottom: 56px;
+        }
+
+        /* ─── FEATURES GRID ─── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+        @media (max-width: 900px) {
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 580px) {
+            .features-grid { grid-template-columns: 1fr; }
+        }
+        .feat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 32px;
+            transition: border-color 0.18s var(--ease), box-shadow 0.18s var(--ease), transform 0.18s var(--ease);
+        }
+        .feat-card:hover {
+            border-color: var(--border-mid);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
+        }
+        .feat-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+        .feat-title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.015em;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+        .feat-desc {
+            font-size: 14px;
+            color: var(--text-2);
+            line-height: 1.65;
+        }
+
+        /* ─── UPDATES ─── */
+        .updates-stack { display: flex; flex-direction: column; gap: 12px; }
+        .update-row {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 24px 28px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: start;
+            transition: border-color 0.15s var(--ease), transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+        }
+        .update-row:hover {
+            border-color: var(--border-mid);
+            transform: translateX(5px);
+            box-shadow: var(--shadow-sm);
+        }
+        .ver-pill {
+            padding: 4px 11px;
+            background: var(--text);
+            color: #fff;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            font-family: 'SF Mono', monospace;
+            white-space: nowrap;
+            letter-spacing: 0.02em;
+        }
+        .update-body {}
+        .update-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 5px; letter-spacing: -0.01em; }
+        .update-desc  { font-size: 13.5px; color: var(--text-2); line-height: 1.6; margin-bottom: 10px; }
+        .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .tag {
+            padding: 2px 9px;
+            border-radius: 100px;
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+        .tag-feat { background: #EEF2FF; color: #4338CA; }
+        .tag-fix  { background: #F0FDF4; color: #15803D; }
+        .tag-perf { background: #FFF7ED; color: #C2410C; }
+        .tag-docs { background: #F5F3FF; color: #6D28D9; }
+        .update-date {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-3);
+            white-space: nowrap;
+            padding-top: 3px;
+        }
+
+        /* ─── DOCS GRID ─── */
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+        @media (max-width: 960px)  { .docs-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 560px)  { .docs-grid { grid-template-columns: 1fr; } }
+        .doc-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 24px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease), transform 0.15s var(--ease);
+        }
+        .doc-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(212,80,43,0.08), var(--shadow-sm);
+            transform: translateY(-3px);
+        }
+        .doc-emoji { font-size: 26px; line-height: 1; }
+        .doc-title { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+        .doc-desc  { font-size: 13px; color: var(--text-2); line-height: 1.55; flex: 1; }
+        .doc-arr   { font-size: 16px; color: var(--text-3); transition: color 0.15s, transform 0.15s; }
+        .doc-card:hover .doc-arr { color: var(--accent); transform: translateX(3px); }
+
+        /* ─── DOWNLOAD BAND ─── */
+        .dl-band {
+            margin: 0 32px 80px;
+            background: var(--text);
+            border-radius: var(--r-lg);
+            padding: 72px 48px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .dl-band::before {
+            content: '';
+            position: absolute;
+            top: -40%; left: -15%;
+            width: 560px; height: 560px;
+            background: radial-gradient(circle, rgba(212,80,43,0.35) 0%, transparent 65%);
+            pointer-events: none;
+        }
+        .dl-band::after {
+            content: '';
+            position: absolute;
+            bottom: -30%; right: -8%;
+            width: 480px; height: 480px;
+            background: radial-gradient(circle, rgba(147,51,234,0.28) 0%, transparent 65%);
+            pointer-events: none;
+        }
+        .dl-inner { position: relative; z-index: 1; }
+        .dl-title {
+            font-size: clamp(28px, 4vw, 44px);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            color: #fff;
+            line-height: 1.08;
+            margin-bottom: 16px;
+        }
+        .dl-sub {
+            font-size: 17px;
+            color: rgba(255,255,255,0.55);
+            margin-bottom: 40px;
+            max-width: 440px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+        .dl-meta {
+            font-size: 13px;
+            color: rgba(255,255,255,0.35);
+            margin-top: 20px;
+        }
+
+        /* ─── FOOTER ─── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 44px 32px;
+        }
+        .foot-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .foot-brand { font-weight: 700; font-size: 15px; letter-spacing: -0.02em; color: var(--text); margin-bottom: 4px; }
+        .foot-copy  { font-size: 13px; color: var(--text-3); }
+        .foot-links { display: flex; gap: 24px; }
+        .foot-link  {
+            font-size: 14px; color: var(--text-2); text-decoration: none;
+            transition: color 0.15s;
+        }
+        .foot-link:hover { color: var(--text); }
+
+        /* ─── MOBILE NAV ─── */
+        @media (max-width: 720px) {
+            .nav-links { display: none; }
+            .hero { padding: 64px 24px 48px; }
+            .stats-bar { grid-template-columns: 1fr; }
+            .dl-band { margin: 0 16px 60px; padding: 48px 28px; }
+            .update-row { grid-template-columns: 1fr; gap: 10px; }
+            .update-date { display: none; }
+            .wrap { padding-left: 20px; padding-right: 20px; }
+            .divider { margin: 0 20px; }
+        }
+
+        /* ─── SCROLL FADE ─── */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.55s var(--ease), transform 0.55s var(--ease);
+        }
+        .fade-in.visible { opacity: 1; transform: none; }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAV ═══════════════════ -->
+<nav>
+    <div class="nav-inner">
+        <a href="#" class="nav-logo">
+            <div class="logo-mark">CC</div>
+            Claude Code Best
+        </a>
+        <div class="nav-links">
+            <a href="#features" class="nav-link">功能</a>
+            <a href="#updates"  class="nav-link">更新日志</a>
+            <a href="#docs"     class="nav-link">文档</a>
+            <a href="/feedback" class="nav-link">留言板</a>
+            <a href="#download" class="nav-cta">下载 v1.0.7</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<section class="hero">
+    <div class="hero-badge">
+        <span class="badge-dot"></span>
+        v1.0.7 已发布 &nbsp;·&nbsp; 全面汉化 + Git Bash 修复
+    </div>
+    <h1 class="hero-h1">
+        Windows 上最好的<br>
+        <span class="grad">Claude Code</span> 体验
+    </h1>
+    <p class="hero-sub">
+        完整汉化界面，多种启动模式，智能 Git Bash 检测，一键安装部署。
+        让 Claude Code 真正为中文用户服务。
+    </p>
+    <div class="hero-btns">
+        <a href="#download" class="btn btn-dark">⬇&nbsp; 下载安装包 (.exe)</a>
+        <a href="/doc?file=docs/guide/01-快速开始.md" class="btn btn-outline">📖&nbsp; 阅读文档</a>
+    </div>
+
+    <!-- Terminal preview: real screenshot if present, else CSS mock fallback -->
+    <div class="ccb-tui" role="img" aria-label="Claude Code 界面预览">
+        <div class="ccb-tui-bar">
+            <span class="ccb-tui-dot ccb-tui-dot--close" aria-hidden="true"></span>
+            <span class="ccb-tui-dot ccb-tui-dot--min" aria-hidden="true"></span>
+            <span class="ccb-tui-dot ccb-tui-dot--max" aria-hidden="true"></span>
+            <span class="ccb-tui-bar-title">Windows PowerShell</span>
+        </div>
+        <img class="ccb-tui-shot" src="./assets/ccb-hero.png" alt="Claude Code 真实界面截图"
+             onerror="this.remove();var m=document.getElementById('ccbTuiMock');if(m)m.style.display='block';">
+        <div class="ccb-tui-screen" id="ccbTuiMock" style="display:none">
+            <div class="ccb-tui-header">
+                <pre class="ccb-tui-clawd" aria-hidden="true"><span class="cb"> ▐</span><span class="ce">▛███▜</span><span class="cb">▌</span>
+<span class="cb">▝▜</span><span class="ce">█████</span><span class="cb">▛▘</span>
+<span class="cf">  ▘▘ ▝▝  </span></pre>
+                <div class="ccb-tui-meta">
+                    <p class="ccb-tui-title"><strong>Claude Code</strong> <span class="ver">v2.1.888</span></p>
+                    <p class="ccb-tui-line">Opus 4.6（1M 上下文） · API 用量计费</p>
+                    <p class="ccb-tui-line">D:\Projects\my-project</p>
+                </div>
+            </div>
+            <div class="ccb-tui-sep" aria-hidden="true"></div>
+            <div class="ccb-tui-prompt">
+                <span class="ccb-tui-prompt-mark">❯</span>
+                <span class="ccb-tui-prompt-ph">试试「这个文件是如何工作的？」</span>
+                <span class="ccb-tui-cursor" aria-hidden="true"></span>
+            </div>
+            <div class="ccb-tui-sep" aria-hidden="true"></div>
+            <div class="ccb-tui-footer">
+                <div class="ccb-tui-footer-l">
+                    <span class="hint">  </span><span class="sym">⏵⏵</span><span class="mode"> 绕过权限</span><span class="on"> 已开启</span><span class="hint"> (Shift+Tab 切换)</span>
+                </div>
+                <div class="ccb-tui-footer-r"><span class="effort-sym">◐</span>medium · /effort</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════ STATS ═══════════════════ -->
+<div class="wrap" style="padding-top:60px; padding-bottom:0">
+    <div class="stats-bar fade-in">
+        <div class="stat">
+            <div class="stat-n">100<span style="font-size:0.55em; color:var(--accent)">%</span></div>
+            <div class="stat-l">界面汉化覆盖率</div>
+        </div>
+        <div class="stat">
+            <div class="stat-n">4<span style="font-size:0.5em; color:var(--text-2)">+</span></div>
+            <div class="stat-l">启动模式选择</div>
+        </div>
+        <div class="stat">
+            <div class="stat-n" style="font-size:36px">1.0.7</div>
+            <div class="stat-l">当前稳定版本</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════ FEATURES ═══════════════════ -->
+<section id="features" class="section wrap">
+    <div class="section-eyebrow fade-in">核心功能</div>
+    <h2 class="section-h2 fade-in">为中文用户量身打造</h2>
+    <p class="section-lead fade-in">
+        在原版 Claude Code 基础上，CCB 添加了一系列专为
+        Windows 中文用户优化的增强功能。
+    </p>
+
+    <div class="features-grid">
+        <div class="feat-card fade-in">
+            <div class="feat-icon" style="background:#FFF0EC">🈲</div>
+            <div class="feat-title">完整汉化界面</div>
+            <div class="feat-desc">所有菜单、提示、错误信息、帮助文本全部翻译为简体中文，提供原生中文使用体验。</div>
+        </div>
+        <div class="feat-card fade-in">
+            <div class="feat-icon" style="background:#EEF2FF">🚀</div>
+            <div class="feat-title">多种启动模式</div>
+            <div class="feat-desc">支持标准、平铺、安全等多种启动方式，安装后自动在桌面创建各模式快捷方式。</div>
+        </div>
+        <div class="feat-card fade-in">
+            <div class="feat-icon" style="background:#F0FDF4">🐚</div>
+            <div class="feat-title">Git Bash 自动检测</div>
+            <div class="feat-desc">自动扫描并配置 Git Bash 路径，彻底解决 Windows 环境下的 Bash 兼容性问题。</div>
+        </div>
+        <div class="feat-card fade-in">
+            <div class="feat-icon" style="background:#F5F3FF">🔌</div>
+            <div class="feat-title">MCP 服务器支持</div>
+            <div class="feat-desc">内置 MCP 服务器配置管理，轻松接入报价助手、日历等各类工具和外部服务。</div>
+        </div>
+        <div class="feat-card fade-in">
+            <div class="feat-icon" style="background:#FFFBEB">📦</div>
+            <div class="feat-title">一键安装部署</div>
+            <div class="feat-desc">标准 Windows 安装程序，自动处理 Node.js、Bun、Claude Code 的完整安装链。</div>
+        </div>
+        <div class="feat-card fade-in">
+            <div class="feat-icon" style="background:#FDF2F8">🛡️</div>
+            <div class="feat-title">配置无损升级</div>
+            <div class="feat-desc">安装时自动识别并保留现有 Claude Code 配置文件，升级不丢失任何个人设置。</div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════ UPDATES ═══════════════════ -->
+<section id="updates" class="section wrap">
+    <div class="section-eyebrow fade-in">版本更新</div>
+    <h2 class="section-h2 fade-in">持续迭代，快速响应</h2>
+    <p class="section-lead fade-in">我们持续收集用户反馈，每次发布都专注于真实问题的解决。</p>
+
+    <div class="updates-stack">
+        <div class="update-row fade-in">
+            <span class="ver-pill">v1.0.7</span>
+            <div class="update-body">
+                <div class="update-title">全面汉化 + Git Bash 修复 + 安装选项优化</div>
+                <div class="update-desc">完成所有界面文本中文翻译；修复 Git Bash 路径自动检测逻辑；优化安装程序引导流程，提供更清晰的选项说明。</div>
+                <div class="tags">
+                    <span class="tag tag-feat">新功能</span>
+                    <span class="tag tag-fix">Bug 修复</span>
+                </div>
+            </div>
+            <span class="update-date">2026-05-30</span>
+        </div>
+        <div class="update-row fade-in">
+            <span class="ver-pill">v1.0.6</span>
+            <div class="update-body">
+                <div class="update-title">安装引导门户 + 终端显示修复</div>
+                <div class="update-desc">新增安装引导门户页面提升新用户体验；修复 Windows 11 环境下终端乱码和 ANSI 转义序列显示异常。</div>
+                <div class="tags">
+                    <span class="tag tag-feat">新功能</span>
+                    <span class="tag tag-fix">Bug 修复</span>
+                </div>
+            </div>
+            <span class="update-date">2026-05-28</span>
+        </div>
+        <div class="update-row fade-in">
+            <span class="ver-pill">v1.0.5</span>
+            <div class="update-body">
+                <div class="update-title">CI 流程优化 + 构建脚本调试增强</div>
+                <div class="update-desc">简化 CI/CD 工作流，构建步骤直接下载资源；改进构建脚本的错误输出，便于问题排查。</div>
+                <div class="tags">
+                    <span class="tag tag-perf">性能优化</span>
+                </div>
+            </div>
+            <span class="update-date">2026-05-26</span>
+        </div>
+        <div class="update-row fade-in">
+            <span class="ver-pill">v1.0.4</span>
+            <div class="update-body">
+                <div class="update-title">多模式启动 + 桌面快捷方式</div>
+                <div class="update-desc">引入平铺模式、安全模式等多种启动方式；安装后自动在用户桌面生成各模式的快捷方式图标。</div>
+                <div class="tags">
+                    <span class="tag tag-feat">新功能</span>
+                </div>
+            </div>
+            <span class="update-date">2026-05-24</span>
+        </div>
+        <div class="update-row fade-in">
+            <span class="ver-pill">v1.0.3</span>
+            <div class="update-body">
+                <div class="update-title">MCP 服务器集成 + 报价助手</div>
+                <div class="update-desc">完成 MCP 服务器框架集成；内置报价助手 MCP，演示工具调用能力。</div>
+                <div class="tags">
+                    <span class="tag tag-feat">新功能</span>
+                    <span class="tag tag-docs">文档</span>
+                </div>
+            </div>
+            <span class="update-date">2026-05-20</span>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════ DOCS ═══════════════════ -->
+<section id="docs" class="section wrap">
+    <div class="section-eyebrow fade-in">文档</div>
+    <h2 class="section-h2 fade-in">从入门到精通</h2>
+    <p class="section-lead fade-in">完整的中文文档，帮助你充分发挥 CCB 的每一个功能。</p>
+
+    <div class="docs-grid">
+        <a href="/doc?file=docs/guide/01-快速开始.md" class="doc-card fade-in">
+            <span class="doc-emoji">🚀</span>
+            <div class="doc-title">快速开始</div>
+            <div class="doc-desc">下载、安装、首次启动的完整引导，5 分钟上手。</div>
+            <span class="doc-arr">→</span>
+        </a>
+        <a href="/doc?file=docs/guide/02-功能介绍.md" class="doc-card fade-in">
+            <span class="doc-emoji">✨</span>
+            <div class="doc-title">功能介绍</div>
+            <div class="doc-desc">CCB 所有功能的详细说明与使用场景。</div>
+            <span class="doc-arr">→</span>
+        </a>
+        <a href="/doc?file=docs/guide/03-启动模式.md" class="doc-card fade-in">
+            <span class="doc-emoji">🎛️</span>
+            <div class="doc-title">启动模式</div>
+            <div class="doc-desc">标准、平铺、安全模式的区别与适用场景。</div>
+            <span class="doc-arr">→</span>
+        </a>
+        <a href="/doc?file=docs/guide/04-MCP配置.md" class="doc-card fade-in">
+            <span class="doc-emoji">🔌</span>
+            <div class="doc-title">MCP 配置</div>
+            <div class="doc-desc">配置 MCP 服务器，扩展 Claude Code 的工具能力。</div>
+            <span class="doc-arr">→</span>
+        </a>
+        <a href="/doc?file=docs/superpowers/README.md" class="doc-card fade-in">
+            <span class="doc-emoji">⚡</span>
+            <div class="doc-title">Superpowers</div>
+            <div class="doc-desc">Skills 工作流：头脑风暴、TDD、代码审查等。</div>
+            <span class="doc-arr">→</span>
+        </a>
+        <a href="/doc?file=docs/guide/05-汉化机制.md" class="doc-card fade-in">
+            <span class="doc-emoji">🈲</span>
+            <div class="doc-title">汉化机制</div>
+            <div class="doc-desc">了解 CCB 是如何实现完整界面汉化的原理。</div>
+            <span class="doc-arr">→</span>
+        </a>
+        <a href="/doc?file=docs/guide/06-常见问题.md" class="doc-card fade-in">
+            <span class="doc-emoji">❓</span>
+            <div class="doc-title">常见问题</div>
+            <div class="doc-desc">最常见问题的快速解答，包括 Git Bash 排查。</div>
+            <span class="doc-arr">→</span>
+        </a>
+        <a href="/doc?file=docs/guide/07-开发者构建指南.md" class="doc-card fade-in">
+            <span class="doc-emoji">🔨</span>
+            <div class="doc-title">开发者指南</div>
+            <div class="doc-desc">从源码构建 CCB，参与项目贡献。</div>
+            <span class="doc-arr">→</span>
+        </a>
+        <a href="/feedback" class="doc-card fade-in">
+            <span class="doc-emoji">💬</span>
+            <div class="doc-title">用户留言板</div>
+            <div class="doc-desc">分享反馈、提交建议，帮助 CCB 不断改进。</div>
+            <span class="doc-arr">→</span>
+        </a>
+    </div>
+</section>
+
+<!-- ═══════════════════ DOWNLOAD CTA ═══════════════════ -->
+<div id="download" class="dl-band fade-in">
+    <div class="dl-inner">
+        <div class="dl-title">立即开始使用 CCB</div>
+        <p class="dl-sub">免费开源，一键安装。Windows 10 / 11 均可使用。保留你的原有配置。</p>
+        <a href="/api/download" class="btn btn-white">⬇&nbsp; 下载 CCB v1.0.7 (.exe)</a>
+        <p class="dl-meta">约 500 MB · 需要网络连接 API · 普通用户权限即可</p>
+    </div>
+</div>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer>
+    <div class="foot-inner">
+        <div>
+            <div class="foot-brand">Claude Code Best</div>
+            <div class="foot-copy">© 2026 CCB · 基于开源精神构建 · 仅供学习使用</div>
+        </div>
+        <div class="foot-links">
+            <a href="#features" class="foot-link">功能</a>
+            <a href="#updates"  class="foot-link">更新</a>
+            <a href="#docs"     class="foot-link">文档</a>
+            <a href="https://github.com/JASMINE145-ACT" class="foot-link">GitHub</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Scroll-triggered fade in
+    const observer = new IntersectionObserver(
+        entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+        { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+    );
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Smooth nav active state
+    const sections = document.querySelectorAll('section[id], div[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+    window.addEventListener('scroll', () => {
+        let cur = '';
+        sections.forEach(s => {
+            if (window.scrollY >= s.offsetTop - 100) cur = s.id;
+        });
+        navLinks.forEach(l => {
+            l.style.color = l.getAttribute('href') === '#' + cur ? 'var(--text)' : '';
+        });
+    }, { passive: true });
+</script>
+</body>
+</html>

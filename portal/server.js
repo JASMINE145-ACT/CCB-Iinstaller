@@ -137,6 +137,15 @@ const server = http.createServer(async (req, res) => {
     // ── API ────────────────────────────────────────
     if (urlPath.startsWith('/api/')) {
 
+        // GET /api/download — redirect to GitHub Release
+        if (urlPath === '/api/download' && method === 'GET') {
+            const ip = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+            console.log(`[download] ${new Date().toISOString()} ${ip}`);
+            res.writeHead(302, { 'Location': DOWNLOAD_URL });
+            res.end();
+            return;
+        }
+
         // POST /api/auth/login
         if (urlPath === '/api/auth/login' && method === 'POST') {
             const body     = await parseBody(req);
