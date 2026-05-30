@@ -99,6 +99,16 @@ function json(res, status, data) {
     res.end(JSON.stringify(data));
 }
 
+const rateLimits = new Map();
+function checkRateLimit(key, limit, windowMs) {
+    const now   = Date.now();
+    const entry = rateLimits.get(key) || { count: 0, resetAt: now + windowMs };
+    if (now > entry.resetAt) { entry.count = 0; entry.resetAt = now + windowMs; }
+    entry.count++;
+    rateLimits.set(key, entry);
+    return entry.count <= limit;
+}
+
 // ─── Seed demo data ─────────────────────────────────────────
 if (!fs.existsSync(FILES.users)) saveJSON(FILES.users, []);
 if (!fs.existsSync(FILES.messages)) {
@@ -223,6 +233,8 @@ const server = http.createServer(async (req, res) => {
         if (urlPath === '/api/messages' && method === 'POST') {
             const user = getUser(req);
             if (!user) return json(res, 401, { error: '请先登录' });
+            if (!checkRateLimit(`msg:${user.wxid}`, 10, 60_000))
+                return json(res, 429, { error: '留言太频繁，请 1 分钟后再试' });
             const body    = await parseBody(req);
             const content = (body.content || '').trim();
             if (!content || content.length < 2)  return json(res, 400, { error: '内容至少 2 个字' });
@@ -250,6 +262,8 @@ const server = http.createServer(async (req, res) => {
         if (m && method === 'POST') {
             const user = getUser(req);
             if (!user) return json(res, 401, { error: '请先登录' });
+            if (!checkRateLimit(`like:${user.wxid}`, 30, 60_000))
+                return json(res, 429, { error: '操作太频繁，请稍后再试' });
             const msgs = loadJSON(FILES.messages, []);
             const msg  = msgs.find(x => x.id === m[1]);
             if (!msg) return json(res, 404, { error: '找不到该留言' });
