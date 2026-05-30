@@ -36,8 +36,17 @@ function loadJSON(file, def) {
     try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
     catch { return def; }
 }
-function saveJSON(file, data) {
-    fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
+function atomicWrite(file, data) {
+    const tmp = file + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8');
+    fs.renameSync(tmp, file);
+}
+function saveJSON(file, data) { atomicWrite(file, data); }  // startup only
+
+let writeChain = Promise.resolve();
+function enqueueWrite(file, data) {
+    writeChain = writeChain.then(() => atomicWrite(file, data));
+    return writeChain;
 }
 function parseCookies(header = '') {
     return Object.fromEntries(
@@ -183,7 +192,7 @@ const server = http.createServer(async (req, res) => {
                 user.nickname = nickname;
                 user.avatar   = nickname[0].toUpperCase();
             }
-            saveJSON(FILES.users, users);
+            await enqueueWrite(FILES.users, users);
             const token = createSessionToken(wxid);
             res.setHeader('Set-Cookie', `ccb_session=${token}; Path=/; HttpOnly; Max-Age=604800`);
             return json(res, 200, { ok: true, user });
@@ -232,7 +241,7 @@ const server = http.createServer(async (req, res) => {
                 likes:     [],
             };
             msgs.push(msg);
-            saveJSON(FILES.messages, msgs);
+            await enqueueWrite(FILES.messages, msgs);
             return json(res, 201, msg);
         }
 
@@ -248,7 +257,7 @@ const server = http.createServer(async (req, res) => {
             const idx = msg.likes.indexOf(user.wxid);
             if (idx === -1) msg.likes.push(user.wxid);
             else msg.likes.splice(idx, 1);
-            saveJSON(FILES.messages, msgs);
+            await enqueueWrite(FILES.messages, msgs);
             return json(res, 200, { likes: msg.likes.length, liked: idx === -1 });
         }
 
