@@ -293,8 +293,11 @@ const server = http.createServer(async (req, res) => {
     fs.readFile(absPath, (err, data) => {
         if (err) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end('404: ' + urlPath); return; }
         const ext = path.extname(absPath).toLowerCase();
+        const content = ext === '.html'
+            ? Buffer.from(data.toString('utf8').replace(/\{\{SITE_URL\}\}/g, SITE_URL))
+            : data;
         res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
-        res.end(data);
+        res.end(content);
     });
 });
 
