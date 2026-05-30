@@ -30,8 +30,6 @@ try {
     fs.writeFileSync(FILES.sessionKey, SESSION_SECRET, 'utf8');
 }
 
-// In-memory sessions: token → wxid
-const sessions = new Map();
 
 // ─── Helpers ────────────────────────────────────────────────
 function loadJSON(file, def) {
@@ -57,10 +55,33 @@ function parseBody(req) {
         req.on('error', rej);
     });
 }
+function createSessionToken(wxid) {
+    const payload = Buffer.from(JSON.stringify({ wxid, iat: Date.now() })).toString('base64url');
+    const sig = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
+    return `${payload}.${sig}`;
+}
+
+function verifySessionToken(tokenStr) {
+    if (!tokenStr) return null;
+    const dot = tokenStr.lastIndexOf('.');
+    if (dot === -1) return null;
+    const payload = tokenStr.slice(0, dot);
+    const sig     = tokenStr.slice(dot + 1);
+    const expected = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
+    try {
+        if (sig.length !== expected.length) return null;
+        if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
+    } catch { return null; }
+    try {
+        const { wxid, iat } = JSON.parse(Buffer.from(payload, 'base64url').toString());
+        if (Date.now() - iat > 7 * 24 * 60 * 60 * 1000) return null;
+        return wxid;
+    } catch { return null; }
+}
+
 function getUser(req) {
     const token = parseCookies(req.headers.cookie || '')['ccb_session'];
-    if (!token) return null;
-    const wxid = sessions.get(token);
+    const wxid  = verifySessionToken(token);
     if (!wxid) return null;
     return loadJSON(FILES.users, []).find(u => u.wxid === wxid) || null;
 }
@@ -163,17 +184,14 @@ const server = http.createServer(async (req, res) => {
                 user.avatar   = nickname[0].toUpperCase();
             }
             saveJSON(FILES.users, users);
-            const token = crypto.randomBytes(24).toString('hex');
-            sessions.set(token, wxid);
+            const token = createSessionToken(wxid);
             res.setHeader('Set-Cookie', `ccb_session=${token}; Path=/; HttpOnly; Max-Age=604800`);
             return json(res, 200, { ok: true, user });
         }
 
         // POST /api/auth/logout
         if (urlPath === '/api/auth/logout' && method === 'POST') {
-            const token = parseCookies(req.headers.cookie || '')['ccb_session'];
-            sessions.delete(token);
-            res.setHeader('Set-Cookie', 'ccb_session=; Path=/; Max-Age=0');
+            res.setHeader('Set-Cookie', 'ccb_session=; Path=/; HttpOnly; Max-Age=0');
             return json(res, 200, { ok: true });
         }
 
