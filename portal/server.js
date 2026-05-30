@@ -24,8 +24,11 @@ const SITE_URL = (process.env.CCB_SITE_URL || 'http://localhost:3000').replace(/
 // SESSION_SECRET：从文件加载，不存在则生成并保存
 let SESSION_SECRET;
 try {
-    SESSION_SECRET = fs.readFileSync(FILES.sessionKey, 'utf8').trim();
-} catch {
+    const loaded = fs.readFileSync(FILES.sessionKey, 'utf8').trim();
+    if (!loaded || loaded.length < 32) throw new Error('session.key too short');
+    SESSION_SECRET = loaded;
+} catch (e) {
+    if (e.code !== 'ENOENT' && !e.message.includes('too short')) throw e;
     SESSION_SECRET = crypto.randomBytes(32).toString('hex');
     fs.writeFileSync(FILES.sessionKey, SESSION_SECRET, 'utf8');
 }
@@ -45,8 +48,9 @@ function saveJSON(file, data) { atomicWrite(file, data); }  // startup only
 
 let writeChain = Promise.resolve();
 function enqueueWrite(file, data) {
-    writeChain = writeChain.then(() => atomicWrite(file, data));
-    return writeChain;
+    const result = writeChain.then(() => atomicWrite(file, data));
+    writeChain = result.catch(() => { writeChain = Promise.resolve(); });
+    return result;
 }
 function parseCookies(header = '') {
     return Object.fromEntries(
@@ -59,7 +63,10 @@ function parseCookies(header = '') {
 function parseBody(req) {
     return new Promise((res, rej) => {
         let body = '';
-        req.on('data', c => body += c);
+        req.on('data', chunk => {
+            body += chunk;
+            if (body.length > 8192) { req.destroy(); rej(new Error('Request body too large')); }
+        });
         req.on('end', () => { try { res(JSON.parse(body || '{}')); } catch { res({}); } });
         req.on('error', rej);
     });
@@ -108,6 +115,11 @@ function checkRateLimit(key, limit, windowMs) {
     rateLimits.set(key, entry);
     return entry.count <= limit;
 }
+// Sweep expired rate-limit entries every 5 minutes
+setInterval(() => {
+    const now = Date.now();
+    for (const [k, v] of rateLimits) { if (now > v.resetAt) rateLimits.delete(k); }
+}, 5 * 60 * 1000).unref();
 
 // ─── Seed demo data ─────────────────────────────────────────
 if (!fs.existsSync(FILES.users)) saveJSON(FILES.users, []);
@@ -165,6 +177,7 @@ const MIME = {
 
 // ─── Server ─────────────────────────────────────────────────
 const server = http.createServer(async (req, res) => {
+  try {
     const url    = new URL(req.url, `http://localhost:${PORT}`);
     const urlPath = decodeURIComponent(url.pathname);
     const method  = req.method.toUpperCase();
@@ -204,13 +217,13 @@ const server = http.createServer(async (req, res) => {
             }
             await enqueueWrite(FILES.users, users);
             const token = createSessionToken(wxid);
-            res.setHeader('Set-Cookie', `ccb_session=${token}; Path=/; HttpOnly; Max-Age=604800`);
+            res.setHeader('Set-Cookie', `ccb_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=604800`);
             return json(res, 200, { ok: true, user });
         }
 
         // POST /api/auth/logout
         if (urlPath === '/api/auth/logout' && method === 'POST') {
-            res.setHeader('Set-Cookie', 'ccb_session=; Path=/; HttpOnly; Max-Age=0');
+            res.setHeader('Set-Cookie', 'ccb_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0');
             return json(res, 200, { ok: true });
         }
 
@@ -239,7 +252,8 @@ const server = http.createServer(async (req, res) => {
             const content = (body.content || '').trim();
             if (!content || content.length < 2)  return json(res, 400, { error: '内容至少 2 个字' });
             if (content.length > 500)             return json(res, 400, { error: '内容不超过 500 字' });
-            const validTypes = ['feedback', 'request', 'bug'];
+            const validTypes    = ['feedback', 'request', 'bug'];
+            const validVersions = ['general', 'v1.0.7', 'v1.0.6', 'v1.0.5'];
             const msgs = loadJSON(FILES.messages, []);
             const msg = {
                 id:        crypto.randomBytes(8).toString('hex'),
@@ -248,7 +262,7 @@ const server = http.createServer(async (req, res) => {
                 avatar:    user.avatar,
                 content,
                 type:      validTypes.includes(body.type) ? body.type : 'feedback',
-                version:   body.version || 'general',
+                version:   validVersions.includes(body.version) ? body.version : 'general',
                 createdAt: new Date().toISOString(),
                 likes:     [],
             };
@@ -288,7 +302,7 @@ const server = http.createServer(async (req, res) => {
     if (filePath.startsWith('/assets/'))       filePath = '/portal' + filePath;
 
     const absPath = path.join(ROOT, filePath);
-    if (!absPath.startsWith(ROOT)) { res.writeHead(403); res.end('Forbidden'); return; }
+    if (!absPath.startsWith(ROOT + path.sep) && absPath !== ROOT) { res.writeHead(403); res.end('Forbidden'); return; }
 
     fs.readFile(absPath, (err, data) => {
         if (err) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end('404: ' + urlPath); return; }
@@ -299,6 +313,12 @@ const server = http.createServer(async (req, res) => {
         res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
         res.end(content);
     });
+  } catch (err) {
+    if (!res.headersSent) {
+        res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ error: 'Internal server error' }));
+    }
+  }
 });
 
 server.listen(PORT, '127.0.0.1', () => {
