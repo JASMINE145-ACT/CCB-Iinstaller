@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档 — Claude Code Best</title>
+    <meta name="description" content="CCB 文档 — 快速开始、功能介绍、启动模式、MCP 配置、汉化机制等完整指南。">
+    <meta property="og:title" content="CCB 文档">
+    <meta property="og:description" content="Claude Code Best 完整使用文档。">
+    <meta property="og:image" content="{{SITE_URL}}/assets/ccb-hero.png">
+    <meta property="og:url" content="{{SITE_URL}}/doc">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- marked.js for markdown parsing (v4 stable API) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4/marked.min.js"></script>
+    <!-- highlight.js for code syntax -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark-dimmed.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11/lib/highlight.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg:        #FAFAF8;
+            --surface:   #FFFFFF;
+            --surface-2: #F4F4F1;
+            --border:    #E6E6E1;
+            --border-mid:#D0D0CB;
+            --text:      #1A1A18;
+            --text-2:    #6B6B65;
+            --text-3:    #A0A09A;
+            --accent:    #D4502B;
+            --accent-bg: #FFF0EC;
+            --r:         10px;
+            --r-sm:      6px;
+            --sidebar-w: 260px;
+            --font:      'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            --mono:      'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+        }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 3px; }
+
+        /* ─── NAV ─── */
+        nav {
+            position: sticky; top: 0; z-index: 200;
+            background: rgba(250,250,248,0.92);
+            backdrop-filter: blur(16px) saturate(1.8);
+            -webkit-backdrop-filter: blur(16px) saturate(1.8);
+            border-bottom: 1px solid var(--border);
+            height: 62px;
+        }
+        .nav-inner {
+            display: flex; align-items: center; justify-content: space-between;
+            height: 100%; max-width: 100%; padding: 0 28px;
+        }
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 15px; font-weight: 700; color: var(--text);
+            text-decoration: none; letter-spacing: -0.025em;
+        }
+        .logo-mark {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, #D4502B 0%, #9333EA 100%);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 12px; font-weight: 900;
+        }
+        .nav-right { display: flex; align-items: center; gap: 6px; }
+        .nav-link {
+            padding: 6px 13px; border-radius: 7px;
+            font-size: 13.5px; font-weight: 500; color: var(--text-2); text-decoration: none;
+            transition: color .15s, background .15s;
+        }
+        .nav-link:hover { color: var(--text); background: var(--surface-2); }
+        .nav-cta {
+            padding: 7px 18px; background: var(--text); color: #fff;
+            border-radius: 7px; font-size: 13.5px; font-weight: 600; text-decoration: none;
+            transition: background .15s, transform .15s;
+        }
+        .nav-cta:hover { background: #2D2D2B; transform: translateY(-1px); }
+
+        /* ─── LAYOUT ─── */
+        .layout {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            min-height: calc(100vh - 62px);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            position: sticky;
+            top: 62px;
+            height: calc(100vh - 62px);
+            overflow-y: auto;
+            border-right: 1px solid var(--border);
+            background: var(--surface);
+            padding: 24px 0 32px;
+            flex-shrink: 0;
+        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar-section { margin-bottom: 8px; }
+        .sidebar-heading {
+            padding: 0 20px 8px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.1em; color: var(--text-3);
+        }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 20px; text-decoration: none;
+            font-size: 13.5px; font-weight: 500; color: var(--text-2);
+            border-radius: 0; transition: background .12s, color .12s;
+            line-height: 1.4;
+        }
+        .sidebar-link:hover { background: var(--surface-2); color: var(--text); }
+        .sidebar-link.active { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+        .sidebar-link.active .sl-icon { background: var(--accent); color: white; }
+        .sl-icon {
+            width: 26px; height: 26px; border-radius: 6px;
+            background: var(--surface-2); display: flex; align-items: center;
+            justify-content: center; font-size: 13px; flex-shrink: 0;
+            transition: background .12s;
+        }
+
+        /* ─── TOC ─── */
+        .sidebar-divider { height: 1px; background: var(--border); margin: 16px 20px; }
+        .toc-title {
+            padding: 0 20px 8px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.1em; color: var(--text-3);
+        }
+        .toc-list { list-style: none; }
+        .toc-item a {
+            display: block; padding: 5px 20px;
+            font-size: 13px; color: var(--text-2); text-decoration: none;
+            transition: color .12s;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .toc-item a:hover { color: var(--accent); }
+        .toc-item.h3 a { padding-left: 32px; font-size: 12.5px; color: var(--text-3); }
+        .toc-item.h3 a:hover { color: var(--text-2); }
+
+        /* ─── MAIN CONTENT ─── */
+        .main {
+            padding: 56px 64px 96px;
+            min-width: 0;
+            max-width: 900px;
+        }
+
+        /* ─── BREADCRUMB ─── */
+        .breadcrumb {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; color: var(--text-3);
+            margin-bottom: 40px;
+        }
+        .breadcrumb a { color: var(--text-2); text-decoration: none; }
+        .breadcrumb a:hover { color: var(--accent); }
+        .breadcrumb-sep { font-size: 12px; }
+
+        /* ─── LOADING / ERROR ─── */
+        .doc-loading {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding: 80px 24px; text-align: center;
+        }
+        .spinner {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            animation: spin .8s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .doc-error { text-align: center; padding: 80px 24px; }
+        .doc-error h2 { font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+        .doc-error p  { font-size: 15px; color: var(--text-2); }
+
+        /* ─── MARKDOWN TYPOGRAPHY ─── */
+        .md-body { line-height: 1.75; color: var(--text); }
+
+        .md-body h1 {
+            font-size: 36px; font-weight: 900; letter-spacing: -0.04em;
+            line-height: 1.1; color: var(--text); margin: 0 0 24px;
+            padding-bottom: 16px; border-bottom: 2px solid var(--border);
+        }
+        .md-body h2 {
+            font-size: 24px; font-weight: 800; letter-spacing: -0.025em;
+            line-height: 1.2; color: var(--text);
+            margin: 48px 0 18px;
+            padding-bottom: 10px; border-bottom: 1px solid var(--border);
+        }
+        .md-body h3 {
+            font-size: 18px; font-weight: 700; letter-spacing: -0.015em;
+            color: var(--text); margin: 32px 0 12px;
+        }
+        .md-body h4 {
+            font-size: 15px; font-weight: 700; color: var(--text);
+            margin: 24px 0 10px;
+        }
+        .md-body p { font-size: 15.5px; margin: 0 0 18px; color: var(--text); }
+        .md-body p:last-child { margin-bottom: 0; }
+
+        .md-body a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(212,80,43,0.3); transition: border-color .15s; }
+        .md-body a:hover { border-color: var(--accent); }
+
+        .md-body strong { font-weight: 700; color: var(--text); }
+        .md-body em     { font-style: italic; }
+
+        .md-body ul, .md-body ol {
+            margin: 0 0 18px 0; padding-left: 28px;
+        }
+        .md-body li { margin-bottom: 7px; font-size: 15.5px; line-height: 1.65; }
+        .md-body li::marker { color: var(--accent); }
+
+        /* Inline code */
+        .md-body :not(pre) > code {
+            font-family: var(--mono);
+            font-size: 13px; font-weight: 500;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 2px 7px;
+            color: var(--accent);
+        }
+
+        /* Code blocks */
+        .md-body pre {
+            margin: 4px 0 22px;
+            border-radius: var(--r);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #2D2D2B;
+        }
+        .code-header {
+            background: #1E1E1C;
+            padding: 10px 16px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid #2D2D2B;
+        }
+        .code-lang {
+            font-family: var(--mono);
+            font-size: 11px; font-weight: 600;
+            color: #666; text-transform: uppercase; letter-spacing: 0.08em;
+        }
+        .copy-btn {
+            font-family: var(--font);
+            font-size: 12px; font-weight: 500; color: #666;
+            background: transparent; border: none; cursor: pointer;
+            padding: 3px 8px; border-radius: 4px;
+            transition: color .15s, background .15s;
+        }
+        .copy-btn:hover { color: #ccc; background: rgba(255,255,255,0.08); }
+        .copy-btn.copied { color: #4ADE80; }
+        .md-body pre code {
+            display: block;
+            font-family: var(--mono) !important;
+            font-size: 13.5px !important;
+            line-height: 1.75 !important;
+            padding: 20px 22px !important;
+            background: #161614 !important;
+            overflow-x: auto;
+        }
+
+        /* Tables */
+        .md-body table {
+            width: 100%; border-collapse: collapse;
+            margin: 4px 0 22px; font-size: 14.5px;
+            border-radius: var(--r); overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .md-body th {
+            background: var(--surface-2);
+            padding: 10px 16px; text-align: left;
+            font-size: 13px; font-weight: 700; color: var(--text-2);
+            border-bottom: 1px solid var(--border);
+        }
+        .md-body td {
+            padding: 10px 16px; border-bottom: 1px solid var(--border);
+            color: var(--text); vertical-align: top;
+        }
+        .md-body tr:last-child td { border-bottom: none; }
+        .md-body tr:hover td { background: var(--surface-2); }
+
+        /* Blockquotes */
+        .md-body blockquote {
+            border-left: 3px solid var(--accent);
+            background: var(--accent-bg);
+            margin: 4px 0 22px;
+            padding: 14px 20px;
+            border-radius: 0 var(--r) var(--r) 0;
+        }
+        .md-body blockquote p { color: var(--text-2); font-size: 14.5px; margin: 0; }
+
+        /* HR */
+        .md-body hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+        /* ─── PREV/NEXT ─── */
+        .doc-nav {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+            margin-top: 64px; padding-top: 32px;
+            border-top: 1px solid var(--border);
+        }
+        .doc-nav-btn {
+            padding: 18px 20px; border-radius: var(--r);
+            border: 1px solid var(--border); text-decoration: none;
+            transition: border-color .15s, box-shadow .15s, transform .15s;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .doc-nav-btn:hover { border-color: var(--border-mid); box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-2px); }
+        .doc-nav-btn.next { text-align: right; align-items: flex-end; }
+        .doc-nav-label { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); }
+        .doc-nav-title { font-size: 14.5px; font-weight: 700; color: var(--text); }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main { padding: 36px 24px 64px; }
+        }
+        @media (max-width: 600px) {
+            .nav-right .nav-link { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <div class="nav-inner">
+        <a href="/" class="nav-logo">
+            <div class="logo-mark">CC</div>
+            Claude Code Best
+        </a>
+        <div class="nav-right">
+            <a href="/#features" class="nav-link">功能</a>
+            <a href="/#updates"  class="nav-link">更新</a>
+            <a href="/#docs"     class="nav-link">文档</a>
+            <a href="/feedback"  class="nav-link">留言板</a>
+            <a href="/#download" class="nav-cta">下载 v1.0.7</a>
+        </div>
+    </div>
+</nav>
+
+<div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-heading">使用指南</div>
+            <a href="/doc?file=docs/guide/01-快速开始.md"        class="sidebar-link" data-file="docs/guide/01-快速开始.md">
+                <span class="sl-icon">🚀</span>快速开始
+            </a>
+            <a href="/doc?file=docs/guide/02-功能介绍.md"        class="sidebar-link" data-file="docs/guide/02-功能介绍.md">
+                <span class="sl-icon">✨</span>功能介绍
+            </a>
+            <a href="/doc?file=docs/guide/03-启动模式.md"        class="sidebar-link" data-file="docs/guide/03-启动模式.md">
+                <span class="sl-icon">🎛️</span>启动模式
+            </a>
+            <a href="/doc?file=docs/guide/04-MCP配置.md"         class="sidebar-link" data-file="docs/guide/04-MCP配置.md">
+                <span class="sl-icon">🔌</span>MCP 配置
+            </a>
+            <a href="/doc?file=docs/guide/05-汉化机制.md"        class="sidebar-link" data-file="docs/guide/05-汉化机制.md">
+                <span class="sl-icon">🈲</span>汉化机制
+            </a>
+            <a href="/doc?file=docs/guide/06-常见问题.md"        class="sidebar-link" data-file="docs/guide/06-常见问题.md">
+                <span class="sl-icon">❓</span>常见问题
+            </a>
+            <a href="/doc?file=docs/guide/07-开发者构建指南.md"  class="sidebar-link" data-file="docs/guide/07-开发者构建指南.md">
+                <span class="sl-icon">🔨</span>开发者指南
+            </a>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-heading">Superpowers</div>
+            <a href="/doc?file=docs/superpowers/README.md"                    class="sidebar-link" data-file="docs/superpowers/README.md">
+                <span class="sl-icon">⚡</span>Skills 概述
+            </a>
+            <a href="/doc?file=docs/superpowers/skills/brainstorming.md"    class="sidebar-link" data-file="docs/superpowers/skills/brainstorming.md">
+                <span class="sl-icon">💡</span>Brainstorming
+            </a>
+            <a href="/doc?file=docs/superpowers/skills/tdd.md"              class="sidebar-link" data-file="docs/superpowers/skills/tdd.md">
+                <span class="sl-icon">🧪</span>TDD 测试驱动
+            </a>
+            <a href="/doc?file=docs/superpowers/skills/writing-plans.md"    class="sidebar-link" data-file="docs/superpowers/skills/writing-plans.md">
+                <span class="sl-icon">📋</span>Writing Plans
+            </a>
+            <a href="/doc?file=docs/superpowers/skills/code-review.md"       class="sidebar-link" data-file="docs/superpowers/skills/code-review.md">
+                <span class="sl-icon">🔍</span>Code Review
+            </a>
+            <a href="/doc?file=docs/superpowers/skills/systematic-debugging.md" class="sidebar-link" data-file="docs/superpowers/skills/systematic-debugging.md">
+                <span class="sl-icon">🐛</span>系统化调试
+            </a>
+            <a href="/doc?file=docs/superpowers/skills/subagent-driven-development.md" class="sidebar-link" data-file="docs/superpowers/skills/subagent-driven-development.md">
+                <span class="sl-icon">🤖</span>子代理开发
+            </a>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <div class="toc-title">本页目录</div>
+        <ul class="toc-list" id="tocList"></ul>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <div class="breadcrumb">
+            <a href="/">首页</a>
+            <span class="breadcrumb-sep">›</span>
+            <a href="/#docs">文档</a>
+            <span class="breadcrumb-sep">›</span>
+            <span id="breadcrumbCurrent">加载中…</span>
+        </div>
+
+        <div id="docContent">
+            <div class="doc-loading">
+                <div class="spinner"></div>
+                <p style="color:var(--text-2);font-size:14px">正在加载文档…</p>
+            </div>
+        </div>
+
+        <div class="doc-nav" id="docNav" style="display:none">
+            <a href="#" class="doc-nav-btn prev" id="prevBtn" style="display:none">
+                <span class="doc-nav-label">← 上一篇</span>
+                <span class="doc-nav-title" id="prevTitle"></span>
+            </a>
+            <a href="#" class="doc-nav-btn next" id="nextBtn" style="display:none">
+                <span class="doc-nav-label">下一篇 →</span>
+                <span class="doc-nav-title" id="nextTitle"></span>
+            </a>
+        </div>
+    </main>
+</div>
+
+<script>
+    const DOCS = [
+        { file: 'docs/guide/01-快速开始.md',       title: '快速开始' },
+        { file: 'docs/guide/02-功能介绍.md',       title: '功能介绍' },
+        { file: 'docs/guide/03-启动模式.md',       title: '启动模式' },
+        { file: 'docs/guide/04-MCP配置.md',        title: 'MCP 配置' },
+        { file: 'docs/guide/05-汉化机制.md',       title: '汉化机制' },
+        { file: 'docs/guide/06-常见问题.md',       title: '常见问题' },
+        { file: 'docs/guide/07-开发者构建指南.md', title: '开发者构建指南' },
+        { file: 'docs/superpowers/README.md',                    title: 'Superpowers 概述' },
+        { file: 'docs/superpowers/skills/brainstorming.md',       title: 'Brainstorming' },
+        { file: 'docs/superpowers/skills/tdd.md',                 title: 'TDD 测试驱动' },
+        { file: 'docs/superpowers/skills/writing-plans.md',       title: 'Writing Plans' },
+        { file: 'docs/superpowers/skills/code-review.md',          title: 'Code Review' },
+        { file: 'docs/superpowers/skills/systematic-debugging.md', title: '系统化调试' },
+        { file: 'docs/superpowers/skills/subagent-driven-development.md', title: '子代理开发' },
+    ];
+
+    // ── Configure marked — NO custom renderer, post-process DOM ──
+    marked.setOptions({ breaks: true, gfm: true });
+
+    // ── Helpers ───────────────────────────────────────────
+    function getFileParam() {
+        return new URLSearchParams(window.location.search).get('file') || DOCS[0].file;
+    }
+
+    function copyCode(id, btn) {
+        const code = document.getElementById(id)?.innerText || '';
+        navigator.clipboard.writeText(code).then(() => {
+            btn.textContent = '已复制！';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 1800);
+        });
+    }
+
+    function buildTOC(bodyEl) {
+        const headings = bodyEl.querySelectorAll('h2, h3');
+        const toc = document.getElementById('tocList');
+        toc.innerHTML = '';
+        headings.forEach(h => {
+            const li  = document.createElement('li');
+            li.className = 'toc-item ' + h.tagName.toLowerCase();
+            const a  = document.createElement('a');
+            a.href   = '#' + h.id;
+            a.textContent = h.textContent;
+            a.addEventListener('click', e => { e.preventDefault(); document.getElementById(h.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+            li.appendChild(a);
+            toc.appendChild(li);
+        });
+    }
+
+    function setSidebarActive(file) {
+        document.querySelectorAll('.sidebar-link').forEach(l => {
+            l.classList.toggle('active', l.dataset.file === file);
+        });
+    }
+
+    function buildNavigation(file) {
+        const idx  = DOCS.findIndex(d => d.file === file);
+        const prev = DOCS[idx - 1];
+        const next = DOCS[idx + 1];
+        const navEl  = document.getElementById('docNav');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        navEl.style.display = 'grid';
+        if (prev) {
+            prevBtn.style.display = 'flex';
+            prevBtn.href = '/doc?file=' + encodeURIComponent(prev.file);
+            document.getElementById('prevTitle').textContent = prev.title;
+        } else { prevBtn.style.display = 'none'; }
+
+        if (next) {
+            nextBtn.style.display = 'flex';
+            nextBtn.href = '/doc?file=' + encodeURIComponent(next.file);
+            document.getElementById('nextTitle').textContent = next.title;
+        } else { nextBtn.style.display = 'none'; }
+    }
+
+    async function loadDoc(file) {
+        const content = document.getElementById('docContent');
+        const crumb   = document.getElementById('breadcrumbCurrent');
+
+        content.innerHTML = `<div class="doc-loading"><div class="spinner"></div><p style="color:var(--text-2);font-size:14px">正在加载…</p></div>`;
+        document.getElementById('docNav').style.display = 'none';
+
+        try {
+            const r = await fetch(encodeURI('/' + file));
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const md = await r.text();
+
+            // ── 1. Parse markdown → HTML string (plain, no custom renderer)
+            const rawHtml = marked.parse(md);
+
+            // ── 2. Post-process via DOM (safe, no renderer hooks needed)
+            const body = document.createElement('div');
+            body.className = 'md-body';
+            body.innerHTML = rawHtml;
+
+            // Add stable IDs to all headings
+            body.querySelectorAll('h1,h2,h3,h4').forEach((h, i) => {
+                const raw = h.textContent || '';
+                const id  = raw.trim()
+                    .replace(/\s+/g, '-')
+                    .replace(/[^a-zA-Z0-9一-鿿-]/g, '')
+                    .replace(/-+/g, '-')
+                    .replace(/^-+|-+$/g, '') || ('h' + i);
+                h.id = id;
+            });
+
+            // Syntax-highlight code blocks and inject copy buttons
+            body.querySelectorAll('pre code').forEach((block, i) => {
+                const id  = 'cb' + i + '_' + Math.random().toString(36).slice(2, 6);
+                block.id  = id;
+                const cls = [...block.classList].find(c => c.startsWith('language-'));
+                const lang = cls ? cls.replace('language-', '') : '';
+                try { hljs.highlightElement(block); } catch (_) {}
+
+                const pre     = block.parentElement;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'code-block';
+                const header  = document.createElement('div');
+                header.className = 'code-header';
+                header.innerHTML =
+                    `<span class="code-lang">${lang || 'code'}</span>` +
+                    `<button class="copy-btn" onclick="copyCode('${id}',this)">复制</button>`;
+                pre.parentNode.insertBefore(wrapper, pre);
+                wrapper.appendChild(header);
+                wrapper.appendChild(pre);
+            });
+
+            // ── 3. Render into page
+            content.innerHTML = '';
+            content.appendChild(body);
+
+            // Update title & breadcrumb
+            const docMeta   = DOCS.find(d => d.file === file);
+            const h1Text    = body.querySelector('h1')?.textContent || docMeta?.title || file;
+            document.title  = h1Text + ' — Claude Code Best';
+            crumb.textContent = h1Text;
+
+            buildTOC(body);
+            setSidebarActive(file);
+            buildNavigation(file);
+            window.scrollTo({ top: 0, behavior: 'instant' });
+
+        } catch (err) {
+            content.innerHTML = `
+<div class="doc-error">
+    <div style="font-size:48px;margin-bottom:16px">📄</div>
+    <h2>文档加载失败</h2>
+    <p style="margin-bottom:8px">文件：<code style="font-family:var(--mono);font-size:13px;background:var(--surface-2);padding:2px 6px;border-radius:4px">${file}</code></p>
+    <p style="color:var(--text-3);font-size:13px;margin-top:8px">${err.message}</p>
+</div>`;
+            crumb.textContent = '加载失败';
+        }
+    }
+
+    // ── Navigation (no page reload) ───────────────────────
+    document.addEventListener('click', e => {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+        const url = new URL(link.href, window.location.origin);
+        if (url.origin !== window.location.origin) return;
+        if (url.pathname === '/doc' && url.searchParams.has('file')) {
+            e.preventDefault();
+            const file = url.searchParams.get('file');
+            window.history.pushState({}, '', '/doc?file=' + encodeURIComponent(file));
+            loadDoc(file);
+        }
+    });
+
+    window.addEventListener('popstate', () => loadDoc(getFileParam()));
+
+    // ── Init ─────────────────────────────────────────────
+    loadDoc(getFileParam());
+</script>
+</body>
+</html>

@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户留言板 — Claude Code Best</title>
+    <meta name="description" content="CCB 留言板 — 提交功能反馈、需求建议和 Bug 报告。">
+    <meta property="og:title" content="CCB 留言板">
+    <meta property="og:description" content="向 CCB 团队提交你的反馈和建议。">
+    <meta property="og:image" content="{{SITE_URL}}/assets/ccb-hero.png">
+    <meta property="og:url" content="{{SITE_URL}}/feedback">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+    <style>
+        /* ─── Tokens ─── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg:        #FAFAF8;
+            --surface:   #FFFFFF;
+            --surface-2: #F4F4F1;
+            --border:    #E6E6E1;
+            --border-mid:#D0D0CB;
+            --text:      #1A1A18;
+            --text-2:    #6B6B65;
+            --text-3:    #A0A09A;
+            --accent:    #D4502B;
+            --accent-bg: #FFF0EC;
+            --wechat:    #07C160;
+            --wechat-dk: #059950;
+            --purple:    #7C3AED;
+            --blue:      #2563EB;
+            --yellow:    #D97706;
+            --red:       #DC2626;
+            --r:         12px;
+            --r-sm:      8px;
+            --r-lg:      20px;
+            --shadow:    0 4px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-lg: 0 20px 60px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.08);
+            --ease:      cubic-bezier(0.4,0,0.2,1);
+            --font:      'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 3px; }
+
+        /* ─── NAV ─── */
+        nav {
+            position: sticky; top: 0; z-index: 200;
+            background: rgba(250,250,248,0.9);
+            backdrop-filter: blur(16px) saturate(1.8);
+            -webkit-backdrop-filter: blur(16px) saturate(1.8);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-inner {
+            display: flex; align-items: center; justify-content: space-between;
+            height: 62px; max-width: 1200px; margin: 0 auto; padding: 0 32px;
+        }
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 15px; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.025em;
+        }
+        .logo-mark {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, #D4502B 0%, #9333EA 100%);
+            border-radius: 9px; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 13px; font-weight: 900;
+        }
+        .nav-links { display: flex; align-items: center; gap: 4px; }
+        .nav-link {
+            padding: 7px 14px; border-radius: var(--r-sm);
+            font-size: 14px; font-weight: 500; color: var(--text-2); text-decoration: none;
+            transition: color 0.15s var(--ease), background 0.15s var(--ease);
+        }
+        .nav-link:hover { color: var(--text); background: var(--surface-2); }
+        .nav-link.active { color: var(--text); background: var(--surface-2); font-weight: 600; }
+        .nav-cta {
+            margin-left: 8px; padding: 8px 20px; background: var(--text); color: #fff;
+            border-radius: var(--r-sm); font-size: 14px; font-weight: 600; text-decoration: none;
+            transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+        }
+        .nav-cta:hover { background: #2D2D2B; transform: translateY(-1px); box-shadow: var(--shadow); }
+
+        /* ─── LAYOUT ─── */
+        .wrap { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+        /* ─── PAGE HEADER ─── */
+        .page-header {
+            padding: 64px 32px 48px;
+            max-width: 1200px; margin: 0 auto;
+        }
+        .page-eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); margin-bottom: 12px; }
+        .page-h1 { font-size: clamp(32px, 4vw, 52px); font-weight: 900; letter-spacing: -0.04em; line-height: 1.06; color: var(--text); margin-bottom: 14px; }
+        .page-lead { font-size: 17px; color: var(--text-2); line-height: 1.65; max-width: 480px; }
+
+        /* ─── AUTH BAR ─── */
+        .auth-bar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 20px 24px;
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+            margin-bottom: 28px;
+            transition: border-color 0.15s;
+        }
+        .auth-bar.logged-in { border-color: var(--wechat); background: #F0FDF4; }
+        .auth-user { display: flex; align-items: center; gap: 12px; }
+        .auth-avatar {
+            width: 38px; height: 38px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: 800; color: white; flex-shrink: 0;
+        }
+        .auth-name { font-size: 14px; font-weight: 600; color: var(--text); }
+        .auth-sub  { font-size: 12px; color: var(--text-2); }
+        .auth-hint { font-size: 14px; color: var(--text-2); }
+        .btn-sm {
+            padding: 8px 18px; border-radius: var(--r-sm);
+            font-size: 13.5px; font-weight: 600; cursor: pointer; border: none;
+            transition: all 0.15s var(--ease);
+        }
+        .btn-wechat {
+            background: var(--wechat); color: white;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .btn-wechat:hover { background: var(--wechat-dk); transform: translateY(-1px); box-shadow: var(--shadow); }
+        .btn-ghost {
+            background: transparent; color: var(--text-2);
+            border: 1px solid var(--border);
+        }
+        .btn-ghost:hover { color: var(--text); border-color: var(--border-mid); background: var(--surface-2); }
+        .btn-accent {
+            background: var(--accent); color: white;
+        }
+        .btn-accent:hover { background: var(--accent-bg); color: var(--accent); transform: translateY(-1px); }
+
+        /* ─── COMPOSE ─── */
+        .compose-area {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            overflow: hidden;
+            margin-bottom: 28px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .compose-area.open { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212,80,43,0.08); }
+        .compose-trigger {
+            padding: 16px 24px;
+            display: flex; align-items: center; gap: 12px;
+            cursor: pointer; transition: background 0.15s;
+        }
+        .compose-trigger:hover { background: var(--surface-2); }
+        .compose-trigger-text { font-size: 14px; color: var(--text-3); flex: 1; }
+        .compose-form {
+            display: none; padding: 0 24px 20px; border-top: 1px solid var(--border);
+        }
+        .compose-form.open { display: block; }
+        .compose-meta {
+            display: flex; gap: 12px; padding: 16px 0 14px; flex-wrap: wrap;
+        }
+        select.sel {
+            padding: 7px 12px; border: 1px solid var(--border); border-radius: var(--r-sm);
+            font-size: 13.5px; font-family: var(--font); color: var(--text);
+            background: var(--bg); cursor: pointer;
+            transition: border-color 0.15s;
+        }
+        select.sel:focus { outline: none; border-color: var(--accent); }
+        textarea.compose-input {
+            width: 100%; padding: 12px; min-height: 100px;
+            border: 1px solid var(--border); border-radius: var(--r-sm);
+            font-size: 14px; font-family: var(--font); color: var(--text);
+            resize: vertical; background: var(--bg); line-height: 1.6;
+            transition: border-color 0.15s;
+        }
+        textarea.compose-input:focus { outline: none; border-color: var(--accent); }
+        .compose-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            padding-top: 12px;
+        }
+        .char-count { font-size: 12px; color: var(--text-3); }
+        .char-count.warn { color: var(--red); }
+        .compose-actions { display: flex; gap: 8px; }
+
+        /* ─── FILTERS ─── */
+        .filters {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;
+        }
+        .filter-tabs { display: flex; gap: 4px; }
+        .ftab {
+            padding: 7px 16px; border-radius: 100px;
+            font-size: 13.5px; font-weight: 500; cursor: pointer; border: none;
+            background: var(--surface); color: var(--text-2);
+            border: 1px solid var(--border);
+            transition: all 0.15s var(--ease);
+        }
+        .ftab:hover { background: var(--surface-2); color: var(--text); }
+        .ftab.active { background: var(--text); color: white; border-color: var(--text); }
+        .filter-sep { flex: 1; }
+        select.ver-sel {
+            padding: 7px 12px; border: 1px solid var(--border); border-radius: 100px;
+            font-size: 13px; font-family: var(--font); color: var(--text-2);
+            background: var(--surface); cursor: pointer;
+        }
+        select.ver-sel:focus { outline: none; }
+
+        /* ─── MESSAGES ─── */
+        .messages-stack { display: flex; flex-direction: column; gap: 14px; }
+        .msg-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 24px 28px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .msg-card:hover { border-color: var(--border-mid); box-shadow: var(--shadow); }
+        .msg-header {
+            display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px;
+        }
+        .msg-avatar {
+            width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; font-weight: 800; color: white;
+        }
+        .msg-meta { flex: 1; min-width: 0; }
+        .msg-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+        .msg-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+        .badge {
+            padding: 2px 9px; border-radius: 100px;
+            font-size: 11.5px; font-weight: 600;
+        }
+        .badge-feedback { background: #DBEAFE; color: #1D4ED8; }
+        .badge-request  { background: #F3E8FF; color: #6D28D9; }
+        .badge-bug      { background: #FEE2E2; color: #B91C1C; }
+        .badge-ver      { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); font-family: monospace; font-size: 11px; }
+        .msg-time { font-size: 12px; color: var(--text-3); white-space: nowrap; flex-shrink: 0; }
+        .msg-content { font-size: 15px; color: var(--text); line-height: 1.7; word-break: break-word; }
+        .msg-footer { display: flex; align-items: center; justify-content: flex-end; margin-top: 14px; }
+        .like-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 100px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            border: 1px solid var(--border); background: transparent;
+            color: var(--text-2); transition: all 0.15s var(--ease);
+        }
+        .like-btn:hover { border-color: #FDA4AF; color: #E11D48; background: #FFF1F2; }
+        .like-btn.liked { border-color: #FDA4AF; color: #E11D48; background: #FFF1F2; }
+
+        /* ─── EMPTY / LOADING ─── */
+        .state-box {
+            text-align: center; padding: 72px 24px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--r);
+        }
+        .state-icon { font-size: 44px; margin-bottom: 16px; }
+        .state-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+        .state-desc { font-size: 14px; color: var(--text-2); }
+
+        /* ─── MODAL ─── */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 1000;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            padding: 24px;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s var(--ease);
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal {
+            background: var(--surface); border-radius: var(--r-lg);
+            width: 100%; max-width: 440px;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(20px) scale(0.97);
+            transition: transform 0.25s var(--ease);
+            overflow: hidden;
+        }
+        .modal-overlay.open .modal { transform: none; }
+        .modal-head {
+            padding: 28px 28px 0;
+            display: flex; align-items: flex-start; justify-content: space-between;
+        }
+        .modal-close {
+            width: 32px; height: 32px; border-radius: 8px; border: none;
+            background: var(--surface-2); color: var(--text-2); font-size: 18px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s;
+        }
+        .modal-close:hover { background: var(--border); }
+        .modal-icon {
+            width: 56px; height: 56px; border-radius: 14px;
+            background: linear-gradient(135deg, #07C160, #05A34E);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(7,193,96,0.35);
+        }
+        .modal-title { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; color: var(--text); margin-bottom: 6px; }
+        .modal-sub { font-size: 14px; color: var(--text-2); line-height: 1.55; }
+        .modal-body { padding: 24px 28px 28px; }
+        .field { margin-bottom: 18px; }
+        .field-label {
+            display: block; font-size: 13px; font-weight: 600; color: var(--text);
+            margin-bottom: 7px; letter-spacing: -0.005em;
+        }
+        .field-input {
+            width: 100%; padding: 11px 14px;
+            border: 1.5px solid var(--border); border-radius: var(--r-sm);
+            font-size: 14.5px; font-family: var(--font); color: var(--text);
+            background: var(--bg); transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .field-input:focus { outline: none; border-color: var(--wechat); box-shadow: 0 0 0 3px rgba(7,193,96,0.12); }
+        .field-hint { font-size: 12px; color: var(--text-3); margin-top: 5px; }
+        .field-error { font-size: 12px; color: var(--red); margin-top: 5px; display: none; }
+        .field-error.show { display: block; }
+        .btn-login {
+            width: 100%; padding: 13px;
+            background: var(--wechat); color: white; border: none;
+            border-radius: var(--r-sm); font-size: 15px; font-weight: 700;
+            font-family: var(--font); cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+        }
+        .btn-login:hover { background: var(--wechat-dk); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(7,193,96,0.35); }
+        .btn-login:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .modal-terms { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 14px; line-height: 1.5; }
+
+        /* ─── TOAST ─── */
+        .toast {
+            position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: var(--text); color: white;
+            padding: 12px 24px; border-radius: 100px;
+            font-size: 14px; font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            z-index: 2000; opacity: 0; pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+            white-space: nowrap;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.success { background: var(--wechat); }
+        .toast.error   { background: var(--red); }
+
+        /* ─── SKELETON ─── */
+        .skel {
+            background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
+            background-size: 200% 100%;
+            border-radius: 6px;
+            animation: shimmer 1.4s infinite;
+        }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 720px) {
+            .nav-links { display: none; }
+            .page-header { padding: 40px 20px 32px; }
+            .wrap { padding: 0 20px; }
+            .compose-meta { flex-direction: column; }
+            .filters { gap: 8px; }
+            .filter-sep { display: none; }
+            .msg-header { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+    <div class="nav-inner">
+        <a href="/" class="nav-logo">
+            <div class="logo-mark">CC</div>
+            Claude Code Best
+        </a>
+        <div class="nav-links">
+            <a href="/#features" class="nav-link">功能</a>
+            <a href="/#updates"  class="nav-link">更新日志</a>
+            <a href="/#docs"     class="nav-link">文档</a>
+            <a href="/feedback"  class="nav-link active">留言板</a>
+            <a href="/#download" class="nav-cta">下载 v1.0.7</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ═══ PAGE HEADER ═══ -->
+<div class="page-header">
+    <div class="page-eyebrow">社区</div>
+    <h1 class="page-h1">用户留言板</h1>
+    <p class="page-lead">分享使用体验、提交功能建议，帮助 CCB 变得更好。每条反馈都会被认真阅读。</p>
+</div>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<div class="wrap" style="padding-bottom: 80px;">
+
+    <!-- Auth Bar -->
+    <div class="auth-bar" id="authBar">
+        <div class="auth-user" id="authUser" style="display:none">
+            <div class="auth-avatar" id="authAvatar"></div>
+            <div>
+                <div class="auth-name" id="authName"></div>
+                <div class="auth-sub">微信号：<span id="authWxid"></span></div>
+            </div>
+        </div>
+        <span class="auth-hint" id="authHint">登录后即可发布留言和点赞</span>
+        <div style="display:flex; gap:8px; align-items:center">
+            <button class="btn-sm btn-wechat" id="loginBtn" onclick="openLoginModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                    <path d="M8.5 12.5c-.83 0-1.5-.67-1.5-1.5S7.67 9.5 8.5 9.5 10 10.17 10 11s-.67 1.5-1.5 1.5zm7 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM12 2C6.48 2 2 6.03 2 11c0 2.93 1.47 5.54 3.77 7.25L5 21l3.5-1.75C9.58 19.72 10.77 20 12 20c5.52 0 10-4.03 10-9S17.52 2 12 2z"/>
+                </svg>
+                用微信号登录
+            </button>
+            <button class="btn-sm btn-ghost" id="logoutBtn" style="display:none" onclick="logout()">退出</button>
+        </div>
+    </div>
+
+    <!-- Compose Area -->
+    <div class="compose-area" id="composeArea" style="display:none">
+        <div class="compose-trigger" id="composeTrigger" onclick="toggleCompose()">
+            <div class="auth-avatar" id="composeAvatar" style="width:34px;height:34px;font-size:14px;font-weight:800;color:white"></div>
+            <span class="compose-trigger-text">分享你的使用反馈或功能需求…</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-3)" id="composeChevron">
+                <polyline points="6 9 12 15 18 9"/>
+            </svg>
+        </div>
+        <div class="compose-form" id="composeForm">
+            <div class="compose-meta">
+                <select class="sel" id="postType">
+                    <option value="feedback">💬 功能反馈</option>
+                    <option value="request">✨ 需求建议</option>
+                    <option value="bug">🐛 Bug 报告</option>
+                </select>
+                <select class="sel" id="postVersion">
+                    <option value="general">通用</option>
+                    <option value="v1.0.7">v1.0.7</option>
+                    <option value="v1.0.6">v1.0.6</option>
+                    <option value="v1.0.5">v1.0.5</option>
+                    <option value="v1.0.4">v1.0.4</option>
+                </select>
+            </div>
+            <textarea class="compose-input" id="postContent" placeholder="详细描述你的反馈或建议… (2–500 字)" oninput="onContentInput()"></textarea>
+            <div class="compose-footer">
+                <span class="char-count" id="charCount">0 / 500</span>
+                <div class="compose-actions">
+                    <button class="btn-sm btn-ghost" onclick="cancelCompose()">取消</button>
+                    <button class="btn-sm btn-accent" onclick="submitPost()">发布留言</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+        <div class="filter-tabs">
+            <button class="ftab active" data-type="all"      onclick="setFilter('type','all')">全部</button>
+            <button class="ftab"        data-type="feedback" onclick="setFilter('type','feedback')">💬 功能反馈</button>
+            <button class="ftab"        data-type="request"  onclick="setFilter('type','request')">✨ 需求建议</button>
+            <button class="ftab"        data-type="bug"      onclick="setFilter('type','bug')">🐛 Bug 报告</button>
+        </div>
+        <div class="filter-sep"></div>
+        <select class="ver-sel" onchange="setFilter('version', this.value)">
+            <option value="all">所有版本</option>
+            <option value="general">通用</option>
+            <option value="v1.0.7">v1.0.7</option>
+            <option value="v1.0.6">v1.0.6</option>
+            <option value="v1.0.5">v1.0.5</option>
+            <option value="v1.0.4">v1.0.4</option>
+        </select>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages-stack" id="messagesList">
+        <!-- Loading skeleton -->
+        <div class="msg-card">
+            <div style="display:flex;gap:14px;margin-bottom:14px">
+                <div class="skel" style="width:40px;height:40px;border-radius:50%;flex-shrink:0"></div>
+                <div style="flex:1">
+                    <div class="skel" style="height:14px;width:120px;margin-bottom:8px"></div>
+                    <div class="skel" style="height:12px;width:180px"></div>
+                </div>
+            </div>
+            <div class="skel" style="height:14px;width:100%;margin-bottom:8px"></div>
+            <div class="skel" style="height:14px;width:75%"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ LOGIN MODAL ═══ -->
+<div class="modal-overlay" id="loginModal" onclick="modalOverlayClick(event)">
+    <div class="modal">
+        <div class="modal-head">
+            <div></div>
+            <button class="modal-close" onclick="closeLoginModal()">✕</button>
+        </div>
+        <div class="modal-body" style="padding-top:8px">
+            <div class="modal-icon">💬</div>
+            <div class="modal-title">微信号登录</div>
+            <div class="modal-sub" style="margin-bottom:24px">输入你的微信号，即可发布留言和点赞。首次使用将自动创建账号。</div>
+
+            <div class="field">
+                <label class="field-label" for="inputWxid">微信号 <span style="color:var(--red)">*</span></label>
+                <input class="field-input" id="inputWxid" type="text" placeholder="例如：wxid_abc123" autocomplete="off" oninput="clearError('wxidError')">
+                <div class="field-error" id="wxidError"></div>
+                <div class="field-hint">你的微信号不会被公开显示</div>
+            </div>
+            <div class="field">
+                <label class="field-label" for="inputNickname">显示名称</label>
+                <input class="field-input" id="inputNickname" type="text" placeholder="留空则使用微信号" maxlength="20">
+                <div class="field-hint">这是其他人看到的名字</div>
+            </div>
+
+            <button class="btn-login" id="loginSubmitBtn" onclick="submitLogin()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                    <path d="M8.5 12.5c-.83 0-1.5-.67-1.5-1.5S7.67 9.5 8.5 9.5 10 10.17 10 11s-.67 1.5-1.5 1.5zm7 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM12 2C6.48 2 2 6.03 2 11c0 2.93 1.47 5.54 3.77 7.25L5 21l3.5-1.75C9.58 19.72 10.77 20 12 20c5.52 0 10-4.03 10-9S17.52 2 12 2z"/>
+                </svg>
+                登录 / 注册
+            </button>
+            <div class="modal-terms">登录即代表你同意以微信号作为唯一标识符使用本留言板。我们不会存储密码或敏感信息。</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast" id="toast"></div>
+
+<script>
+    // ── State ──────────────────────────────────────────────
+    let currentUser  = null;
+    let activeFilter = { type: 'all', version: 'all' };
+
+    // ── Avatar colors ─────────────────────────────────────
+    const AV_COLORS = [
+        '#D4502B','#7C3AED','#2563EB','#16A34A',
+        '#D97706','#DC2626','#0891B2','#9333EA','#059669',
+    ];
+    function avatarColor(str) {
+        let h = 0;
+        for (let i = 0; i < str.length; i++) h = str.charCodeAt(i) + ((h << 5) - h);
+        return AV_COLORS[Math.abs(h) % AV_COLORS.length];
+    }
+
+    // ── Time formatting ────────────────────────────────────
+    function fmtTime(iso) {
+        const d = new Date(iso), now = new Date();
+        const diff = (now - d) / 1000;
+        if (diff < 60)    return '刚刚';
+        if (diff < 3600)  return Math.floor(diff/60) + ' 分钟前';
+        if (diff < 86400) return Math.floor(diff/3600) + ' 小时前';
+        if (diff < 604800)return Math.floor(diff/86400) + ' 天前';
+        return d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+    }
+
+    // ── Type labels ────────────────────────────────────────
+    const TYPE_META = {
+        feedback: { label:'功能反馈', cls:'badge-feedback' },
+        request:  { label:'需求建议', cls:'badge-request' },
+        bug:      { label:'Bug 报告', cls:'badge-bug' },
+    };
+
+    // ── Toast ──────────────────────────────────────────────
+    function showToast(msg, type = '') {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.className = 'toast' + (type ? ' ' + type : '');
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), 2800);
+    }
+
+    // ── Auth ───────────────────────────────────────────────
+    async function checkAuth() {
+        try {
+            const r = await fetch('/api/auth/me');
+            const d = await r.json();
+            setUser(d.user);
+        } catch { setUser(null); }
+    }
+
+    function setUser(user) {
+        currentUser = user;
+        const loggedIn = !!user;
+        document.getElementById('authBar').classList.toggle('logged-in', loggedIn);
+        document.getElementById('authUser').style.display    = loggedIn ? 'flex' : 'none';
+        document.getElementById('authHint').style.display    = loggedIn ? 'none' : 'block';
+        document.getElementById('loginBtn').style.display    = loggedIn ? 'none' : 'flex';
+        document.getElementById('logoutBtn').style.display   = loggedIn ? 'flex' : 'none';
+        document.getElementById('composeArea').style.display = loggedIn ? 'block' : 'none';
+
+        if (user) {
+            const color = avatarColor(user.wxid);
+            document.getElementById('authAvatar').style.background = color;
+            document.getElementById('authAvatar').textContent       = user.avatar;
+            document.getElementById('authName').textContent         = user.nickname;
+            document.getElementById('authWxid').textContent         = user.wxid;
+            document.getElementById('composeAvatar').style.background = color;
+            document.getElementById('composeAvatar').textContent       = user.avatar;
+        }
+        loadMessages();
+    }
+
+    function openLoginModal() {
+        document.getElementById('loginModal').classList.add('open');
+        setTimeout(() => document.getElementById('inputWxid').focus(), 250);
+    }
+    function closeLoginModal() {
+        document.getElementById('loginModal').classList.remove('open');
+        document.getElementById('inputWxid').value    = '';
+        document.getElementById('inputNickname').value = '';
+        clearError('wxidError');
+    }
+    function modalOverlayClick(e) {
+        if (e.target === document.getElementById('loginModal')) closeLoginModal();
+    }
+    function clearError(id) { document.getElementById(id).classList.remove('show'); }
+
+    async function submitLogin() {
+        const wxid     = document.getElementById('inputWxid').value.trim();
+        const nickname = document.getElementById('inputNickname').value.trim();
+        const errEl    = document.getElementById('wxidError');
+        const btn      = document.getElementById('loginSubmitBtn');
+
+        if (!wxid || wxid.length < 2) {
+            errEl.textContent = '微信号至少 2 位字符';
+            errEl.classList.add('show');
+            return;
+        }
+
+        btn.disabled = true; btn.textContent = '登录中…';
+        try {
+            const r = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ wxid, nickname }),
+            });
+            const d = await r.json();
+            if (!r.ok) {
+                errEl.textContent = d.error || '登录失败';
+                errEl.classList.add('show');
+                return;
+            }
+            closeLoginModal();
+            setUser(d.user);
+            showToast('登录成功，欢迎 ' + d.user.nickname + '！', 'success');
+        } catch {
+            showToast('网络错误，请重试', 'error');
+        } finally {
+            btn.disabled = false; btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M8.5 12.5c-.83 0-1.5-.67-1.5-1.5S7.67 9.5 8.5 9.5 10 10.17 10 11s-.67 1.5-1.5 1.5zm7 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM12 2C6.48 2 2 6.03 2 11c0 2.93 1.47 5.54 3.77 7.25L5 21l3.5-1.75C9.58 19.72 10.77 20 12 20c5.52 0 10-4.03 10-9S17.52 2 12 2z"/></svg> 登录 / 注册`;
+        }
+    }
+
+    async function logout() {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        setUser(null);
+        showToast('已退出登录');
+    }
+
+    // ── Compose ────────────────────────────────────────────
+    function toggleCompose() {
+        const form     = document.getElementById('composeForm');
+        const area     = document.getElementById('composeArea');
+        const chevron  = document.getElementById('composeChevron');
+        const isOpen   = form.classList.contains('open');
+        form.classList.toggle('open', !isOpen);
+        area.classList.toggle('open', !isOpen);
+        chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+        if (!isOpen) setTimeout(() => document.getElementById('postContent').focus(), 100);
+    }
+    function cancelCompose() {
+        document.getElementById('composeForm').classList.remove('open');
+        document.getElementById('composeArea').classList.remove('open');
+        document.getElementById('composeChevron').style.transform = '';
+        document.getElementById('postContent').value = '';
+        document.getElementById('charCount').textContent = '0 / 500';
+        document.getElementById('charCount').classList.remove('warn');
+    }
+    function onContentInput() {
+        const len = document.getElementById('postContent').value.length;
+        const el  = document.getElementById('charCount');
+        el.textContent = len + ' / 500';
+        el.classList.toggle('warn', len > 450);
+    }
+
+    async function submitPost() {
+        if (!currentUser) { openLoginModal(); return; }
+        const content = document.getElementById('postContent').value.trim();
+        const type    = document.getElementById('postType').value;
+        const version = document.getElementById('postVersion').value;
+
+        if (!content || content.length < 2) { showToast('内容至少 2 个字', 'error'); return; }
+        if (content.length > 500)           { showToast('内容不超过 500 字', 'error'); return; }
+
+        try {
+            const r = await fetch('/api/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content, type, version }),
+            });
+            const d = await r.json();
+            if (!r.ok) { showToast(d.error || '发布失败', 'error'); return; }
+            cancelCompose();
+            showToast('留言发布成功！', 'success');
+            loadMessages();
+        } catch { showToast('网络错误，请重试', 'error'); }
+    }
+
+    // ── Filters ────────────────────────────────────────────
+    function setFilter(key, val) {
+        activeFilter[key] = val;
+        if (key === 'type') {
+            document.querySelectorAll('.ftab').forEach(b => {
+                b.classList.toggle('active', b.dataset.type === val);
+            });
+        }
+        loadMessages();
+    }
+
+    // ── Messages ───────────────────────────────────────────
+    async function loadMessages() {
+        const list = document.getElementById('messagesList');
+        const params = new URLSearchParams();
+        if (activeFilter.type    !== 'all') params.set('type',    activeFilter.type);
+        if (activeFilter.version !== 'all') params.set('version', activeFilter.version);
+
+        try {
+            const r    = await fetch('/api/messages?' + params);
+            const msgs = await r.json();
+            renderMessages(msgs);
+        } catch {
+            list.innerHTML = `<div class="state-box"><div class="state-icon">😵</div><div class="state-title">加载失败</div><div class="state-desc">请刷新页面重试</div></div>`;
+        }
+    }
+
+    function renderMessages(msgs) {
+        const list = document.getElementById('messagesList');
+        if (!msgs.length) {
+            list.innerHTML = `<div class="state-box"><div class="state-icon">✉️</div><div class="state-title">暂无留言</div><div class="state-desc">成为第一个留言的人吧！</div></div>`;
+            return;
+        }
+
+        list.innerHTML = msgs.map(msg => {
+            const meta   = TYPE_META[msg.type] || TYPE_META.feedback;
+            const color  = avatarColor(msg.wxid);
+            const liked  = currentUser && msg.likes && msg.likes.includes(currentUser.wxid);
+            const likes  = (msg.likes || []).length;
+            const ver    = msg.version && msg.version !== 'general' ? `<span class="badge badge-ver">${esc(msg.version)}</span>` : '';
+
+            return `
+<div class="msg-card" id="msg-${esc(msg.id)}">
+    <div class="msg-header">
+        <div class="msg-avatar" style="background:${color}">${esc(msg.avatar || msg.wxid[0].toUpperCase())}</div>
+        <div class="msg-meta">
+            <div class="msg-name">${esc(msg.nickname || msg.wxid)}</div>
+            <div class="msg-badges">
+                <span class="badge ${meta.cls}">${meta.label}</span>
+                ${ver}
+            </div>
+        </div>
+        <span class="msg-time">${fmtTime(msg.createdAt)}</span>
+    </div>
+    <div class="msg-content">${esc(msg.content)}</div>
+    <div class="msg-footer">
+        <button class="like-btn${liked ? ' liked' : ''}" onclick="toggleLike('${esc(msg.id)}')" title="${currentUser ? (liked ? '取消点赞':'点赞') : '登录后点赞'}">
+            ${liked ? '❤️' : '🤍'} <span id="likes-${esc(msg.id)}">${likes}</span>
+        </button>
+    </div>
+</div>`;
+        }).join('');
+    }
+
+    function esc(str) {
+        return String(str)
+            .replace(/&/g,'&amp;')
+            .replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;')
+            .replace(/'/g,'&#39;');
+    }
+
+    async function toggleLike(id) {
+        if (!currentUser) { openLoginModal(); return; }
+        try {
+            const r = await fetch(`/api/messages/${id}/like`, { method: 'POST' });
+            const d = await r.json();
+            if (!r.ok) { showToast(d.error, 'error'); return; }
+            const likeEl = document.getElementById('likes-' + id);
+            if (likeEl) likeEl.textContent = d.likes;
+            const btn = document.querySelector(`#msg-${id} .like-btn`);
+            if (btn) {
+                btn.classList.toggle('liked', d.liked);
+                btn.innerHTML = `${d.liked ? '❤️' : '🤍'} <span id="likes-${id}">${d.likes}</span>`;
+            }
+        } catch { showToast('操作失败', 'error'); }
+    }
+
+    // ── Enter key in login modal ───────────────────────────
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && document.getElementById('loginModal').classList.contains('open')) {
+            submitLogin();
+        }
+        if (e.key === 'Escape' && document.getElementById('loginModal').classList.contains('open')) {
+            closeLoginModal();
+        }
+    });
+
+    // ── Init ───────────────────────────────────────────────
+    checkAuth();
+</script>
+</body>
+</html>
