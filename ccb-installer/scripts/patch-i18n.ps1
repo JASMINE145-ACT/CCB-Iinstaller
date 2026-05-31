@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env pwsh
+#!/usr/bin/env pwsh
 # patch-i18n.ps1 - Patch selected Claude Code dist strings to Simplified Chinese.
 #
 # ASCII-only source. Chinese is written as JavaScript \uXXXX escapes because Bun on
@@ -2409,6 +2409,174 @@ $chunkGrove['children:`Allow the use of your chats and coding sessions to train 
 $chunkGrove['children:`How this affects data retention`'] = 'children:`这如何影响数据保留`'
 $chunkGrove['children:`Turning ON the improve Claude setting extends data retention from 30 days to 5 years. Turning it OFF keeps the default 30-day data retention. Delete data anytime.`'] = 'children:`开启「改进 Claude」将数据保留从 30 天延长至 5 年。关闭则保持默认 30 天。可随时删除数据。`'
 Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkGrove
+
+# ========== 补充汉化：backtick 形式 UI 串 ==========
+
+# REPL 主对话框交互提示
+$chunkRepl2 = New-ReplacementMap
+$chunkRepl2['children:`Chat about this`'] = 'children:`与此对话`'
+$chunkRepl2['children:`No code changes`'] = 'children:`无代码变更`'
+$chunkRepl2['children:`Nothing to rewind to yet.`'] = 'children:`暂无可回滚的操作。`'
+$chunkRepl2['children:`Press Enter to continue`'] = 'children:`按 Enter 继续`'
+$chunkRepl2['children:`Save file to continue…`'] = 'children:`保存文件以继续…`'
+$chunkRepl2['children:`Save and close editor to continue...`'] = 'children:`保存并关闭编辑器以继续...`'
+$chunkRepl2['children:`Pasting text…`'] = 'children:`粘贴文本…`'
+$chunkRepl2['children:`listening…`'] = 'children:`监听中…`'
+$chunkRepl2['children:`keep holding…`'] = 'children:`继续按住…`'
+$chunkRepl2['children:`No teammates`'] = 'children:`暂无队友`'
+$chunkRepl2['children:`Now using extra usage`'] = 'children:`正在使用额外用量`'
+$chunkRepl2['children:`Something off with Claude?`'] = 'children:`Claude 出现问题？`'
+$chunkRepl2['children:`Thanks for the feedback!`'] = 'children:`感谢您的反馈！`'
+$chunkRepl2['children:`Explanation unavailable`'] = 'children:`解释不可用`'
+$chunkRepl2['children:`Skip interview and plan immediately`'] = 'children:`跳过访谈，立即规划`'
+$chunkRepl2['children:`Do you want to allow Claude to fetch this content?`'] = 'children:`是否允许 Claude 获取此内容？`'
+$chunkRepl2['children:`Do you want to allow this connection?`'] = 'children:`是否允许此连接？`'
+$chunkRepl2['children:`If this is a new task, clearing context will save usage and be faster.`'] = 'children:`若是新任务，清除上下文可节省用量并加快速度。`'
+$chunkRepl2['children:`Restore and fork the conversation to the point before…`'] = 'children:`恢复并分叉至此前对话节点…`'
+$chunkRepl2['children:`Restore the code and/or conversation to the point before…`'] = 'children:`恢复代码和/或对话至此前节点…`'
+$chunkRepl2['children:`Answering...`'] = 'children:`回答中...`'
+$chunkRepl2['children:`Cancel`'] = 'children:`取消`'
+$chunkRepl2['children:`Tasks`'] = 'children:`任务`'
+$chunkRepl2['children:`No active assistant sessions found.`'] = 'children:`未找到活跃的助手会话。`'
+$chunkRepl2['children:`Start assistant daemon`'] = 'children:`启动助手守护进程`'
+$chunkRepl2['title:`Assistant Setup`'] = 'title:`助手设置`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkRepl2
+
+# Onboarding 首次启动向导
+$chunkOnboard2 = New-ReplacementMap
+$chunkOnboard2['children:`Always review changes before accepting`'] = 'children:`接受前请务必审查变更`'
+$chunkOnboard2['children:`Before you start, keep in mind:`'] = 'children:`开始之前，请注意：`'
+$chunkOnboard2['children:`Enter to confirm · Esc to skip`'] = 'children:`Enter 确认 · Esc 跳过`'
+$chunkOnboard2['children:`Only use Claude Code on projects you trust`'] = 'children:`仅在您信任的项目上使用 Claude Code`'
+$chunkOnboard2['children:`Use Claude Code''s terminal setup?`'] = 'children:`使用 Claude Code 的终端配置？`'
+$chunkOnboard2['label:`No, maybe later with /terminal-setup`'] = 'label:`否，稍后使用 /terminal-setup`'
+$chunkOnboard2['label:`Yes, use recommended settings`'] = 'label:`是，使用推荐设置`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkOnboard2
+
+# ThemePicker 主题选择（首次启动）
+$chunkTheme2 = New-ReplacementMap
+$chunkTheme2['children:`Choose the text style that looks best with your terminal`'] = 'children:`选择最适合您终端的文字样式`'
+$chunkTheme2['children:`Let''s get started.`'] = 'children:`开始吧。`'
+$chunkTheme2['label:`Dark mode (ANSI colors only)`'] = 'label:`暗色模式（仅 ANSI 颜色）`'
+$chunkTheme2['label:`Dark mode (colorblind-friendly)`'] = 'label:`暗色模式（色盲友好）`'
+$chunkTheme2['label:`Dark mode`'] = 'label:`暗色模式`'
+$chunkTheme2['label:`Light mode (ANSI colors only)`'] = 'label:`浅色模式（仅 ANSI 颜色）`'
+$chunkTheme2['label:`Light mode (colorblind-friendly)`'] = 'label:`浅色模式（色盲友好）`'
+$chunkTheme2['label:`Light mode`'] = 'label:`浅色模式`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkTheme2
+
+# DiffDialog 差异查看器
+$chunkDiff2 = New-ReplacementMap
+$chunkDiff2['children:`Binary file - cannot display diff`'] = 'children:`二进制文件 - 无法显示差异`'
+$chunkDiff2['children:`Binary file`'] = 'children:`二进制文件`'
+$chunkDiff2['children:`Enter view`'] = 'children:`进入查看模式`'
+$chunkDiff2['children:`Large file - diff exceeds 1 MB limit`'] = 'children:`大文件 - 差异超过 1MB 限制`'
+$chunkDiff2['children:`Large file modified`'] = 'children:`大文件已修改`'
+$chunkDiff2['children:`New file not yet staged.`'] = 'children:`新文件尚未暂存。`'
+$chunkDiff2['children:`No changed files`'] = 'children:`无变更文件`'
+$chunkDiff2['children:`No diff content`'] = 'children:`无差异内容`'
+$chunkDiff2['children:`untracked`'] = 'children:`未跟踪`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkDiff2
+
+# Help / 帮助面板
+$chunkHelp2 = New-ReplacementMap
+$chunkHelp2['children:`Ask a question or describe a task — Claude will explore your code and respond.`'] = 'children:`提问或描述任务——Claude 将探索您的代码并响应。`'
+$chunkHelp2['children:`Getting started`'] = 'children:`快速入门`'
+$chunkHelp2['children:`Shortcuts`'] = 'children:`快捷键`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkHelp2
+
+# BackgroundTasksDialog 后台任务对话框
+$chunkBgTask = New-ReplacementMap
+$chunkBgTask['title:`Background tasks`'] = 'title:`后台任务`'
+$chunkBgTask['title:`MCP Monitor`'] = 'title:`MCP 监控`'
+$chunkBgTask['title:`Memory consolidation`'] = 'title:`记忆整合`'
+$chunkBgTask['title:`Remote session details`'] = 'title:`远程会话详情`'
+$chunkBgTask['title:`Stop ultraplan?`'] = 'title:`停止 ultraplan？`'
+$chunkBgTask['title:`Stop ultrareview?`'] = 'title:`停止 ultrareview？`'
+$chunkBgTask['title:`Workflow`'] = 'title:`工作流`'
+$chunkBgTask['children:`No tasks currently running`'] = 'children:`当前没有运行中的任务`'
+$chunkBgTask['children:`Loading output…`'] = 'children:`加载输出中…`'
+$chunkBgTask['children:`No output available`'] = 'children:`暂无输出`'
+$chunkBgTask['children:`Teleporting to session…`'] = 'children:`传送至会话…`'
+$chunkBgTask['children:`This will terminate the Claude Code on the web session.`'] = 'children:`这将终止 Web 上的 Claude Code 会话。`'
+$chunkBgTask['label:`Dismiss`'] = 'label:`关闭`'
+$chunkBgTask['label:`Open in Claude Code on the web`'] = 'label:`在 Web 版 Claude Code 中打开`'
+$chunkBgTask['label:`Review in Claude Code on the web`'] = 'label:`在 Web 版 Claude Code 中审查`'
+$chunkBgTask['label:`Stop ultraplan`'] = 'label:`停止 ultraplan`'
+$chunkBgTask['label:`Stop ultrareview`'] = 'label:`停止 ultrareview`'
+$chunkBgTask['label:`Terminate session`'] = 'label:`终止会话`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkBgTask
+
+# Context 上下文用量面板
+$chunkCtx2 = New-ReplacementMap
+$chunkCtx2['children:`Context Usage`'] = 'children:`上下文用量`'
+$chunkCtx2['children:`Estimated usage by category`'] = 'children:`按类别估算用量`'
+$chunkCtx2['children:`Available`'] = 'children:`可用`'
+$chunkCtx2['children:`Loaded`'] = 'children:`已加载`'
+$chunkCtx2['children:`MCP tools`'] = 'children:`MCP 工具`'
+$chunkCtx2['children:`Memory files`'] = 'children:`记忆文件`'
+$chunkCtx2['children:`Skills`'] = 'children:`\u6280\u80fd`'
+$chunkCtx2['children:`Custom agents`'] = 'children:`自定义代理`'
+$chunkCtx2['children:`Suggestions`'] = 'children:`建议`'
+$chunkCtx2['children:`Tool calls: `'] = 'children:`工具调用：`'
+$chunkCtx2['children:`Tool results: `'] = 'children:`工具结果：`'
+$chunkCtx2['children:`User messages (non-tool-result): `'] = 'children:`用户消息（非工具结果）：`'
+$chunkCtx2['children:`Assistant messages (non-tool): `'] = 'children:`助手消息（非工具）：`'
+$chunkCtx2['children:`Attachments: `'] = 'children:`附件：`'
+$chunkCtx2['title:`Autocompact is disabled`'] = 'title:`自动压缩已禁用`'
+$chunkCtx2['title:`Context is ${e.percentage}% full`'] = 'title:`上下文已用 ${e.percentage}%`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkCtx2
+
+# Settings 设置面板标签
+$chunkSettings2 = New-ReplacementMap
+$chunkSettings2['placeholder:`Search settings…`'] = 'placeholder:`搜索设置…`'
+$chunkSettings2['children:`Type to filter`'] = 'children:`输入以筛选`'
+$chunkSettings2['children:`System Diagnostics`'] = 'children:`系统诊断`'
+$chunkSettings2['children:`Loading usage data…`'] = 'children:`加载用量数据…`'
+$chunkSettings2['children:`Loading output styles…`'] = 'children:`加载输出样式…`'
+$chunkSettings2['children:`Unlimited`'] = 'children:`无限制`'
+$chunkSettings2['children:`Enter your preferred response and voice language:`'] = 'children:`输入您偏好的回复和语音语言：`'
+$chunkSettings2['children:`Leave empty for default (English)`'] = 'children:`留空则默认为英语`'
+$chunkSettings2['title:`Config`'] = 'title:`配置`'
+$chunkSettings2['title:`Current session`'] = 'title:`当前会话`'
+$chunkSettings2['title:`Enable Auto-Updates`'] = 'title:`启用自动更新`'
+$chunkSettings2['title:`Preferred output style`'] = 'title:`偏好输出样式`'
+$chunkSettings2['title:`Status`'] = 'title:`状态`'
+$chunkSettings2['title:`Switch to Stable Channel`'] = 'title:`切换到稳定通道`'
+$chunkSettings2['title:`Usage`'] = 'title:`用量`'
+$chunkSettings2['label:`Allow possible downgrade to stable version`'] = 'label:`允许降级到稳定版`'
+$chunkSettings2['label:`Always copy full response (skip /copy picker)`'] = 'label:`始终复制完整回复（跳过 /copy 选择器）`'
+$chunkSettings2['label:`Auto-compact`'] = 'label:`自动压缩`'
+$chunkSettings2['label:`Auto-connect to IDE (external terminal)`'] = 'label:`自动连接 IDE（外部终端）`'
+$chunkSettings2['label:`Auto-install IDE extension`'] = 'label:`自动安装 IDE 扩展`'
+$chunkSettings2['label:`Auto-update channel`'] = 'label:`自动更新通道`'
+$chunkSettings2['label:`Copy on select`'] = 'label:`选中即复制`'
+$chunkSettings2['label:`Default permission mode`'] = 'label:`默认权限模式`'
+$chunkSettings2['label:`Default teammate model`'] = 'label:`默认队友模型`'
+$chunkSettings2['label:`Diff tool`'] = 'label:`差异工具`'
+$chunkSettings2['label:`Editor mode`'] = 'label:`编辑器模式`'
+$chunkSettings2['label:`Enable Remote Control for all sessions`'] = 'label:`为所有会话启用远程控制`'
+$chunkSettings2['label:`External CLAUDE.md includes`'] = 'label:`外部 CLAUDE.md 包含`'
+$chunkSettings2['label:`Language`'] = 'label:`语言`'
+$chunkSettings2['label:`Local notifications`'] = 'label:`本地通知`'
+$chunkSettings2['label:`Output style`'] = 'label:`输出样式`'
+$chunkSettings2['label:`Poor mode (save tokens)`'] = 'label:`节能模式（节省 tokens）`'
+$chunkSettings2['label:`Prompt suggestions`'] = 'label:`提示建议`'
+$chunkSettings2['label:`Reduce motion`'] = 'label:`减少动效`'
+$chunkSettings2['label:`Respect .gitignore in file picker`'] = 'label:`文件选择器遵守 .gitignore`'
+$chunkSettings2['label:`Rewind code (checkpoints)`'] = 'label:`代码回滚（检查点）`'
+$chunkSettings2['label:`Session ID`'] = 'label:`会话 ID`'
+$chunkSettings2['label:`Session name`'] = 'label:`会话名称`'
+$chunkSettings2['label:`Show PR status footer`'] = 'label:`显示 PR 状态栏`'
+$chunkSettings2['label:`Show status in terminal tab`'] = 'label:`在终端标签页显示状态`'
+$chunkSettings2['label:`Show tips`'] = 'label:`显示提示`'
+$chunkSettings2['label:`Show turn duration`'] = 'label:`显示回合时长`'
+$chunkSettings2['label:`Speculative execution`'] = 'label:`推测执行`'
+$chunkSettings2['label:`Terminal progress bar`'] = 'label:`终端进度条`'
+$chunkSettings2['label:`Thinking mode`'] = 'label:`思考模式`'
+$chunkSettings2['label:`Use auto mode during plan`'] = 'label:`规划期间使用自动模式`'
+$chunkSettings2['label:`Verbose output`'] = 'label:`详细输出`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkSettings2
 
 Write-Host ""
 Flush-ChunkCache
