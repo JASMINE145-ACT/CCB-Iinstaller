@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";function t(e){let t;return()=>t??(t=e())}var n=e((()=>{}));export{t as n,n as t};

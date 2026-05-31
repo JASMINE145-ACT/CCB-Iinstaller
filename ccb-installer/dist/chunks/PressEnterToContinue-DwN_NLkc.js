@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{Rn as t,b as n,t as r}from"./src-D6cE9Sc5.js";import{t as i}from"./jsx-runtime-BTgGEFjL.js";function a(){return(0,o.jsxs)(n,{color:`permission`,children:[`Press `,(0,o.jsx)(n,{bold:!0,children:`Enter`}),` to continue…`]})}var o,s=e((()=>{t(),r(),o=i()}));export{s as n,a as t};

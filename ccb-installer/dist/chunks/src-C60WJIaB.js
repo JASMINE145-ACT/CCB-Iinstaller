@@ -1,0 +1,1 @@
+var e=2048;async function t(e){return n()}function n(){for(let e of[`CLAUDE_CODE_URL_EVENT`,`CLAUDE_CODE_DEEP_LINK_URL`,`CLAUDE_CODE_URL`]){let t=process.env[e];if(r(t))return t}return process.argv.find(r)??null}function r(t){return typeof t==`string`&&t.length<=e&&(t.startsWith(`claude-cli://`)||t.startsWith(`claude://`))}export{t as waitForUrlEvent};

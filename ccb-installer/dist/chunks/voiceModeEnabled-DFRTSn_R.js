@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{W as t,it as n,l as r,m as i,nt as a}from"./growthbook-B0CtxuiD.js";function o(){return!r(`tengu_amber_quartz_disabled`,!1)}function s(){return n()?!!t()?.accessToken:!1}function c(){return s()&&o()}var l=e((()=>{i(),a()}));export{c as i,l as n,o as r,s as t};

@@ -1,0 +1,1 @@
+import{n as e,t}from"./sink-BLnRPOPW.js";import{t as n}from"./errorLogSink-CUcjPh06.js";t();function r(){n(),e()}export{r as initSinks};

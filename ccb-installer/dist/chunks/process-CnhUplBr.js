@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";function t(e,t){e.destroyed||e.write(t)}function n(e){t(process.stdout,e)}function r(e){t(process.stderr,e)}function i(e){console.error(e),process.exit(1)}var a=e((()=>{}));export{n as i,a as n,r,i as t};

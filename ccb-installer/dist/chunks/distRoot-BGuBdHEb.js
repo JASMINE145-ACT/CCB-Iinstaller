@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import*as t from"path";import{fileURLToPath as n}from"url";var r,i,a,o=e((()=>{r=n(import.meta.url),i=t.dirname(r),a=(()=>{let e=i.split(t.sep),n=e.lastIndexOf(`dist`);if(n!==-1)return e.slice(0,n+1).join(t.sep);let r=e.lastIndexOf(`src`);return r===-1?i:e.slice(0,r).join(t.sep)})()}));export{o as n,a as t};

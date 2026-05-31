@@ -50,11 +50,14 @@ function Get-WtArgs {
         [switch]$PowerShell
     )
 
+    $fragFile = Join-Path $env:LOCALAPPDATA "Microsoft\Windows Terminal\Fragments\CCB\ccb.json"
+    $profileArg = if (Test-Path -LiteralPath $fragFile) { '--profile "CCB" ' } else { '' }
+
     if ($PowerShell) {
-        return ('-d "{0}" powershell.exe -NoLogo -NoExit -ExecutionPolicy Bypass -File "{1}"' -f $InstallDir, $Launcher)
+        return ('{0}-d "{1}" powershell.exe -NoLogo -NoExit -ExecutionPolicy Bypass -File "{2}"' -f $profileArg, $InstallDir, $Launcher)
     }
 
-    return ('-d "{0}" cmd /k "chcp 65001 > nul && call ""{1}"""' -f $InstallDir, $Launcher)
+    return ('{0}-d "{1}" cmd /k "chcp 65001 > nul && call ""{2}"""' -f $profileArg, $InstallDir, $Launcher)
 }
 
 try {
@@ -71,6 +74,16 @@ $safeLauncher = Join-Path $installDir "ccb-safe.cmd"
 $textLauncher = Join-Path $installDir "ccb-text.cmd"
 $flatLauncher = Join-Path $installDir "ccb-flat.cmd"
 $icon = Join-Path $installDir "ccb.ico"
+
+# Re-install fragment so standalone "CCB 终端修复" also updates it
+$fragScript = Join-Path $scriptDir "install-wt-fragment.ps1"
+if (Test-Path -LiteralPath $fragScript) {
+    try {
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $fragScript | Out-Null
+    } catch {
+        Write-Step "Warning: WT Fragment install failed: $($_.Exception.Message)"
+    }
+}
 
 if (-not (Test-Path -LiteralPath $launcher)) {
     throw "CCB launcher was not found: $launcher"

@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{Rn as t}from"./src-D6cE9Sc5.js";import{t as n}from"./jsx-runtime-BTgGEFjL.js";import{n as r,t as i}from"./BackgroundTasksDialog-DRzDOlt_.js";async function a(e,t){return(0,o.jsx)(i,{toolUseContext:t,onDone:e})}var o;e((()=>{t(),r(),o=n()}))();export{a as call};

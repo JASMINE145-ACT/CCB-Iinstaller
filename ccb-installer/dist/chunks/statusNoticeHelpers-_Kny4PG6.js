@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{Gu as t,Wu as n}from"./loadAgentsDir-BMosMfSG.js";function r(e){return e?e.activeAgents.filter(e=>e.source!==`built-in`).reduce((e,n)=>e+t(`${n.agentType}: ${n.whenToUse}`),0):0}var i,a=e((()=>{n(),i=15e3}));export{r as n,a as r,i as t};

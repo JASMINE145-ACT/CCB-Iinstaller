@@ -1,0 +1,1 @@
+import{n as e,r as t}from"./chunk-DR8-3Aex.js";var n=t({checkProtectedNamespace:()=>r}),r,i=e((()=>{r=()=>!1}));export{n,i as t};

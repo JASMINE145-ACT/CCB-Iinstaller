@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{n as t,t as n}from"./browser-B_4zcYIs.js";async function r(){let e=`https://www.stickermule.com/claudecode`;return await t(e)?{type:`text`,value:`Opening sticker page in browser…`}:{type:`text`,value:`Failed to open browser. Visit: ${e}`}}e((()=>{n()}))();export{r as call};

@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";function t(e,t){i={...i,providerId:e,buckets:t},r()}function n(e,t){i={...i,providerId:e,...t===null?{balance:void 0}:{balance:t}},r()}function r(){for(let e of a)try{e(i)}catch{}}var i,a,o=e((()=>{i={providerId:`unknown`,buckets:[]},a=new Set}));export{n,t as r,o as t};

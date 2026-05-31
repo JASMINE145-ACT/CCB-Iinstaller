@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{n as t,t as n}from"./extra-usage-core-UB4WKRd7.js";async function r(){let e=await t();return e.type===`message`?{type:`text`,value:e.value}:{type:`text`,value:e.opened?`Browser opened to manage extra usage. If it didn't open, visit: ${e.url}`:`Please visit ${e.url} to manage extra usage.`}}e((()=>{n()}))();export{r as call};

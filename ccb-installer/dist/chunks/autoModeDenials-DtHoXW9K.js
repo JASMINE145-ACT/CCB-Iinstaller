@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";function t(e){r=[e,...r.slice(0,i-1)]}function n(){return r}var r,i,a=e((()=>{r=[],i=20}));export{a as n,t as r,n as t};

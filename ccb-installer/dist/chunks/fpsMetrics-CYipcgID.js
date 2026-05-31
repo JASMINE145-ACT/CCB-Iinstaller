@@ -1,0 +1,1 @@
+import{o as e}from"./chunk-DR8-3Aex.js";import{Rn as t}from"./src-D6cE9Sc5.js";import{t as n}from"./jsx-runtime-BTgGEFjL.js";var r=e(t(),1),i=n(),a=(0,r.createContext)(void 0);function o({getFpsMetrics:e,children:t}){return(0,i.jsx)(a.Provider,{value:e,children:t})}function s(){return(0,r.useContext)(a)}export{s as n,o as t};

@@ -1,4 +1,4 @@
-# Build script output handling fix
+﻿# Build script output handling fix
 $OutputEncoding = [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 Write-Host "========================================"
@@ -101,7 +101,7 @@ Write-Host "    Git: $InstallerDir\vendor\git\"
 
 # 6. Check result
 Write-Host ""
-$installerName = "CCB-Setup-1.0.7.exe"
+$installerName = "CCB-Setup-1.0.9.exe"
 if (Test-Path "$InstallerDir\$installerName") {
     Write-Host "[6/6] Build succeeded!"
     Write-Host ""

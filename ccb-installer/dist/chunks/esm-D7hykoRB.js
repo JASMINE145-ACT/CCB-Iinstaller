@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{S as t,d as n,f as r,n as i,r as a,u as o,x as s}from"./esm-CL1OwlZB.js";var c,l=e((()=>{s(),i(),o(),c=class extends t{constructor(e={}){super(r(n(e,`TRACES`,`v1/traces`,{"Content-Type":`application/json`}),a))}}})),u=e((()=>{l()})),d=e((()=>{u()})),f=e((()=>{d()}));export{c as n,f as t};

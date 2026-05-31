@@ -1,0 +1,1 @@
+var e=()=>null,t=async()=>{throw Error(`ccshare not implemented`)};export{t as loadCcshare,e as parseCcshareId};

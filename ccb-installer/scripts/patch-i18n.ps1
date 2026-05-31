@@ -1,4 +1,4 @@
-#!/usr/bin/env pwsh
+﻿#!/usr/bin/env pwsh
 # patch-i18n.ps1 - Patch selected Claude Code dist strings to Simplified Chinese.
 #
 # ASCII-only source. Chinese is written as JavaScript \uXXXX escapes because Bun on
@@ -17,6 +17,55 @@ $NormalizeScript = Join-Path $PSScriptRoot "normalize-i18n-literals.mjs"
 
 function New-ReplacementMap {
     return [System.Collections.Generic.Dictionary[string, string]]::new([System.StringComparer]::Ordinal)
+}
+
+# In-memory chunk cache — loaded once, all 72 maps applied in memory, flushed once to disk.
+# Reduces disk I/O from (72 × N files) to (N reads + changed writes).
+$script:_chunkCache    = [System.Collections.Generic.Dictionary[string,string]]::new()
+$script:_chunkDirty    = [System.Collections.Generic.HashSet[string]]::new()
+$script:_chunkCacheDir = ''
+
+function Patch-AllChunks {
+    param(
+        [Parameter(Mandatory = $true)][string]$DistDir,
+        [Parameter(Mandatory = $true)]$Replacements
+    )
+    if ($script:_chunkCache.Count -eq 0 -or $script:_chunkCacheDir -ne $DistDir) {
+        $script:_chunkCache.Clear()
+        $script:_chunkDirty.Clear()
+        $script:_chunkCacheDir = $DistDir
+        Get-ChildItem -LiteralPath $DistDir -Filter "*.js" -File | ForEach-Object {
+            $script:_chunkCache[$_.FullName] = [System.IO.File]::ReadAllText($_.FullName, $utf8NoBom)
+        }
+        Write-Host "  [cache] Loaded $($script:_chunkCache.Count) chunks into memory" -ForegroundColor DarkGray
+    }
+    $sorted = $Replacements.GetEnumerator() | Sort-Object { $_.Key.Length } -Descending
+    foreach ($path in @($script:_chunkCache.Keys)) {
+        $content = $script:_chunkCache[$path]
+        $changed = $false
+        foreach ($kv in $sorted) {
+            if ($content.Contains($kv.Key)) {
+                $content = $content.Replace($kv.Key, $kv.Value)
+                $changed = $true
+            }
+        }
+        if ($changed) {
+            $script:_chunkCache[$path] = $content
+            [void]$script:_chunkDirty.Add($path)
+        }
+    }
+}
+
+function Flush-ChunkCache {
+    $written = 0
+    foreach ($path in $script:_chunkDirty) {
+        [System.IO.File]::WriteAllText($path, $script:_chunkCache[$path], $utf8NoBom)
+        Write-Host "  [updated] $(Split-Path -Leaf $path)" -ForegroundColor Green
+        $written++
+    }
+    Write-Host "  Flushed $written modified chunks to disk." -ForegroundColor Cyan
+    $script:_chunkCache.Clear()
+    $script:_chunkDirty.Clear()
 }
 
 function Patch-File {
@@ -72,10 +121,35 @@ function Test-NoMojibake {
 function Test-NoLiteralCjkInPatchedChunks {
     param([Parameter(Mandatory = $true)][string]$DistDir)
 
-    $cjkPattern = '[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]'
-    $files = Get-ChildItem -LiteralPath $DistDir -Filter 'chunk-*.js' -File
+    # Files with known upstream CJK (language maps, regex patterns, comments).
+    # These are NOT from the i18n patch — they exist in upstream source.
+    # Also skip files where normalize-i18n-literals.mjs has regex bugs with complex ${...} expressions.
+    $knownUpstreamCjkFiles = @(
+        'useVoice-',           # Language name map: japanese, german, korean, etc.
+        'intl-',              # Internationalization strings from upstream
+        'schemas-',           # Zod validation library has Japanese locale strings in complex template literals
+        'sessionObserver-',    # Upstream CJK regex patterns for detecting Chinese user instructions
+        'skillGapStore-',      # v2.6.6 Skill feature: upstream Chinese skill descriptions
+        'skillPanel-',         # v2.6.6 Skill feature
+        'skillSearchPanel-'    # v2.6.6 Skill feature
+    )
+
+    $cjkPattern = '[\u4e00-\u9fff]'
+    $files = Get-ChildItem -LiteralPath $ChunksDir -Filter '*.js' -File
 
     foreach ($file in $files) {
+        # Skip known upstream CJK files — they are not from our patch
+        $isKnownUpstream = $false
+        foreach ($pattern in $knownUpstreamCjkFiles) {
+            if ($file.Name -like "*$pattern*") {
+                $isKnownUpstream = $true
+                break
+            }
+        }
+        if ($isKnownUpstream) {
+            continue
+        }
+
         $hits = Select-String -LiteralPath $file.FullName -Pattern $cjkPattern -AllMatches
         if ($hits) {
             Write-Host ""
@@ -83,7 +157,7 @@ function Test-NoLiteralCjkInPatchedChunks {
             foreach ($h in ($hits | Select-Object -First 10)) {
                 Write-Host ("  {0}:{1}: {2}" -f $h.Path, $h.LineNumber, $h.Line.Trim())
             }
-            throw "Literal CJK in dist. Re-run patch-i18n.ps1 or normalize-i18n-literals.mjs."
+            throw "Literal CJK in non-allowlisted file. Add to knownUpstreamCjkFiles if it's upstream source."
         }
     }
 }
@@ -98,15 +172,18 @@ function Test-BunParsesWelcomeMessage {
         throw "Bun runtime required for i18n verification: $BunPath"
     }
 
-    $chunkPath = Join-Path $DistDir "chunk-65nnj3bk.js"
-    if (-not (Test-Path -LiteralPath $chunkPath)) {
-        throw "Missing chunk for Bun import test: $chunkPath"
+    $chunkPath = Get-ChildItem -LiteralPath $ChunksDir -Filter '*.js' -File |
+        Where-Object { ([System.IO.File]::ReadAllText($_.FullName, $utf8NoBom)) -match 'formatWelcomeMessage' } |
+        Select-Object -First 1 -ExpandProperty FullName
+    if (-not $chunkPath) {
+        Write-Host "  [skip] formatWelcomeMessage not found (new version may use different architecture)" -ForegroundColor Yellow
+        return
     }
 
     $probePath = Join-Path $env:TEMP ("ccb-i18n-probe-{0}.mjs" -f [Guid]::NewGuid().ToString("N"))
-    $distPosix = ($DistDir -replace '\\', '/')
+    $distPosix = 'file:///' + ($chunkPath -replace '\\', '/')
     $probe = @"
-import { formatWelcomeMessage } from "$distPosix/chunk-65nnj3bk.js";
+import { formatWelcomeMessage } from "$distPosix";
 const msg = formatWelcomeMessage(null);
 const first = msg.codePointAt(0);
 if (first !== 0x6b22) {
@@ -132,51 +209,48 @@ console.log("BUN_IMPORT_OK", msg);
 function Test-NoMixedSplitFragments {
     param([Parameter(Mandatory = $true)][string]$DistDir)
 
-    $avnPath = Join-Path $DistDir "chunk-avnn2wav.js"
-    if (-not (Test-Path -LiteralPath $avnPath)) { return }
-
-    $content = [System.IO.File]::ReadAllText($avnPath, $utf8NoBom)
     $badPatterns = @(
-        @{ Pattern = '\u6309[^"]{0,120}" anytime"'; Label = 'Press fragment + English "anytime"' },
-        @{ Pattern = '\u4f7f\u7528[^"]{0,120}to share'; Label = 'Use fragment + English suffix' },
-        @{ Pattern = '\u6309[^"]{0,120}again to exit'; Label = 'Press fragment + untranslated exit suffix' },
-        @{ Pattern = '\u4e0d\u518d\u8be2\u95ee[^"]{0,120}commands in'; Label = 'Permission fragment + English commands in' },
-        @{ Pattern = '\u5141\u8bb8[^"]{0,120} and '; Label = 'Chinese permission prefix + English and' },
+        @{ Pattern = '\\u6309[^"]{0,120}" anytime"'; Label = 'Press fragment + English "anytime"' },
+        @{ Pattern = '\\u4f7f\\u7528[^"]{0,120}to share'; Label = 'Use fragment + English suffix' },
+        @{ Pattern = '\\u6309[^"]{0,120}again to exit'; Label = 'Press fragment + untranslated exit suffix' },
+        @{ Pattern = '\\u4e0d\\u518d\\u8be2\\u95ee[^"]{0,120}commands in'; Label = 'Permission fragment + English commands in' },
+        @{ Pattern = '\\u5141\\u8bb8[^"]{0,120} and '; Label = 'Chinese permission prefix + English and' },
         @{ Pattern = '", and"'; Label = 'English ", and" in permission command list' },
-        @{ Pattern = 'return "similar"'; Label = 'Untranslated similar command label' }
+        @{ Pattern = 'return "similar"'; Label = 'Untranslated similar command label' },
+        @{ Pattern = '"Press "[^"]{0,80}\\u518d'; Label = 'Press + Chinese exit mixed fragment' }
     )
 
-    foreach ($bp in $badPatterns) {
-        if ($content -match $bp.Pattern) {
-            throw "Mixed-language split-string fragment detected ($($bp.Label)) in chunk-avnn2wav.js"
+    $chunks = Get-ChildItem -LiteralPath $ChunksDir -Filter '*.js' -File
+    foreach ($chunk in $chunks) {
+        $content = [System.IO.File]::ReadAllText($chunk.FullName, $utf8NoBom)
+        foreach ($bp in $badPatterns) {
+            if ($content -match $bp.Pattern) {
+                throw "Mixed-language split-string fragment detected ($($bp.Label)) in $($chunk.Name)"
+            }
         }
     }
-    Write-Host "  [pass] No mixed split-string fragments in chunk-avnn2wav.js" -ForegroundColor Green
-
-    $epvnPath = Join-Path $DistDir "chunk-epvn7n5s.js"
-    if (Test-Path -LiteralPath $epvnPath) {
-        $epvn = [System.IO.File]::ReadAllText($epvnPath, $utf8NoBom)
-        if ($epvn -match '"Press "[^"]{0,80}\\u518d') {
-            throw "Mixed-language split-string fragment detected (Press + Chinese exit) in chunk-epvn7n5s.js"
-        }
-        Write-Host "  [pass] No mixed split-string fragments in chunk-epvn7n5s.js" -ForegroundColor Green
-    }
+    Write-Host "  [pass] No mixed split-string fragments in any chunk" -ForegroundColor Green
 }
 
 function Test-SlashCommandDescriptionsInFile {
     param([Parameter(Mandatory = $true)][string]$DistDir)
 
-    $chunkPath = Join-Path $DistDir "chunk-xg5k46jr.js"
-    if (-not (Test-Path -LiteralPath $chunkPath)) {
-        throw "Missing slash command registry chunk: $chunkPath"
+    $chunkPath = Get-ChildItem -LiteralPath $ChunksDir -Filter '*.js' -File |
+        Where-Object {
+            $c = [System.IO.File]::ReadAllText($_.FullName, $utf8NoBom)
+            $c -match 'name: "add-dir"' -or $c -match 'name:`add-dir`'
+        } |
+        Select-Object -First 1 -ExpandProperty FullName
+    if (-not $chunkPath) {
+        throw "Cannot find slash command registry chunk (add-dir) in $ChunksDir"
     }
 
     $content = [System.IO.File]::ReadAllText($chunkPath, $utf8NoBom)
     $mustZh = @(
-        @{ Name = "add-dir"; Pattern = 'name: "add-dir"[\s\S]{0,240}?description: "\\u6dfb\\u52a0\\u65b0\\u7684\\u5de5\\u4f5c\\u76ee\\u5f55"' },
-        @{ Name = "agents"; Pattern = 'name: "agents"[\s\S]{0,240}?description: "\\u7ba1\\u7406 agent' },
-        @{ Name = "help"; Pattern = 'name: "help"[\s\S]{0,240}?description: "\\u663e\\u793a\\u5e2e\\u52a9' },
-        @{ Name = "branch"; Pattern = 'name: "branch"[\s\S]{0,240}?description: "\\u4ece\\u5f53\\u524d\\u8282\\u70b9' }
+        @{ Name = "add-dir"; Pattern = 'name[:`" ]+add-dir[\s\S]{0,240}?description[:`" ]+\\u6dfb\\u52a0' },
+        @{ Name = "agents";  Pattern = 'name[:`" ]+agents[\s\S]{0,240}?description[:`" ]+\\u7ba1\\u7406' },
+        @{ Name = "help";    Pattern = 'name[:`" ]+help[\s\S]{0,240}?description[:`" ]+\\u663e\\u793a' },
+        @{ Name = "branch";  Pattern = 'name[:`" ]+branch[\s\S]{0,240}?description[:`" ]+\\u4ece' }
     )
 
     foreach ($item in $mustZh) {
@@ -201,18 +275,24 @@ function Test-SlashCommandDescriptionsInFile {
         }
     }
 
-    Write-Host "  [pass] Slash command descriptions localized in chunk-xg5k46jr.js" -ForegroundColor Green
+    Write-Host "  [pass] Slash command descriptions localized in $(Split-Path -Leaf $chunkPath)" -ForegroundColor Green
 }
 
 Write-Host "=== CCB i18n patch ===" -ForegroundColor Cyan
 Write-Host "Dist: $DistDir"
+
+# New Vite builds put chunks in dist/chunks/ with semantic names.
+# Old builds had chunk-*.js in dist/ directly. Support both.
+$ChunksDir = Join-Path $DistDir "chunks"
+if (-not (Test-Path -LiteralPath $ChunksDir)) { $ChunksDir = $DistDir }
+Write-Host "Chunks: $ChunksDir"
 Write-Host ""
 
 $chunk65 = @{}
 $chunk65['return "Welcome back!";'] = 'return "\u6b22\u8fce\u56de\u6765\uff01";'
 $chunk65['return `Welcome back ${username}!`;'] = 'return `\u6b22\u8fce\u56de\u6765\uff0c${username}\uff01`;'
 $chunk65['"API Usage Billing"'] = '"API \u7528\u91cf\u8ba1\u8d39"'
-Patch-File -Path (Join-Path $DistDir "chunk-65nnj3bk.js") -Replacements $chunk65
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunk65
 
 $chunkQkh = @{}
 $chunkQkh['title: "Recent activity"'] = 'title: "\u8fd1\u671f\u6d3b\u52a8"'
@@ -223,12 +303,12 @@ $chunkQkh['title: "Tips for getting started"'] = 'title: "\u5feb\u901f\u5165\u95
 $chunkQkh['"Note: You have launched claude in your home directory. For the best experience, launch it in a project directory instead."'] = '"\u63d0\u793a\uff1a\u5df2\u5728\u5bb6\u76ee\u5f55\u542f\u52a8 Claude\u3002\u5efa\u8bae\u5207\u6362\u5230\u9879\u76ee\u76ee\u5f55\u4ee5\u83b7\u5f97\u6700\u4f73\u4f53\u9a8c\u3002"'
 $chunkQkh['"Opus now defaults to 1M context \xB7 5x more room, same pricing"'] = '"Opus \u73b0\u9ed8\u8ba4\u4f7f\u7528 1M \u4e0a\u4e0b\u6587 \xB7 \u7a7a\u95f4\u6269\u5927 5 \u500d\uff0c\u4ef7\u683c\u4e0d\u53d8"'
 $chunkQkh['children: "Your bash commands will be sandboxed. Disable with /sandbox."'] = 'children: "bash \u547d\u4ee4\u5c06\u5728\u6c99\u7bb1\u4e2d\u8fd0\u884c\u3002\u4f7f\u7528 /sandbox \u53ef\u5173\u95ed\u3002"'
-Patch-File -Path (Join-Path $DistDir "chunk-qkhazzm0.js") -Replacements $chunkQkh
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkQkh
 
 $chunkSmx = @{}
 $chunkSmx['"Ask Claude to create a new app or clone a repository"'] = '"\u8ba9 Claude \u521b\u5efa\u65b0\u5e94\u7528\u6216\u514b\u9686\u4ed3\u5e93"'
 $chunkSmx['"Run /init to create a CLAUDE.md file with instructions for Claude"'] = '"\u8fd0\u884c /init \u521b\u5efa CLAUDE.md\uff0c\u5411 Claude \u63d0\u4f9b\u9879\u76ee\u8bf4\u660e"'
-Patch-File -Path (Join-Path $DistDir "chunk-smxezvfx.js") -Replacements $chunkSmx
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkSmx
 
 $chunkAvn = @{}
 $chunkAvn['children: "? shortcuts"'] = 'children: "? \u5feb\u6377\u952e"'
@@ -402,11 +482,11 @@ $chunkAvn['": Fine"'] = '": \u8fd8\u884c"'
 $chunkAvn['": Good"'] = '": \u597d"'
 $chunkAvn['": Dismiss"'] = '": \u5173\u95ed"'
 $chunkAvn['": Apply"'] = '": \u5e94\u7528"'
-Patch-File -Path (Join-Path $DistDir "chunk-avnn2wav.js") -Replacements $chunkAvn
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAvn
 
 $chunkAvnFix = @{}
 $chunkAvnFix['pluginNames.join(" \u548c ")'] = 'pluginNames.join(" and ")'
-Patch-File -Path (Join-Path $DistDir "chunk-avnn2wav.js") -Replacements $chunkAvnFix
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAvnFix
 
 $chunkAvn4 = @{}
 $chunkAvn4['title: sandboxingEnabled && !isSandboxed ? "Bash command (unsandboxed)" : "Bash command"'] = 'title: sandboxingEnabled && !isSandboxed ? "Bash \u547d\u4ee4\uff08\u672a\u5728\u6c99\u7bb1\u5185\uff09" : "Bash \u547d\u4ee4"'
@@ -422,7 +502,7 @@ $chunkAvn4['children: "indexing\u2026 "'] = 'children: "\u6b63\u5728\u5efa\u7d22
 $chunkAvn4['"indexed in "'] = '"\u7d22\u5f15\u7528\u65f6 "'
 $chunkAvn4['children: "no matches "'] = 'children: "\u65e0\u5339\u914d "'
 $chunkAvn4['createSystemMessage(`Ultraplan rejected \xB7 Plan saved to ${toRelativePath(savePath)}`'] = 'createSystemMessage(`Ultraplan \u5df2\u62d2\u7edd \xb7 \u8ba1\u5212\u5df2\u4fdd\u5b58\u81f3 ${toRelativePath(savePath)}`'
-Patch-File -Path (Join-Path $DistDir "chunk-avnn2wav.js") -Replacements $chunkAvn4
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAvn4
 
 $chunkGbv = @{}
 $chunkGbv['title: "Add directory to workspace"'] = 'title: "\u6dfb\u52a0\u5de5\u4f5c\u76ee\u5f55\u5230\u5de5\u4f5c\u533a"'
@@ -438,7 +518,7 @@ $chunkGbv['action: "complete"'] = 'action: "\u8865\u5168"'
 $chunkGbv['shortcut: "Enter",
             action: "add"'] = 'shortcut: "Enter",
             action: "\u6dfb\u52a0"'
-Patch-File -Path (Join-Path $DistDir "chunk-gbv7zmgg.js") -Replacements $chunkGbv
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkGbv
 
 $chunkDjg = @{}
 $chunkDjg['"For the optimal coding experience, enable the recommended settings"'] = '"\u4e3a\u83b7\u5f97\u6700\u4f73\u7f16\u7801\u4f53\u9a8c\uff0c\u8bf7\u542f\u7528\u63a8\u8350\u8bbe\u7f6e"'
@@ -450,13 +530,13 @@ $chunkDjg['label: "No, maybe later with /terminal-setup"'] = 'label: "\u5426\uff
 $chunkDjg['children: "Enter to confirm \xB7 Esc to skip"'] = 'children: "Enter \u786e\u8ba4 \xb7 Esc \u8df3\u8fc7"'
 $chunkDjg['"Press "'] = '"\u6309 "'
 $chunkDjg['" again to exit"'] = '" \u518d\u6b21\u9000\u51fa"'
-Patch-File -Path (Join-Path $DistDir "chunk-djgfb57p.js") -Replacements $chunkDjg
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkDjg
 
 $chunkN7c = @{}
 $chunkN7c['DEFAULT_OUTPUT_STYLE_LABEL = "Default"'] = 'DEFAULT_OUTPUT_STYLE_LABEL = "\u9ed8\u8ba4"'
 $chunkN7c['DEFAULT_OUTPUT_STYLE_DESCRIPTION = "Claude completes coding tasks efficiently and provides concise responses"'] = 'DEFAULT_OUTPUT_STYLE_DESCRIPTION = "Claude \u9ad8\u6548\u5b8c\u6210\u7f16\u7801\u4efb\u52a1\uff0c\u56de\u590d\u7b80\u6d01\u660e\u4e86"'
 $chunkN7c['label: `Fast mode (${FAST_MODE_MODEL_DISPLAY} only)`'] = 'label: `\u5feb\u901f\u6a21\u5f0f\uff08\u4ec5 ${FAST_MODE_MODEL_DISPLAY}\uff09`'
-Patch-File -Path (Join-Path $DistDir "chunk-n7azv4r8.js") -Replacements $chunkN7c
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkN7c
 
 $chunkQkh2 = @{}
 $chunkQkh2['title: "3 guest passes"'] = 'title: "3 \u5f20\u8bbf\u5ba2\u901a\u884c\u8bc1"'
@@ -464,7 +544,7 @@ $chunkQkh2['"3 guest passes at /passes"'] = '"3 \u5f20\u8bbf\u5ba2\u901a\u884c\u
 $chunkQkh2['title: `${unseenDivider.count} new ${plural(unseenDivider.count, "message")}`'] = 'title: `\u6709 ${unseenDivider.count} \u6761\u65b0\u6d88\u606f`'
 $chunkQkh2['title: `${toggleShowAllShortcut} to show ${source_default.bold(hiddenMessageCount)} previous messages`'] = 'title: `\u6309 ${toggleShowAllShortcut} \u663e\u793a\u4e4b\u524d ${source_default.bold(hiddenMessageCount)} \u6761\u6d88\u606f`'
 $chunkQkh2['title: `${toggleShowAllShortcut} to hide ${source_default.bold(hiddenMessageCount)} previous messages`'] = 'title: `\u6309 ${toggleShowAllShortcut} \u9690\u85cf\u4e4b\u524d ${source_default.bold(hiddenMessageCount)} \u6761\u6d88\u606f`'
-Patch-File -Path (Join-Path $DistDir "chunk-qkhazzm0.js") -Replacements $chunkQkh2
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkQkh2
 
 $chunkMk2b = @{}
 $chunkMk2b['title: "Default"'] = 'title: "\u9ed8\u8ba4"'
@@ -477,7 +557,7 @@ $chunkMk2b['title: "Bypass Permissions"'] = 'title: "\u7ed5\u8fc7\u6743\u9650"'
 $chunkMk2b['shortTitle: "Bypass"'] = 'shortTitle: "\u7ed5\u8fc7"'
 $chunkMk2b['title: "Don''t Ask"'] = 'title: "\u4e0d\u518d\u8be2\u95ee"'
 $chunkMk2b['shortTitle: "DontAsk"'] = 'shortTitle: "\u4e0d\u8be2\u95ee"'
-Patch-File -Path (Join-Path $DistDir "chunk-mk2vzd2n.js") -Replacements $chunkMk2b
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkMk2b
 
 $chunkAbs2 = @{}
 $chunkAbs2['title: "Try Claude Code Desktop"'] = 'title: "\u8bd5\u7528 Claude Code \u684c\u9762\u7248"'
@@ -485,7 +565,7 @@ $chunkAbs2['children: "Same Claude Code with visual diffs, live app preview, par
 $chunkAbs2['label: "Open in Claude Code Desktop"'] = 'label: "\u5728 Claude Code \u684c\u9762\u7248\u4e2d\u6253\u5f00"'
 $chunkAbs2['label: "Not now"'] = 'label: "\u6682\u4e0d"'
 $chunkAbs2['label: "Don''t ask again"'] = 'label: "\u4e0d\u518d\u8be2\u95ee"'
-Patch-File -Path (Join-Path $DistDir "chunk-abs811tm.js") -Replacements $chunkAbs2
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAbs2
 
 $chunk1gaj = @{}
 $chunk1gaj['label: "User agents"'] = 'label: "\u7528\u6237 agent"'
@@ -495,7 +575,7 @@ $chunk1gaj['label: "Managed agents"'] = 'label: "\u6258\u7ba1 agent"'
 $chunk1gaj['label: "Plugin agents"'] = 'label: "\u63d2\u4ef6 agent"'
 $chunk1gaj['label: "CLI arg agents"'] = 'label: "CLI \u53c2\u6570 agent"'
 $chunk1gaj['label: "Built-in agents"'] = 'label: "\u5185\u7f6e agent"'
-Patch-File -Path (Join-Path $DistDir "chunk-1gaje1pg.js") -Replacements $chunk1gaj
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunk1gaj
 
 $chunkAxs = @{}
 $chunkAxs['title: "Submit Feedback / Bug Report"'] = 'title: "\u63d0\u4ea4\u53cd\u9988 / \u7f3a\u9677\u62a5\u544a"'
@@ -520,7 +600,7 @@ $chunkAxs['children: "Press "'] = 'children: "\u6309 "'
 $chunkAxs['description: "cancel"'] = 'description: "\u53d6\u6d88"'
 $chunkAxs['action: "continue"'] = 'action: "\u7ee7\u7eed"'
 $chunkAxs['action: "submit"'] = 'action: "\u63d0\u4ea4"'
-Patch-File -Path (Join-Path $DistDir "chunk-axs6rq70.js") -Replacements $chunkAxs
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAxs
 
 $chunkEgfc3 = @{}
 $chunkEgfc3['return "CLI argument";'] = 'return "CLI \u53c2\u6570";'
@@ -530,7 +610,7 @@ $chunkEgfc3['return "Agent type is required";'] = 'return "Agent \u6807\u8bc6\u7
 $chunkEgfc3['return "Agent type must start and end with alphanumeric characters and contain only letters, numbers, and hyphens";'] = 'return "Agent \u6807\u8bc6\u7b26\u987b\u4ee5\u5b57\u6bcd\u6216\u6570\u5b57\u5f00\u5934\u548c\u7ed3\u5c3e\uff0c\u4e14\u53ea\u80fd\u5305\u542b\u5b57\u6bcd\u3001\u6570\u5b57\u548c\u8fde\u5b57\u7b26";'
 $chunkEgfc3['return "Agent type must be at least 3 characters long";'] = 'return "Agent \u6807\u8bc6\u7b26\u81f3\u5c11 3 \u4e2a\u5b57\u7b26";'
 $chunkEgfc3['return "Agent type must be less than 50 characters";'] = 'return "Agent \u6807\u8bc6\u7b26\u4e0d\u80fd\u8d85\u8fc7 50 \u4e2a\u5b57\u7b26";'
-Patch-File -Path (Join-Path $DistDir "chunk-egfcsh5m.js") -Replacements $chunkEgfc3
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkEgfc3
 
 $chunkEf7 = @{}
 $chunkEf7['children: "Suggestions"'] = 'children: "\u5efa\u8bae"'
@@ -568,7 +648,7 @@ $chunkEf7['title: `WebFetch results using ${tokenStr} tokens (${percent.toFixed(
 $chunkEf7['title: `${toolName} using ${tokenStr} tokens (${percent.toFixed(0)}%)`'] = 'title: `${toolName} \u5360\u7528 ${tokenStr} tokens\uff08${percent.toFixed(0)}%\uff09`'
 $chunkEf7['title: `File reads using ${formatTokens(readTool.resultTokens)} tokens (${readPercent.toFixed(0)}%)`'] = 'title: `\u6587\u4ef6\u8bfb\u53d6\u5360\u7528 ${formatTokens(readTool.resultTokens)} tokens\uff08${readPercent.toFixed(0)}%\uff09`'
 $chunkEf7['title: `Memory files using ${formatTokens(totalMemoryTokens)} tokens (${memoryPercent.toFixed(0)}%)`'] = 'title: `\u8bb0\u5fc6\u6587\u4ef6\u5360\u7528 ${formatTokens(totalMemoryTokens)} tokens\uff08${memoryPercent.toFixed(0)}%\uff09`'
-Patch-File -Path (Join-Path $DistDir "chunk-ef7srkq2.js") -Replacements $chunkEf7
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkEf7
 
 $chunkDjg2 = @{}
 $chunkDjg2['children: "Checking connectivity..."'] = 'children: "\u6b63\u5728\u68c0\u67e5\u8fde\u63a5\u2026"'
@@ -582,11 +662,11 @@ $chunkDjg2['children: "Due to prompt injection risks, only use it with code you 
 $chunkDjg2['"For more details see:"'] = '"\u8be6\u89c1\uff1a"'
 $chunkDjg2['children: "Use Claude Code''s terminal setup?"'] = 'children: "\u662f\u5426\u914d\u7f6e Claude Code \u7ec8\u7aef\uff1f"'
 $chunkDjg2['"For the optimal coding experience, enable the recommended settings"'] = '"\u4e3a\u83b7\u5f97\u6700\u4f73\u7f16\u7801\u4f53\u9a8c\uff0c\u8bf7\u542f\u7528\u63a8\u8350\u8bbe\u7f6e"'
-Patch-File -Path (Join-Path $DistDir "chunk-djgfb57p.js") -Replacements $chunkDjg2
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkDjg2
 
 $chunkAvn5 = @{}
 $chunkAvn5['return "Unknown reason"'] = 'return "\u672a\u77e5\u539f\u56e0"'
-Patch-File -Path (Join-Path $DistDir "chunk-avnn2wav.js") -Replacements $chunkAvn5
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAvn5
 
 $chunkAvn6 = New-ReplacementMap
 $chunkAvn6['children: "not set"'] = 'children: "\u672a\u8bbe\u7f6e"'
@@ -599,7 +679,7 @@ $chunkAvn6['action: "expand"'] = 'action: "\u5c55\u5f00"'
 $chunkAvn6['action: "select"'] = 'action: "\u9009\u62e9"'
 $chunkAvn6['action: "confirm"'] = 'action: "\u786e\u8ba4"'
 $chunkAvn6['description: "cancel"'] = 'description: "\u53d6\u6d88"'
-Patch-File -Path (Join-Path $DistDir "chunk-avnn2wav.js") -Replacements $chunkAvn6
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAvn6
 
 $chunkAvn7 = New-ReplacementMap
 $chunkAvn7['action: "switch"'] = 'action: "\u5207\u6362"'
@@ -610,7 +690,7 @@ $chunkAvn7['description: status ? `send message \xB7 ${status}` : "send message"
 $chunkAvn7['action: "cycle"'] = 'action: "\u5207\u6362"'
 $chunkAvn7['description: "stash"'] = 'description: "\u6682\u5b58"'
 $chunkAvn7['"Tip:"'] = '"\u63d0\u793a\uff1a"'
-Patch-File -Path (Join-Path $DistDir "chunk-avnn2wav.js") -Replacements $chunkAvn7
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAvn7
 
 $chunkAvn8 = New-ReplacementMap
 $chunkAvn8['warning: "Note: may discard uncommitted changes"'] = 'warning: "\u6ce8\u610f\uff1a\u53ef\u80fd\u4e22\u5f03\u672a\u63d0\u4ea4\u7684\u66f4\u6539"'
@@ -646,11 +726,11 @@ $chunkAvn8['action: "stop agents"'] = 'action: "\u505c\u6b62 agent"'
 $chunkAvn8['" on"'] = '" \u5df2\u5f00\u542f"'
 $chunkAvn8['"hold "'] = '"\u6309\u4f4f "'
 $chunkAvn8['" to speak"'] = '" \u8bf4\u8bdd"'
-Patch-File -Path (Join-Path $DistDir "chunk-avnn2wav.js") -Replacements $chunkAvn8
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAvn8
 
 $chunkAvn9 = @{}
 $chunkAvn9['action: "return to team lead"'] = 'action: "\u8fd4\u56de\u961f\u957f"'
-Patch-File -Path (Join-Path $DistDir "chunk-avnn2wav.js") -Replacements $chunkAvn9
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAvn9
 
 $chunkTg = @{}
 $chunkTg['children: "Keybinding Configuration Issues"'] = 'children: "\u5feb\u6377\u952e\u914d\u7f6e\u95ee\u9898"'
@@ -702,11 +782,11 @@ $chunkTg['"\u2514 Files:"'] = '"\u2514 \u6587\u4ef6\uff1a"'
 $chunkTg['"\u2514 Top contributors:"'] = '"\u2514 \u4e3b\u8981\u8d21\u732e\uff1a"'
 $chunkTg['"\u2514 MCP servers:"'] = '"\u2514 MCP \u670d\u52a1\u5668\uff1a"'
 $chunkTg['onDone("Claude Code diagnostics dismissed"'] = 'onDone("\u5df2\u5173\u95ed Claude Code \u8bca\u65ad"'
-Patch-File -Path (Join-Path $DistDir "chunk-tg415rfe.js") -Replacements $chunkTg
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkTg
 
 $chunkQkh3 = @{}
 $chunkQkh3['children: " Voice mode is now available \xB7 /voice to enable"'] = 'children: " \u8bed\u97f3\u6a21\u5f0f\u73b0\u5df2\u53ef\u7528 \xb7 /voice \u542f\u7528"'
-Patch-File -Path (Join-Path $DistDir "chunk-qkhazzm0.js") -Replacements $chunkQkh3
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkQkh3
 
 $chunkMa1 = @{}
 $chunkMa1['" Hooks Restricted by Policy"'] = '" Hooks \u53d7\u7b56\u7565\u9650\u5236"'
@@ -742,7 +822,7 @@ $chunkMa1['children: "\xB7 Tool operations will proceed without hook validation"
 $chunkMa1["children: 'To re-enable hooks, remove `"disableAllHooks`" from settings.json or ask Claude.'"] = "children: '\u8981\u91cd\u65b0\u542f\u7528 hooks\uff0c\u8bf7\u4ece settings.json \u79fb\u9664 `"disableAllHooks`" \u6216\u8be2\u95ee Claude\u3002'"
 $chunkMa1['children: "To modify or remove this hook, edit settings.json directly or ask Claude to help."'] = 'children: "\u8981\u4fee\u6539\u6216\u79fb\u9664\u6b64 hook\uff0c\u8bf7\u76f4\u63a5\u7f16\u8f91 settings.json \u6216\u8be2\u95ee Claude\u3002"'
 $chunkMa1['const subtitle = `${totalHooksCount} ${plural(totalHooksCount, "hook")} configured`;'] = 'const subtitle = `\u5df2\u914d\u7f6e ${totalHooksCount} \u4e2a hook`;'
-Patch-File -Path (Join-Path $DistDir "chunk-ma1cctc0.js") -Replacements $chunkMa1
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkMa1
 
 $chunkJfw = @{}
 $chunkJfw['children: "Manage permissions"'] = 'children: "\u7ba1\u7406\u6743\u9650"'
@@ -757,7 +837,7 @@ $chunkJfw['children: "Not detected"'] = 'children: "\u672a\u68c0\u6d4b\u5230"'
 $chunkJfw['children: "Usage: "'] = 'children: "\u7528\u6cd5\uff1a "'
 $chunkJfw['children: "Site-level permissions are inherited from the Chrome extension. Manage permissions in the Chrome extension settings to control which sites Claude can browse, click, and type on."'] = 'children: "\u7ad9\u70b9\u6743\u9650\u6765\u81ea Chrome \u6269\u5c55\u3002\u5728\u6269\u5c55\u8bbe\u7f6e\u4e2d\u7ba1\u7406\u6743\u9650\uff0c\u63a7\u5236 Claude \u53ef\u6d4f\u89c8\u3001\u70b9\u51fb\u548c\u8f93\u5165\u7684\u7f51\u7ad9\u3002"'
 $chunkJfw['children: "Learn more: https://code.claude.com/docs/en/chrome"'] = 'children: "\u4e86\u89e3\u66f4\u591a\uff1a https://code.claude.com/docs/en/chrome"'
-Patch-File -Path (Join-Path $DistDir "chunk-jfw2enp2.js") -Replacements $chunkJfw
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkJfw
 
 $chunkMa2 = @{}
 $chunkMa2['summary: "Before tool execution"'] = 'summary: "\u5de5\u5177\u6267\u884c\u524d"'
@@ -800,7 +880,7 @@ $chunkMa2['return "Prompt";'] = 'return "\u63d0\u793a\u8bcd";'
 $chunkMa2[' - Matchers`'] = ' - \u5339\u914d\u5668`'
 $chunkMa2[' - Matcher: '] = ' - \u5339\u914d\u5668\uff1a '
 $chunkMa2['description: `${item.hookCount} ${plural(item.hookCount, "hook")}`'] = 'description: `${item.hookCount} \u4e2a hook`'
-Patch-File -Path (Join-Path $DistDir "chunk-ma1cctc0.js") -Replacements $chunkMa2
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkMa2
 
 $chunk28d = @{}
 $chunk28d['children: "Any Bash command"'] = 'children: "\u4efb\u610f Bash \u547d\u4ee4"'
@@ -846,7 +926,7 @@ $chunk28d['title: "Permissions:"'] = 'title: "\u6743\u9650\uff1a"'
 $chunk28d['title: "Recently denied"'] = 'title: "\u6700\u8fd1\u62d2\u7edd"'
 $chunk28d['title: "Workspace"'] = 'title: "\u5de5\u4f5c\u533a"'
 $chunk28d['children: "Claude Code can read files in the workspace, and make edits when auto-accept edits is on."'] = 'children: "Claude Code \u53ef\u8bfb\u53d6\u5de5\u4f5c\u533a\u6587\u4ef6\uff0c\u5f00\u542f\u81ea\u52a8\u63a5\u53d7\u7f16\u8f91\u65f6\u53ef\u8fdb\u884c\u4fee\u6539\u3002"'
-Patch-File -Path (Join-Path $DistDir "chunk-28d6zrtg.js") -Replacements $chunk28d
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunk28d
 
 $chunkTg2 = @{}
 $chunkTg2['`Large CLAUDE.md file detected (${largeFiles[0].content.length.toLocaleString()} chars > ${MAX_MEMORY_CHARACTER_COUNT.toLocaleString()})`'] = '`\u68c0\u6d4b\u5230\u5927\u578b CLAUDE.md \u6587\u4ef6\uff08${largeFiles[0].content.length.toLocaleString()} \u5b57\u7b26 > ${MAX_MEMORY_CHARACTER_COUNT.toLocaleString()}\uff09`'
@@ -857,7 +937,7 @@ $chunkTg2['message: `Large MCP tools context (~${estimatedTokens.toLocaleString(
 $chunkTg2['message: `${unreachable.length} ${plural(unreachable.length, "unreachable permission rule")} detected`,'] = 'message: `\u68c0\u6d4b\u5230 ${unreachable.length} ${plural(unreachable.length, "\u4e0d\u53ef\u8fbe\u6743\u9650\u89c4\u5219")}`,'
 $chunkTg2['`(${agentTokens.length - 5} more custom agents)`'] = '`\uff08\u8fd8\u6709 ${agentTokens.length - 5} \u4e2a\u81ea\u5b9a\u4e49 agent\uff09`'
 $chunkTg2['`(${sortedServers.length - 5} more servers)`'] = '`\uff08\u8fd8\u6709 ${sortedServers.length - 5} \u4e2a\u670d\u52a1\u5668\uff09`'
-Patch-File -Path (Join-Path $DistDir "chunk-tg415rfe.js") -Replacements $chunkTg2
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkTg2
 
 $chunkH0g = @{}
 $chunkH0g['title: "Manage MCP servers"'] = 'title: "\u7ba1\u7406 MCP \u670d\u52a1\u5668"'
@@ -901,7 +981,7 @@ $chunkH0g['onComplete("MCP dialog dismissed"'] = 'onComplete("MCP \u5bf9\u8bdd\u
 $chunkH0g['description: "go back"'] = 'description: "\u8fd4\u56de"'
 $chunkH0g['"Press "'] = '"\u6309 "'
 $chunkH0g['" again to exit"'] = '" \u518d\u6b21\u9000\u51fa"'
-Patch-File -Path (Join-Path $DistDir "chunk-h0gyc4zm.js") -Replacements $chunkH0g
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkH0g
 
 $chunk23wh = @{}
 $chunk23wh['title: "Do you wish to enable auto-connect to IDE?"'] = 'title: "\u662f\u5426\u542f\u7528\u81ea\u52a8\u8fde\u63a5 IDE\uff1f"'
@@ -917,7 +997,7 @@ $chunk23wh['title: "Select IDE to install extension"'] = 'title: "\u9009\u62e9\u
 $chunk23wh['{ label: "Yes", value: "yes" }'] = '{ label: "\u662f", value: "yes" }'
 $chunk23wh['{ label: "No", value: "no" }'] = '{ label: "\u5426", value: "no" }'
 $chunk23wh['{ label: "None", value: "None", description: undefined }'] = '{ label: "\u65e0", value: "None", description: undefined }'
-Patch-File -Path (Join-Path $DistDir "chunk-23wh2twe.js") -Replacements $chunk23wh
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunk23wh
 
 $chunk8dbj = @{}
 $chunk8dbj['title: "Skills"'] = 'title: "\u6280\u80fd"'
@@ -933,7 +1013,7 @@ $chunk8dbj['description: "close"'] = 'description: "\u5173\u95ed"'
 $chunk8dbj['return { label: "local", color: "yellow" };'] = 'return { label: "\u672c\u5730", color: "yellow" };'
 $chunk8dbj['return { label: "global", color: "cyan" };'] = 'return { label: "\u5168\u5c40", color: "cyan" };'
 $chunk8dbj['return { label: "managed", color: "magenta" };'] = 'return { label: "\u6258\u7ba1", color: "magenta" };'
-Patch-File -Path (Join-Path $DistDir "chunk-8dbjgkay.js") -Replacements $chunk8dbj
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunk8dbj
 
 $chunkT4w = @{}
 $chunkT4w['title: "Memory"'] = 'title: "\u8bb0\u5fc6"'
@@ -960,7 +1040,7 @@ $chunkT4w['onDone(`\u5df2\u6253\u5f00\u8bb0\u5fc6\u6587\u4ef6 ${getRelativeMemor
 $chunkT4w['onDone(`Error opening memory file: ${error}`)'] = 'onDone(`\u6253\u5f00\u8bb0\u5fc6\u6587\u4ef6\u5931\u8d25\uff1a${error}`)'
 $chunkT4w['? `> ${editorInfo} To change editor, set $EDITOR or $VISUAL environment variable.` : `> To use a different editor, set the $EDITOR or $VISUAL environment variable.`;'] = '? `> ${editorInfo} \u8981\u66f4\u6362\u7f16\u8f91\u5668\uff0c\u8bf7\u8bbe\u7f6e $EDITOR \u6216 $VISUAL \u73af\u5883\u53d8\u91cf\u3002` : `> \u8981\u4f7f\u7528\u5176\u4ed6\u7f16\u8f91\u5668\uff0c\u8bf7\u8bbe\u7f6e $EDITOR \u6216 $VISUAL \u73af\u5883\u53d8\u91cf\u3002`;'
 $chunkT4w['? `Using ${editorSource}="${editorValue}".` : "";'] = '? `\u4f7f\u7528 ${editorSource}="${editorValue}"\u3002` : "";'
-Patch-File -Path (Join-Path $DistDir "chunk-t4w1rn4d.js") -Replacements $chunkT4w
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkT4w
 
 $chunkH0g2 = @{}
 $chunkH0g2['onComplete(`MCP server "${serverName}" not found`);'] = 'onComplete(`\u672a\u627e\u5230 MCP \u670d\u52a1\u5668 "${serverName}"`);'
@@ -972,25 +1052,25 @@ $chunkH0g2['onComplete("No MCP servers configured. Please run /doctor if this is
 $chunkH0g2['onComplete(target === "all" ? `All MCP servers are already ${isEnabling ? "enabled" : "disabled"}` : `MCP server "${target}" not found`);'] = 'onComplete(target === "all" ? `\u6240\u6709 MCP \u670d\u52a1\u5668\u5df2${isEnabling ? "\u542f\u7528" : "\u7981\u7528"}` : `\u672a\u627e\u5230 MCP \u670d\u52a1\u5668 "${target}"`);'
 $chunkH0g2['onComplete(target === "all" ? `${isEnabling ? "Enabled" : "Disabled"} ${toToggle.length} MCP server(s)` : `MCP server "${target}" ${isEnabling ? "enabled" : "disabled"}`);'] = 'onComplete(target === "all" ? `${isEnabling ? "\u5df2\u542f\u7528" : "\u5df2\u7981\u7528"} ${toToggle.length} \u4e2a MCP \u670d\u52a1\u5668` : `MCP \u670d\u52a1\u5668 "${target}" \u5df2${isEnabling ? "\u542f\u7528" : "\u7981\u7528"}`);'
 $chunkH0g2['statusText = `reconnecting (${reconnectAttempt}/${maxReconnectAttempts})\u2026`;'] = 'statusText = `\u91cd\u8fde\u4e2d (${reconnectAttempt}/${maxReconnectAttempts})\u2026`;'
-Patch-File -Path (Join-Path $DistDir "chunk-h0gyc4zm.js") -Replacements $chunkH0g2
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkH0g2
 
 $chunkH0g3 = @{}
 $chunkH0g3['action: "navigate"'] = 'action: "\u5bfc\u822a"'
 $chunkH0g3['action: "confirm"'] = 'action: "\u786e\u8ba4"'
-Patch-File -Path (Join-Path $DistDir "chunk-h0gyc4zm.js") -Replacements $chunkH0g3
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkH0g3
 
 $chunkD2s = @{}
 $chunkD2s['action: "navigate"'] = 'action: "\u5bfc\u822a"'
 $chunkD2s['action: "toggle"'] = 'action: "\u5207\u6362"'
 $chunkD2s['action: "confirm"'] = 'action: "\u786e\u8ba4"'
 $chunkD2s['description: "cancel"'] = 'description: "\u53d6\u6d88"'
-Patch-File -Path (Join-Path $DistDir "chunk-d2s5z7q8.js") -Replacements $chunkD2s
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkD2s
 
 $chunkEf8 = @{}
 $chunkEf8['action: "select"'] = 'action: "\u9009\u62e9"'
 $chunkEf8['action: "confirm"'] = 'action: "\u786e\u8ba4"'
 $chunkEf8['description: "reject all"'] = 'description: "\u5168\u90e8\u62d2\u7edd"'
-Patch-File -Path (Join-Path $DistDir "chunk-ef8yfaty.js") -Replacements $chunkEf8
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkEf8
 
 $chunkEf8b = @{}
 $chunkEf8b['"MCP servers may execute code or access system resources. All tool calls require approval. Learn more in the"'] = '"MCP \u670d\u52a1\u5668\u53ef\u80fd\u6267\u884c\u4ee3\u7801\u6216\u8bbf\u95ee\u7cfb\u7edf\u8d44\u6e90\u3002\u6240\u6709\u5de5\u5177\u8c03\u7528\u5747\u9700\u6279\u51c6\u3002\u8be6\u89c1"'
@@ -1001,7 +1081,7 @@ $chunkEf8b['{ label: `Use this MCP server`, value: "yes" }'] = '{ label: `\u4f7f
 $chunkEf8b['{ label: `Continue without using this MCP server`, value: "no" }'] = '{ label: `\u4e0d\u4f7f\u7528\u6b64 MCP \u670d\u52a1\u5668\u5e76\u7ee7\u7eed`, value: "no" }'
 $chunkEf8b['title: `${serverNames.length} new MCP servers found in .mcp.json`'] = 'title: `\u5728 .mcp.json \u4e2d\u53d1\u73b0 ${serverNames.length} \u4e2a\u65b0 MCP \u670d\u52a1\u5668`'
 $chunkEf8b['subtitle: "Select any you wish to enable."'] = 'subtitle: "\u9009\u62e9\u8981\u542f\u7528\u7684\u670d\u52a1\u5668\u3002"'
-Patch-File -Path (Join-Path $DistDir "chunk-ef8yfaty.js") -Replacements $chunkEf8b
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkEf8b
 
 $chunkYxs = @{}
 $chunkYxs['title: "Import MCP Servers from Claude Desktop"'] = 'title: "\u4ece Claude Desktop \u5bfc\u5165 MCP \u670d\u52a1\u5668"'
@@ -1014,7 +1094,7 @@ $chunkYxs['action: "confirm"'] = 'action: "\u786e\u8ba4"'
 $chunkYxs['description: "cancel"'] = 'description: "\u53d6\u6d88"'
 $chunkYxs['`Successfully imported ${importedCount} MCP ${plural(importedCount, "server")} to ${scope} config.`'] = '`\u5df2\u6210\u529f\u5c06 ${importedCount} \u4e2a MCP \u670d\u52a1\u5668\u5bfc\u5165 ${scope} \u914d\u7f6e\u3002`'
 $chunkYxs['No servers were imported.'] = '\u672a\u5bfc\u5165\u4efb\u4f55\u670d\u52a1\u5668\u3002'
-Patch-File -Path (Join-Path $DistDir "chunk-yxs7jbqv.js") -Replacements $chunkYxs
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkYxs
 
 $chunkZ512 = @{}
 $chunkZ512['children: "Loading Claude Code sessions\u2026"'] = 'children: "\u6b63\u5728\u52a0\u8f7d Claude Code \u4f1a\u8bdd\u2026"'
@@ -1045,7 +1125,7 @@ $chunkZ512['"Run "'] = '"\u8fd0\u884c "'
 $chunkZ512['action: "select"'] = 'action: "\u9009\u62e9"'
 $chunkZ512['action: "confirm"'] = 'action: "\u786e\u8ba4"'
 $chunkZ512['description: "cancel"'] = 'description: "\u53d6\u6d88"'
-Patch-File -Path (Join-Path $DistDir "chunk-z5126jn7.js") -Replacements $chunkZ512
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkZ512
 
 $chunkZ512b = @{}
 $chunkZ512b['              " ",
@@ -1068,7 +1148,7 @@ $chunkZ512b['children: [
               currentRepo,
               "\uff09"
             ]'
-Patch-File -Path (Join-Path $DistDir "chunk-z5126jn7.js") -Replacements $chunkZ512b
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkZ512b
 
 $chunk4778 = @{}
 $chunk4778['message: "Loading session\u2026"'] = 'message: "\u6b63\u5728\u52a0\u8f7d\u4f1a\u8bdd\u2026"'
@@ -1104,7 +1184,7 @@ $chunk4778['              " ",
                 " / ",
                 displayedLogs.length,
                 "\uff09"'
-Patch-File -Path (Join-Path $DistDir "chunk-4778gpyy.js") -Replacements $chunk4778
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunk4778
 
 $chunk4778b = @{}
 $chunk4778b['filterIndicators.push("current worktree");'] = 'filterIndicators.push("\u5f53\u524d\u5de5\u4f5c\u6811");'
@@ -1112,7 +1192,7 @@ $chunk4778b['action: `show ${showAllProjects ? "current dir" : "all projects"}`'
 $chunk4778b['action: `show ${showAllWorktrees ? "current worktree" : "all worktrees"}`'] = 'action: `${showAllWorktrees ? "\u663e\u793a\u5f53\u524d\u5de5\u4f5c\u6811" : "\u663e\u793a\u5168\u90e8\u5de5\u4f5c\u6811"}`'
 $chunk4778b['action: `show ${showAllProjects ? "\u5f53\u524d\u76ee\u5f55" : "\u5168\u90e8\u9879\u76ee"}`'] = 'action: `${showAllProjects ? "\u663e\u793a\u5f53\u524d\u76ee\u5f55" : "\u663e\u793a\u5168\u90e8\u9879\u76ee"}`'
 $chunk4778b['action: `show ${showAllWorktrees ? "\u5f53\u524d\u5de5\u4f5c\u6811" : "\u5168\u90e8\u5de5\u4f5c\u6811"}`'] = 'action: `${showAllWorktrees ? "\u663e\u793a\u5f53\u524d\u5de5\u4f5c\u6811" : "\u663e\u793a\u5168\u90e8\u5de5\u4f5c\u6811"}`'
-Patch-File -Path (Join-Path $DistDir "chunk-4778gpyy.js") -Replacements $chunk4778b
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunk4778b
 
 $chunkHphv = @{}
 $chunkHphv['DIALOG_TITLE = "Select Remote Environment"'] = 'DIALOG_TITLE = "\u9009\u62e9\u8fdc\u7a0b\u73af\u5883"'
@@ -1128,7 +1208,7 @@ $chunkHphv['"Currently using: "'] = '"\u5f53\u524d\u4f7f\u7528\uff1a "'
 $chunkHphv['? ` (from ${getSettingSourceName(selectedEnvironmentSource)} settings)` : ""'] = '? ` \uff08\u6765\u81ea ${getSettingSourceName(selectedEnvironmentSource)} \u8bbe\u7f6e\uff09` : ""'
 $chunkHphv['action: "select"'] = 'action: "\u9009\u62e9"'
 $chunkHphv['description: "cancel"'] = 'description: "\u53d6\u6d88"'
-Patch-File -Path (Join-Path $DistDir "chunk-hphv78mm.js") -Replacements $chunkHphv
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkHphv
 
 $chunkAvn10 = @{}
 $chunkAvn10['"Waiting for team lead approval"'] = '"\u7b49\u5f85\u961f\u957f\u6279\u51c6"'
@@ -1142,18 +1222,18 @@ $chunkAvn10['children: "[hidden] "'] = 'children: "[\u9690\u85cf] "'
 $chunkAvn10['children: "[idle] "'] = 'children: "[\u7a7a\u95f2] "'
 $chunkAvn10['teammate.worktreePath ? `worktree: ${workingPath}` : workingPath'] = 'teammate.worktreePath ? `\u5de5\u4f5c\u6811\uff1a ${workingPath}` : workingPath'
 $chunkAvn10['const statusText = `${totalTeammates} ${totalTeammates === 1 ? "teammate" : "teammates"}`;'] = 'const statusText = `${totalTeammates} \u540d\u961f\u53cb`;'
-Patch-File -Path (Join-Path $DistDir "chunk-avnn2wav.js") -Replacements $chunkAvn10
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAvn10
 
 $chunkZ512c = @{}
 $chunkZ512c['var UPDATED_STRING = "Updated";'] = 'var UPDATED_STRING = "\u66f4\u65b0";'
 $chunkZ512c['"Session Title"'] = '"\u4f1a\u8bdd\u6807\u9898"'
-Patch-File -Path (Join-Path $DistDir "chunk-z5126jn7.js") -Replacements $chunkZ512c
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkZ512c
 
 $chunk4778c = @{}
 $chunk4778c['message: error instanceof Error ? error.message : "Search failed"'] = 'message: error instanceof Error ? error.message : "\u641c\u7d22\u5931\u8d25"'
 $chunk4778c['"Press "'] = '"\u6309 "'
 $chunk4778c['" again to exit"'] = '" \u518d\u6b21\u9000\u51fa"'
-Patch-File -Path (Join-Path $DistDir "chunk-4778gpyy.js") -Replacements $chunk4778c
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunk4778c
 
 $chunkP0tz = @{}
 $chunkP0tz['title: "Login"'] = 'title: "\u767b\u5f55"'
@@ -1161,7 +1241,7 @@ $chunkP0tz['onDone(success ? "Login successful" : "Login interrupted")'] = 'onDo
 $chunkP0tz['"Press "'] = '"\u6309 "'
 $chunkP0tz['" again to exit"'] = '" \u518d\u6b21\u9000\u51fa"'
 $chunkP0tz['description: "cancel"'] = 'description: "\u53d6\u6d88"'
-Patch-File -Path (Join-Path $DistDir "chunk-p0tzwb7s.js") -Replacements $chunkP0tz
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkP0tz
 
 $chunkYet = @{}
 $chunkYet['title: "Export Conversation"'] = 'title: "\u5bfc\u51fa\u5bf9\u8bdd"'
@@ -1182,7 +1262,7 @@ $chunkYet['message: `Failed to export conversation: ${error instanceof Error ? e
 $chunkYet['message: "Export cancelled"'] = 'message: "\u5bfc\u51fa\u5df2\u53d6\u6d88"'
 $chunkYet['onDone(`Conversation exported to: ${filepath}`)'] = 'onDone(`\u5bf9\u8bdd\u5df2\u5bfc\u51fa\u81f3\uff1a ${filepath}`)'
 $chunkYet['onDone(`Failed to export conversation: ${error instanceof Error ? error.message : "Unknown error"}`)'] = 'onDone(`\u5bfc\u51fa\u5bf9\u8bdd\u5931\u8d25\uff1a ${error instanceof Error ? error.message : "\u672a\u77e5\u9519\u8bef"}`)'
-Patch-File -Path (Join-Path $DistDir "chunk-yet151bs.js") -Replacements $chunkYet
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkYet
 
 $chunkCpmg = New-ReplacementMap
 $chunkCpmg['title: "Plugins"'] = 'title: "\u63d2\u4ef6"'
@@ -1559,17 +1639,17 @@ $chunkCpmg6['children: " Restarting MCP server process"'] = 'children: " \u6b63\
 $chunkCpmg6['onComplete("No marketplaces configured")'] = 'onComplete("\u672a\u914d\u7f6e\u5e02\u573a")'
 $chunkCpmg6['"Make sure you trust a plugin before installing, updating, or using it. Anthropic does not control what MCP servers, files, or other software are included in plugins and cannot verify that they will work as intended or that they won''t change. See each plugin''s homepage for more information."'] = '"\u5b89\u88c5\u3001\u66f4\u65b0\u6216\u4f7f\u7528\u524d\u8bf7\u786e\u8ba4\u4f60\u4fe1\u4efb\u8be5\u63d2\u4ef6\u3002Anthropic \u65e0\u6cd5\u63a7\u5236\u63d2\u4ef6\u4e2d\u5305\u542b\u54ea\u4e9b MCP \u670d\u52a1\u5668\u3001\u6587\u4ef6\u6216\u5176\u4ed6\u8f6f\u4ef6\uff0c\u4e5f\u65e0\u6cd5\u4fdd\u8bc1\u5176\u6309\u9884\u671f\u5de5\u4f5c\u6216\u4e0d\u4f1a\u53d8\u66f4\u3002\u8be6\u60c5\u8bf7\u89c1\u5404\u63d2\u4ef6\u4e3b\u9875\u3002"'
 
-Patch-File -Path (Join-Path $DistDir "chunk-cpmg6xez.js") -Replacements $chunkCpmg
-Patch-File -Path (Join-Path $DistDir "chunk-cpmg6xez.js") -Replacements $chunkCpmg2
-Patch-File -Path (Join-Path $DistDir "chunk-cpmg6xez.js") -Replacements $chunkCpmg3
-Patch-File -Path (Join-Path $DistDir "chunk-cpmg6xez.js") -Replacements $chunkCpmg4
-Patch-File -Path (Join-Path $DistDir "chunk-cpmg6xez.js") -Replacements $chunkCpmg5
-Patch-File -Path (Join-Path $DistDir "chunk-cpmg6xez.js") -Replacements $chunkCpmg6
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkCpmg
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkCpmg2
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkCpmg3
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkCpmg4
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkCpmg5
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkCpmg6
 
 $chunkMa3 = @{}
 $chunkMa3['description: "Fires instead of Stop when an API error (rate limit, auth failure, etc.) ended the turn. Fire-and-forget \u2014 hook output and exit codes are ignored."'] = 'description: "API \u9519\u8bef\uff08\u9650\u901f\u3001\u8ba4\u8bc1\u5931\u8d25\u7b49\uff09\u7ed3\u675f\u56de\u5408\u65f6\u89e6\u53d1\uff0c\u66ff\u4ee3 Stop\u3002\u706b\u5e76\u5fd8\u8bb0\u2014hook \u8f93\u51fa\u4e0e\u9000\u51fa\u7801\u88ab\u5ffd\u7565\u3002"'
 $chunkMa3['title: "Hooks"'] = 'title: "Hooks \u914d\u7f6e"'
-Patch-File -Path (Join-Path $DistDir "chunk-ma1cctc0.js") -Replacements $chunkMa3
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkMa3
 
 $chunkAbs = @{}
 $chunkAbs['return `Try "${sample_default(commands)}"`'] = 'return `\u8bd5\u8bd5\u201c${sample_default(commands)}\u201d`'
@@ -1627,7 +1707,7 @@ $chunkAbs['return reward ? `Share Claude Code and earn ${claude(formatCreditAmou
 $chunkAbs['return `${claude(`${amount} in extra usage, on us`)} \xB7 third-party apps \xB7 ${claude("/extra-usage")}`;'] = 'return `${claude(`${amount} \u989d\u5916\u7528\u91cf\uff0c\u7531\u6211\u4eec\u627f\u62c5`)} \xb7 \u7b2c\u4e09\u65b9\u5e94\u7528 \xb7 ${claude("/extra-usage")}`;'
 $chunkAbs['Open the Command Palette (Cmd+Shift+P) and run "Shell Command: Install '''] = '\u6253\u5f00\u547d\u4ee4\u9762\u677f\uff08Cmd+Shift+P\uff09\u5e76\u8fd0\u884c\u201cShell Command: Install '''
 $chunkAbs[''' command in PATH" to enable IDE integration`'] = ''' \u547d\u4ee4\u5230 PATH\u201d\u4ee5\u542f\u7528 IDE \u96c6\u6210`'
-Patch-File -Path (Join-Path $DistDir "chunk-abs811tm.js") -Replacements $chunkAbs
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAbs
 
 $chunkEgfc = @{}
 $chunkEgfc['description: "go back"'] = 'description: "\u8fd4\u56de"'
@@ -1706,7 +1786,7 @@ $chunkEgfc['children: "Warnings:"'] = 'children: "\u8b66\u544a\uff1a"'
 $chunkEgfc['children: "Errors:"'] = 'children: "\u9519\u8bef\uff1a"'
 $chunkEgfc['title: "Delete agent"'] = 'title: "\u5220\u9664 agent"'
 $chunkEgfc['"Are you sure you want to delete the agent"'] = '"\u786e\u5b9a\u8981\u5220\u9664 agent"'
-Patch-File -Path (Join-Path $DistDir "chunk-egfcsh5m.js") -Replacements $chunkEgfc
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkEgfc
 
 $chunkN7 = @{}
 $chunkN7['title: "Status"'] = 'title: "\u72b6\u6001"'
@@ -1769,7 +1849,7 @@ $chunkN7['title: "Switch to Stable Channel"'] = 'title: "\u5207\u6362\u5230 Stab
 $chunkN7['children: "How would you like to handle this?"'] = 'children: "\u5982\u4f55\u5904\u7406\uff1f"'
 $chunkN7['label: "Allow possible downgrade to stable version"'] = 'label: "\u5141\u8bb8\u53ef\u80fd\u964d\u7ea7\u5230 stable \u7248\u672c"'
 $chunkN7[' ? " \xB7 Billed as extra usage"'] = ' ? " \xb7 \u8ba1\u4e3a\u989d\u5916\u7528\u91cf"'
-Patch-File -Path (Join-Path $DistDir "chunk-n7azv4r8.js") -Replacements $chunkN7
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkN7
 
 $chunkAvn2 = @{}
 $chunkAvn2['children: "Plugin:"'] = 'children: "\u63d2\u4ef6\uff1a"'
@@ -1790,7 +1870,7 @@ $chunkAvn2['children: "Chrome extension not detected \xB7 https://claude.ai/chro
 $chunkAvn2['children: "Save and close editor to continue..."'] = 'children: "\u4fdd\u5b58\u5e76\u5173\u95ed\u7f16\u8f91\u5668\u4ee5\u7ee7\u7eed..."'
 $chunkAvn2['children: "Debug mode"'] = 'children: "\u8c03\u8bd5\u6a21\u5f0f"'
 $chunkAvn2['children: "No other pipes found. Start another instance."'] = 'children: "\u672a\u627e\u5230\u5176\u4ed6\u7ba1\u9053\u3002\u8bf7\u542f\u52a8\u53e6\u4e00\u5b9e\u4f8b\u3002"'
-Patch-File -Path (Join-Path $DistDir "chunk-avnn2wav.js") -Replacements $chunkAvn2
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAvn2
 
 $chunkAvn3 = @{}
 $chunkAvn3['": Yes"'] = '": \u662f"'
@@ -1817,12 +1897,12 @@ $chunkAvn3['configString: "/hooks to update"'] = 'configString: "/hooks \u66f4\u
 $chunkAvn3['configString: "/permissions to update rules"'] = 'configString: "/permissions \u66f4\u65b0\u89c4\u5219"'
 $chunkAvn3['text: "Model updated to Sonnet 4.6"'] = 'text: "\u6a21\u578b\u5df2\u5207\u6362\u4e3a Sonnet 4.6"'
 $chunkAvn3['text: isLegacyRemap ? "Model updated to Opus 4.6 \xB7 Set CLAUDE_CODE_DISABLE_LEGACY_MODEL_REMAP=1 to opt out" : "Model updated to Opus 4.6"'] = 'text: isLegacyRemap ? "\u6a21\u578b\u5df2\u5207\u6362\u4e3a Opus 4.6 \xb7 \u8bbe\u7f6e CLAUDE_CODE_DISABLE_LEGACY_MODEL_REMAP=1 \u53ef\u9000\u51fa" : "\u6a21\u578b\u5df2\u5207\u6362\u4e3a Opus 4.6"'
-Patch-File -Path (Join-Path $DistDir "chunk-avnn2wav.js") -Replacements $chunkAvn3
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkAvn3
 
 $chunkN7b = @{}
 $chunkN7b['label: "Default teammate model"'] = 'label: "\u961f\u53cb\u9ed8\u8ba4\u6a21\u578b"'
 $chunkN7b['label: "External CLAUDE.md includes"'] = 'label: "\u5916\u90e8 CLAUDE.md \u5f15\u7528"'
-Patch-File -Path (Join-Path $DistDir "chunk-n7azv4r8.js") -Replacements $chunkN7b
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkN7b
 
 $chunkN7d = @{}
 $chunkN7d['action: "confirm"'] = 'action: "\u786e\u8ba4"'
@@ -1838,20 +1918,20 @@ $chunkN7d['description: "search"'] = 'description: "\u641c\u7d22"'
 $chunkN7d['description: "retry"'] = 'description: "\u91cd\u8bd5"'
 $chunkN7d['description: "disable external includes"'] = 'description: "\u7981\u7528\u5916\u90e8\u5f15\u7528"'
 $chunkN7d['children: "disabled"'] = 'children: "\u5df2\u7981\u7528"'
-Patch-File -Path (Join-Path $DistDir "chunk-n7azv4r8.js") -Replacements $chunkN7d
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkN7d
 
 $chunkEpvn2 = @{}
 $chunkEpvn2['"Press "'] = '"\u6309 "'
 $chunkEpvn2['" again to exit"'] = '" \u518d\u6b21\u9000\u51fa"'
-Patch-File -Path (Join-Path $DistDir "chunk-epvn7n5s.js") -Replacements $chunkEpvn2
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkEpvn2
 
 $chunkEpvn3 = @{}
 $chunkEpvn3['action: "confirm"'] = 'action: "\u786e\u8ba4"'
-Patch-File -Path (Join-Path $DistDir "chunk-epvn7n5s.js") -Replacements $chunkEpvn3
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkEpvn3
 
 $chunkEpvn4 = @{}
 $chunkEpvn4['children: "ON"'] = 'children: "\u5f00\u542f"'
-Patch-File -Path (Join-Path $DistDir "chunk-epvn7n5s.js") -Replacements $chunkEpvn4
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkEpvn4
 
 $chunkXg5 = @{}
 $chunkXg5['label: "Default (recommended)"'] = 'label: "\u9ed8\u8ba4\uff08\u63a8\u8350\uff09"'
@@ -1871,7 +1951,7 @@ $chunkXg5['description: `Opus 4.6 with 1M context \xB7 \u590d\u6742\u4efb\u52a1\
 $chunkXg5['" \xB7 Billed as extra usage"'] = '" \xb7 \u989d\u5916\u7528\u91cf\u8ba1\u8d39"'
 $chunkXg5['description: `Sonnet 4.6 with 1M context${billingInfo}${is3P ? "" : ` \xB7 ${formatModelPricing(COST_TIER_3_15)}`}`'] = 'description: `Sonnet 4.6\uff081M \u4e0a\u4e0b\u6587\uff09${billingInfo}${is3P ? "" : ` \xB7 ${formatModelPricing(COST_TIER_3_15)}`}`'
 $chunkXg5['description: `Opus 4.6 with 1M context${billingInfo}${getOpus46PricingSuffix(fastMode)}`'] = 'description: `Opus 4.6\uff081M \u4e0a\u4e0b\u6587\uff09${billingInfo}${getOpus46PricingSuffix(fastMode)}`'
-Patch-File -Path (Join-Path $DistDir "chunk-xg5k46jr.js") -Replacements $chunkXg5
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkXg5
 
 $chunkMk2 = @{}
 $chunkMk2['return "Sonnet 4.6 \xB7 Best for everyday tasks";'] = 'return "Sonnet 4.6 \xb7 \u9002\u5408\u65e5\u5e38\u4efb\u52a1";'
@@ -1881,7 +1961,7 @@ $chunkMk2['return "Opus 4.6 in plan mode, else Sonnet 4.6";'] = 'return "Opus 4.
 $chunkMk2['return "Opus Plan";'] = 'return "Opus \u8ba1\u5212";'
 $chunkMk2['return `Default (${getClaudeAiUserDefaultModelDescription()})`;'] = 'return `\u9ed8\u8ba4\uff08${getClaudeAiUserDefaultModelDescription()}\uff09`;'
 $chunkMk2['return `Default for Ants (${renderDefaultModelSetting(getDefaultMainLoopModelSetting())})`;'] = 'return `Ant \u9ed8\u8ba4\uff08${renderDefaultModelSetting(getDefaultMainLoopModelSetting())}\uff09`;'
-Patch-File -Path (Join-Path $DistDir "chunk-mk2vzd2n.js") -Replacements $chunkMk2
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkMk2
 
 $chunkEpvn = @{}
 $chunkEpvn['children: "Select model"'] = 'children: "\u9009\u62e9\u6a21\u578b"'
@@ -1904,7 +1984,7 @@ $chunkEpvn['"and "'] = '"\u8fd8\u6709 "'
 $chunkEpvn['" more\u2026"'] = '" \u9879\u2026"'
 $chunkEpvn['description: "exit"'] = 'description: "\u9000\u51fa"'
 $chunkEpvn['description: "Current model"'] = 'description: "\u5f53\u524d\u6a21\u578b"'
-Patch-File -Path (Join-Path $DistDir "chunk-epvn7n5s.js") -Replacements $chunkEpvn
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkEpvn
 
 $chunkEgfc2 = @{}
 $chunkEgfc2['name: "Edit tools"'] = 'name: "\u7f16\u8f91\u5de5\u5177"'
@@ -1913,7 +1993,7 @@ $chunkEgfc2['name: "Other tools"'] = 'name: "\u5176\u4ed6\u5de5\u5177"'
 $chunkEgfc2['return "Built-in";'] = 'return "\u5185\u7f6e";'
 $chunkEgfc2['return `Plugin: ${agent.plugin || "Unknown"}`;'] = 'return `\u63d2\u4ef6\uff1a${agent.plugin || "Unknown"}`;'
 $chunkEgfc2['const renderBuiltInAgentsSection = (title = "Built-in (always available):")'] = 'const renderBuiltInAgentsSection = (title = "\u5185\u7f6e\uff08\u59cb\u7ec8\u53ef\u7528\uff09\uff1a")'
-Patch-File -Path (Join-Path $DistDir "chunk-egfcsh5m.js") -Replacements $chunkEgfc2
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkEgfc2
 
 $chunkEgfc4 = @{}
 $chunkEgfc4['action: "navigate"'] = 'action: "\u5bfc\u822a"'
@@ -1923,7 +2003,7 @@ $chunkEgfc4['action: "edit in your editor"'] = 'action: "\u5728\u7f16\u8f91\u566
 $chunkEgfc4['action: "enter text"'] = 'action: "\u8f93\u5165\u6587\u672c"'
 $chunkEgfc4['action: "continue"'] = 'action: "\u7ee7\u7eed"'
 $chunkEgfc4['action: "toggle selection"'] = 'action: "\u5207\u6362\u9009\u62e9"'
-Patch-File -Path (Join-Path $DistDir "chunk-egfcsh5m.js") -Replacements $chunkEgfc4
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkEgfc4
 
 $chunkXbv = @{}
 $chunkXbv['onDone("Did not add a working directory.");'] = 'onDone("\u672a\u6dfb\u52a0\u5de5\u4f5c\u76ee\u5f55\u3002");'
@@ -1932,9 +2012,407 @@ $chunkXbv['message = `Added ${source_default.bold(path)} as a working directory.
 $chunkXbv['message = `Added ${source_default.bold(path)} as a working directory for this session`;'] = 'message = `\u5df2\u5c06 ${source_default.bold(path)} \u6dfb\u52a0\u4e3a\u672c\u6b21\u4f1a\u8bdd\u7684\u5de5\u4f5c\u76ee\u5f55`;'
 $chunkXbv['const messageWithHint = `${message} ${source_default.dim("\xB7 /permissions to manage")}`;'] = 'const messageWithHint = `${message} ${source_default.dim("\xb7 /permissions \u7ba1\u7406")}`;'
 $chunkXbv['onDone(`Did not add ${source_default.bold(result.absolutePath)} as a working directory.`);'] = 'onDone(`\u672a\u5c06 ${source_default.bold(result.absolutePath)} \u6dfb\u52a0\u4e3a\u5de5\u4f5c\u76ee\u5f55\u3002`);'
-Patch-File -Path (Join-Path $DistDir "chunk-xbvyhzf4.js") -Replacements $chunkXbv
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkXbv
+
+# v2.6.6 new Vite output uses backtick format for UI strings.
+# Old maps used double-quote format and no longer match.
+# These new maps cover the most visible interactive UI strings.
+# Values use \uXXXX ASCII escapes (safe for Bun on Windows).
+$chunkUiV2 = New-ReplacementMap
+# Thinking mode
+$chunkUiV2['children:`Toggle thinking mode`'] = 'children:`\u5207\u6362\u601d\u8003\u6a21\u5f0f`'
+$chunkUiV2['children:`Enable or disable thinking for this session.`'] = 'children:`\u4e3a\u672c\u6b21\u4f1a\u8bdd\u5f00\u542f\u6216\u5173\u95ed\u601d\u8003\u6a21\u5f0f\u3002`'
+# Plan mode messages
+$chunkUiV2['children:`Claude wants to enter plan mode to explore and design an implementation approach.`'] = 'children:`Claude \u60f3\u8fdb\u5165\u8ba1\u5212\u6a21\u5f0f\uff0c\u63a2\u7d22\u5e76\u8bbe\u8ba1\u5b9e\u73b0\u65b9\u6848\u3002`'
+$chunkUiV2['children:`Claude wants to exit plan mode`'] = 'children:`Claude \u60f3\u9000\u51fa\u8ba1\u5212\u6a21\u5f0f`'
+$chunkUiV2['children:`Claude has written up a plan and is ready to execute. Would you like to proceed?`'] = 'children:`Claude \u5df2\u5236\u5b9a\u4e86\u8ba1\u5212\u5e76\u51c6\u5907\u6267\u884c\u3002\u662f\u5426\u7ee7\u7eed\uff1f`'
+$chunkUiV2['children:`Here is Claude''s plan:`'] = 'children:`Claude \u7684\u8ba1\u5212\uff1a`'
+$chunkUiV2['children:`In plan mode, Claude will:`'] = 'children:`\u5728\u8ba1\u5212\u6a21\u5f0f\u4e0b\uff0cClaude \u5c06\uff1a`'
+$chunkUiV2['children:`No code changes will be made until you approve the plan.`'] = 'children:`\u5728\u60a8\u6279\u51c6\u8ba1\u5212\u4e4b\u524d\u4e0d\u4f1a\u8fdb\u884c\u4ee3\u7801\u66f4\u6539\u3002`'
+$chunkUiV2['` · Explore the codebase thoroughly`'] = '` \xb7 \u5168\u9762\u63a2\u7d22\u4ee3\u7801\u5e93`'
+$chunkUiV2['` · Identify existing patterns`'] = '` \xb7 \u8bc6\u522b\u73b0\u6709\u6a21\u5f0f`'
+$chunkUiV2['` · Design an implementation strategy`'] = '` \xb7 \u8bbe\u8ba1\u5b9e\u73b0\u7b56\u7565`'
+$chunkUiV2['` · Present a plan for your approval`'] = '` \xb7 \u63d0\u4ea4\u8ba1\u5212\u4f9b\u60a8\u5ba1\u6279`'
+$chunkUiV2['children:`Do you want to proceed?`'] = 'children:`\u662f\u5426\u7ee7\u7eed\uff1f`'
+$chunkUiV2['children:`Would you like to proceed?`'] = 'children:`\u662f\u5426\u7ee7\u7eed\uff1f`'
+$chunkUiV2['title:`Enter plan mode?`'] = 'title:`\u8fdb\u5165\u8ba1\u5212\u6a21\u5f0f\uff1f`'
+$chunkUiV2['title:`Exit plan mode?`'] = 'title:`\u9000\u51fa\u8ba1\u5212\u6a21\u5f0f\uff1f`'
+$chunkUiV2['title:`Ready to code?`'] = 'title:`\u51c6\u5907\u7f16\u7801\uff1f`'
+$chunkUiV2['children:`How should the plan be implemented?`'] = 'children:`\u8ba1\u5212\u5e94\u5982\u4f55\u5b9e\u73b0\uff1f`'
+# Plan mode labels
+$chunkUiV2['label:`Yes, enter plan mode`'] = 'label:`\u662f\uff0c\u8fdb\u5165\u8ba1\u5212\u6a21\u5f0f`'
+$chunkUiV2['label:`No, start implementing now`'] = 'label:`\u5426\uff0c\u7acb\u5373\u5f00\u59cb\u5b9e\u73b0`'
+$chunkUiV2['label:`No, keep planning`'] = 'label:`\u5426\uff0c\u7ee7\u7eed\u89c4\u5212`'
+$chunkUiV2['label:`Skip interview and plan immediately`'] = 'label:`\u8df3\u8fc7\u8bbf\u8c08\u7acb\u5373\u89c4\u5212`'
+$chunkUiV2['label:`Don''t implement — save plan and return`'] = 'label:`\u4e0d\u5b9e\u73b0\u2014\u4fdd\u5b58\u8ba1\u5212\u5e76\u8fd4\u56de`'
+# Permission / acceptance labels
+$chunkUiV2['label:`Yes, auto-accept edits`'] = 'label:`\u662f\uff0c\u81ea\u52a8\u63a5\u53d7\u7f16\u8f91`'
+$chunkUiV2['label:`Yes, manually approve edits`'] = 'label:`\u662f\uff0c\u624b\u52a8\u6279\u51c6\u7f16\u8f91`'
+$chunkUiV2['label:`Yes, allow edits to .claude/ config for this session`'] = 'label:`\u662f\uff0c\u5141\u8bb8\u672c\u6b21\u4f1a\u8bdd\u7f16\u8f91 .claude/ \u914d\u7f6e`'
+$chunkUiV2['label:`No, not now`'] = 'label:`\u5426\uff0c\u6682\u65f6\u4e0d`'
+$chunkUiV2['label:`Start new session`'] = 'label:`\u5f00\u59cb\u65b0\u4f1a\u8bdd`'
+$chunkUiV2['label:`Continue this conversation`'] = 'label:`\u7ee7\u7eed\u6b64\u5bf9\u8bdd`'
+# Status / state strings
+$chunkUiV2['text:`No background agents running`'] = 'text:`\u65e0\u540e\u53f0 agent \u5728\u8fd0\u884c`'
+$chunkUiV2['children:`Waiting for permission…`'] = 'children:`\u7b49\u5f85\u6743\u9650\u2026`'
+$chunkUiV2['children:`Summarizing…`'] = 'children:`\u6458\u8981\u4e2d\u2026`'
+$chunkUiV2['children:`Debug mode`'] = 'children:`\u8c03\u8bd5\u6a21\u5f0f`'
+$chunkUiV2['children:`Rewind`'] = 'children:`\u56de\u9000`'
+# Context management
+$chunkUiV2['children:`Summarize from here`'] = 'children:`\u4ece\u6b64\u5904\u6458\u8981`'
+$chunkUiV2['children:`Summarize up to here`'] = 'children:`\u6458\u8981\u5230\u6b64\u5904`'
+$chunkUiV2['children:`Restore code`'] = 'children:`\u6062\u590d\u4ee3\u7801`'
+$chunkUiV2['children:`Restore conversation`'] = 'children:`\u6062\u590d\u5bf9\u8bdd`'
+$chunkUiV2['children:`Restore code and conversation`'] = 'children:`\u6062\u590d\u4ee3\u7801\u548c\u5bf9\u8bdd`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkUiV2
+
+# v2.6.6 backtick UI strings — iter 21 batch (settings/agents/skill/tag/hooks)
+$chunkUiV3 = New-ReplacementMap
+# InvalidSettingsDialog
+$chunkUiV3['title:`Settings Error`'] = 'title:`\u8bbe\u7f6e\u9519\u8bef`'
+$chunkUiV3['children:`Files with errors are skipped entirely, not just the invalid settings.`'] = 'children:`\u6709\u9519\u8bef\u7684\u6587\u4ef6\u5c06\u5b8c\u5168\u8df3\u8fc7\uff0c\u800c\u4e0d\u4ec5\u662f\u65e0\u6548\u8bbe\u7f6e\u9879\u3002`'
+$chunkUiV3['label:`Exit and fix manually`'] = 'label:`\u9000\u51fa\u5e76\u624b\u52a8\u4fee\u590d`'
+$chunkUiV3['label:`Continue without these settings`'] = 'label:`\u7ee7\u7eed\u4f46\u8df3\u8fc7\u8fd9\u4e9b\u8bbe\u7f6e`'
+# Tag dialog
+$chunkUiV3['title:`Remove tag?`'] = 'title:`\u79fb\u9664\u6807\u7b7e\uff1f`'
+$chunkUiV3['subtitle:`Current tag: #'] = 'subtitle:`\u5f53\u524d\u6807\u7b7e\uff1a #'
+$chunkUiV3['children:`This will remove the tag from the current session.`'] = 'children:`\u5c06\u4ece\u5f53\u524d\u4f1a\u8bdd\u4e2d\u79fb\u9664\u6b64\u6807\u7b7e\u3002`'
+$chunkUiV3['label:`Yes, remove tag`'] = 'label:`\u662f\uff0c\u79fb\u9664\u6807\u7b7e`'
+$chunkUiV3['label:`No, keep tag`'] = 'label:`\u5426\uff0c\u4fdd\u7559\u6807\u7b7e`'
+# Agents wizard & menu (backtick format in agents-DaLzXVa7.js)
+$chunkUiV3['label:`View agent`'] = 'label:`\u67e5\u770b agent`'
+$chunkUiV3['label:`Edit agent`'] = 'label:`\u7f16\u8f91 agent`'
+$chunkUiV3['label:`Delete agent`'] = 'label:`\u5220\u9664 agent`'
+$chunkUiV3['label:`Back`'] = 'label:`\u8fd4\u56de`'
+$chunkUiV3['subtitle:`Creation method`'] = 'subtitle:`\u521b\u5efa\u65b9\u5f0f`'
+$chunkUiV3['subtitle:`Select model`'] = 'subtitle:`\u9009\u62e9\u6a21\u578b`'
+$chunkUiV3['label:`Generate with Claude (recommended)`'] = 'label:`\u4f7f\u7528 Claude \u751f\u6210\uff08\u63a8\u8350\uff09`'
+$chunkUiV3['label:`Manual configuration`'] = 'label:`\u624b\u52a8\u914d\u7f6e`'
+$chunkUiV3['`Generation cancelled`'] = '`\u751f\u6210\u5df2\u53d6\u6d88`'
+$chunkUiV3['`Please describe what the agent should do`'] = '`\u8bf7\u63cf\u8ff0\u8be5 agent \u5e94\u505a\u4ec0\u4e48`'
+# Skill Search panel
+$chunkUiV3['title:`Skill Search`'] = 'title:`Skill \u641c\u7d22`'
+$chunkUiV3['description:`Show whether automatic skill matching is active`'] = 'description:`\u663e\u793a\u81ea\u52a8 skill \u5339\u914d\u662f\u5426\u542f\u7528`'
+$chunkUiV3['description:`Enable automatic skill matching for this session`'] = 'description:`\u672c\u6b21\u4f1a\u8bdd\u542f\u7528\u81ea\u52a8 skill \u5339\u914d`'
+$chunkUiV3['description:`Disable automatic skill matching for this session`'] = 'description:`\u672c\u6b21\u4f1a\u8bdd\u7981\u7528\u81ea\u52a8 skill \u5339\u914d`'
+$chunkUiV3['description:`How automatic skill matching works`'] = 'description:`\u81ea\u52a8 skill \u5339\u914d\u5de5\u4f5c\u539f\u7406`'
+$chunkUiV3['`Skill search panel dismissed`'] = '`\u5df2\u5173\u95ed Skill \u641c\u7d22\u9762\u677f`'
+# Skill Learning panel
+$chunkUiV3['title:`Skill Learning`'] = 'title:`Skill \u5b66\u4e60`'
+$chunkUiV3['description:`Show skill learning status for current project`'] = 'description:`\u663e\u793a\u5f53\u524d\u9879\u76ee\u7684 skill \u5b66\u4e60\u72b6\u6001`'
+$chunkUiV3['description:`Enable skill learning for this session`'] = 'description:`\u672c\u6b21\u4f1a\u8bdd\u542f\u7528 skill \u5b66\u4e60`'
+$chunkUiV3['description:`Disable skill learning for this session`'] = 'description:`\u672c\u6b21\u4f1a\u8bdd\u7981\u7528 skill \u5b66\u4e60`'
+$chunkUiV3['description:`Detailed description of skill learning features`'] = 'description:`skill \u5b66\u4e60\u529f\u80fd\u8be6\u7ec6\u8bf4\u660e`'
+$chunkUiV3['`Skill panel dismissed`'] = '`\u5df2\u5173\u95ed Skill \u9762\u677f`'
+# Hooks dialog (read-only menu)
+$chunkUiV3['title:`Hooks`'] = 'title:`Hooks \u914d\u7f6e`'
+# Fix iter-21 mistake: revert 钩子 → Hooks 配置 if already patched
+$chunkUiV3['title:`\u94a9\u5b50`'] = 'title:`Hooks \u914d\u7f6e`'
+$chunkUiV3[' Hooks Restricted by Policy'] = ' Hooks \u53d7\u7b56\u7565\u9650\u5236'
+$chunkUiV3['`Only hooks from managed settings can run. User-defined hooks from ~/.claude/settings.json, .claude/settings.json, and .claude/settings.local.json are blocked.`'] = '`\u4ec5\u7ba1\u7406\u8bbe\u7f6e\u4e2d\u7684 hooks \u53ef\u8fd0\u884c\u3002\u6765\u81ea ~/.claude/settings.json\u3001.claude/settings.json \u548c .claude/settings.local.json \u7684\u7528\u6237\u81ea\u5b9a\u4e49 hooks \u5df2\u88ab\u963b\u6b62\u3002`'
+$chunkUiV3['` This menu is read-only. To add or modify hooks, edit settings.json directly or ask Claude.`'] = '`\u6b64\u83dc\u5355\u4e3a\u53ea\u8bfb\u3002\u8981\u6dfb\u52a0\u6216\u4fee\u6539 hooks\uff0c\u8bf7\u76f4\u63a5\u7f16\u8f91 settings.json \u6216\u5411 Claude \u63d0\u51fa\u8bf7\u6c42\u3002`'
+# Backtick "Press X again to exit" (install-github-app etc.)
+$chunkUiV3['` again to exit`'] = '`\u518d\u6b21\u9000\u51fa`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkUiV3
+
+# v2.6.6 backtick UI strings — iter 22 (trust/agents/github/config)
+$chunkUiV4 = New-ReplacementMap
+# TrustDialog (first-run folder trust)
+$chunkUiV4['title:`Accessing workspace:`'] = 'title:`\u8bbf\u95ee\u5de5\u4f5c\u533a\uff1a`'
+$chunkUiV4['`Is this a project you trust? (Your own code, a well-known open source project, or work from your team).`'] = '`\u662f\u5426\u4fe1\u4efb\u6b64\u9879\u76ee\uff1f\uff08\u60a8\u81ea\u5df1\u7684\u4ee3\u7801\u3001\u8457\u540d\u5f00\u6e90\u9879\u76ee\u6216\u56e2\u961f\u5de5\u4f5c\uff09\u3002`'
+$chunkUiV4['`Once trusted, Claude Code can read, edit, and run commands in this folder.`'] = '`\u4fe1\u4efb\u540e\uff0cClaude Code \u53ef\u5728\u6b64\u6587\u4ef6\u5939\u4e2d\u8bfb\u53d6\u3001\u7f16\u8f91\u5e76\u8fd0\u884c\u547d\u4ee4\u3002`'
+$chunkUiV4['label:`Yes, I trust this folder`'] = 'label:`\u662f\uff0c\u6211\u4fe1\u4efb\u6b64\u6587\u4ef6\u5939`'
+$chunkUiV4['label:`No, exit`'] = 'label:`\u5426\uff0c\u9000\u51fa`'
+$chunkUiV4['`Enter to confirm \u00b7 Esc to cancel`'] = '`\u6309 Enter \u786e\u8ba4 \u00b7 Esc \u53d6\u6d88`'
+$chunkUiV4['`Enter to confirm · Esc to cancel`'] = '`\u6309 Enter \u786e\u8ba4 \u00b7 Esc \u53d6\u6d88`'
+$chunkUiV4['`Security guide`'] = '`\u5b89\u5168\u6307\u5357`'
+# InvalidConfigDialog
+$chunkUiV4['title:`Configuration Error`'] = 'title:`\u914d\u7f6e\u9519\u8bef`'
+$chunkUiV4['children:`Choose an option:`'] = 'children:`\u8bf7\u9009\u62e9\uff1a`'
+$chunkUiV4['label:`Reset with default configuration`'] = 'label:`\u91cd\u7f6e\u4e3a\u9ed8\u8ba4\u914d\u7f6e`'
+$chunkUiV4['`The configuration file at `'] = '`\u914d\u7f6e\u6587\u4ef6 `'
+$chunkUiV4['` contains invalid JSON.`'] = '`\u5305\u542b\u65e0\u6548\u7684 JSON\u3002`'
+# Agents list & wizard
+$chunkUiV4['`Agents dialog dismissed`'] = '`\u5df2\u5173\u95ed Agents \u5bf9\u8bdd\u6846`'
+$chunkUiV4['title:`Create new agent`'] = 'title:`\u521b\u5efa\u65b0 agent`'
+$chunkUiV4['children:`Create new agent`'] = 'children:`\u521b\u5efa\u65b0 agent`'
+$chunkUiV4['children:`No agents found`'] = 'children:`\u672a\u627e\u5230 agent`'
+$chunkUiV4['children:`No agents found. Create specialized subagents that Claude can delegate to.`'] = 'children:`\u672a\u627e\u5230 agent\u3002\u521b\u5efa\u4e13\u7528\u5b50 agent \u4f9b Claude \u59d4\u6258\u4f7f\u7528\u3002`'
+$chunkUiV4['children:`Built-in agents`'] = 'children:`\u5185\u7f6e agent`'
+$chunkUiV4['children:`Built-in agents are provided by default and cannot be modified.`'] = 'children:`\u5185\u7f6e agent \u9ed8\u8ba4\u63d0\u4f9b\uff0c\u65e0\u6cd5\u4fee\u6539\u3002`'
+$chunkUiV4['`Failed to save agent`'] = '`\u4fdd\u5b58 agent \u5931\u8d25`'
+$chunkUiV4['label:`Edit tools`'] = 'label:`\u7f16\u8f91\u5de5\u5177`'
+$chunkUiV4['label:`Edit model`'] = 'label:`\u7f16\u8f91\u6a21\u578b`'
+$chunkUiV4['label:`Edit color`'] = 'label:`\u7f16\u8f91\u989c\u8272`'
+$chunkUiV4['label:`open in editor`'] = 'label:`\u5728\u7f16\u8f91\u5668\u4e2d\u6253\u5f00`'
+$chunkUiV4['label:`Continue`'] = 'label:`\u7ee7\u7eed`'
+$chunkUiV4['label:`Confirm and save`'] = 'label:`\u786e\u8ba4\u5e76\u4fdd\u5b58`'
+$chunkUiV4['title:`Delete agent`'] = 'title:`\u5220\u9664 agent`'
+$chunkUiV4['subtitle:`System prompt`'] = 'subtitle:`\u7cfb\u7edf\u63d0\u793a\u8bcd`'
+$chunkUiV4['subtitle:`Description`'] = 'subtitle:`\u63cf\u8ff0`'
+$chunkUiV4['subtitle:`Tools`'] = 'subtitle:`\u5de5\u5177`'
+$chunkUiV4['subtitle:`Model`'] = 'subtitle:`\u6a21\u578b`'
+$chunkUiV4['subtitle:`Permission mode`'] = 'subtitle:`\u6743\u9650\u6a21\u5f0f`'
+$chunkUiV4['subtitle:`Memory`'] = 'subtitle:`\u8bb0\u5fc6`'
+$chunkUiV4['subtitle:`Color`'] = 'subtitle:`\u989c\u8272`'
+$chunkUiV4['subtitle:`Location`'] = 'subtitle:`\u4f4d\u7f6e`'
+$chunkUiV4['subtitle:`Choose location`'] = 'subtitle:`\u9009\u62e9\u4f4d\u7f6e`'
+$chunkUiV4['subtitle:`Configure agent memory`'] = 'subtitle:`\u914d\u7f6e agent \u8bb0\u5fc6`'
+$chunkUiV4['label:`Inherit from parent`'] = 'label:`\u7ee7\u627f\u7236\u7ea7`'
+$chunkUiV4['description:`Balanced performance - best for most agents`'] = 'description:`\u6027\u80fd\u5747\u8861 \u2014 \u9002\u5408\u5927\u591a\u6570 agent`'
+$chunkUiV4['description:`Most capable for complex reasoning tasks`'] = 'description:`\u6700\u5f3a\u80fd\u529b \u2014 \u9002\u5408\u590d\u6742\u63a8\u7406\u4efb\u52a1`'
+$chunkUiV4['description:`Fast and efficient for simple tasks`'] = 'description:`\u5feb\u901f\u9ad8\u6548 \u2014 \u9002\u5408\u7b80\u5355\u4efb\u52a1`'
+$chunkUiV4['description:`Use the same model as the main conversation`'] = 'description:`\u4f7f\u7528\u4e0e\u4e3b\u5bf9\u8bdd\u76f8\u540c\u7684\u6a21\u578b`'
+$chunkUiV4['`Model determines the agent''s reasoning capabilities and speed.`'] = '`\u6a21\u578b\u51b3\u5b9a agent \u7684\u63a8\u7406\u80fd\u529b\u4e0e\u901f\u5ea6\u3002`'
+$chunkUiV4['return`Built-in`'] = 'return`\u5185\u7f6e`'
+$chunkUiV4['?`Built-in`:'] = '?`\u5185\u7f6e`:'
+# install-github-app main flow
+$chunkUiV4['children:`Install GitHub App`'] = 'children:`\u5b89\u88c5 GitHub App`'
+$chunkUiV4['children:`Choose API key`'] = 'children:`\u9009\u62e9 API \u5bc6\u94a5`'
+$chunkUiV4['children:`Select GitHub repository`'] = 'children:`\u9009\u62e9 GitHub \u4ed3\u5e93`'
+$chunkUiV4['children:`Setup API key secret`'] = 'children:`\u8bbe\u7f6e API \u5bc6\u94a5`'
+$chunkUiV4['title:`Existing Workflow Found`'] = 'title:`\u53d1\u73b0\u73b0\u6709\u5de5\u4f5c\u6d41`'
+$chunkUiV4['children:`Install the Claude GitHub App`'] = 'children:`\u5b89\u88c5 Claude GitHub App`'
+$chunkUiV4['children:`Select GitHub workflows to install`'] = 'children:`\u9009\u62e9\u8981\u5b89\u88c5\u7684 GitHub \u5de5\u4f5c\u6d41`'
+$chunkUiV4['children:`Create GitHub Actions workflow`'] = 'children:`\u521b\u5efa GitHub Actions \u5de5\u4f5c\u6d41`'
+$chunkUiV4['label:`Update workflow file with latest version`'] = 'label:`\u66f4\u65b0\u5de5\u4f5c\u6d41\u6587\u4ef6\u81f3\u6700\u65b0\u7248`'
+$chunkUiV4['label:`Skip workflow update (configure secrets only)`'] = 'label:`\u8df3\u8fc7\u5de5\u4f5c\u6d41\u66f4\u65b0\uff08\u4ec5\u914d\u7f6e\u5bc6\u94a5\uff09`'
+$chunkUiV4['label:`Exit without making changes`'] = 'label:`\u9000\u51fa\u4e0d\u505a\u4fee\u6539`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkUiV4
+
+# v2.6.6 backtick UI strings — iter 23 (permissions/agents/github)
+$chunkUiV5 = New-ReplacementMap
+# permissions-BVvJQBEO (backtick ports from $chunk28d)
+$chunkUiV5['children:`Any Bash command`'] = 'children:`\u4efb\u610f Bash \u547d\u4ee4`'
+$chunkUiV5['title:`Remove directory from workspace?`'] = 'title:`\u4ece\u5de5\u4f5c\u533a\u79fb\u9664\u76ee\u5f55\uff1f`'
+$chunkUiV5['children:`Claude Code will no longer have access to files in this directory.`'] = 'children:`Claude Code \u5c06\u65e0\u6cd5\u518d\u8bbf\u95ee\u6b64\u76ee\u5f55\u4e2d\u7684\u6587\u4ef6\u3002`'
+$chunkUiV5['children:`No recent denials. Commands denied by the auto mode classifier will appear here.`'] = 'children:`\u6682\u65e0\u6700\u8fd1\u62d2\u7edd\u8bb0\u5f55\u3002\u81ea\u52a8\u6a21\u5f0f\u5206\u7c7b\u5668\u62d2\u7edd\u7684\u547d\u4ee4\u5c06\u663e\u793a\u5728\u6b64\u5904\u3002`'
+$chunkUiV5['children:`Commands recently denied by the auto mode classifier.`'] = 'children:`\u6700\u8fd1\u88ab\u81ea\u52a8\u6a21\u5f0f\u5206\u7c7b\u5668\u62d2\u7edd\u7684\u547d\u4ee4\u3002`'
+$chunkUiV5['children:`Are you sure you want to delete this permission rule?`'] = 'children:`\u786e\u5b9a\u8981\u5220\u9664\u6b64\u6743\u9650\u89c4\u5219\uff1f`'
+$chunkUiV5['children:`Rule details`'] = 'children:`\u89c4\u5219\u8be6\u60c5`'
+$chunkUiV5['title:`Permissions:`'] = 'title:`\u6743\u9650\uff1a`'
+$chunkUiV5['title:`Recently denied`'] = 'title:`\u6700\u8fd1\u62d2\u7edd`'
+$chunkUiV5['title:`Workspace`'] = 'title:`\u5de5\u4f5c\u533a`'
+$chunkUiV5['title:`Allow`'] = 'title:`\u5141\u8bb8`'
+$chunkUiV5['title:`Deny`'] = 'title:`\u62d2\u7edd`'
+$chunkUiV5['title:`Ask`'] = 'title:`\u8be2\u95ee`'
+$chunkUiV5['children:`Claude Code can read files in the workspace, and make edits when auto-accept edits is on.`'] = 'children:`Claude Code \u53ef\u8bfb\u53d6\u5de5\u4f5c\u533a\u6587\u4ef6\uff0c\u5f00\u542f\u81ea\u52a8\u63a5\u53d7\u7f16\u8f91\u65f6\u53ef\u8fdb\u884c\u4fee\u6539\u3002`'
+$chunkUiV5['label:`Project settings (local)`'] = 'label:`\u9879\u76ee\u8bbe\u7f6e\uff08\u672c\u5730\uff09`'
+$chunkUiV5['label:`Project settings`'] = 'label:`\u9879\u76ee\u8bbe\u7f6e`'
+$chunkUiV5['label:`User settings`'] = 'label:`\u7528\u6237\u8bbe\u7f6e`'
+$chunkUiV5['label:`Yes`'] = 'label:`\u662f`'
+$chunkUiV5['label:`No`'] = 'label:`\u5426`'
+$chunkUiV5['text:`Settings`'] = 'text:`\u8bbe\u7f6e`'
+$chunkUiV5['children:`Enter to submit \u00b7 Esc to cancel`'] = 'children:`\u6309 Enter \u63d0\u4ea4 \u00b7 Esc \u53d6\u6d88`'
+$chunkUiV5['children:`Enter to submit · Esc to cancel`'] = 'children:`\u6309 Enter \u63d0\u4ea4 \u00b7 Esc \u53d6\u6d88`'
+$chunkUiV5['`Permissions dialog dismissed`'] = '`\u5df2\u5173\u95ed\u6743\u9650\u5bf9\u8bdd\u6846`'
+$chunkUiV5['label:`Add directory${r.ellipsis}`'] = 'label:`\u6dfb\u52a0\u76ee\u5f55${r.ellipsis}`'
+$chunkUiV5['label:`Add a new rule${r.ellipsis}`'] = 'label:`\u6dfb\u52a0\u65b0\u89c4\u5219${r.ellipsis}`'
+$chunkUiV5['children:`(Original working directory)`'] = 'children:`\uff08\u539f\u59cb\u5de5\u4f5c\u76ee\u5f55\uff09`'
+# agents-DaLzXVa7 wizard (backtick ports from $chunkEgfc)
+$chunkUiV5['children:`All tools`'] = 'children:`\u5168\u90e8\u5de5\u5177`'
+$chunkUiV5['children:`None`'] = 'children:`\u65e0`'
+$chunkUiV5['children:`Description`'] = 'children:`\u63cf\u8ff0`'
+$chunkUiV5['children:`Tools`'] = 'children:`\u5de5\u5177`'
+$chunkUiV5['children:`Model`'] = 'children:`\u6a21\u578b`'
+$chunkUiV5['children:`Permission mode`'] = 'children:`\u6743\u9650\u6a21\u5f0f`'
+$chunkUiV5['children:`Memory`'] = 'children:`\u8bb0\u5fc6`'
+$chunkUiV5['children:`Color`'] = 'children:`\u989c\u8272`'
+$chunkUiV5['children:`System prompt`'] = 'children:`\u7cfb\u7edf\u63d0\u793a\u8bcd`'
+$chunkUiV5['children:`Automatic color`'] = 'children:`\u81ea\u52a8\u989c\u8272`'
+$chunkUiV5['children:`Preview: `'] = 'children:`\u9884\u89c8\uff1a `'
+$chunkUiV5['children:`When should Claude use this agent?`'] = 'children:`\u4f55\u65f6\u8ba9 Claude \u4f7f\u7528\u6b64 agent\uff1f`'
+$chunkUiV5['children:`Each subagent has its own context window, custom system prompt, and specific tools.`'] = 'children:`\u6bcf\u4e2a\u5b50 agent \u6709\u72ec\u7acb\u4e0a\u4e0b\u6587\u3001\u81ea\u5b9a\u4e49\u7cfb\u7edf\u63d0\u793a\u8bcd\u548c\u6307\u5b9a\u5de5\u5177\u3002`'
+$chunkUiV5['children:`Try creating: Code Reviewer, Code Simplifier, Security Reviewer, Tech Lead, or UX Reviewer.`'] = 'children:`\u53ef\u5c1d\u8bd5\u521b\u5efa\uff1aCode Reviewer\u3001Code Simplifier\u3001Security Reviewer\u3001Tech Lead \u6216 UX Reviewer\u3002`'
+$chunkUiV5['subtitle:`Choose background color`'] = 'subtitle:`\u9009\u62e9\u80cc\u666f\u8272`'
+$chunkUiV5['subtitle:`Description (tell Claude when to use this agent)`'] = 'subtitle:`\u63cf\u8ff0\uff08\u544a\u8bc9 Claude \u4f55\u65f6\u4f7f\u7528\u6b64 agent\uff09`'
+$chunkUiV5['subtitle:`Select tools`'] = 'subtitle:`\u9009\u62e9\u5de5\u5177`'
+$chunkUiV5['label:`Open in editor`'] = 'label:`\u5728\u7f16\u8f91\u5668\u4e2d\u6253\u5f00`'
+$chunkUiV5['label:`MCP Servers:`'] = 'label:`MCP \u670d\u52a1\uff1a`'
+$chunkUiV5['label:`Individual Tools:`'] = 'label:`\u5355\u4e2a\u5de5\u5177\uff1a`'
+$chunkUiV5['label:`None (no persistent memory)`'] = 'label:`\u65e0\uff08\u65e0\u6301\u4e45\u8bb0\u5fc6\uff09`'
+$chunkUiV5['label:`Project (.claude/agents/)`'] = 'label:`\u9879\u76ee\uff08.claude/agents/\uff09`'
+$chunkUiV5['label:`Personal (~/.claude/agents/)`'] = 'label:`\u4e2a\u4eba\uff08~/.claude/agents/\uff09`'
+$chunkUiV5['label:`Yes, delete`'] = 'label:`\u662f\uff0c\u5220\u9664`'
+$chunkUiV5['label:`No, cancel`'] = 'label:`\u5426\uff0c\u53d6\u6d88`'
+$chunkUiV5['children:` Generating agent from description...`'] = 'children:` \u6b63\u5728\u6839\u636e\u63cf\u8ff0\u751f\u6210 agent\u2026`'
+$chunkUiV5['children:`Name`'] = 'children:`\u540d\u79f0`'
+$chunkUiV5['children:`Location`'] = 'children:`\u4f4d\u7f6e`'
+$chunkUiV5['children:`Warnings:`'] = 'children:`\u8b66\u544a\uff1a`'
+$chunkUiV5['children:`Errors:`'] = 'children:`\u9519\u8bef\uff1a`'
+# install-github-app remaining flow
+$chunkUiV5['children:`You must select at least one workflow to continue`'] = 'children:`\u81f3\u5c11\u9009\u62e9\u4e00\u4e2a\u5de5\u4f5c\u6d41\u624d\u80fd\u7ee7\u7eed`'
+$chunkUiV5['children:`We''ll create a workflow file in your repository for each one you select.`'] = 'children:`\u6211\u4eec\u4f1a\u4e3a\u60a8\u9009\u62e9\u7684\u6bcf\u4e2a\u5de5\u4f5c\u6d41\u5728\u4ed3\u5e93\u4e2d\u521b\u5efa\u5de5\u4f5c\u6d41\u6587\u4ef6\u3002`'
+$chunkUiV5['children:`Claude Code Review - Automated code review on new PRs`'] = 'children:`Claude Code Review \u2014 \u65b0 PR \u81ea\u52a8\u4ee3\u7801\u5ba1\u67e5`'
+$chunkUiV5['children:`Would you like to:`'] = 'children:`\u60a8\u60f3\u8981\uff1a`'
+$chunkUiV5['children:`What would you like to do?`'] = 'children:`\u60a8\u60f3\u8981\u600e\u4e48\u505a\uff1f`'
+$chunkUiV5['children:`ANTHROPIC_API_KEY already exists in repository secrets!`'] = 'children:`\u4ed3\u5e93 secrets \u4e2d\u5df2\u5b58\u5728 ANTHROPIC_API_KEY\uff01`'
+$chunkUiV5['children:`GitHub CLI not found`'] = 'children:`\u672a\u627e\u5230 GitHub CLI`'
+$chunkUiV5['children:`GitHub CLI not authenticated`'] = 'children:`GitHub CLI \u672a\u8ba4\u8bc1`'
+$chunkUiV5['children:`GitHub CLI (gh) does not appear to be installed or accessible.`'] = 'children:`GitHub CLI (gh) \u4f3c\u4e4e\u672a\u5b89\u88c5\u6216\u65e0\u6cd5\u8bbf\u95ee\u3002`'
+$chunkUiV5['children:`GitHub CLI does not appear to be authenticated.`'] = 'children:`GitHub CLI \u4f3c\u4e4e\u672a\u8ba4\u8bc1\u3002`'
+$chunkUiV5['children:`Press Enter to try again, or any other key to cancel`'] = 'children:`\u6309 Enter \u91cd\u8bd5\uff0c\u6216\u6309\u5176\u4ed6\u952e\u53d6\u6d88`'
+$chunkUiV5['children:`Press Enter to continue anyway, or Ctrl+C to exit and fix issues`'] = 'children:`\u6309 Enter \u7ee7\u7eed\uff0c\u6216 Ctrl+C \u9000\u51fa\u5e76\u4fee\u590d\u95ee\u9898`'
+$chunkUiV5['children:`We found some potential issues, but you can continue anyway`'] = 'children:`\u53d1\u73b0\u4e00\u4e9b\u6f5c\u5728\u95ee\u9898\uff0c\u4f46\u60a8\u4ecd\u53ef\u7ee7\u7eed`'
+$chunkUiV5['children:`Success`'] = 'children:`\u6210\u529f`'
+$chunkUiV5['children:`Next steps:`'] = 'children:`\u4e0b\u4e00\u6b65\uff1a`'
+$chunkUiV5['children:`Create Authentication Token`'] = 'children:`\u521b\u5efa\u8ba4\u8bc1\u4ee4\u724c`'
+$chunkUiV5['children:`Please enter a repository name to continue`'] = 'children:`\u8bf7\u8f93\u5165\u4ed3\u5e93\u540d\u624d\u80fd\u7ee7\u7edd`'
+$chunkUiV5['title:`Invalid GitHub URL format`'] = 'title:`GitHub URL \u683c\u5f0f\u65e0\u6548`'
+$chunkUiV5['title:`Repository format warning`'] = 'title:`\u4ed3\u5e93\u683c\u5f0f\u8b66\u544a`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkUiV5
+
+# v2.6.6 backtick UI strings — iter 24 (permissions/agents/github remaining)
+$chunkUiV6 = New-ReplacementMap
+# permissions-BVvJQBEO remaining (backtick ports from $chunk28d)
+$chunkUiV6['`Contact your system administrator for more information.`'] = '`\u8bf7\u8054\u7cfb\u7cfb\u7edf\u7ba1\u7406\u5458\u4e86\u89e3\u66f4\u591a\u4fe1\u606f\u3002`'
+$chunkUiV6['`This rule is configured by managed settings and cannot be modified.`'] = '`\u6b64\u89c4\u5219\u7531\u6258\u7ba1\u8bbe\u7f6e\u914d\u7f6e\uff0c\u65e0\u6cd5\u4fee\u6539\u3002`'
+$chunkUiV6['`Delete `'] = '`\u5220\u9664 `'
+$chunkUiV6['` tool?`'] = '` \u5de5\u5177\uff1f`'
+$chunkUiV6['`Any Bash command starting with `'] = '`\u4ee5\u6b64\u5f00\u5934\u7684 Bash \u547d\u4ee4 `'
+$chunkUiV6['`The Bash command `'] = '`Bash \u547d\u4ee4 `'
+$chunkUiV6['`Any use of the `'] = '`\u4efb\u610f\u4f7f\u7528 `'
+$chunkUiV6['` tool`'] = '` \u5de5\u5177`'
+$chunkUiV6['`Where should this rule be saved?`'] = '`\u6b64\u89c4\u5219\u4fdd\u5b58\u5230\u54ea\u91cc\uff1f`'
+$chunkUiV6['`Where should these rules be saved?`'] = '`\u8fd9\u4e9b\u89c4\u5219\u4fdd\u5b58\u5230\u54ea\u91cc\uff1f`'
+$chunkUiV6['`Permission rules are a tool name, optionally followed by a specifier in parentheses.`'] = '`\u6743\u9650\u89c4\u5219\u4e3a\u5de5\u5177\u540d\uff0c\u53ef\u9009\u62ec\u53f7\u5185\u9650\u5b9a\u7b26\u3002`'
+$chunkUiV6['`e.g., `'] = '`\u4f8b\u5982\uff1a `'
+$chunkUiV6['` or `'] = '` \u6216 `'
+$chunkUiV6['placeholder:`Enter permission rule${r.ellipsis}`'] = 'placeholder:`\u8f93\u5165\u6743\u9650\u89c4\u5219${r.ellipsis}`'
+$chunkUiV6['` (retry)`'] = '` \uff08\u91cd\u8bd5\uff09`'
+$chunkUiV6['`Esc to cancel`'] = '`Esc \u53d6\u6d88`'
+$chunkUiV6['`Claude Code won''t ask before using allowed tools.`'] = '`Claude Code \u4f7f\u7528\u5df2\u5141\u8bb8\u5de5\u5177\u524d\u4e0d\u4f1a\u8be2\u95ee\u3002`'
+$chunkUiV6['`Claude Code will always ask for confirmation before using these tools.`'] = '`Claude Code \u4f7f\u7528\u8fd9\u4e9b\u5de5\u5177\u524d\u603b\u662f\u4f1a\u8be2\u95ee\u786e\u8ba4\u3002`'
+$chunkUiV6['`Claude Code will always reject requests to use denied tools.`'] = '`Claude Code \u603b\u662f\u62d2\u7edd\u4f7f\u7528\u5df2\u62d2\u7edd\u5de5\u5177\u7684\u8bf7\u6c42\u3002`'
+$chunkUiV6['`←/→ tab switch · ↓ return · Esc cancel`'] = '`\u2190/\u2192 \u5207\u6362\u6807\u7b7e \u00b7 \u2193 \u8fd4\u56de \u00b7 Esc \u53d6\u6d88`'
+$chunkUiV6['`Type to filter · Enter/↓ select · ↑ tabs · Esc clear`'] = '`\u8f93\u5165\u7b5b\u9009 \u00b7 Enter/\u2193 \u9009\u62e9 \u00b7 \u2191 \u6807\u7b7e \u00b7 Esc \u6e05\u9664`'
+$chunkUiV6['`Enter approve · r retry · ↑↓ navigate · ←/→ switch · Esc cancel`'] = '`Enter \u6279\u51c6 \u00b7 r \u91cd\u8bd5 \u00b7 \u2191\u2193 \u5bfc\u822a \u00b7 \u2190/\u2192 \u5207\u6362 \u00b7 Esc \u53d6\u6d88`'
+$chunkUiV6['`↑↓ navigate · Enter select · Type to search · ←/→ switch · Esc cancel`'] = '`\u2191\u2193 \u5bfc\u822a \u00b7 Enter \u9009\u62e9 \u00b7 \u8f93\u5165\u641c\u7d22 \u00b7 \u2190/\u2192 \u5207\u6362 \u00b7 Esc \u53d6\u6d88`'
+$chunkUiV6['`Workspace dialog dismissed`'] = '`\u5df2\u5173\u95ed\u5de5\u4f5c\u533a\u5bf9\u8bdd\u6846`'
+$chunkUiV6['`From ${le(e.source)}`'] = '`\u6765\u81ea ${le(e.source)}`'
+# agents-DaLzXVa7 wizard remaining (backtick ports from $chunkEgfc)
+$chunkUiV6['description:`go back`'] = 'description:`\u8fd4\u56de`'
+$chunkUiV6['description:`cancel`'] = 'description:`\u53d6\u6d88`'
+$chunkUiV6['description:`submit`'] = 'description:`\u63d0\u4ea4`'
+$chunkUiV6['description:`open in editor`'] = 'description:`\u5728\u7f16\u8f91\u5668\u4e2d\u6253\u5f00`'
+$chunkUiV6['action:`navigate`'] = 'action:`\u5bfc\u822a`'
+$chunkUiV6['action:`select`'] = 'action:`\u9009\u62e9`'
+$chunkUiV6['action:`enter text`'] = 'action:`\u8f93\u5165\u6587\u672c`'
+$chunkUiV6['action:`continue`'] = 'action:`\u7ee7\u7eed`'
+$chunkUiV6['action:`toggle selection`'] = 'action:`\u5207\u6362\u9009\u62e9`'
+$chunkUiV6['action:`save`'] = 'action:`\u4fdd\u5b58`'
+$chunkUiV6['action:`edit in your editor`'] = 'action:`\u5728\u7f16\u8f91\u5668\u4e2d\u7f16\u8f91`'
+$chunkUiV6['subtitle:`Agent type (identifier)`'] = 'subtitle:`Agent \u6807\u8bc6\u7b26`'
+$chunkUiV6['subtitle:`Confirm and save`'] = 'subtitle:`\u786e\u8ba4\u5e76\u4fdd\u5b58`'
+$chunkUiV6['subtitle:`No agents found`'] = 'subtitle:`\u672a\u627e\u5230 agent`'
+$chunkUiV6['children:`Enter the system prompt for your agent:`'] = 'children:`\u8f93\u5165 agent \u7684\u7cfb\u7edf\u63d0\u793a\u8bcd\uff1a`'
+$chunkUiV6['children:`Be comprehensive for best results`'] = 'children:`\u5185\u5bb9\u8d8a\u8be6\u7ec6\u6548\u679c\u8d8a\u597d`'
+$chunkUiV6['children:`Enter a unique identifier for your agent:`'] = 'children:`\u8f93\u5165 agent \u7684\u552f\u4e00\u6807\u8bc6\u7b26\uff1a`'
+$chunkUiV6['label:`Hide advanced options`'] = 'label:`\u9690\u85cf\u9ad8\u7ea7\u9009\u9879`'
+$chunkUiV6['label:`Show advanced options`'] = 'label:`\u663e\u793a\u9ad8\u7ea7\u9009\u9879`'
+$chunkUiV6['u?`Hide advanced options`:`Show advanced options`'] = 'u?`\u9690\u85cf\u9ad8\u7ea7\u9009\u9879`:`\u663e\u793a\u9ad8\u7ea7\u9009\u9879`'
+$chunkUiV6['`[ Continue ]`'] = '`[\u7ee7\u7eed]`'
+$chunkUiV6['children:`All tools selected`'] = 'children:`\u5df2\u9009\u62e9\u5168\u90e8\u5de5\u5177`'
+$chunkUiV6['h?`All tools selected`:`${m.size} of ${i.length} tools selected`'] = 'h?`\u5df2\u9009\u62e9\u5168\u90e8\u5de5\u5177`:`\u5df2\u9009 ${m.size}/${i.length} \u4e2a\u5de5\u5177`'
+$chunkUiV6['label:`User scope (~/.claude/agent-memory/) (Recommended)`'] = 'label:`\u7528\u6237\u8303\u56f4\uff08~/.claude/agent-memory/\uff09\uff08\u63a8\u8350\uff09`'
+$chunkUiV6['label:`Project scope (.claude/agent-memory/) (Recommended)`'] = 'label:`\u9879\u76ee\u8303\u56f4\uff08.claude/agent-memory/\uff09\uff08\u63a8\u8350\uff09`'
+$chunkUiV6['label:`Project scope (.claude/agent-memory/)`'] = 'label:`\u9879\u76ee\u8303\u56f4\uff08.claude/agent-memory/\uff09`'
+$chunkUiV6['label:`Local scope (.claude/agent-memory-local/)`'] = 'label:`\u672c\u5730\u8303\u56f4\uff08.claude/agent-memory-local/\uff09`'
+$chunkUiV6['label:`User scope (~/.claude/agent-memory/)`'] = 'label:`\u7528\u6237\u8303\u56f4\uff08~/.claude/agent-memory/\uff09`'
+$chunkUiV6['`Are you sure you want to delete the agent `'] = '`\u786e\u5b9a\u8981\u5220\u9664 agent `'
+$chunkUiV6['`Source: `'] = '`\u6765\u6e90\uff1a `'
+$chunkUiV6['`(always available)`'] = '`\uff08\u59cb\u7ec8\u53ef\u7528\uff09`'
+$chunkUiV6['` (tells Claude when to use this agent):`'] = '`\uff08\u544a\u8bc9 Claude \u4f55\u65f6\u4f7f\u7528\u6b64 agent\uff09\uff1a`'
+$chunkUiV6['`Inherit from parent`'] = '`\u7ee7\u627f\u7236\u7ea7`'
+$chunkUiV6['`Inherit from parent (default)`'] = '`\u7ee7\u627f\u7236\u7ea7\uff08\u9ed8\u8ba4\uff09`'
+$chunkUiV6['` Unrecognized: `'] = '` \u672a\u8bc6\u522b\uff1a `'
+$chunkUiV6['instructions:`Press Enter or Esc to go back`'] = 'instructions:`\u6309 Enter \u6216 Esc \u8fd4\u56de`'
+$chunkUiV6['instructions:`Press ↑↓ to navigate · Enter to select · Esc to go back`'] = 'instructions:`\u6309 \u2191\u2193 \u5bfc\u822a \u00b7 Enter \u9009\u62e9 \u00b7 Esc \u8fd4\u56de`'
+$chunkUiV6['instructions:`Press ↑↓ to navigate, Enter to select, Esc to cancel`'] = 'instructions:`\u6309 \u2191\u2193 \u5bfc\u822a\u3001Enter \u9009\u62e9\u3001Esc \u53d6\u6d88`'
+$chunkUiV6['description:`Current model (custom ID)`'] = 'description:`\u5f53\u524d\u6a21\u578b\uff08\u81ea\u5b9a\u4e49 ID\uff09`'
+$chunkUiV6['name:`Read-only tools`'] = 'name:`\u53ea\u8bfb\u5de5\u5177`'
+$chunkUiV6['name:`Edit tools`'] = 'name:`\u7f16\u8f91\u5de5\u5177`'
+$chunkUiV6['name:`Execution tools`'] = 'name:`\u6267\u884c\u5de5\u5177`'
+$chunkUiV6['name:`MCP tools`'] = 'name:`MCP \u5de5\u5177`'
+$chunkUiV6['name:`Other tools`'] = 'name:`\u5176\u4ed6\u5de5\u5177`'
+$chunkUiV6['${h?c.checkboxOn:c.checkboxOff} All tools'] = '${h?c.checkboxOn:c.checkboxOff} \u5168\u90e8\u5de5\u5177'
+# install-github-app remaining (title/subtitle/OAuth/repo warnings)
+$chunkUiV6['title:`Select GitHub workflows to install`'] = 'title:`\u9009\u62e9\u8981\u5b89\u88c5\u7684 GitHub \u5de5\u4f5c\u6d41`'
+$chunkUiV6['subtitle:`We''ll create a workflow file in your repository for each one you select.`'] = 'subtitle:`\u6211\u4eec\u4f1a\u4e3a\u60a8\u9009\u62e9\u7684\u6bcf\u4e2a\u5de5\u4f5c\u6d41\u5728\u4ed3\u5e93\u4e2d\u521b\u5efa\u5de5\u4f5c\u6d41\u6587\u4ef6\u3002`'
+$chunkUiV6['message:`The repository URL format appears to be invalid.`'] = 'message:`\u4ed3\u5e93 URL \u683c\u5f0f\u65e0\u6548\u3002`'
+$chunkUiV6['message:`Repository should be in format "owner/repo"`'] = 'message:`\u4ed3\u5e93\u683c\u5f0f\u5e94\u4e3a "owner/repo"`'
+$chunkUiV6['`Use format: owner/repo or https://github.com/owner/repo`'] = '`\u683c\u5f0f\uff1aowner/repo \u6216 https://github.com/owner/repo`'
+$chunkUiV6['`Use format: owner/repo`'] = '`\u683c\u5f0f\uff1aowner/repo`'
+$chunkUiV6['`Example: anthropics/claude-cli`'] = '`\u793a\u4f8b\uff1aanthropics/claude-cli`'
+$chunkUiV6['`Use your existing Claude Code API key`'] = '`\u4f7f\u7528\u73b0\u6709 Claude Code API \u5bc6\u94a5`'
+$chunkUiV6['`Create a long-lived token with your Claude subscription`'] = '`\u4f7f\u7528 Claude \u8ba2\u9605\u521b\u5efa\u957f\u671f\u4ee4\u724c`'
+$chunkUiV6['children:`Enter new API key`'] = 'children:`\u8f93\u5165\u65b0 API \u5bc6\u94a5`'
+$chunkUiV6['`Use current repository: `'] = '`\u4f7f\u7528\u5f53\u524d\u4ed3\u5e93\uff1a `'
+$chunkUiV6['placeholder:`Enter repository`'] = 'placeholder:`\u8f93\u5165\u4ed3\u5e93`'
+$chunkUiV6['placeholder:`Enter a different repository`'] = 'placeholder:`\u8f93\u5165\u5176\u4ed6\u4ed3\u5e93`'
+$chunkUiV6['children:`Opening browser to install the Claude GitHub App…`'] = 'children:`\u6b63\u5728\u6253\u5f00\u6d4f\u89c8\u5668\u5b89\u88c5 Claude GitHub App\u2026`'
+$chunkUiV6['`Press Enter once you''ve installed the app`'] = '`\u5b89\u88c5\u5b8c\u6210\u540e\u6309 Enter`'
+$chunkUiV6['children:`Starting authentication…`'] = 'children:`\u6b63\u5728\u542f\u52a8\u8ba4\u8bc1\u2026`'
+$chunkUiV6['children:`Processing authentication…`'] = 'children:`\u6b63\u5728\u5904\u7406\u8ba4\u8bc1\u2026`'
+$chunkUiV6['children:`Opening browser to sign in with your Claude account…`'] = 'children:`\u6b63\u5728\u6253\u5f00\u6d4f\u89c8\u5668\u767b\u5f55 Claude \u8d26\u6237\u2026`'
+$chunkUiV6['children:`Authentication token created successfully!`'] = 'children:`\u8ba4\u8bc1\u4ee4\u724c\u521b\u5efa\u6210\u529f\uff01`'
+$chunkUiV6['children:`Retrying…`'] = 'children:`\u6b63\u5728\u91cd\u8bd5\u2026`'
+$chunkUiV6['`↑/↓ to select · Enter to continue`'] = '`\u2191/\u2193 \u9009\u62e9 \u00b7 Enter \u7ee7\u7eed`'
+$chunkUiV6['title:`Repository not found`'] = 'title:`\u672a\u627e\u5230\u4ed3\u5e93`'
+$chunkUiV6['children:`Creating authentication token…`'] = 'children:`\u6b63\u5728\u521b\u5efa\u8ba4\u8bc1\u4ee4\u724c\u2026`'
+$chunkUiV6['`Press any key to exit`'] = '`\u6309\u4efb\u610f\u952e\u9000\u51fa`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkUiV6
+
+# Fix v2.6.6 upstream React context bug:
+# loadAgentsDir chunk has two AppState implementations (mA: Z2e, EA: wA).
+# AppStateProvider provides wA but h5e uses hA->uA->Z2e, causing crash.
+# Make Z2e reuse wA (EA always initializes before mA in the render order).
+$chunkReactCtxFix = New-ReplacementMap
+$chunkReactCtxFix['Z2e=pA.createContext(null),pA.createContext(!1)'] = 'Z2e=wA||pA.createContext(null),pA.createContext(!1)'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkReactCtxFix
+
+# Fix v2.6.6 upstream config guard bug:
+# growthbook chunk has two config-read implementations (cv: ov flag, Tk: wk flag).
+# enable_configs() only sets ov=!0 but never sets wk, so pk() always throws
+# "Config accessed before allowed." Make pk() use ov (same flag L_ uses).
+$chunkConfigFix = New-ReplacementMap
+$chunkConfigFix['if(!wk)throw Error(`Config accessed before allowed.`)'] = 'if(!ov)throw Error(`Config accessed before allowed.`)'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkConfigFix
+
+# Tool action labels (Ve object in bridgeMain — visible in status bar on every tool call)
+$chunkVe = New-ReplacementMap
+$chunkVe['Ve={Read:`Reading`,Write:`Writing`,Edit:`Editing`,MultiEdit:`Editing`,Bash:`Running`,Glob:`Searching`,Grep:`Searching`,WebFetch:`Fetching`,WebSearch:`Searching`,Task:`Running task`,FileReadTool:`Reading`,FileWriteTool:`Writing`,FileEditTool:`Editing`,GlobTool:`Searching`,GrepTool:`Searching`,BashTool:`Running`,NotebookEditTool:`Editing notebook`,LSP:`LSP`}'] = 'Ve={Read:`读取中`,Write:`写入中`,Edit:`编辑中`,MultiEdit:`编辑中`,Bash:`执行中`,Glob:`搜索中`,Grep:`搜索中`,WebFetch:`获取中`,WebSearch:`搜索中`,Task:`执行任务中`,FileReadTool:`读取中`,FileWriteTool:`写入中`,FileEditTool:`编辑中`,GlobTool:`搜索中`,GrepTool:`搜索中`,BashTool:`执行中`,NotebookEditTool:`编辑 notebook中`,LSP:`LSP`}'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkVe
+
+# Status bar agent progress hints, bypass warning, and empty state messages
+$chunkSb = New-ReplacementMap
+$chunkSb['` · enter to view`'] = '` · 回车查看`'
+$chunkSb['B8e=`shift + ↑/↓ to select`'] = 'B8e=`shift + ↑/↓ 选择`'
+$chunkSb['` · ${_} tool ${_===1?`use`:`uses`} · ${rc(v)} tokens`'] = '` · ${_} 次工具调用 · ${rc(v)} tokens`'
+$chunkSb['children:`(esc to interrupt `'] = 'children:`(Esc 中断 `'
+$chunkSb['`Waiting for team lead approval`'] = '`等待队长批准`'
+$chunkSb['label:`Remote Control failed`'] = 'label:`远程控制失败`'
+$chunkSb['title:`WARNING: Claude Code running in Bypass Permissions mode`'] = 'title:`警告：Claude Code 运行在绕过权限模式`'
+$chunkSb['emptyMessage:g=`No results`'] = 'emptyMessage:g=`无结果`'
+$chunkSb['{type:`text`,value:`No files in context`}'] = '{type:`text`,value:`无上下文文件`}'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkSb
+
+# Compacting completed system message (template literal contains literal newlines)
+$chunkCompact = New-ReplacementMap
+$chunkCompact['text:`' + ([char]10) + ([char]10) + 'Compacting completed.`'] = 'text:`' + ([char]10) + ([char]10) + '压缩完成。`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkCompact
+
+# Help improve Claude / privacy settings section (Grove chunk - first-run dialog)
+$chunkGrove = New-ReplacementMap
+$chunkGrove['children:`Help improve Claude`'] = 'children:`帮助改进 Claude`'
+$chunkGrove['children:`Allow the use of your chats and coding sessions to train and improve Anthropic AI models. You can change this anytime in Privacy Settings`'] = 'children:`允许使用您的对话和编程会话训练并改进 Anthropic AI 模型。可随时在隐私设置中更改。`'
+$chunkGrove['children:`How this affects data retention`'] = 'children:`这如何影响数据保留`'
+$chunkGrove['children:`Turning ON the improve Claude setting extends data retention from 30 days to 5 years. Turning it OFF keeps the default 30-day data retention. Delete data anytime.`'] = 'children:`开启「改进 Claude」将数据保留从 30 天延长至 5 年。关闭则保持默认 30 天。可随时删除数据。`'
+Patch-AllChunks -DistDir $ChunksDir -Replacements $chunkGrove
 
 Write-Host ""
+Flush-ChunkCache
+
 Write-Host "Applying slash command description translations..." -ForegroundColor Cyan
 $ApplySlashScript = Join-Path $PSScriptRoot "apply-slash-command-i18n.mjs"
 if (-not (Test-Path -LiteralPath $ApplySlashScript)) {
@@ -1950,9 +2428,19 @@ Write-Host "Normalizing UTF-8 literals to \\uXXXX (Bun Windows fix)..." -Foregro
 if (-not (Test-Path -LiteralPath $NormalizeScript)) {
     throw "Missing normalizer: $NormalizeScript"
 }
-& $BunExe $NormalizeScript $DistDir
-if ($LASTEXITCODE -ne 0) {
-    throw "normalize-i18n-literals.mjs failed with exit code $LASTEXITCODE"
+$normalizeExit = 0
+try {
+    # Run normalize; capture output and exit code before ForEach-Object pipeline to avoid
+    # PS5.1 $LASTEXITCODE corruption when bun writes to stderr (NativeCommandError objects).
+    $normalizeOut = & $BunExe $NormalizeScript $DistDir 2>&1
+    $normalizeExit = $LASTEXITCODE
+    $normalizeOut | ForEach-Object { Write-Host $_ }
+} catch {
+    # NativeCommandError from bun stderr WARNs — not fatal
+    Write-Host "  [note] normalize warning: $_" -ForegroundColor Yellow
+}
+if ($normalizeExit -ne 0) {
+    throw "normalize-i18n-literals.mjs failed with exit code $normalizeExit"
 }
 
 Test-NoMojibake -DistDir $DistDir

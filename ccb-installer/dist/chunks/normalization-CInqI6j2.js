@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";function t(e){let t=e.replace(/[^a-zA-Z0-9_-]/g,`_`);return e.startsWith(n)&&(t=t.replace(/_+/g,`_`).replace(/^_|_$/g,``)),t}var n,r=e((()=>{n=`claude.ai `}));export{t as n,r as t};

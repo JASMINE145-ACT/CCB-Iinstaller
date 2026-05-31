@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";function t(){return!1}function n(){return process.env.SKILL_LEARNING_ENABLED===`1`||process.env.FEATURE_SKILL_LEARNING===`1`}var r=e((()=>{}));export{t as n,n as r,r as t};

@@ -1,0 +1,11 @@
+import{In as e,Ln as t}from"./src-D6cE9Sc5.js";import{d as n,s as r}from"./debug-2yq6p0y9.js";import{i,n as a}from"./process-CnhUplBr.js";import{n as o,r as s}from"./execFileNoThrow-BOiwwche.js";import{FO as c,LO as l}from"./loadAgentsDir-BMosMfSG.js";import{n as u,t as d}from"./distRoot-BGuBdHEb.js";import{join as f}from"node:path";import{execSync as p}from"node:child_process";import{existsSync as m,readFileSync as h}from"node:fs";import{homedir as g}from"node:os";t(),r(),u(),s(),l(),a();var _=`claude-code-best`;function v(){try{let e=f(d,`..`,`package.json`);if(m(e)){let t=JSON.parse(h(e,`utf-8`));if(t.version)return t.version}}catch{}return`2.6.6`}function y(e){try{return p(`which ${e} 2>/dev/null`,{stdio:`pipe`}),!0}catch{return!1}}function b(){return!!(process.execPath.includes(`bun`)||m(f(f(g(),`.bun`,`install`,`global`),`node_modules`,_)))}async function x(){let e=await o(`npm`,[`view`,`${_}@latest`,`version`,`--prefer-online`],{abortSignal:AbortSignal.timeout(1e4),cwd:g()});return e.code===0?e.stdout.trim():(n(`npm view failed: ${e.stderr}`),null)}function S(e,t){let n=e=>e.replace(/^\D/,``).split(`.`).map(Number),r=n(e),i=n(t);for(let e=0;e<3;e++){if((r[e]??0)>(i[e]??0))return!0;if((r[e]??0)<(i[e]??0))return!1}return!0}async function C(){let t=v();i(`Current version: ${t}\n`);let n=y(`bun`),r=b()&&n?`bun`:`npm`;i(`Package manager: ${r}\n`),i(`Checking for updates...
+`);let a=await x();if(!a){process.stderr.write(e.red(`Failed to check for updates`)+`
+`),process.stderr.write(`Unable to fetch latest version from npm registry.
+`),await c(1);return}if(a===t||S(t,a)){i(e.green(`ccb is up to date (${t})`)+`
+`),await c(0);return}i(`New version available: ${a} (current: ${t})\n`),i(`Installing update via ${r}...\n`);try{p(r===`bun`?`bun install -g ${_}@latest`:`npm install -g ${_}@latest`,{stdio:`inherit`,cwd:g(),timeout:12e4}),i(e.green(`Successfully updated from ${t} to ${a}`)+`
+`)}catch(t){process.stderr.write(e.red(`Update failed`)+`
+`),process.stderr.write(`${t}\n`),process.stderr.write(`
+`),process.stderr.write(`Try manually updating with:
+`),r===`bun`?process.stderr.write(e.bold(`  bun install -g ${_}@latest`)+`
+`):process.stderr.write(e.bold(`  npm install -g ${_}@latest`)+`
+`),await c(1)}await c(0)}export{C as updateCCB};

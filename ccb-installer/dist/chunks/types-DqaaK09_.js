@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{Cn as t,Ln as n,Mn as r,wn as i}from"./schemas-Bwt-7U5W.js";import{t as a}from"./v4-DLhvDPkt.js";import{n as o,t as s}from"./lazySchema-B-84xi1K.js";var c,l=e((()=>{a(),s(),c=o(()=>i({entries:r(n(),n())})),o(()=>i({userId:n(),version:t(),lastModified:n(),checksum:n(),content:c()}))}));export{l as t};

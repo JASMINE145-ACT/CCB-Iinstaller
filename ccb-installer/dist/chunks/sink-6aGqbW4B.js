@@ -1,0 +1,1 @@
+import{n as e,t}from"./sink-BLnRPOPW.js";t();export{e as initializeAnalyticsSink};

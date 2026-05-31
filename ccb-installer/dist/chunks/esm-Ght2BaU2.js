@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{S as t,a as n,d as r,f as i,n as a,u as o,x as s}from"./esm-CL1OwlZB.js";var c,l=e((()=>{s(),a(),o(),c=class extends t{constructor(e={}){super(i(r(e,`LOGS`,`v1/logs`,{"Content-Type":`application/json`}),n))}}})),u=e((()=>{l()}));e((()=>{u()}))();export{c as OTLPLogExporter};

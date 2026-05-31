@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{S as t,d as n,f as r,n as i,o as a,u as o,x as s}from"./esm-CL1OwlZB.js";var c,l=e((()=>{s(),i(),o(),c=class extends t{constructor(e={}){super(r(n(e,`TRACES`,`v1/traces`,{"Content-Type":`application/x-protobuf`}),a))}}})),u=e((()=>{l()}));e((()=>{u()}))();export{c as OTLPTraceExporter};

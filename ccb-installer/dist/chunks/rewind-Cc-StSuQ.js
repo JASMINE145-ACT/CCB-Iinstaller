@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";async function t(e,t){return t.openMessageSelector&&t.openMessageSelector(),{type:`skip`}}e((()=>{}))();export{t as call};

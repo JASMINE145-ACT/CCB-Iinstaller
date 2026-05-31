@@ -1,0 +1,2 @@
+import{n as e}from"./chunk-DR8-3Aex.js";async function t(e,t,n){let r=n?n.trim().split(/\s+/):[],i=r[0]||`list`,a=[],o=console.log,s=console.error;console.log=(...e)=>a.push(e.map(String).join(` `)),console.error=(...e)=>a.push(e.map(String).join(` `));try{let{templatesMain:e}=await import(`./templateJobs-B3JGvmt3.js`);await e([i,...r.slice(1)])}finally{console.log=o,console.error=s}return e(a.join(`
+`)||`Done.`,{display:`system`}),null}e((()=>{}))();export{t as call};

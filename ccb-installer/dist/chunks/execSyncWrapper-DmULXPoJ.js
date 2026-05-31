@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{C as t,E as n}from"./debug-2yq6p0y9.js";import{execSync as r}from"child_process";function i(e,t){return n`execSync: ${e.slice(0,100)}`,r(e,t)}var a=e((()=>{t()}));export{a as n,i as t};

@@ -26,7 +26,9 @@ if not defined WT_SESSION if not "%CCB_DISABLE_WT_RELAUNCH%"=="1" if not "%CCB_W
             >>"%CCB_LAUNCH_LOG%" echo [CCB] Relaunching through Windows Terminal.
             >>"%CCB_LAUNCH_LOG%" echo [CCB] wt.exe=%%W
         )
-        start "" "%%W" -d "%CCB_INSTALL_DIR%" cmd /k "set CCB_WT_RELAUNCHED=1&& ""%~f0"" %*"
+        set "CCB_WT_PROFILE_ARG="
+        if exist "%LOCALAPPDATA%\Microsoft\Windows Terminal\Fragments\CCB\ccb.json" set "CCB_WT_PROFILE_ARG=--profile "CCB" "
+        start "" "%%W" !CCB_WT_PROFILE_ARG!-d "%CCB_INSTALL_DIR%" cmd /k "set CCB_WT_RELAUNCHED=1&& ""%~f0"" %*"
         exit /b 0
     )
 )

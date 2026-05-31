@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{d as t,f as n,n as r,s as i,u as a}from"./esm-CL1OwlZB.js";import{n as o,s}from"./esm-DUtcefEV.js";var c,l=e((()=>{o(),r(),a(),c=class extends s{constructor(e){super(n(t(e??{},`METRICS`,`v1/metrics`,{"Content-Type":`application/x-protobuf`}),i),e)}}})),u=e((()=>{l()}));e((()=>{u()}))();export{c as OTLPMetricExporter};

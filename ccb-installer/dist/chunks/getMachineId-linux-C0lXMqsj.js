@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{n as t,o as n}from"./esm-BwzC0MQp.js";import{promises as r}from"fs";async function i(){for(let e of[`/etc/machine-id`,`/var/lib/dbus/machine-id`])try{return(await r.readFile(e,{encoding:`utf8`})).trim()}catch(e){n.debug(`error reading machine id: ${e}`)}}e((()=>{t()}))();export{i as getMachineId};

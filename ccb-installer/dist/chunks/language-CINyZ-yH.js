@@ -1,0 +1,1 @@
+import{n as e,r as t}from"./language-DL5IKYgz.js";t();export{e as getResolvedLanguage};

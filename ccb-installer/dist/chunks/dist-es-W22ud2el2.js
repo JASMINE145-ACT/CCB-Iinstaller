@@ -1,0 +1,1 @@
+import{c as e,d as t,n,o as r,r as i,s as a,t as o}from"./dist-es-Ci_rKlMr.js";o();export{r as ENV_CMDS_FULL_URI,a as ENV_CMDS_RELATIVE_URI,e as fromContainerMetadata,n as fromInstanceMetadata,i as getInstanceMetadataEndpoint,t as httpRequest};

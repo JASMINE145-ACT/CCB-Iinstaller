@@ -1,0 +1,1 @@
+import{i as e,n as t}from"./windowsPaths-DkpSye7_.js";t();export{e as setShellIfWindows};

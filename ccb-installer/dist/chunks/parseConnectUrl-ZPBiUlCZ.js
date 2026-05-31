@@ -1,0 +1,1 @@
+var e=()=>({serverUrl:``,authToken:``});export{e as parseConnectUrl};

@@ -8,7 +8,7 @@ Unicode true
 !define STARTMENU_FOLDER "CCB (Claude Code Best)"
 !define VERSIONMAJOR 1
 !define VERSIONMINOR 0
-!define VERSIONBUILD 7
+!define VERSIONBUILD 9
 !define MUI_ICON "resources\ccb.ico"
 !define MUI_UNICON "resources\ccb.ico"
 
@@ -149,11 +149,13 @@ Section "-Main Installation"
     SetOutPath "$INSTDIR\scripts"
     File "scripts\ensure-mcp-settings.ps1"
     File "scripts\fix-terminal-launcher.ps1"
+    File "scripts\install-wt-fragment.ps1"
     File "scripts\install-windows-terminal.ps1"
     File "scripts\launch-ccb.ps1"
     File "scripts\patch-i18n.ps1"
     File "scripts\normalize-i18n-literals.mjs"
     ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\scripts\ensure-mcp-settings.ps1" -InstallDir "$INSTDIR" -ConfigDir "$LOCALAPPDATA\CCB\.claude"'
+    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\scripts\install-wt-fragment.ps1"'
     ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\scripts\fix-terminal-launcher.ps1" -NoPrompt'
 
     SetOutPath "$INSTDIR\dist"
@@ -179,6 +181,15 @@ SectionEnd
 
 ; ===== Uninstall =====
 Section "Uninstall"
+    ; Clean up WT Fragment before $INSTDIR is removed (script still accessible here)
+    IfFileExists "$INSTDIR\scripts\install-wt-fragment.ps1" wt_frag_ok wt_frag_skip
+wt_frag_ok:
+    ExecWait 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$INSTDIR\scripts\install-wt-fragment.ps1" -Remove'
+    Goto wt_frag_done
+wt_frag_skip:
+    Delete "$LOCALAPPDATA\Microsoft\Windows Terminal\Fragments\CCB\ccb.json"
+    RMDir  "$LOCALAPPDATA\Microsoft\Windows Terminal\Fragments\CCB"
+wt_frag_done:
     RMDir /r "$INSTDIR"
     Delete "$DESKTOP\${APPNAME}.lnk"
     Delete "$DESKTOP\${APPNAME} 平铺模式.lnk"

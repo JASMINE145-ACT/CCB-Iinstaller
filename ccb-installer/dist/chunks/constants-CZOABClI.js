@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";function t(){return`claude-swarm-${process.pid}`}var n,r,i,a,o,s,c=e((()=>{n=`team-lead`,r=`claude-swarm`,i=`swarm-view`,a=`tmux`,o=`claude-hidden`,s=`CLAUDE_CODE_TEAMMATE_COMMAND`}));export{n as a,c,s as i,r as n,a as o,i as r,t as s,o as t};

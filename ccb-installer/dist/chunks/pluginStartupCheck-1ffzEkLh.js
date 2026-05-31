@@ -1,0 +1,1 @@
+import{n as e,t}from"./pluginStartupCheck-DS04Pc3l.js";e();export{t as getPluginEditableScopes};

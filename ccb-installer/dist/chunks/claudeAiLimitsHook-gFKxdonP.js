@@ -1,0 +1,1 @@
+import{n as e,o as t}from"./chunk-DR8-3Aex.js";import{Rn as n}from"./src-D6cE9Sc5.js";import{$P as r,ZP as i,eF as a}from"./loadAgentsDir-BMosMfSG.js";function o(){let[e,t]=(0,s.useState)({...i});return(0,s.useEffect)(()=>{let e=e=>{t({...e})};return a.add(e),()=>{a.delete(e)}},[]),e}var s,c=e((()=>{s=t(n(),1),r()}));export{o as n,c as t};

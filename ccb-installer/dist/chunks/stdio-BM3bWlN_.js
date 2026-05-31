@@ -1,0 +1,3 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{B as t,T as n}from"./server-XZG51Slr.js";function r(e){return n.parse(JSON.parse(e))}function i(e){return JSON.stringify(e)+`
+`}var a,o=e((()=>{t(),a=class{append(e){this._buffer=this._buffer?Buffer.concat([this._buffer,e]):e}readMessage(){if(!this._buffer)return null;let e=this._buffer.indexOf(`
+`);if(e===-1)return null;let t=this._buffer.toString(`utf8`,0,e).replace(/\r$/,``);return this._buffer=this._buffer.subarray(e+1),r(t)}clear(){this._buffer=void 0}}}));export{o as n,i as r,a as t};

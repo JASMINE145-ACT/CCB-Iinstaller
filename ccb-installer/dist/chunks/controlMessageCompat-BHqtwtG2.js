@@ -1,0 +1,1 @@
+function e(e){if(typeof e!=`object`||!e)return e;let t=e;if(`requestId`in t&&!(`request_id`in t)&&(t.request_id=t.requestId,delete t.requestId),`response`in t&&t.response!==null&&typeof t.response==`object`){let e=t.response;`requestId`in e&&!(`request_id`in e)&&(e.request_id=e.requestId,delete e.requestId)}return e}export{e as t};

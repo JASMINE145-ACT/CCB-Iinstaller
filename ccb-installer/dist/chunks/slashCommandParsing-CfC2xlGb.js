@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";function t(e){let t=e.trim();if(!t.startsWith(`/`))return null;let n=t.slice(1).split(` `);if(!n[0])return null;let r=n[0],i=!1,a=1;n.length>1&&n[1]===`(MCP)`&&(r+=` (MCP)`,i=!0,a=2);let o=n.slice(a).join(` `);return{commandName:r,args:o,isMcp:i}}var n=e((()=>{}));export{t as n,n as t};

@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{Ht as t,K as n,w as r}from"./state-CUZTq6r0.js";import{AsyncLocalStorage as i}from"async_hooks";function a(e,t){return c.run(e,t)}function o(){return c.getStore()??r()}function s(){try{return o()}catch{return n()}}var c,l=e((()=>{t(),c=new i}));export{a as i,l as n,o as r,s as t};

@@ -1,0 +1,1 @@
+import{a as e}from"./env-CPmBk2td.js";import{n as t,t as n}from"./normalization-CInqI6j2.js";n(),e();var r=`computer-use`;process.platform,process.platform===`win32`||process.platform;function i(e){return t(e)===r}export{r as COMPUTER_USE_MCP_SERVER_NAME,i as isComputerUseMCPServer};

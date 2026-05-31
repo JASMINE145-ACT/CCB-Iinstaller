@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";var t,n,r,i=e((()=>{t=[`acceptEdits`,`bypassPermissions`,`default`,`dontAsk`,`plan`],n=[...t,`auto`],r=n}));export{i,n,r,t};

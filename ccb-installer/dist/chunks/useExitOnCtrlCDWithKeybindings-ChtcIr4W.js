@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";import{nt as t}from"./src-D6cE9Sc5.js";import{t as n}from"./useKeybinding-CfxBTf72.js";import{d as r,f as i}from"./referral-BqMw5T9v.js";function a(e,n,r){return i(t,n,e,r)}var o=e((()=>{n(),r()}));export{a as n,o as t};

@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";function t(){return i===void 0&&(i=r()??`dark`),i}function n(e){return e===`auto`?t():e}function r(){let e=process.env.COLORFGBG;if(!e)return;let t=e.split(`;`),n=t[t.length-1];if(n===void 0||n===``)return;let r=Number(n);if(!(!Number.isInteger(r)||r<0||r>15))return r<=6||r===8?`dark`:`light`}var i,a=e((()=>{}));export{n,a as t};

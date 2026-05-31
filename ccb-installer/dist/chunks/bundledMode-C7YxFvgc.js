@@ -1,0 +1,1 @@
+import{n as e}from"./chunk-DR8-3Aex.js";function t(){return process.versions.bun!==void 0}function n(){return typeof Bun<`u`&&Array.isArray(Bun.embeddedFiles)&&Bun.embeddedFiles.length>0}var r=e((()=>{}));export{n,t as r,r as t};
