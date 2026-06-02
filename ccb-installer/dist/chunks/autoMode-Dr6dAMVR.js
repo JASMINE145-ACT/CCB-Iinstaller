@@ -30,7 +30,7 @@ Run \`claude auto-mode defaults\` to see the default rules for reference.
 Here are the user's custom rules that REPLACE the corresponding default sections:
 
 `+u+`
-Please critique these custom rules.`}]})}catch(e){process.stderr.write(`Failed to analyze rules: `+c(e)+`
+Please critique these custom rules.`}]})}catch(e){process.stderr.write(`\u5206\u6790\u89c4\u5219\u5931\u8d25\uff1a`+c(e)+`
 `),process.exitCode=1;return}let g=f.content.find(e=>e.type===`text`);g?.type===`text`?process.stdout.write(g.text+`
 `):process.stdout.write(`No critique was generated. Please try again.
 `)}function S(e,t,n){if(t.length===0)return``;let r=t.map(e=>`- `+e).join(`
