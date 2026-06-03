@@ -196,14 +196,14 @@ Step 1 — Search: Call this tool (SearchExtraTools) to discover the target tool
   Response: "Found 1 deferred tool(s): CronCreate. Use ExecuteExtraTool with {"tool_name": "<name>", "params": {...}} to invoke."
 
 Step 2 — Execute: Call ExecuteExtraTool to run the discovered tool.
-  Input: {"tool_name": "CronCreate", "params": {"schedule": "*/5 * * * *", "prompt": "check the deploy"}}
+  Input: {"tool_name": "CronCreate", "params": {"cron": "*/5 * * * *", "prompt": "check the deploy"}}
   Response: the actual tool result.
 
 ## Example: user asks "schedule a cron to check deploy every 5 minutes"
 
 1. SearchExtraTools({"query": "select:CronCreate"})
    → Response: Found deferred tool CronCreate
-2. ExecuteExtraTool({"tool_name": "CronCreate", "params": {"schedule": "*/5 * * * *", "prompt": "check the deploy"}})
+2. ExecuteExtraTool({"tool_name": "CronCreate", "params": {"cron": "*/5 * * * *", "prompt": "check the deploy"}})
    → Response: Cron job created successfully
 
 If you don't know the exact tool name, use keyword search first:
