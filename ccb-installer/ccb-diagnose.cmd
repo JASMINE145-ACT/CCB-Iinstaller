@@ -12,8 +12,8 @@ if /i "%~1"=="--repro-resize" (
 )
 if not exist "%CCB_LOG_DIR%" mkdir "%CCB_LOG_DIR%" >nul 2>&1
 if not exist "%CCB_LOG_DIR%" (
-    echo [CCB 诊断] 无法创建日志目录："%CCB_LOG_DIR%"
-    echo [CCB 诊断] 请检查权限和磁盘空间后重试。
+    echo [CCB Diagnose] Cannot create log dir: "%CCB_LOG_DIR%"
+    echo [CCB Diagnose] Check permissions and free disk space, then retry.
     pause
     exit /b 1
 )
@@ -24,15 +24,21 @@ set "CCB_TIMESTAMP=%CCB_TIMESTAMP:.=-%"
 set "CCB_DEBUG_LOG=%CCB_LOG_DIR%\ccb-%CCB_TIMESTAMP%.log"
 
 chcp 65001 >nul 2>&1
-echo [CCB 诊断] 启动器："%CCB_INSTALL_DIR%\ccb.cmd"
-echo [CCB 诊断] 终端：TERM_PROGRAM=%TERM_PROGRAM% WT_SESSION=%WT_SESSION%
-echo [CCB 诊断] 调试日志："%CCB_DEBUG_LOG%"
-echo [CCB 诊断] 模式：%CCB_DIAG_MODE%
+
+:: Pre-flight diagnostics (Bun / CLI / MCP / settings / API / multi-instance)
+if exist "%CCB_INSTALL_DIR%\scripts\ccb-diagnose.ps1" (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%CCB_INSTALL_DIR%\scripts\ccb-diagnose.ps1" -InstallDir "%CCB_INSTALL_DIR%"
+)
+
+echo [CCB Diagnose] Launcher: "%CCB_INSTALL_DIR%\ccb.cmd"
+echo [CCB Diagnose] Terminal: TERM_PROGRAM=%TERM_PROGRAM% WT_SESSION=%WT_SESSION%
+echo [CCB Diagnose] Debug log: "%CCB_DEBUG_LOG%"
+echo [CCB Diagnose] Mode: %CCB_DIAG_MODE%
 if "%CCB_DIAG_MODE%"=="resize-repro" (
-    echo [CCB 诊断] 调整大小重现已启用。界面出现后调整窗口大小即可触发。
+    echo [CCB Diagnose] Resize repro enabled. Resize the window after the UI appears to trigger it.
 ) else (
-    echo [CCB 诊断] 调整大小保护已启用。初始布局测试期间请勿调整窗口大小。
-    echo [CCB 诊断] 仅在收集调整大小崩溃证据时使用 --repro-resize。
+    echo [CCB Diagnose] Resize guard enabled. Do not resize the window during initial layout testing.
+    echo [CCB Diagnose] Use --repro-resize only when collecting resize-crash evidence.
 )
 echo.
 
@@ -41,8 +47,8 @@ call "%CCB_INSTALL_DIR%\ccb.cmd" --debug-file "%CCB_DEBUG_LOG%" %*
 set "CCB_EXIT_CODE=%ERRORLEVEL%"
 
 echo.
-echo [CCB 诊断] Claude Code 退出码：%CCB_EXIT_CODE%
-echo [CCB 诊断] 调试日志："%CCB_DEBUG_LOG%"
-echo [CCB 诊断] 此窗口保持打开，以便查看崩溃输出。
+echo [CCB Diagnose] Claude Code exit code: %CCB_EXIT_CODE%
+echo [CCB Diagnose] Debug log: "%CCB_DEBUG_LOG%"
+echo [CCB Diagnose] This window stays open so you can read crash output.
 pause
 exit /b %CCB_EXIT_CODE%

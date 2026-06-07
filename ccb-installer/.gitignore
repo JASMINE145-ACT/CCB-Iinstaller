@@ -1,0 +1,7 @@
+# Downloaded Bun baseline cache (build artifact, not source)
+.cache/
+
+# Build outputs
+*.exe
+!resources/**/*.exe
+!vendor/**/*.exe
