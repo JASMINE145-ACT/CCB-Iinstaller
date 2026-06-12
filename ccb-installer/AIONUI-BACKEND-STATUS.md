@@ -79,6 +79,18 @@ MCP tools MUST be in the `tools` array passed to `lo({..., tools:[...a,..._mcpTo
 Putting them only in `mcpClients` or `p.mcp.tools` is insufficient — the model
 will see them as "extra tools" and use `ExecuteExtraTool`, which fails.
 
+## Route-B Sync Targets
+
+Run `.\ccb-installer\scripts\sync-aionui-ccb-route-b.ps1` to sync route-b to all
+4 AionUI runtime slots:
+
+```text
+D:\Projects\claude-code-best\AionUi\resources\bundled-aioncore\...\dist\index.js
+C:\Users\m1774\.aionui-web\runtime\...\dist\index.js          (web版)
+D:\aionui-web\aionui-web\bundled-aioncore\...\dist\index.js    (web版 D:)
+C:\Users\m1774\AppData\Roaming\AionUi\aionui\runtime\...\dist\index.js  (exe版)
+```
+
 ## Route-B Patch (unchanged)
 
 Source:
