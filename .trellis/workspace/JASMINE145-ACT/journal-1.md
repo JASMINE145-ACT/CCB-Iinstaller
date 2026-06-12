@@ -66,3 +66,36 @@ test-turn-completed.mjs                       → has turn.completed: true
 ### Next Steps
 
 - None - task complete
+
+
+## Session 2: 修复 exe 版 AionUI route-b 同步
+
+**Date**: 2026-06-12
+**Task**: 修复 exe 版 AionUI route-b 同步
+**Branch**: `main`
+
+### Summary
+
+sync-aionui-ccb-route-b.ps1 缺少 AppData\Roaming\AionUi exe runtime 路径，补全第四个同步目标，4 个 slot 全部覆盖。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `0ed0d2eb` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

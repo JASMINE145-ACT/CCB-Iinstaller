@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 1
+- **Total Sessions**: 2
 - **Last Active**: 2026-06-12
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~68 | Active |
+| `journal-1.md` | ~101 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 2 | 2026-06-12 | 修复 exe 版 AionUI route-b 同步 | `0ed0d2eb` | `main` |
 | 1 | 2026-06-12 | AionUI CCB-Wanding ACP MCP 注册 | `b9077170` | `main` |
 <!-- @@@/auto:session-history -->
 
