@@ -1,0 +1,68 @@
+# Journal - JASMINE145-ACT (Part 1)
+
+> AI development session journal
+> Started: 2026-06-11
+
+---
+
+## 2026-06-11 — Route B B-04c + 文档 + 自动化验证
+
+### 代码（B-04c）
+- `ccb-api-server/ws.js`：30s ping / 60s pong 超时（I-1）
+- `ccb-runtime/index.js`、`McpTransport.js`、`http.js`：设计注释（I-2～I-4）
+- smoke：dead import 清理（I-6）；streaming 测试 pong + cancel 诊断（I-7）
+- **未改** `AgentLoop asAbortEvent`（I-5，B-03 语义）
+
+### 文档
+- 新增 `docs/Platform/Period/B-04c-code-review-triage.md`
+- 新增 `docs/Platform/Period/README.md`（Route B 索引）
+- 更新 B-04 v0.2、B-06b v0.2（人工 E2E §4）
+- 可行性计划 v1.5
+
+### 验证
+```text
+bun scripts/build-ccb-api-server.mjs          → OK
+bun test-ccb-api-server-streaming.mjs         → PASS stream+cancel
+sync-aionui-ccb-route-b.ps1                   → 3 targets OK
+test-acp-agent-registry.mjs                   → PASS
+test-turn-completed.mjs                       → has turn.completed: true
+```
+
+### 阻塞
+- `PRD_ROUTE_B_COMPLETE`：待 B-06b.C 人工 AionUI「你好」E2E
+
+---
+
+
+
+## Session 1: AionUI CCB-Wanding ACP MCP 注册
+
+**Date**: 2026-06-12
+**Task**: AionUI CCB-Wanding ACP MCP 注册
+**Branch**: `main`
+
+### Summary
+
+向 entry-WG7IeDEv.js 注入 $buildMcp()，连接 settings.json 中的 excel-mcp/quotation/accurate（41 工具），通过 tools:[...a,..._mcpTools] 注册为一等工具。关键发现：MCP 工具必须在 tools 数组，仅在 mcpClients 无效。已验证 mcp__quotation__match_quotation 直接调用返回 14 候选。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b9077170` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
