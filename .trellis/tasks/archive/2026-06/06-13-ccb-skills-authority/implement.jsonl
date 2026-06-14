@@ -1,0 +1,4 @@
+{"file":".trellis/spec/backend/index.md","reason":"CCB-Wanding owns source/config behavior."}
+{"file":".trellis/spec/frontend/index.md","reason":"AionUI settings UI must become shell/editor."}
+{"file":".trellis/spec/integration/aionui-ccb-boundary.md","reason":"Authority boundary for skills."}
+{"file":".trellis/tasks/06-13-ccb-skills-authority/prd.md","reason":"Active subtask requirements."}

@@ -1,0 +1,31 @@
+{
+  "id": "ccb-session-warmup-latency",
+  "name": "ccb-session-warmup-latency",
+  "title": "CCB Session Warmup Latency",
+  "description": "Measure and reduce perceived latency around CCB-Wanding ACP warmup, new conversation entry, and first message send.",
+  "status": "in_progress",
+  "dev_type": "implementation",
+  "scope": "performance-warmup",
+  "package": "aionui+ccb-wanding",
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-13",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "06-13-aionui-shell-ccb-core",
+  "relatedFiles": [
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\pages\\guid\\hooks\\useGuidSend.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\pages\\conversation\\utils\\warmupConversation.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\pages\\conversation\\platforms\\acp\\useAcpInitialMessage.ts",
+    "D:\\claude-code-B\\src\\services\\acp\\agent.ts"
+  ],
+  "notes": "Evidence: conversation create is ~30-40ms; ACP warmup is ~10-12s, dominated by session/new cold start.",
+  "meta": {}
+}

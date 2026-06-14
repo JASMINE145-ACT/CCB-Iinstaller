@@ -1,0 +1,8 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "AionUI shell and ACP integration rules for frontend/session creation changes."}
+{"file": ".trellis/spec/backend/index.md", "reason": "CCB-Wanding source/live-dist boundary and backend authority rules."}
+{"file": ".trellis/spec/integration/aionui-ccb-boundary.md", "reason": "Defines AionUI shell vs CCB runtime boundary."}
+{"file": ".trellis/spec/integration/aionui-config-inventory.md", "reason": "Current authority inventory for MCP, skills, assistants, and legacy config."}
+{"file": ".trellis/tasks/06-13-aionui-shell-ccb-core/remaining-adaptation-gaps-2026-06-14.md", "reason": "Research findings that motivated this task."}
+{"file": "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\utils\\ccbPresetConversationExtra.ts", "reason": "Phase 2: profile id only; removed preset_context bridge."}
+{"file": "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\config\\ccbConfigMigrationShared.ts", "reason": "stripCcbConversationExtra strips preset_context for CCB sessions."}
+{"file": "D:\\claude-code-B\\src\\services\\acp\\agent.ts", "reason": "Profile diagnostics; suppress presetContext when profile id present."}

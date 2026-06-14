@@ -1,0 +1,31 @@
+{
+  "id": "06-13-aionui-legacy-config-migration",
+  "name": "06-13-aionui-legacy-config-migration",
+  "title": "AionUI Legacy Config Migration To CCB-Wanding",
+  "description": "盘点并迁移 AionUI 本地 skills/MCP/agent/assistant 配置，避免双源配置继续存在。",
+  "status": "completed",
+  "dev_type": "implementation",
+  "scope": "config-migration",
+  "package": "aionui+ccb-wanding",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-13",
+  "completedAt": "2026-06-14",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "06-13-aionui-shell-ccb-core",
+  "relatedFiles": [
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\config\\storage.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\config\\configMigration.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\pages\\settings",
+    "D:\\claude-code-B\\src"
+  ],
+  "notes": "Prevents AionUI and CCB-Wanding from continuing as two independent sources of truth.",
+  "meta": {}
+}

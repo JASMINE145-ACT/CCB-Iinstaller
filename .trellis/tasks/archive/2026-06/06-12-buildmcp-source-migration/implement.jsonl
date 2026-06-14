@@ -1,0 +1,2 @@
+{"file": "D:\\Projects\\claude-code-best\\.trellis\\spec\\backend\\acp-session-flow.md", "reason": "Source vs live dist section + Correct long-term fix — defines exactly what agent.ts createSession() must do"}
+{"file": "D:\\Projects\\claude-code-best\\.trellis\\spec\\backend\\route-b-status.md", "reason": "Live main route + Open item 4 — current patch state and migration goal"}

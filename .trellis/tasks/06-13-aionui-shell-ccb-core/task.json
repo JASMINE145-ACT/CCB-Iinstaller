@@ -1,0 +1,63 @@
+{
+  "id": "06-13-aionui-shell-ccb-core",
+  "name": "06-13-aionui-shell-ccb-core",
+  "title": "AionUI shell: maximize CCB-Wanding core capabilities",
+  "description": "Upgrade AionUI command, skill, MCP, assistant template, and related capability entry points so CCB-Wanding owns runtime capabilities/config while AionUI renders, edits through CCB, and forwards execution.",
+  "status": "in_progress",
+  "dev_type": "architecture",
+  "scope": "aionui-ccb-integration",
+  "package": "aionui+ccb-wanding",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-13",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "06-13-command-capability-manifest",
+    "06-13-ccb-skills-authority",
+    "06-13-ccb-mcp-authority",
+    "06-13-ccb-assistant-templates",
+    "06-13-aionui-legacy-config-migration",
+    "06-13-ccb-session-warmup-latency",
+    "06-14-ccb-assistant-profile-runtime-authority",
+    "06-14-ccb-assistant-catalog-authority"
+  ],
+  "parent": null,
+  "relatedFiles": [
+    "D:\\claude-code-B\\src\\commands.ts",
+    "D:\\claude-code-B\\src\\types\\command.ts",
+    "D:\\claude-code-B\\src\\services\\acp\\agent.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\hooks\\chat\\useSlashCommands.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\chat\\slash",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\components\\chat\\SendBox\\index.tsx",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\pages\\settings\\SkillsHubSettings.tsx",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\pages\\settings\\ToolsSettings\\McpManagement.tsx",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\pages\\settings\\AssistantSettings",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\config\\storage.ts",
+    ".trellis/spec/index.md",
+    ".trellis/spec/frontend/index.md",
+    ".trellis/spec/backend/index.md",
+    ".trellis/spec/integration/index.md"
+  ],
+  "notes": "This task supersedes the first-pass slash-command merge fix. The goal is not merely conflict avoidance; it is a clear product/architecture boundary: CCB-Wanding owns capabilities/config, AionUI renders, edits through CCB, and forwards execution.",
+  "meta": {
+    "intent": "AionUI is shell, CCB-Wanding is core",
+    "previous_state": "Backend commands win over AionUI builtins, but AionUI still has legacy local slash definitions, skills, MCP, and assistant template config surfaces.",
+    "children": [
+      "06-13-command-capability-manifest",
+      "06-13-ccb-skills-authority",
+      "06-13-ccb-mcp-authority",
+      "06-13-ccb-assistant-templates",
+      "06-13-aionui-legacy-config-migration",
+      "06-13-ccb-session-warmup-latency",
+      "06-14-ccb-assistant-profile-runtime-authority",
+      "06-14-ccb-assistant-catalog-authority"
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{"file":".trellis/spec/backend/index.md","reason":"CCB-Wanding source-first MCP work."}
+{"file":".trellis/spec/backend/acp-session-flow.md","reason":"MCP loading and ACP session flow."}
+{"file":".trellis/spec/frontend/index.md","reason":"AionUI MCP settings as shell/editor."}
+{"file":".trellis/spec/integration/aionui-ccb-boundary.md","reason":"Authority boundary for MCP config."}
+{"file":".trellis/tasks/06-13-ccb-mcp-authority/prd.md","reason":"Active subtask requirements."}

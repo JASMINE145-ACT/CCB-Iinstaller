@@ -1,0 +1,32 @@
+{
+  "id": "06-13-ccb-mcp-authority",
+  "name": "06-13-ccb-mcp-authority",
+  "title": "CCB-Wanding MCP Authority In AionUI",
+  "description": "让 AionUI MCP 页面展示和编辑 CCB-Wanding 的 MCP servers/tools，而不是 AionUI 自己维护运行时 MCP 配置。",
+  "status": "completed",
+  "dev_type": "implementation",
+  "scope": "mcp-config",
+  "package": "aionui+ccb-wanding",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-13",
+  "completedAt": "2026-06-14",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "06-13-aionui-shell-ccb-core",
+  "relatedFiles": [
+    "D:\\claude-code-B\\src\\services\\mcp",
+    "D:\\claude-code-B\\src\\services\\acp\\agent.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\pages\\settings\\ToolsSettings\\McpManagement.tsx",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\hooks\\mcp",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\config\\storage.ts"
+  ],
+  "notes": "User intent: opening MCP in AionUI should show CCB-Wanding configured MCP servers/tools.",
+  "meta": {}
+}

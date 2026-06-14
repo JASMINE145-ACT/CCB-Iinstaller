@@ -1,0 +1,32 @@
+{
+  "id": "06-13-command-capability-manifest",
+  "name": "06-13-command-capability-manifest",
+  "title": "CCB-Wanding Command Capability Manifest",
+  "description": "实现 CCB-Wanding 权威 command/capability manifest，并让 AionUI / 面板以该 manifest 为主。",
+  "status": "done",
+  "dev_type": "implementation",
+  "scope": "commands-capability",
+  "package": "aionui+ccb-wanding",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-13",
+  "completedAt": "2026-06-13",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "06-13-aionui-shell-ccb-core",
+  "relatedFiles": [
+    "D:\\claude-code-B\\src\\commands.ts",
+    "D:\\claude-code-B\\src\\types\\command.ts",
+    "D:\\claude-code-B\\src\\services\\acp\\agent.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\chat\\slash",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\components\\chat\\SendBox\\index.tsx"
+  ],
+  "notes": "This is the original slash command/capability portion split out from the parent architecture task.",
+  "meta": {}
+}

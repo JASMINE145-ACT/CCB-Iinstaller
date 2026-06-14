@@ -1,0 +1,5 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".trellis/spec/frontend/index.md", "reason": "AionUI renderer warmup and initial-message UX control"}
+{"file": ".trellis/spec/frontend/chat-acp-flow.md", "reason": "ACP chat/warmup flow and slash command behavior"}
+{"file": ".trellis/spec/integration/index.md", "reason": "AionUI/CCB boundary for cross-layer latency work"}
+{"file": ".trellis/spec/backend/acp-session-flow.md", "reason": "CCB ACP session/new and warmup source of truth"}

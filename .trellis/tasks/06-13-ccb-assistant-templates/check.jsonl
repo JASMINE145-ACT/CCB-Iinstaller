@@ -1,0 +1,4 @@
+{"file":".trellis/spec/backend/index.md","reason":"Verify assistant template implementation is backend-authoritative."}
+{"file":".trellis/spec/frontend/index.md","reason":"Verify AionUI only renders/edits through backend."}
+{"file":".trellis/tasks/06-13-ccb-assistant-templates/prd.md","reason":"Use acceptance criteria as checklist."}
+{"file":".trellis/tasks/06-13-ccb-assistant-templates/current-flow-inventory.md","reason":"Confirm implementation covered the inventoried integration surfaces."}

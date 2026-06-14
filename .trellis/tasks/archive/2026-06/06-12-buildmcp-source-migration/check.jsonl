@@ -1,0 +1,2 @@
+{"file": "D:\\Projects\\claude-code-best\\.trellis\\spec\\backend\\acp-session-flow.md", "reason": "Critical constraint — MCP tools must be in tools[] not just mcpClients; verify no regression"}
+{"file": "D:\\Projects\\claude-code-best\\.trellis\\spec\\integration\\defensive-fix-policy.md", "reason": "MCP registration is a backend fix, not a frontend guard — verify the approach is correct layer"}

@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "Check AionUI shell changes against frontend integration guidelines."}
+{"file": ".trellis/spec/backend/index.md", "reason": "Check CCB-Wanding changes against backend build/deploy/source-of-truth rules."}
+{"file": ".trellis/spec/integration/aionui-ccb-boundary.md", "reason": "Verify runtime authority remains in CCB."}
+{"file": ".trellis/spec/integration/aionui-config-inventory.md", "reason": "Verify no legacy AionUI runtime config is reintroduced for CCB sessions."}
+{"file": ".trellis/tasks/06-13-aionui-shell-ccb-core/remaining-adaptation-gaps-2026-06-14.md", "reason": "Check implementation closes the identified P0 runtime gap."}

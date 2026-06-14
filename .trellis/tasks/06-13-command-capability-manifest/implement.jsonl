@@ -1,0 +1,7 @@
+{"file":".trellis/spec/index.md","reason":"Project-level Trellis entry for AionUI + CCB-Wanding work."}
+{"file":".trellis/spec/backend/index.md","reason":"CCB-Wanding source-first backend guidance."}
+{"file":".trellis/spec/frontend/index.md","reason":"AionUI frontend ACP and UI guidance."}
+{"file":".trellis/spec/integration/aionui-ccb-boundary.md","reason":"Boundary rules: AionUI shell, CCB-Wanding source of truth."}
+{"file":".trellis/spec/backend/acp-session-flow.md","reason":"ACP session and command event flow."}
+{"file":".trellis/spec/frontend/chat-acp-flow.md","reason":"AionUI chat slash command consumption path."}
+{"file":".trellis/tasks/06-13-command-capability-manifest/prd.md","reason":"Active subtask requirements."}

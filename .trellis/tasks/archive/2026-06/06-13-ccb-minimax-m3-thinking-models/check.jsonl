@@ -1,0 +1,8 @@
+{"file":".trellis/spec/backend/index.md","reason":"Verify model thinking mapping is implemented in CCB-Wanding, not AionUI."}
+{"file":".trellis/spec/backend/build-deploy-verify.md","reason":"Verify backend build/deploy/smoke expectations."}
+{"file":".trellis/spec/backend/acp-session-flow.md","reason":"Verify MiniMax session model list + setModel scenario (2026-06-14)."}
+{"file":".trellis/spec/frontend/index.md","reason":"Verify AionUI remains display/selection shell only."}
+{"file":".trellis/spec/integration/aionui-ccb-boundary.md","reason":"Verify cross-layer authority boundary is preserved."}
+{"file":".trellis/tasks/06-13-ccb-minimax-m3-thinking-models/prd.md","reason":"Use acceptance criteria as checklist."}
+{"file":"D:\\claude-code-B\\src\\services\\acp\\agent.ts","reason":"2026-06-14: buildMiniMaxM3SessionModels + applyMiniMaxM3SessionModels; agent.test.ts 71 pass."}
+{"file":"D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\config\\ccbAcpModelInfo.ts","reason":"2026-06-14: UI merge only; setModel authority remains backend session list."}

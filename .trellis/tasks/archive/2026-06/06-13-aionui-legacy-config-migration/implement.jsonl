@@ -1,0 +1,4 @@
+{"file":".trellis/spec/frontend/index.md","reason":"AionUI config and UI shell boundary."}
+{"file":".trellis/spec/backend/index.md","reason":"CCB-Wanding target owner for runtime config."}
+{"file":".trellis/spec/integration/aionui-ccb-boundary.md","reason":"Cross-layer ownership rules."}
+{"file":".trellis/tasks/06-13-aionui-legacy-config-migration/prd.md","reason":"Active subtask requirements."}

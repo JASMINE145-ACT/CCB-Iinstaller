@@ -1,0 +1,31 @@
+{
+  "id": "06-13-ccb-skills-authority",
+  "name": "06-13-ccb-skills-authority",
+  "title": "CCB-Wanding Skills Authority In AionUI",
+  "description": "让 AionUI Skills 页面展示和编辑 CCB-Wanding 的 skills，而不是 AionUI 自己维护一套 skill 配置。",
+  "status": "completed",
+  "dev_type": "implementation",
+  "scope": "skills-config",
+  "package": "aionui+ccb-wanding",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-13",
+  "completedAt": "2026-06-14",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "06-13-aionui-shell-ccb-core",
+  "relatedFiles": [
+    "D:\\claude-code-B\\src\\commands.ts",
+    "D:\\claude-code-B\\src\\skills",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\pages\\settings\\SkillsHubSettings.tsx",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\config\\storage.ts"
+  ],
+  "notes": "User intent: opening Skills in AionUI should show CCB-Wanding configured skills.",
+  "meta": {}
+}

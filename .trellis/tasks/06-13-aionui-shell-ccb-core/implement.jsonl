@@ -1,0 +1,9 @@
+{"file":".trellis/spec/index.md","reason":"Spec entry for AionUI + CCB-Wanding work and required layer routing."}
+{"file":".trellis/spec/frontend/index.md","reason":"AionUI frontend rule 0, ACP event handling, and renderer integration guidance."}
+{"file":".trellis/spec/backend/index.md","reason":"CCB-Wanding source-vs-live-dist rule and backend implementation boundary."}
+{"file":".trellis/spec/integration/index.md","reason":"Cross-layer sync and defensive-fix policy for AionUI/CCB-Wanding integration."}
+{"file":".trellis/spec/integration/aionui-ccb-boundary.md","reason":"Existing boundary docs, including slash command boundary note from 2026-06-13."}
+{"file":".trellis/spec/backend/acp-session-flow.md","reason":"ACP session flow, command manifest context, and backend event source."}
+{"file":".trellis/spec/backend/route-b-status.md","reason":"Live dist status, deployment path, and slash command manifest snapshot."}
+{"file":".trellis/spec/frontend/chat-acp-flow.md","reason":"AionUI chat/ACP flow and slash command consumption path."}
+{"file":".trellis/tasks/06-13-aionui-shell-ccb-core/prd.md","reason":"Active task requirements and acceptance criteria."}

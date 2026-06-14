@@ -1,0 +1,5 @@
+{"file":".trellis/spec/backend/index.md","reason":"CCB-Wanding owns assistant template persistence/application."}
+{"file":".trellis/spec/frontend/index.md","reason":"AionUI keeps UI but not authority."}
+{"file":".trellis/spec/integration/aionui-ccb-boundary.md","reason":"Authority boundary for assistant templates."}
+{"file":".trellis/tasks/06-13-ccb-assistant-templates/prd.md","reason":"Active subtask requirements."}
+{"file":".trellis/tasks/06-13-ccb-assistant-templates/current-flow-inventory.md","reason":"Current AionUI assistant and CCB ACP surfaces to inspect before coding."}

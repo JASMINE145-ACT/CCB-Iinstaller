@@ -1,0 +1,7 @@
+{"file":".trellis/tasks/06-13-ccb-minimax-m3-thinking-models/prd.md","reason":"Active task requirements and acceptance criteria."}
+{"file":".trellis/spec/backend/build-deploy-verify.md","reason":"CCB build/deploy/route-b sync for variant code in dist."}
+{"file":".trellis/spec/integration/route-b-sync.md","reason":"ACP slot sync after CCB dist deploy."}
+{"file":".trellis/spec/frontend/dev-test-ship.md","reason":"Dev restart, white screen playbook, Guid model dropdown troubleshooting."}
+{"file":"D:\\claude-code-B\\src\\utils\\model\\minimaxM3.ts","reason":"Variant resolver + shouldExposeMiniMaxM3Variants (env + settings.json)."}
+{"file":"D:\\claude-code-B\\src\\services\\acp\\agent.ts","reason":"ACP session availableModels from MiniMax variants; setSessionModel refreshes list for aioncore validation."}
+{"file":"D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\config\\ccbAcpModelInfo.ts","reason":"Merge CCB available_variants over ACP effort-tier handshake lists."}

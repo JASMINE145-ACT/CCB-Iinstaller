@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "Check Assistant Settings UX and frontend integration rules."}
+{"file": ".trellis/spec/backend/index.md", "reason": "Check CCB profile persistence and source/live-dist boundaries."}
+{"file": ".trellis/spec/integration/aionui-ccb-boundary.md", "reason": "Verify CCB remains authority and AionUI remains shell/editor."}
+{"file": ".trellis/spec/integration/aionui-config-inventory.md", "reason": "Verify legacy assistant APIs are not treated as CCB authority."}
+{"file": ".trellis/tasks/06-13-aionui-shell-ccb-core/remaining-adaptation-gaps-2026-06-14.md", "reason": "Check implementation closes the identified catalog/source-of-truth gap."}

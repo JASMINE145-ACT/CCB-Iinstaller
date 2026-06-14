@@ -1,0 +1,4 @@
+{"file":".trellis/spec/backend/index.md","reason":"Verify backend source/deploy boundary."}
+{"file":".trellis/spec/frontend/index.md","reason":"Verify AionUI remains renderer/shell."}
+{"file":".trellis/spec/integration/aionui-ccb-boundary.md","reason":"Verify CCB-Wanding authority over commands."}
+{"file":".trellis/tasks/06-13-command-capability-manifest/prd.md","reason":"Use acceptance criteria as checklist."}

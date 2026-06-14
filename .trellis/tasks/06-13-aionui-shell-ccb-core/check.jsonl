@@ -1,0 +1,7 @@
+{"file":".trellis/spec/index.md","reason":"Verify the implementation follows the project-level Trellis entry and layer routing."}
+{"file":".trellis/spec/frontend/index.md","reason":"Check AionUI changes against frontend ACP and UI boundary rules."}
+{"file":".trellis/spec/backend/index.md","reason":"Check backend changes against source-first and deploy-to-dist rules."}
+{"file":".trellis/spec/integration/aionui-ccb-boundary.md","reason":"Verify AionUI remains shell and CCB-Wanding remains capability source of truth."}
+{"file":".trellis/spec/backend/acp-session-flow.md","reason":"Verify ACP event semantics and session flow remain correct."}
+{"file":".trellis/spec/frontend/chat-acp-flow.md","reason":"Verify slash/capability rendering path matches documented frontend flow."}
+{"file":".trellis/tasks/06-13-aionui-shell-ccb-core/prd.md","reason":"Use task acceptance criteria as final checklist."}
