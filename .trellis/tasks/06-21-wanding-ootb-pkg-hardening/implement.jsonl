@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/integration/wanding-packaging-whitelist.md", "reason": "打包白名单 + §17 OOTB 契约：shipped/never-ship 脚本集、§5.3 pycache 排除、build gate、§17.9 changelog 落点"}
+{"file": ".trellis/spec/integration/wanding-first-ship.md", "reason": "build-wanding.ps1 调用方式与 -SkipPipMcp/-SkipStagingClear 语义来源"}

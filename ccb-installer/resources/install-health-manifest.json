@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "_doc": "Single source of truth for OOTB-critical install-tree files. Read by BOTH test-install-health.ps1 (field, Check Install) and build-wanding.ps1 Test-StagingWanDInstall (build gate). Add OOTB-critical files here only — config_files/route_b.runtime_* are post-install/launch artifacts the build gate skips.",
+  "required_files": [
+    "AionUi/AionUi.exe",
+    "ccb-launch-aionui.cmd",
+    "ccb-check-install.cmd",
+    "dist/cli.js",
+    "dist/VERSION",
+    "vendor/bun/bun.exe",
+    "vendor/python-wanding/python.exe",
+    "vendor/python-wanding/Lib/site-packages/pptx/__init__.py",
+    "vendor/mcp-servers/quotation-server/dist/index.js",
+    "vendor/mcp-servers/office-word-mcp/site-packages/word_document_server/main.py",
+    "vendor/mcp-servers/excel-mcp-server/site-packages/excel_mcp/server.py",
+    "vendor/wanding/data/wanding_business_knowledge.md",
+    "vendor/ppt-master-skill/SKILL.md",
+    "scripts/run-wanding-bootstrap.ps1",
+    "scripts/sync-aionui-ccb-route-b.ps1",
+    "scripts/install-ppt-master.ps1",
+    "scripts/deploy-ppt-master-skill.ps1",
+    "scripts/deploy-subagent-gate-skill.ps1",
+    "scripts/sync-ppt-master-agents.ps1",
+    "scripts/ensure-ppt-master-deps.ps1",
+    "seed/agents/quotation-agent.md"
+  ],
+  "route_b": {
+    "marker": "ccb-native-acp-route",
+    "bundled_index": "AionUi/resources/bundled-aioncore/win32-x64/managed-resources/acp/claude-agent-acp/0.39.0/win32-x64/node_modules/@agentclientprotocol/claude-agent-acp/dist/index.js",
+    "runtime_index": "%APPDATA%/AionUi/aionui/runtime/managed-tools/acp/claude-agent-acp/0.39.0/win32-x64/node_modules/@agentclientprotocol/claude-agent-acp/dist/index.js",
+    "acp_agent_marker": "CCB_WANDING_QUERY_NEXT_TIMEOUT_DEFAULT_MS = 120_000",
+    "runtime_acp_agent": "%APPDATA%/AionUi/aionui/runtime/managed-tools/acp/claude-agent-acp/0.39.0/win32-x64/node_modules/@agentclientprotocol/claude-agent-acp/dist/acp-agent.js"
+  },
+  "config_files": [
+    "%LOCALAPPDATA%/CCB-Wanding/.claude/settings.json",
+    "%LOCALAPPDATA%/CCB-Wanding/.claude/agents/quotation-agent.md",
+    "%LOCALAPPDATA%/CCB-Wanding/.claude/agents/quotation-agent.aionui.json",
+    "%LOCALAPPDATA%/CCB-Wanding/.claude/.bootstrap-ok",
+    "%APPDATA%/AionUi/aionui/org-server.json"
+  ]
+}
