@@ -106,6 +106,8 @@ $INSTALL\dist\VERSION                    ← single-line bundle id (e.g. 2026.06
 
 `internal-upgrade.ps1` reads `{install}/dist/VERSION` only — does not invent version strings.
 
+**`dist/BUILD-INFO.json` (provenance sidecar — 2026-06-21):** `build-wanding.ps1` writes it beside `VERSION` with `version`, `built_utc`, `skip_build`, `skip_aionui_build`, and git `{commit,branch,dirty}` for both source repos (`claude-code-B`, `aionui-src`). Diagnostic only — does **not** alter the `VERSION` contract; lets a shipped exe be audited post-hoc for "which source built this". When `-SkipBuild` / `-SkipAionUiBuild` is used, the build also prints a loud **non-fatal** WARN that `dist\` / `AionUi\` ship from pre-existing artifacts (not rebuilt from source) — the main freshness footgun.
+
 **Exclude if present:**
 
 ```text
@@ -227,6 +229,8 @@ D:\Projects\claude-code-best\data\ccb-wanding-pricing-system.md
 D:\Projects\claude-code-best\data\data.Md
 ```
 
+> **Ship rule (2026-06-21):** `build-wanding.ps1` ships `data\*.md` by **enumeration minus the "Exclude data" denylist above** (was a hardcoded 5-name list → new SOP/knowledge `.md` got silently dropped). A newly added `.md` now auto-ships; only the three denylisted names stay out. `.xlsx` continue to glob-copy.
+
 ### 5.5 Windows Terminal (optional — **default OFF for AionUI ship**)
 
 AionUI 桌面路径（`ccb-launch-aionui.cmd` → `AionUi.exe`）**不依赖** Windows Terminal。仅终端 TUI 栈（`ccb-wanding.cmd` / 旧 CCB 快捷方式）才推荐 WT。
@@ -322,6 +326,8 @@ sync-aionui-ccb-route-b.ps1, run-wanding-bootstrap.ps1, test-install-health.ps1,
 ensure-wanding-settings.ps1, deploy-seed-agents.ps1, deploy-seed-agents.mjs,
 patch-subagent-gate-hooks.ps1, smoke-wanding-e2e.ps1
 ```
+
+**Build-time drift guard (2026-06-21):** `build-wanding.ps1` keeps `$shipScripts` as the authoritative SHIP whitelist and adds a `$devOnlyScripts` denylist (the "Never ship" + "Optional / not in main WanD package" names above). After staging, any `scripts\*.ps1` / `*.mjs` in **neither** list triggers a **non-fatal** WARN ("unclassified — add to `$shipScripts` or `$devOnlyScripts`"), so a newly added script can't be silently dropped from the package. Whitelist stays authoritative (denylist would risk auto-shipping dev/CI helpers).
 
 ---
 
@@ -724,6 +730,7 @@ OUT: `build-wanding*`, `vendor-ppt-master`（联网抓 skill，仅 `-VendorIfMis
 
 | Date | Item |
 |------|------|
+| 2026-06-21 | build: **anti-drift guards** — `dist/BUILD-INFO.json` provenance（git commit/branch/dirty × claude-code-B + aionui-src）+ `-SkipBuild`/`-SkipAionUiBuild` 陈旧 WARN（§4）；`data\*.md` 枚举减黑名单（新 SOP md 自动 ship，§5.4）；scripts 白名单漂移 WARN（§7） |
 | 2026-06-21 | health: **单一事实源** — `install-health-manifest.required_files` 加 site-packages + ppt/gate 闭包 + bundled pptx（21 项）；`Test-StagingWanDInstall` 改读 manifest，与 Check Install 同源不漂移（§17.6） |
 | 2026-06-21 | build: ship ppt/gate 运行时闭包（deploy-ppt-master-skill / deploy-subagent-gate-skill / sync-ppt-master-agents / ensure-ppt-master-deps）—— 修白名单 latent gap |
 | 2026-06-20 | build: bundled route-b + acp-agent; staging gate; default skip WT; trim scripts |

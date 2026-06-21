@@ -95,6 +95,39 @@ function Copy-FileIfExists([string]$Source, [string]$Dest) {
     }
 }
 
+function Get-RepoProvenance([string]$RepoPath) {
+    # Best-effort git provenance for a source tree. Never throws — returns nulls
+    # if the path is missing, git is unavailable, or the dir is not a git repo.
+    # Used only for staging\dist\BUILD-INFO.json (audit/freshness), never VERSION.
+    $result = [PSCustomObject]@{
+        root   = $RepoPath
+        commit = $null
+        branch = $null
+        dirty  = $null
+    }
+    try {
+        if (-not $RepoPath -or -not (Test-Path -LiteralPath $RepoPath)) {
+            return $result
+        }
+        $commit = (& git -C $RepoPath rev-parse --short HEAD 2>$null)
+        if ($LASTEXITCODE -eq 0 -and $commit) {
+            $result.commit = ([string]$commit).Trim()
+        }
+        $branch = (& git -C $RepoPath rev-parse --abbrev-ref HEAD 2>$null)
+        if ($LASTEXITCODE -eq 0 -and $branch) {
+            $result.branch = ([string]$branch).Trim()
+        }
+        $status = (& git -C $RepoPath status --porcelain 2>$null)
+        if ($LASTEXITCODE -eq 0) {
+            $result.dirty = [bool]($status | Where-Object { $_ -and $_.Trim() })
+        }
+    }
+    catch {
+        # Swallow — provenance is advisory only.
+    }
+    return $result
+}
+
 function Test-StagingWanDInstall {
     param([string]$Root, [string]$Label = 'staging')
     # Single source of truth: validate against the SAME install-health-manifest.json
@@ -219,6 +252,10 @@ if (-not $SkipBuild) {
         Pop-Location
     }
 }
+else {
+    Write-Host "[WARN] -SkipBuild: shipping dist\ from PRE-EXISTING artifacts in $ClaudeCodeBRoot\dist (NOT rebuilt)." -ForegroundColor Yellow
+    Write-Host "       Confirm those artifacts match your latest source before releasing." -ForegroundColor Yellow
+}
 $ccbDist = Join-Path $ClaudeCodeBRoot 'dist'
 Test-RequiredFile (Join-Path $ccbDist 'cli.js') 'claude-code-B dist\cli.js'
 Invoke-RobocopyMirror $ccbDist (Join-Path $StagingDir 'dist') @(
@@ -250,6 +287,10 @@ if (-not $SkipAionUiBuild) {
         Pop-Location
     }
 }
+else {
+    Write-Host "[WARN] -SkipAionUiBuild: shipping AionUi\ from PRE-EXISTING win-unpacked in $AionUiSrc\out (NOT rebuilt)." -ForegroundColor Yellow
+    Write-Host "       Confirm that build matches your latest aionui-src source before releasing." -ForegroundColor Yellow
+}
 $winUnpacked = Join-Path $AionUiSrc 'out\win-unpacked'
 Test-RequiredFile (Join-Path $winUnpacked 'AionUi.exe') 'AionUi.exe in win-unpacked'
 Invoke-RobocopyMirror $winUnpacked (Join-Path $StagingDir 'AionUi')
@@ -274,6 +315,21 @@ function Remove-AionUiNsisCruft([string]$aionUiRoot) {
         ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue }
 }
 Remove-AionUiNsisCruft (Join-Path $StagingDir 'AionUi')
+
+# Build provenance sidecar (audit/freshness — NOT VERSION). dist/VERSION stays a
+# single-line bundle id (spec §16, read by internal-upgrade.ps1); provenance lives
+# only here so an operator can confirm which source commit the package was built from.
+$buildInfo = [PSCustomObject]@{
+    version           = $Version
+    built_utc         = (Get-Date).ToUniversalTime().ToString('o')
+    skip_build        = [bool]$SkipBuild
+    skip_aionui_build = [bool]$SkipAionUiBuild
+    claude_code_b     = Get-RepoProvenance $ClaudeCodeBRoot
+    aionui_src        = Get-RepoProvenance $AionUiSrc
+}
+$buildInfoFile = Join-Path $StagingDir 'dist\BUILD-INFO.json'
+[System.IO.File]::WriteAllText($buildInfoFile, ($buildInfo | ConvertTo-Json -Depth 5), [System.Text.UTF8Encoding]::new($false))
+Write-Host "  dist/BUILD-INFO.json written (ccb=$($buildInfo.claude_code_b.commit) aionui=$($buildInfo.aionui_src.commit))" -ForegroundColor DarkGray
 
 # --- Step 3: vendor, python, data, seed, scripts, resources ---
 Write-Step "Step 3/4 — vendor / wanding / seed / scripts"
@@ -326,16 +382,16 @@ Invoke-RobocopyMirror $pySrc $pyDest @(
 # Wanding data
 $dataDest = Join-Path $vendorDest 'wanding\data'
 New-Item -ItemType Directory -Force -Path $dataDest | Out-Null
-foreach ($f in @(
-    'ccb-wanding-claude-index.md',
-    'ccb-wanding-quotation.md',
-    'ccb-wanding-accurate.md',
-    'wanding_business_knowledge.md',
-    'wanding-matching-architecture.md'
-)) {
-    $srcMd = Join-Path $dataRoot $f
-    if (Test-Path -LiteralPath $srcMd) {
-        Copy-Item -LiteralPath $srcMd -Destination (Join-Path $dataDest $f) -Force
+# Ship ALL data\*.md except the spec §5.4 "Exclude data" denylist, so a newly added
+# SOP / knowledge md auto-ships instead of being silently dropped by a stale hardcoded list.
+$dataMdDenylist = @(
+    'ccb-wanding-update-server.md',
+    'ccb-wanding-pricing-system.md',
+    'data.Md'
+)
+Get-ChildItem -LiteralPath $dataRoot -Filter '*.md' -ErrorAction SilentlyContinue | ForEach-Object {
+    if ($dataMdDenylist -notcontains $_.Name) {
+        Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $dataDest $_.Name) -Force
     }
 }
 Get-ChildItem -LiteralPath $dataRoot -Filter '*.xlsx' | ForEach-Object {
@@ -397,6 +453,40 @@ foreach ($s in $shipScripts) {
     $src = Join-Path $installerRoot "scripts\$s"
     Test-RequiredFile $src "script $s"
     Copy-Item -LiteralPath $src -Destination (Join-Path $scriptsDest $s) -Force
+}
+
+# Drift guard: $shipScripts is the authoritative SHIP whitelist (spec §7 — most scripts
+# are dev/CI-only and must NOT ship). $devOnlyScripts knowingly classifies the §7
+# "Never ship (dev/CI only)" + "Optional / not in main WanD package" + WT-gated entries.
+# Any .ps1/.mjs in scripts\ that is in NEITHER list is "unclassified" — warn (non-fatal)
+# so a newly added script can't be silently dropped or silently shipped unreviewed.
+$devOnlyScripts = @(
+    'build-wanding.ps1',
+    'build-wanding-hot.ps1',
+    'deploy-claude-code-b-to-wanding.ps1',
+    'package-aionui-exe.ps1',
+    'sync-aionui-ccb-patch.ps1',
+    'test-mcp-health.ps1',
+    'test-native-acp-agent.mjs',
+    'install-windows-terminal.ps1',
+    'launch-ccb-wanding.ps1',
+    'fix-terminal-launcher.ps1',
+    'install-wt-fragment.ps1',
+    'patch-i18n.ps1',
+    'normalize-i18n-literals.mjs',
+    'launch-ccb.ps1',
+    'ccb-recent.ps1',
+    'ccb-update-info.ps1'
+)
+$unclassifiedScripts = Get-ChildItem -LiteralPath (Join-Path $installerRoot 'scripts') -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.Extension -in '.ps1', '.mjs' } |
+    Where-Object { ($shipScripts -notcontains $_.Name) -and ($devOnlyScripts -notcontains $_.Name) }
+if ($unclassifiedScripts) {
+    Write-Host "[WARN] Unclassified scripts in scripts\ (neither shipped nor dev-only):" -ForegroundColor Yellow
+    foreach ($u in $unclassifiedScripts) {
+        Write-Host "         $($u.Name)" -ForegroundColor Yellow
+    }
+    Write-Host "       Add each to `$shipScripts (to ship) or `$devOnlyScripts (dev/CI-only) in build-wanding.ps1." -ForegroundColor Yellow
 }
 
 # Resources for installer config section
