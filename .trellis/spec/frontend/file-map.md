@@ -32,7 +32,7 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Want to change | File |
 |---|---|
 | Theme / color tokens | `uno.config.ts` (monorepo root) + `packages/desktop/src/renderer/theme/` |
-| i18n strings | `packages/desktop/src/process/services/i18n/` + `packages/desktop/src/renderer/` i18n consumers |
+| i18n strings | `packages/desktop/src/renderer/services/i18n/locales/{zh-CN,en-US}/` — CCB model descriptions: flat keys `ccbModelMinimaxM3Description` etc. See [`ccb-model-settings-ui.md`](./ccb-model-settings-ui.md) |
 | Splash / loading screen | `packages/desktop/src/renderer/index.html` + `packages/desktop/src/process/index.ts` |
 | Hotkey / shortcut (UI side) | `packages/desktop/src/renderer/hooks/` |
 | Hotkey / shortcut (system side, e.g. global) | `packages/desktop/src/preload/` + `packages/desktop/src/process/bridge/` |
@@ -53,6 +53,7 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Notifications | `packages/desktop/src/process/bridge/notificationBridge.ts` |
 | Feedback dialog (UI) | `packages/desktop/src/process/bridge/feedbackBridge.ts` | Note: `process/feedback/` directory contains only `logs.ts` (not the dialog itself) |
 | Update / version check | `packages/desktop/src/process/bridge/updateBridge.ts` + `packages/desktop/src/common/update/` |
+| WanD internal manifest / CCB dual-track update | `packages/desktop/src/process/bridge/internalUpdateManifest.ts` + `ccbUpdateBridge.ts` (**new**, `ccbUpdate.*`) — spec `integration/internal-update.md` §3.7 |
 
 ---
 
@@ -63,6 +64,7 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Generic AionUI MCP server (image gen, etc.) | `packages/desktop/src/process/resources/builtinMcp/` — see `electron-architecture.md` § builtinMcp decision rule |
 | MCP manifest / registration | `packages/desktop/src/process/resources/builtinMcp/constants.ts` |
 | Business-specific MCP server (quotation, accurate) | `D:\claude-code-B\src/.../mcp/` — **NOT in this doc**, see `../integration/aionui-ccb-boundary.md` |
+| CCB MCP health UI (Settings → 工具) | [`../integration/mcp-health.md`](../integration/mcp-health.md) · `ToolsSettings/CcbMcpHealthPanel.tsx` · `ccbMcpHealth.ts` |
 
 ---
 
@@ -73,3 +75,57 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | ACP event emission / greeting content | `D:\claude-code-B\src/` | `../integration/aionui-ccb-boundary.md` |
 | route-b patch (CCB-Wanding launcher) | `D:\Projects\claude-code-best\ccb-installer/patches/aionui-ccb-route-b/index.js` | `../integration/route-b-sync.md` |
 | Backend env / spawn args | `D:\Projects\claude-code-best\ccb-installer/` | `../integration/aionui-ccb-boundary.md` |
+
+---
+
+## 6. Work tasks (`/tasks`)
+
+> Backend: aioncore `/api/work-tasks/*` + `/api/users` — **not** CCB. Phase 2–3 (2026-06-15): RBAC, scope lists, manager query. See [`../integration/aioncore-work-tasks.md`](../integration/aioncore-work-tasks.md).
+
+| Want to change | File |
+|---|---|
+| Domain types + status machine + scope/overdue helpers | `packages/desktop/src/common/types/workTasks/workTaskTypes.ts` |
+| HTTP / WS IPC (`listTasks` scope, `listMembers`, `queryTasks`) | `packages/desktop/src/common/adapter/ipcBridge.ts` → `workTask.*` |
+| List page (scope tabs, status filter, cards, manager overview) | `packages/desktop/src/renderer/pages/workTasks/WorkTasksPage/index.tsx` |
+| Detail (accept CTA, assignee/creator/due, attachments) | `…/WorkTasksPage/WorkTaskDetailPage.tsx` |
+| Attachment open / download | `WorkTaskDetailPage.tsx` — click name → `shell.openFile` (desktop) or `downloadFileFromPath` (web); desktop download icon |
+| Create / edit (assignee picker, due date) | `…/components/CreateWorkTaskDialog.tsx` |
+| Status tag | `…/components/WorkTaskStatusTag.tsx` |
+| SWR hooks (scope, members, query, pending badge) | `…/useWorkTasks.ts` |
+| Sidebar entry + pending badge | `packages/desktop/src/renderer/components/layout/Sider/SiderNav/SiderWorkTasksEntry.tsx` |
+| Auth user `work_task_role` + session token | `packages/desktop/src/common/auth/authSession.ts`, `packages/desktop/src/renderer/hooks/context/AuthContext.tsx` |
+| HTTP credentials policy | `packages/desktop/src/common/adapter/httpBridge.ts` — `backendFetchCredentials()` (`omit` desktop, `include` WebUI) |
+| Team members admin (manager) | `packages/desktop/src/renderer/pages/settings/TeamMembersPage.tsx`, route `#/settings/team-members` |
+| Auth IPC (`listUsers`, `createUser`, `updateWorkTaskRole`) | `packages/desktop/src/common/adapter/ipcBridge.ts` → `auth.*` |
+| Settings builtin tab ids (keep Sider + Wrapper in sync) | `SettingsSider.tsx` `BUILTIN_TAB_IDS` + `SettingsPageWrapper.tsx` `getBuiltinSettingsNavItems` — see [`coding-rules.md`](./coding-rules.md) §7 |
+| Routes | `packages/desktop/src/renderer/components/layout/Router.tsx` — `/tasks`, `/tasks/:task_id`, `#/settings/team-members` |
+| i18n strings | `packages/desktop/src/renderer/services/i18n/locales/{zh-CN,en-US}/workTasks.json` |
+| File upload (attachments) | `packages/desktop/src/renderer/services/FileService.ts` → `uploadFileViaHttp` |
+| Attachment download helper | `packages/desktop/src/renderer/utils/file/download.ts` → `downloadFileFromPath` |
+| Shell open file | `packages/desktop/src/common/adapter/ipcBridge.ts` → `shell.openFile` |
+| E2E route map | `tests/e2e/helpers/bridge/routes.ts` |
+| Unit tests | `tests/unit/common-utils/workTaskTypes.test.ts` |
+| Rust service + RBAC + routes | `AionCore/crates/aionui-work-tasks/` (`rbac.rs`, `service.rs`, `routes.rs`) |
+| Rust auth (users API, role on login) | `AionCore/crates/aionui-auth/` |
+| DB migrations | `013_work_tasks.sql`, `014_work_task_roles.sql` |
+| Optional read-only MCP | `mcp_servers/work-tasks-query-server/index.mjs` |
+
+---
+
+## 7. CCB model settings (Settings → 模型)
+
+> Handbook: [`ccb-model-settings-ui.md`](./ccb-model-settings-ui.md). Runtime switch authority: [`../backend/acp-session-flow.md`](../backend/acp-session-flow.md).
+
+| Want to change | File |
+|---|---|
+| Model catalog (ids, labels, description i18n keys) | `packages/desktop/src/common/config/ccbModelSettingsShared.ts` — `CCB_MINIMAX_M3_CATALOG` |
+| Read `settings.json` model for IPC | `packages/desktop/src/common/config/ccbModelSettings.ts` (main only) |
+| IPC bridge | `packages/desktop/src/process/bridge/ccbModelBridge.ts` |
+| Settings page cards + descriptions | `packages/desktop/src/renderer/components/settings/SettingsModal/contents/ModelModalContent.tsx` |
+| Description resolve / IPC enrich | `packages/desktop/src/renderer/utils/ccbModelCatalogDisplay.ts` |
+| Guid / conversation model dropdown merge | `packages/desktop/src/common/config/ccbAcpModelInfo.ts` |
+| Guid input-bar model menu (CCB vs aionrs path) | `packages/desktop/src/renderer/pages/guid/components/GuidModelSelector.tsx` |
+| Guid agent restore + `aionrs`→`claude` under CCB | `packages/desktop/src/renderer/pages/guid/hooks/useGuidAgentSelection.ts` |
+| `isGeminiMode` gate (`aionrs` only) | `packages/desktop/src/renderer/pages/guid/GuidPage.tsx` — `PROVIDER_BASED_AGENTS` |
+| zh-CN / en-US description strings | `packages/desktop/src/renderer/services/i18n/locales/{zh-CN,en-US}/settings.json` |
+| Unit tests | `tests/unit/common-config/ccbModelSettings.test.ts`, `ccbAcpModelInfo.test.ts`, `tests/unit/renderer/ccbModelCatalogDisplay.test.ts` |

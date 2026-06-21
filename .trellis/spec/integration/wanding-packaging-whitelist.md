@@ -27,6 +27,10 @@
 ├── scripts\                   ← post-install hooks
 ├── seed\                      ← agent + gate skill seeds (deployed to $CONFIG)
 ├── ccb.ico
+├── ccb-launch-aionui.cmd        ← 主快捷方式 target
+├── ccb-check-install.cmd        ← Check Install
+├── ccb-wanding-versions.cmd     ← 更新入口「检查更新 / 版本选择」
+├── ccb-verify-update.cmd        ← 运维诊断
 ├── ccb-wanding.cmd              ← terminal / diagnostic fallback
 ├── ccb-diagnose.cmd
 └── uninstall.exe
@@ -252,10 +256,16 @@ D:\Projects\claude-code-best\ccb-installer\vendor\windows-terminal\**
 ### IN (v2)
 
 ```text
-D:\Projects\claude-code-best\ccb-installer\resources\ccb.ico       → $INSTALL\ccb.ico
-D:\Projects\claude-code-best\ccb-installer\ccb-wanding.cmd           → $INSTALL\ccb-wanding.cmd
+D:\Projects\claude-code-best\ccb-installer\resources\ccb.ico         → $INSTALL\ccb.ico
+D:\Projects\claude-code-best\ccb-installer\ccb-launch-aionui.cmd     → $INSTALL\ccb-launch-aionui.cmd     ← 主快捷方式（bootstrap → AionUi.exe；§1）
+D:\Projects\claude-code-best\ccb-installer\ccb-check-install.cmd     → $INSTALL\ccb-check-install.cmd     ← Check Install（test-install-health.ps1；§17.6）
+D:\Projects\claude-code-best\ccb-installer\ccb-wanding-versions.cmd  → $INSTALL\ccb-wanding-versions.cmd  ← 更新入口「检查更新 / 版本选择」→ ccb-check-update.ps1 -Select（开始菜单快捷方式；internal-update §3.2/§3.7）
+D:\Projects\claude-code-best\ccb-installer\ccb-verify-update.cmd     → $INSTALL\ccb-verify-update.cmd     ← 运维诊断（verify-update-server.ps1）
+D:\Projects\claude-code-best\ccb-installer\ccb-wanding.cmd           → $INSTALL\ccb-wanding.cmd           ← 终端 / 诊断回退
 D:\Projects\claude-code-best\ccb-installer\ccb-diagnose.cmd          → $INSTALL\ccb-diagnose.cmd
 ```
+
+> **更新入口快捷方式（2026-06-21，internal-update Phase 1 §1.2）：** `ccb-wanding-versions.cmd` 从 legacy「OUT」**提升为 IN** —— 它是员工自助更新的唯一入口（wrap `ccb-check-update.ps1 -Select`，热更新优先逻辑见 `ccb-check-update.ps1`）。打包契约：`build-wanding.ps1` 根启动器拷贝段必须复制它；`installer-wanding-v2.nsi` 建开始菜单快捷方式 **「检查更新 / 版本选择」**。其依赖 `ccb-check-update.ps1` 已在 §17.5 IN 集随包。`ccb-versions.cmd`（CCB-Lite 变体）与 `ccb-update.cmd`（legacy）**仍 OUT**。
 
 ### OUT (legacy — do not package)
 
@@ -273,7 +283,6 @@ D:\Projects\claude-code-best\ccb-installer\ccb1.cmd
 D:\Projects\claude-code-best\ccb-installer\ccb-recent.cmd
 D:\Projects\claude-code-best\ccb-installer\ccb-update.cmd
 D:\Projects\claude-code-best\ccb-installer\ccb-wanding-recent.cmd
-D:\Projects\claude-code-best\ccb-installer\ccb-wanding-versions.cmd
 D:\Projects\claude-code-best\ccb-installer\ccb-versions.cmd
 D:\Projects\claude-code-best\ccb-installer\ccb-fix-terminal.cmd
 D:\Projects\claude-code-best\ccb-installer\start-aionui.cmd
@@ -527,6 +536,10 @@ D:\Projects\claude-code-best\ccb-installer\staging\
 │   ├── agents\
 │   └── skills\ccb-subagent-gate\
 ├── ccb.ico
+├── ccb-launch-aionui.cmd
+├── ccb-check-install.cmd
+├── ccb-wanding-versions.cmd
+├── ccb-verify-update.cmd
 ├── ccb-wanding.cmd
 └── ccb-diagnose.cmd
 ```
@@ -730,6 +743,7 @@ OUT: `build-wanding*`, `vendor-ppt-master`（联网抓 skill，仅 `-VendorIfMis
 
 | Date | Item |
 |------|------|
+| 2026-06-21 | §6: `ccb-wanding-versions.cmd` OUT→IN（员工更新入口「检查更新 / 版本选择」→ `ccb-check-update.ps1 -Select`）；§1/§13 root 启动器补齐实况（launch-aionui / check-install / verify-update）；配合 internal-update Phase 1 §1.2 + §3.7 |
 | 2026-06-21 | build: **anti-drift guards** — `dist/BUILD-INFO.json` provenance（git commit/branch/dirty × claude-code-B + aionui-src）+ `-SkipBuild`/`-SkipAionUiBuild` 陈旧 WARN（§4）；`data\*.md` 枚举减黑名单（新 SOP md 自动 ship，§5.4）；scripts 白名单漂移 WARN（§7） |
 | 2026-06-21 | health: **单一事实源** — `install-health-manifest.required_files` 加 site-packages + ppt/gate 闭包 + bundled pptx（21 项）；`Test-StagingWanDInstall` 改读 manifest，与 Check Install 同源不漂移（§17.6） |
 | 2026-06-21 | build: ship ppt/gate 运行时闭包（deploy-ppt-master-skill / deploy-subagent-gate-skill / sync-ppt-master-agents / ensure-ppt-master-deps）—— 修白名单 latent gap |
