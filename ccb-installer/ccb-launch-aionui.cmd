@@ -37,6 +37,11 @@ if not exist "%LOCALAPPDATA%\CCB-Wanding\logs" mkdir "%LOCALAPPDATA%\CCB-Wanding
 set "BOOT_MODE=Quick"
 if not exist "%CONFIG%\.bootstrap-ok" set "BOOT_MODE=Full"
 
+if exist "%CONFIG%\.auth-reset-required" (
+    set "AIONUI_FORCE_RELOGIN=1"
+    del "%CONFIG%\.auth-reset-required" >nul 2>&1
+)
+
 >>"%LOG%" echo [%DATE% %TIME%] launch bootstrap %BOOT_MODE%
 "%PS%" -NoProfile -ExecutionPolicy Bypass -File "%INSTALL%\scripts\run-wanding-bootstrap.ps1" -InstallDir "%INSTALL%" -Mode %BOOT_MODE% -LogFile "%LOG%"
 set "BOOT_EXIT=%ERRORLEVEL%"
