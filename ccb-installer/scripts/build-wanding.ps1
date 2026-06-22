@@ -24,6 +24,24 @@ param(
     [switch]$IncludeWindowsTerminal
 )
 
+function Invoke-NativeBuildCommand {
+    param(
+        [Parameter(Mandatory = $true)]
+        [scriptblock]$Command,
+        [Parameter(Mandatory = $true)]
+        [string]$Label
+    )
+    # Bun/node often print progress to stderr; do not treat that as a terminating error.
+    $prevEa = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        & $Command
+        if ($LASTEXITCODE -ne 0) { throw "$Label failed with exit code $LASTEXITCODE" }
+    } finally {
+        $ErrorActionPreference = $prevEa
+    }
+}
+
 $ErrorActionPreference = 'Stop'
 
 $installerRoot = Split-Path $PSScriptRoot -Parent
@@ -245,9 +263,8 @@ if (-not $SkipBuild) {
         throw "claude-code-B not found: $ClaudeCodeBRoot"
     }
     Push-Location $ClaudeCodeBRoot
-  try {
-        & bun run build
-        if ($LASTEXITCODE -ne 0) { throw "bun run build failed with exit code $LASTEXITCODE" }
+    try {
+        Invoke-NativeBuildCommand -Label 'bun run build' -Command { bun run build }
     } finally {
         Pop-Location
     }
@@ -281,6 +298,11 @@ if (-not $SkipAionUiBuild) {
         if ($SkipVite) { $packArgs += '--skip-vite' }
         & node @packArgs
         if ($LASTEXITCODE -ne 0) { throw "build-with-builder --pack-only failed" }
+        # --pack-only only runs Vite; separately run electron-builder --dir to create win-unpacked
+        $ebConfig = Join-Path $AionUiSrc 'packages\desktop\electron-builder.yml'
+        $env:ELECTRON_CACHE = "$env:LOCALAPPDATA\electron\Cache"
+        & bunx electron-builder --config $ebConfig --win --x64 --dir --publish=never
+        if ($LASTEXITCODE -ne 0) { throw "electron-builder --dir failed" }
         & node (Join-Path $AionUiSrc 'scripts\prepareHubResources.js')
         if ($LASTEXITCODE -ne 0) { throw 'prepareHubResources failed' }
     } finally {
@@ -401,6 +423,7 @@ Get-ChildItem -LiteralPath $dataRoot -Filter '*.xlsx' | ForEach-Object {
 $configDest = Join-Path $vendorDest 'wanding\config'
 New-Item -ItemType Directory -Force -Path $configDest | Out-Null
 Copy-Item -LiteralPath (Join-Path $installerRoot 'resources\org-server.json') -Destination (Join-Path $configDest 'org-server.json') -Force
+Copy-Item -LiteralPath (Join-Path $installerRoot 'resources\sso.env.example') -Destination (Join-Path $configDest 'sso.env.example') -Force
 
 # Seed agents (full keep-set)
 $seedAgentsDest = Join-Path $StagingDir 'seed\agents'
@@ -446,8 +469,10 @@ $shipScripts = @(
     'smoke-wanding-e2e.ps1',
     'ccb-diagnose.ps1',
     'ccb-check-update.ps1',
+    'ccb-update-notify.ps1',
     'verify-update-server.ps1',
-    'internal-upgrade.ps1'
+    'internal-upgrade.ps1',
+    'repair-wanding-install-dir.ps1'
 )
 foreach ($s in $shipScripts) {
     $src = Join-Path $installerRoot "scripts\$s"
@@ -476,7 +501,8 @@ $devOnlyScripts = @(
     'normalize-i18n-literals.mjs',
     'launch-ccb.ps1',
     'ccb-recent.ps1',
-    'ccb-update-info.ps1'
+    'ccb-update-info.ps1',
+    'smoke-hot-update-trial.ps1'
 )
 $unclassifiedScripts = Get-ChildItem -LiteralPath (Join-Path $installerRoot 'scripts') -File -ErrorAction SilentlyContinue |
     Where-Object { $_.Extension -in '.ps1', '.mjs' } |
@@ -498,6 +524,23 @@ Copy-Item -LiteralPath (Join-Path $installerRoot 'resources\ccb.ico') -Destinati
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-wanding.cmd') -Destination (Join-Path $StagingDir 'ccb-wanding.cmd') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-diagnose.cmd') -Destination (Join-Path $StagingDir 'ccb-diagnose.cmd') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-launch-aionui.cmd') -Destination (Join-Path $StagingDir 'ccb-launch-aionui.cmd') -Force
+# Build AionUiLauncher.exe (no-window Rust wrapper for ccb-launch-aionui.cmd)
+$launcherSrc = Join-Path $installerRoot 'launcher-src'
+if (Test-Path -LiteralPath $launcherSrc) {
+    Push-Location $launcherSrc
+    cargo build --release --quiet
+    Pop-Location
+    Copy-Item -LiteralPath (Join-Path $launcherSrc 'target\release\AionUiLauncher.exe') -Destination (Join-Path $StagingDir 'AionUiLauncher.exe') -Force
+} elseif (Test-Path -LiteralPath (Join-Path $installerRoot 'AionUiLauncher.exe')) {
+    Copy-Item -LiteralPath (Join-Path $installerRoot 'AionUiLauncher.exe') -Destination (Join-Path $StagingDir 'AionUiLauncher.exe') -Force
+}
+$binSrc = Join-Path $installerRoot 'bin'
+if (Test-Path -LiteralPath $binSrc) {
+    $binDest = Join-Path $StagingDir 'bin'
+    New-Item -ItemType Directory -Force -Path $binDest | Out-Null
+    Copy-Item -Path (Join-Path $binSrc '*') -Destination $binDest -Force
+}
+Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-wanding-versions.cmd') -Destination (Join-Path $StagingDir 'ccb-wanding-versions.cmd') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-check-install.cmd') -Destination (Join-Path $StagingDir 'ccb-check-install.cmd') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-verify-update.cmd') -Destination (Join-Path $StagingDir 'ccb-verify-update.cmd') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'resources\install-health-manifest.json') -Destination (Join-Path $StagingDir 'install-health-manifest.json') -Force
