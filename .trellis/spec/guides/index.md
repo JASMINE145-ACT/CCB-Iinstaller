@@ -24,7 +24,7 @@ These guides help you **ask the right questions before coding**.
 | CCB-Wanding backend (ACP, MCP, build) | [`../backend/index.md`](../backend/index.md) |
 | AionUI frontend (renderer, IPC) | [`../frontend/index.md`](../frontend/index.md) |
 | Integration boundary (route-b, sync) | [`../integration/index.md`](../integration/index.md) |
-| Project strategy (outline) | [`../outline.md`](../outline.md) |
+| Project strategy (archived discussion) | [`../outline.md`](../outline.md) — **not** handbook; use layer indexes above |
 
 ---
 
@@ -32,6 +32,8 @@ These guides help you **ask the right questions before coding**.
 
 | Guide | Purpose | When to Use |
 |-------|---------|-------------|
+| [**WanD 更新发布维护手册**](./wanding-update-runbook.md) | 热更/全量发版、VPS 上传、回滚、排查 | **每次给员工推送更新时** |
+| [WanD Build Path Decision](./wanding-build-path-decision.md) | Full NSIS vs hot zip vs incremental NSIS | **Before every WanD pack / ship** |
 | [Code Reuse Thinking Guide](./code-reuse-thinking-guide.md) | Identify patterns and reduce duplication | When you notice repeated patterns |
 | [Cross-Layer Thinking Guide](./cross-layer-thinking-guide.md) | Think through data flow across layers | Features spanning multiple layers |
 
@@ -47,6 +49,15 @@ These guides help you **ask the right questions before coding**.
 - [ ] You're not sure where to put some logic
 
 → Read [Cross-Layer Thinking Guide](./cross-layer-thinking-guide.md)
+
+### When to Think About WanD Packaging
+
+- [ ] About to run `build-wanding.ps1` or `build-wanding-hot.ps1`
+- [ ] Unsure if colleagues need full NSIS or hot zip
+- [ ] Install dir missing `AionUi\` or `vendor\bun`
+- [ ] Changed `aionui-src` since last full pack
+
+→ Read [WanD Build Path Decision](./wanding-build-path-decision.md) · contract: [`wanding-first-ship.md`](../integration/wanding-first-ship.md) §5.2.1
 
 ### When to Think About Code Reuse
 

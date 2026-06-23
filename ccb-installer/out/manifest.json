@@ -1,0 +1,16 @@
+{
+    "schema_version": 1,
+    "channel": "stable",
+    "published_at": "2026-06-23T19:30:00+08:00",
+    "aionui": null,
+    "ccb": {
+        "version": "1.0.91",
+        "release_notes": "About 页面支持一键全量安装",
+        "full_installer": {
+            "url": "http://67.216.206.3/updates/ccb/CCB-Wanding-1.0.91.exe",
+            "sha256": "bde561c0b43cbcef6cfb6dc444fc8c432aa16d51396ae71c3366773a636cdcd7",
+            "size": 890639607,
+            "release_notes": "About 页面支持一键全量安装"
+        }
+    }
+}

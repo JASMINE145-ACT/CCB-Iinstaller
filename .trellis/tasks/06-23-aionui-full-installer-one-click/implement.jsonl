@@ -1,0 +1,3 @@
+{"file": ".trellis/tasks/06-23-aionui-full-installer-one-click/prd.md", "reason": "PRD — full spec and implementation plan for this task"}
+{"file": ".trellis/spec/integration/internal-update.md", "reason": "CCB update system spec — manifest schema, hot/full modes, bridge contracts"}
+{"file": ".trellis/spec/frontend/chat-acp-flow.md", "reason": "Frontend IPC bridge patterns used in UpdateModal"}
