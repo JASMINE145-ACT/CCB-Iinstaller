@@ -834,12 +834,29 @@ Items already committed to `main`; take effect **only after** a new NSIS build i
 | 4 | `aionui-src` `AcpChat.tsx` / `MessageList.tsx` / `AcpSendBox.tsx` | Phase 2A Tool Interrupt 重试 Banner：turn 结束后检测最后一条 assistant 消息含 `[Tool use interrupted]`，MessageList 底部显示 warning banner（`bg-message-tips` + Attention 图标 + "重试"按钮）；点击重发上一条用户消息；无自动重发 | Phase 1 兜不住时（SDK 流中断）给用户明确的重试入口，不再「呆住」；aionui-src commit `f77c697` |
 | 5 | `ccb-installer/scripts/build-wanding.ps1` | 新增 `-AioncorePath` 参数；注入时覆盖 staging 内 aioncore.exe 并将 manifest.json `sourceType` 改为 `embedded`（防止员工机启动后被上游 download 覆盖） | 1.1.2 起打包自编译 0.1.29（含 work-tasks Rust crate），需在 build 命令加 `-AioncorePath D:\Projects\claude-code-best\AionCore\target\release\aioncore.exe` |
 
-**Build command（1.1.2 起）：**
+**1.1.2 打包前置检查（Pre-flight）：**
+
+```powershell
+# Step 1: 确认 aioncore 0.1.29 已编译
+& "D:\Projects\claude-code-best\AionCore\target\release\aioncore.exe" --version
+# 期望输出：aioncore 0.1.29（或含 0.1.29 的字符串）
+
+# 如果未输出 0.1.29，先编译：
+# cd D:\Projects\claude-code-best\AionCore
+# cargo build --release
+# （需要 Rust toolchain + MSVC；约 5-10 分钟）
+
+# Step 2: 确认 aionui-src win-unpacked 已构建（-SkipAionUiBuild 时必做）
+Test-Path "D:\Projects\aionui-src\out\win-unpacked\AionUi.exe"   # 期望 True
+```
+
+**Build command（1.1.2）：**
 ```powershell
 .\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.2 -SkipAionUiBuild `
     -AioncorePath D:\Projects\claude-code-best\AionCore\target\release\aioncore.exe
 ```
-**Do not** use `-SkipAionUiBuild` unless a fresh `win-unpacked` is already verified complete.
+构建完成后日志会输出 `aioncore injected` 和 `sourceType=embedded version=v0.1.29`，确认注入成功。
+
 **Do not** use `-SkipAionUiBuild` unless a fresh `win-unpacked` is already verified complete.
 
 ---
