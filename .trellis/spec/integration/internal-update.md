@@ -4,7 +4,7 @@
 >
 > **Scope:** Packaged employee desktops (~10 staff). Dev (`bun run dev`) is **out of scope** — see [`../frontend/aionui-update-mechanism.md`](../frontend/aionui-update-mechanism.md) §7.1.
 >
-> **First merged exe:** Not blocked on this doc — ship checklist [`wanding-first-ship.md`](./wanding-first-ship.md). Ops rollout (VPS/manifest) **Defer** until first installer exists.
+> **First merged exe:** Not blocked on this doc — ship checklist [`wanding-first-ship.md`](./wanding-first-ship.md). **Client code P3–P5 done (2026-06-21+)** in `aionui-src` + `ccb-installer`; **ops rollout (VPS manifest upload + fresh pack)** still pending — see §12.7.
 >
 > **Related:** [`wanding-packaging-whitelist.md`](./wanding-packaging-whitelist.md) §16 (hot-update zip paths) · [`aionui-update-mechanism.md`](../frontend/aionui-update-mechanism.md) §8 (client extension) · [`org-knowledge-phase0-rollout.md`](./org-knowledge-phase0-rollout.md) (business knowledge **not** in this manifest) · **Go live:** §12 P0 ops runbook
 
@@ -22,10 +22,11 @@
 **Center feed (single URL):**
 
 ```text
-https://67.216.206.3/updates/manifest.json
+http://67.216.206.3/updates/manifest.json   # pre-TLS (current launcher + client defaults)
+https://67.216.206.3/updates/manifest.json  # production target after §4.2 go-live
 ```
 
-Employees fetch **only** this host (HTTPS required in production). No VPN required if VPS is reachable on 443.
+Employees fetch **only** this host. **Pre-TLS:** HTTP on port 80 (§5 allowlist). **Production:** HTTPS on 443. No VPN required if VPS is reachable.
 
 ---
 
@@ -47,7 +48,7 @@ Center update origin (VPS static or Nginx)
               │
               ▼
 Ops (publish)
-  scripts/update/publish-update-bundle.ps1
+  ccb-installer/scripts/publish-update-bundle.ps1
 ```
 
 **Do not confuse:**
@@ -109,7 +110,9 @@ Ops (publish)
 |-------|------|----------|-------------|
 | `artifact` | `Artifact` | yes | Zip layout per whitelist §16.1 |
 | `min_from_version` | semver string | yes | Minimum installed CCB version allowed to hot-update |
-| `max_from_version` | semver string | no | Force full install above this (breaking layout) |
+| `max_from_version` | semver string | no | Force full install above this; client installed_version > max → fall back to NSIS |
+| `layout_version` | integer | no | Hot-zip directory layout version. Client hard-codes `SupportedHotLayoutVersion = 1`; if manifest value > 1, client refuses hot update. Default: `1`. |
+| `requires_full_install` | boolean | no | If `true`, client must use NSIS full installer regardless of version range. Ops emergency override. Default: `false`. |
 
 ### 2.6 Example (stable)
 
@@ -134,6 +137,9 @@ Ops (publish)
     "release_notes": "append_business_rule；报价 MCP 修复。",
     "hot_update": {
       "min_from_version": "1.0.0",
+      "max_from_version": null,
+      "layout_version": 1,
+      "requires_full_install": false,
       "artifact": {
         "url": "https://67.216.206.3/updates/ccb/CCB-dist-1.0.4-win-x64.zip",
         "sha256": "def456…64hex",
@@ -171,11 +177,13 @@ Prerelease AionUI versions must be valid semver (e.g. `2.1.18-wanding.1-dev.2`) 
 
 ## 3. Client contracts
 
-### 3.1 AionUI (`updateBridge.ts` — **to implement**)
+### 3.1 AionUI (`updateBridge.ts` — **implemented**, P4)
+
+> **Status (2026-06-19+):** `fetchInternalManifest()` + `buildUpdateCheckFromManifest()` live in `aionui-src`. Packaged WanD builds must rebuild `app.asar` (no `-SkipAionUiBuild`) and set §12.3 env via `ccb-launch-aionui.cmd`.
 
 | Step | Behavior |
 |------|----------|
-| Check | `GET` manifest URL (env `AIONUI_UPDATE_MANIFEST_URL`, default `https://67.216.206.3/updates/manifest.json`) |
+| Check | `GET` manifest URL (env `AIONUI_UPDATE_MANIFEST_URL`; pre-TLS default `http://67.216.206.3/updates/manifest.json`) |
 | Compare | `semver.gt(manifest.aionui.version, app.getVersion())` |
 | Download | Main process only; URL host ∈ `ALLOWED_DOWNLOAD_HOSTS` |
 | Verify | SHA-256 of file === `artifact.sha256` before exposing path to user |
@@ -186,26 +194,74 @@ Prerelease AionUI versions must be valid semver (e.g. `2.1.18-wanding.1-dev.2`) 
 
 **Env:**
 
-| Variable | Default |
-|----------|---------|
-| `AIONUI_UPDATE_MANIFEST_URL` | `https://67.216.206.3/updates/manifest.json` |
-| `AIONUI_UPDATE_MANIFEST_DEV_URL` | `https://67.216.206.3/updates/manifest-dev.json` |
-| `AIONUI_DISABLE_AUTO_UPDATE` | `1` in WanD packaged builds (GitHub path off) |
+| Variable | Default (pre-TLS) | Post-TLS target |
+|----------|-------------------|-----------------|
+| `AIONUI_UPDATE_MANIFEST_URL` | `http://67.216.206.3/updates/manifest.json` (launcher + `internalUpdateManifest.ts`) | `https://…` after §4.2 go-live |
+| `AIONUI_UPDATE_MANIFEST_DEV_URL` | `http://67.216.206.3/updates/manifest-dev.json` | same |
+| `AIONUI_DISABLE_AUTO_UPDATE` | `1` in WanD packaged builds (`ccb-launch-aionui.cmd`; skips electron-updater init in `index.ts`) |
 
-### 3.2 CCB (`ccb-check-update.ps1` — **to adapt**)
+### 3.2 CCB (`ccb-check-update.ps1` — **implemented**, unified manifest adapter)
+
+**2026-06-23 authoritative update:** launch-time update is now `ccb-update-auto.ps1`, not notify-only. `ccb-launch-aionui.cmd` invokes it synchronously before `AionUi.exe` unless `CCB_NO_UPDATE=1`. The auto script runs `ccb-check-update.ps1 -BackgroundCheck`, then `ccb-check-update.ps1 -AutoApplyHot` when `hot_update` is eligible. It has a 30s timeout, logs fail-open to `%LOCALAPPDATA%\CCB-Wanding\logs\update-auto.log`, and leaves full installer upgrades as a prompt/manual path unless the user applies from About.
 
 | Mode | Behavior |
 |------|----------|
 | `-BackgroundCheck` | Fetch manifest → if `ccb.version` newer than registry → write `available.json` |
 | `-Select` / install | Choose hot vs full per §3.3 → download → verify sha256 → invoke upgrade |
+| **Launch auto** | `ccb-update-auto.ps1` (authoritative): `-BackgroundCheck` → if newer → `-AutoApplyHot` with 30s timeout; hot success → launcher message; full needed → MessageBox; fail-open |
+| **Launch notify** | `ccb-update-notify.ps1` (**legacy/fallback only**): invoked only when `ccb-update-auto.ps1` is absent; MessageBox only — no install |
+
+**Authoritative launcher (2026-06-23+):** `ccb-launch-aionui.cmd` invokes `ccb-update-auto.ps1` synchronously before `AionUi.exe` unless `CCB_NO_UPDATE=1`. `ccb-update-notify.ps1` remains as a backward-compat fallback for installations that predate `ccb-update-auto.ps1`.
 
 **Env:**
 
-| Variable | Default |
-|----------|---------|
-| `CCB_UPDATE_MANIFEST_URL` | `https://67.216.206.3/updates/manifest.json` |
+| Variable | Default (pre-TLS) |
+|----------|-------------------|
+| `CCB_UPDATE_MANIFEST_URL` | `http://67.216.206.3/updates/manifest.json` (`ccb-launch-aionui.cmd` + `ccb-check-update.ps1`) |
 
 **Installed version:** Registry `HKCU:\Software\CCB-Wanding\CCB-Wanding\Version` or `dist/VERSION` file.
+
+### 3.2a Update state file (`updates/state.json`) — *2026-06-23*
+
+Written by `ccb-update-auto.ps1` on every check/apply/failure. Path:
+
+```text
+%LOCALAPPDATA%\CCB-Wanding\updates\state.json
+```
+
+| Field | Written by | Meaning |
+|-------|-----------|---------|
+| `last_check` | check start | ISO 8601 timestamp of last `-BackgroundCheck` call |
+| `available_version` | after check, if newer | Latest version seen on manifest |
+| `installed_version` | after check, if newer | Version installed at check time |
+| `last_apply` | hot-apply success | ISO 8601 timestamp |
+| `last_apply_version` | hot-apply success | Version successfully applied |
+| `last_error` | any failure | Error message + timestamp string |
+| `last_rollback` | `rollback-last-update.ps1` | ISO 8601 timestamp of rollback |
+| `last_rollback_from` | `rollback-last-update.ps1` | Backup dir name used for rollback |
+
+### 3.2b Manual rollback (`rollback-last-update.ps1`) — *2026-06-23*
+
+Restores the most recent `backup-before-{version}-{timestamp}/` to the install tree.
+
+```powershell
+# Dry run
+.\scripts\rollback-last-update.ps1 -WhatIf
+
+# Execute
+.\scripts\rollback-last-update.ps1
+```
+
+Applies the same `$HotPaths` set as `internal-upgrade.ps1` using `/MIR` (full mirror back from backup). Updates `state.json` with `last_rollback` and `last_rollback_from` fields. Logs to `%LOCALAPPDATA%\CCB-Wanding\logs\rollback.log`.
+
+### 3.2c Log and backup retention — *2026-06-23*
+
+`ccb-update-auto.ps1` runs retention cleanup on every successful hot-apply:
+
+| Resource | Rule |
+|----------|------|
+| Hot-update backups (`backup-before-*`) | Keep most recent 5; older deleted automatically |
+| `update-auto.log` | Trimmed to last ~400 KB when file exceeds 500 KB |
 
 ### 3.3 CCB upgrade decision matrix
 
@@ -215,7 +271,7 @@ Prerelease AionUI versions must be valid semver (e.g. `2.1.18-wanding.1-dev.2`) 
 | Installed `< hot_update.min_from_version` | `full_installer` |
 | `hot_update` present and version in range | `internal-upgrade.ps1 -ZipPath … -ExpectedVersion …` |
 | Hot update fails health check | Rollback from `backup-before-{version}-{timestamp}/` → offer full installer |
-| `install_mode: bundled` (future) | AionUI update via merged NSIS only |
+| `install_mode: bundled` | AionUI update via merged NSIS only — **wired** in `mapInternalRelease()`; ops default `standalone` until manifest flip (whitelist §16.4) |
 
 ### 3.4 `internal-upgrade.ps1`
 
@@ -225,23 +281,27 @@ Prerelease AionUI versions must be valid semver (e.g. `2.1.18-wanding.1-dev.2`) 
 |-------|--------|
 | Pre | Resolve install dir (§16.2); read `dist/VERSION` |
 | Backup | Copy hot-update target dirs to `%LOCALAPPDATA%\CCB-Wanding\backup-before-{version}-{ts}\` |
-| Apply | Extract zip; robocopy per §16.1 IN list only |
+| Apply | Extract zip; robocopy per §16.1 IN list (`dist` Mirror-Tree; `scripts` + others Copy-Tree/additive) |
 | Post | `ensure-wanding-settings.ps1`; `deploy-seed-agents.ps1`; `sync-aionui-ccb-route-b.ps1` if AionUi under `$INSTALL`; `test-mcp-health.ps1 -Probe` |
 | Fail | Restore backup; exit non-zero |
 
 ### 3.5 `publish-update-bundle.ps1`
 
-**Path:** `scripts/update/publish-update-bundle.ps1`
+**Path:** `ccb-installer/scripts/publish-update-bundle.ps1` · **Runbook:** [`ccb-installer/docs/wanding-1.0.8-release-runbook.md`](../../ccb-installer/docs/wanding-1.0.8-release-runbook.md) §5
 
 | Input | Output |
 |-------|--------|
-| Built AionUi exe, CCB dist zip, optional NSIS | Upload to VPS `/updates/…`; regenerate `manifest.json` + sha256; bump `published_at` |
+| CCB hot zip + NSIS installer + compat params (`MinFromVersion`, `MaxFromVersion`, `LayoutVersion`, `RequiresFullInstall`) | `manifest.json` + sha256; `-Upload` prints scp commands (stub) |
+
+Legacy (aionui block + real upload): `scripts/update/publish-update-bundle.ps1` — **deprecated** for WanD 1.0.8+.
 
 Ops must not hand-edit sha256 — script computes from files on disk.
 
 **Acceptance smoke — `verify-update-server.ps1`:** ops runs `ccb-installer/scripts/verify-update-server.ps1 [-ManifestUrl …] [-InstallDir …]` to confirm the feed: fetches manifest (HTTP 2xx + JSON parse), prints `aionui` + `ccb.{version, full_installer.url, hot_update.url}`, runs `ccb-check-update.ps1 -BackgroundCheck`, and probes the bundled AionUI `app.asar` for `isInternalUpdateEnabled` + launcher env (`AIONUI_DISABLE_AUTO_UPDATE=1` + manifest URL). **Scope:** reachability / visibility smoke (exit 2 if manifest unreachable) — it does **not** fail-closed on a missing `hot_update` block or a bad sha256. Strict sha256 enforcement lives in the clients (`updateBridge` / `ccbUpdate.apply`) and `internal-upgrade.ps1`.
 
 ### 3.6 `build-wanding-hot.ps1` (partial hot zip — **2026-06-20**)
+
+> **Decision tree (full vs hot vs incremental NSIS):** [`wanding-first-ship.md`](./wanding-first-ship.md) §5.2.1 · checklist [`wanding-build-path-decision.md`](../guides/wanding-build-path-decision.md)
 
 **Path:** `ccb-installer/scripts/build-wanding-hot.ps1` · shared lib `build-wanding-lib.ps1`
 
@@ -279,6 +339,8 @@ Full NSIS incremental staging (same session, different artifact):
 
 #### 3. Contracts
 
+**2026-06-23 silent install update:** CCB `apply(full)` and internal AionUI installer apply use NSIS `/S` through `silentNsisInstall.ts`, then quit Electron so the installer can replace bundled files. The old `shell.openPath()` manual installer path is no longer the WanD internal-feed behavior.
+
 | Output | Layout |
 |--------|--------|
 | `CCB-dist-{version}-win-x64.zip` | Install-root mirror: §16.1 IN paths only |
@@ -309,6 +371,7 @@ Full NSIS incremental staging (same session, different artifact):
 | **Base** auto from git | `build-wanding-hot -Version 1.0.2 -AutoFromGitDiff` |
 | **Bad** `-SkipBuild` full NSIS expecting only dist changed | Still wipes staging + pip — use hot script instead |
 | **Bad** hot zip for brand-new PC | Missing bun/python-wanding/AionUi — use full NSIS |
+| **Bad** hot zip on orphan/half install (no `.ccb-wanding-install-root`) | `repair-wanding-install-dir.ps1` + full NSIS; `internal-upgrade` refuses (2026-06-22) |
 
 #### 6. Tests Required
 
@@ -325,22 +388,25 @@ Full NSIS incremental staging (same session, different artifact):
 |-------|---------|
 | `-SkipBuild -SkipAionUiBuild` full `build-wanding` for daily dist fix | `build-wanding-hot -Components dist` |
 | Hand-zip `dist` without sha256 sidecar | Use script output `.sha256`; pass to `internal-upgrade` |
+| Hot zip on install without marker | `repair-wanding-install-dir.ps1` then full NSIS first |
 | `internal-upgrade` config at `%LOCALAPPDATA%\CCB-Wanding` (no `.claude`) | Fixed 2026-06-20: `$config = …\.claude` |
 
 **Apply chain (post hot zip):** `internal-upgrade.ps1` → install `scripts\deploy-seed-agents.ps1` → `patch-subagent-gate-hooks.ps1` when seed in zip → health probe.
 
 ---
 
-### 3.7 CCB update via AionUI About (`ccbUpdateBridge.ts` — **to implement**, P5)
+### 3.7 CCB update via AionUI About (`ccbUpdateBridge.ts` — **implemented**, P5)
 
-> **Design decision (2026-06-21):** Employees see "one WanD app", so About manages **both** tracks. AionUI keeps its existing `update.check` / `update.download` path (§3.1); CCB gets a **new** `ccbUpdate.*` IPC that **spawns the existing `internal-upgrade.ps1`** (§3.4) — the main process never re-implements zip extract / robocopy / rollback. PowerShell stays the single apply engine; About is just a second trigger surface alongside the `ccb-wanding-versions.cmd` shortcut (§3.2, whitelist §6). Formalizes the cursor plan `unified_wand_update_path` Phase 2.
+> **Status (2026-06-21+):** Live in `aionui-src`: `ccbUpdateBridge.ts`, `parseCcbBlock()` / `buildCcbUpdateCheckResult()` in `internalUpdateManifest.ts`, `UpdateModal.tsx` dual rows, `AboutModalContent.tsx` → `ccbUpdate.getInstalledVersion`. **E2E blocked** on fresh `app.asar` pack (no `-SkipAionUiBuild`) + VPS manifest (§12.7).
+>
+> **Design decision (2026-06-21):** Employees see "one WanD app", so About manages **both** tracks. AionUI keeps `update.check` / `update.download` (§3.1); CCB uses `ccbUpdate.*` IPC → **spawn** `internal-upgrade.ps1` (§3.4). PowerShell stays the single apply engine; About is a second trigger alongside `ccb-wanding-versions.cmd` (§3.2, whitelist §6).
 
 #### 1. Scope / Trigger
 - Trigger: About →「检查更新」must list AionUI **and** CCB, and let the user apply a CCB hot update without leaving the app.
 - **Not** a rewrite of apply logic: download zip in main process, then `spawn internal-upgrade.ps1`. Renderer never fetches artifact URLs.
 
 #### 2. Signatures (IPC — main process)
-New file `packages/desktop/src/process/bridge/ccbUpdateBridge.ts`; register in `process/bridge/index.ts` + `common/adapter/ipcBridge.ts`; types in `common/update/updateTypes.ts`.
+`packages/desktop/src/process/bridge/ccbUpdateBridge.ts`; registered in `process/bridge/index.ts` + `common/adapter/ipcBridge.ts`; types in `common/update/updateTypes.ts`.
 
 | IPC | Args | Returns |
 |-----|------|---------|
@@ -349,7 +415,7 @@ New file `packages/desktop/src/process/bridge/ccbUpdateBridge.ts`; register in `
 | `ccbUpdate.getInstalledVersion` | `{ }` | `{ version: string \| null }` |
 
 #### 3. Contracts
-- **Manifest parse:** extend `internalUpdateManifest.ts` with `parseCcbBlock()` → typed `CcbBlock` (today `ccb?: unknown` is passed through raw, line ~41). Reuse the same fetch + `schema_version` + host checks as the aionui path — **do not** re-implement the manifest fetch (P4 done).
+- **Manifest parse:** `parseCcbBlock()` → typed `CcbBlock` in `internalUpdateManifest.ts` — **done**. Reuses P4 fetch + `schema_version` + host checks.
 - **Installed version resolve (main process):** `CCB_WANDING_HOME` → `%LOCALAPPDATA%/Programs/CCB-Wanding` → walk up from `process.resourcesPath`; read `{install}/dist/VERSION` (corroborated by `dist/BUILD-INFO.json` provenance). Matches §3.2 "Registry or dist/VERSION".
 - **Decision (`mode`):** reuse §3.3 matrix — `< hot_update.min_from_version` or no `dist/` → `full`; in-range `hot_update` → `hot`; else `none`.
 - **apply (hot):** download `hot_update.artifact` (host ∈ `ALLOWED_DOWNLOAD_HOSTS`) → verify sha256 → `spawn $INSTALL/scripts/internal-upgrade.ps1 -ZipPath <tmp> -ExpectedVersion <ccb.version>` → surface success + backup path → message「请完全退出并重新打开 WanD」. **apply (full):** download `full_installer` → reuse AionUI's existing installer-launch (or NSIS `/S`).
@@ -370,10 +436,10 @@ New file `packages/desktop/src/process/bridge/ccbUpdateBridge.ts`; register in `
 - **Bad:** renderer fetches `hotUpdate.url` directly → forbidden (must go through main-process `ccbUpdate.apply`).
 
 #### 6. Tests Required
-- Unit `internalUpdateManifest.test.ts`: `parseCcbBlock()` → typed block; reject malformed; `buildCcbUpdateCheckResult()` semver compare + `mode`.
-- Unit: `ccbUpdate.apply` rejects host not in allowlist; rejects sha256 mismatch (asserts **no spawn**).
-- Integration: `ccbUpdate.apply` on temp install → spawns `internal-upgrade.ps1`; only §16.1 paths touched; rollback on health fail.
-- Manual: About shows two rows; CCB hot button applies; `install_mode:bundled` → AionUI button targets merged NSIS.
+- Unit `internalUpdateManifest.test.ts`: `parseCcbBlock()` + `buildCcbUpdateCheckResult()` — **done** (`aionui-src/tests/unit/internalUpdateManifest.test.ts`).
+- Unit: `ccbUpdate.apply` host allowlist + sha256 mismatch (no spawn) — **pending** (no `ccbUpdateBridge.test.ts`).
+- Integration: `ccbUpdate.apply` → spawns `internal-upgrade.ps1`; §16.1 only; rollback on health fail — **pending**.
+- Manual: About two rows + CCB hot apply + bundled AionUI → merged NSIS — **blocked: fresh pack + VPS manifest**.
 
 #### 7. Wrong vs Correct
 | Wrong | Correct |
@@ -412,6 +478,15 @@ sudo chmod -R a+rX /var/www/updates
 ```
 
 **Do not** mix org API (`:13401`) with static updates — separate `location` / firewall rules.
+
+**Verify after §4.2 reload** (use public IP or explicit Host — **not** bare `127.0.0.1` when `server_name` is the VPS IP):
+
+```bash
+curl -s http://67.216.206.3/updates/manifest.json | head -c 200
+curl -s -H 'Host: 67.216.206.3' http://127.0.0.1/updates/manifest.json | head -c 200
+```
+
+Bare `curl http://127.0.0.1/updates/...` returns **404** if another `default_server` catches `Host: 127.0.0.1` — that is expected, not a failed deploy.
 
 ### 4.2 Nginx — `/updates/` static feed
 
@@ -512,21 +587,42 @@ updates.yourcompany.com   # if DNS alias added later
 | **P2** | `internal-upgrade.ps1` + hot zip from §16.1 | P1 — **script done** |
 | **P3** | `ccb-check-update.ps1` → unified manifest | P0 schema frozen — **done** |
 | **P4** | `updateBridge.ts` manifest fetch (disable GitHub) | P0 schema frozen — **done** |
-| **P5** | About 双轨: `ccbUpdateBridge.ts` (`ccbUpdate.*`) + `parseCcbBlock()` + UpdateModal AionUI+CCB 两行 + bundled `install_mode` 分支 + WanD 构建跳过 GitHub `autoUpdate` (§3.7) | P3–P4 |
+| **P5** | About 双轨: `ccbUpdateBridge.ts` + UpdateModal + bundled branch + launcher 跳过 GitHub `autoUpdate` (§3.7) | **done** — E2E blocked on P0 ops + fresh pack |
 | **P6** | `manifest-dev.json` + prerelease toggle wiring | P4 |
 
 **Can ship independently:** P3 (CCB) before P4 (AionUI) once schema is frozen.
 
 ### 6.1 Rollout phases (Unified WanD Update Path — 2026-06-21)
 
-Formalizes cursor plan `unified_wand_update_path`. Phase 1 is installer/ops only (no aionui-src dependency); Phase 2 = P5 (§3.7).
+Formalizes cursor plan `unified_wand_update_path`. **Phase 1** = ops + launcher/notify (no aionui-src dependency). **Phase 2** = P5 (§3.7) — **client code done**; remaining work is pack + manifest + manual acceptance.
 
 | Plan phase | Maps to | Deliverable |
 |------------|---------|-------------|
 | **Phase 1** (≤ 2026-07-15) | P0 + installer/ops | VPS manifest live (`publish-update-bundle.ps1 -Upload`, smoke `verify-update-server.ps1`); ship `ccb-wanding-versions.cmd` + 开始菜单「检查更新 / 版本选择」(whitelist §6); new `ccb-update-notify.ps1` 启动后台检查 → MessageBox 提示（**不**自动装）; `ccb-launch-aionui.cmd` 调 notify + 设 `AIONUI_DISABLE_AUTO_UPDATE=1` + `*_MANIFEST_URL`；`CCB_NO_UPDATE=1` 可跳过 |
-| **Phase 2** | P5 (§3.7) | `ccbUpdateBridge.ts` 双轨 IPC + `parseCcbBlock()` + UpdateModal 两行 + bundled 分支；重打 AionUI（**不得** `-SkipAionUiBuild`，app.asar 须含 `isInternalUpdateEnabled`）并入 v2 包 |
+| **Phase 2** | P5 (§3.7) | **Code done** — `ccbUpdateBridge.ts` 双轨 IPC + `parseCcbBlock()` + UpdateModal 两行 + bundled 分支；**ops:** 重打 AionUI（**不得** `-SkipAionUiBuild`，app.asar 须含 `isInternalUpdateEnabled` + `ccbUpdate`）并入 v2 包 + VPS manifest live |
 
-**Acceptance — Phase 1:** 4 名试用员工在未改代码的机器上仅靠 manifest + 快捷方式完成 CCB zip 热更新，`dist/VERSION` 递增，`test-mcp-health -Probe` PASS。**Phase 2:** About → 检查更新 显示两行；CCB 热更新按钮可用；bundled 模式 AionUI 按钮指向合并 NSIS。
+**Acceptance — Phase 1:** 4 名试用员工在未改代码的机器上仅靠 manifest + 快捷方式完成 CCB zip 热更新，`dist/VERSION` 递增，`test-mcp-health -Probe` PASS — **blocked: VPS manifest 404**. **Phase 2:** About → 检查更新 显示两行；CCB 热更新按钮可用；bundled 模式 AionUI 按钮指向合并 NSIS — **blocked: fresh pack + manifest**.
+
+### 6.2 Gap status (code vs ops — 2026-06-21)
+
+| Item | Layer | Status | Unblock |
+|------|-------|--------|---------|
+| P3 `ccb-check-update.ps1` unified manifest | Source | ✅ | — |
+| P4 `updateBridge` internal manifest | Source | ✅ | — |
+| P5 `ccbUpdateBridge` + UpdateModal dual rows | Source | ✅ | — |
+| Launcher env + `ccb-update-notify.ps1` | Installer | ✅ | Reinstall or copy launcher/scripts to old installs |
+| `build-wanding` asar gate (`isInternalUpdateEnabled`) | Build | ✅ script | Run full build (no `-SkipAionUiBuild`) |
+| Fresh `app.asar` in shipped exe | Runtime | ❌ | `build-wanding.ps1 -Version x.y.z` |
+| VPS `manifest.json` + artifacts | Ops | ⏳ placeholder 200; real bundle pending | `build-wanding.ps1` → `publish-update-bundle.ps1` → `upload-staged-manifest.ps1` |
+| About E2E smoke (§12.4) | QA | ❌ | Above two rows + start via `ccb-launch-aionui.cmd` |
+| `ccbUpdateBridge` unit/integration tests | Source | ⏳ partial | Add `ccbUpdateBridge.test.ts`; manifest tests exist |
+| P6 `manifest-dev.json` + prerelease wiring | Source/Ops | Defer | — |
+| HTTPS fleet flip (§4.2) | Ops | Defer | Nginx TLS + republish with `https://` URLs |
+| UpdateModal「全部更新」一键 | UI | Defer | Optional UX |
+| `hot_update.max_from_version` | Manifest + `ccb-check-update.ps1` | **Done** (2026-06-23) | `Test-HotUpdateEligible` checks upper bound |
+| `hot_update.layout_version` | Manifest + `ccb-check-update.ps1` | **Done** (2026-06-23) | Client `SupportedHotLayoutVersion=1`; refuses if manifest > 1 |
+| `hot_update.requires_full_install` | Manifest + `ccb-check-update.ps1` | **Done** (2026-06-23) | Client always falls back to NSIS when `true` |
+| `publish-update-bundle.ps1` | `ccb-installer/scripts/` | **Done** (2026-06-23) | Generates manifest JSON; upload stub |
 
 ---
 
@@ -534,7 +630,7 @@ Formalizes cursor plan `unified_wand_update_path`. Phase 1 is installer/ops only
 
 | Symptom | Cause | Fix |
 |---------|--------|-----|
-| About still hits GitHub | `updateBridge` not migrated | P4; set `AIONUI_DISABLE_AUTO_UPDATE=1` |
+| About still hits GitHub | Stale packaged `app.asar` (pre-P4 pack) **or** launched `AionUi.exe` directly (skips launcher env) **or** VPS manifest 404 | Rebuild without `-SkipAionUiBuild`; start via **`ccb-launch-aionui.cmd`**; upload manifest (§12.7) |
 | Check update always up-to-date | Wrong manifest URL or channel | Verify `AIONUI_UPDATE_MANIFEST_URL`; dev toggle |
 | Download fails TLS | Self-signed cert | Install CA on employee PCs or use public LE |
 | sha256 mismatch | Manifest stale or corrupt download | Re-run `publish-update-bundle.ps1` |
@@ -581,7 +677,12 @@ Formalizes cursor plan `unified_wand_update_path`. Phase 1 is installer/ops only
 | 2026-06-20 | **Implemented:** `build-wanding-hot.ps1`, `build-wanding-lib.ps1`; `build-wanding.ps1` `-SkipPipMcp`/`-SkipStagingClear`; `internal-upgrade` seed paths + `.claude` config + dist `/MIR` — see §3.6 |
 | 2026-06-19 | **P0 ops runbook:** §4.1–4.3 Nginx + firewall; §12 publish / NSIS env / smoke / rollout |
 | 2026-06-21 | **Plan formalized (Unified WanD Update Path):** §3.7 `ccbUpdateBridge`（About 双轨, spawn `internal-upgrade.ps1`）; §6.1 rollout phases; P5 升级为正式（was optional, §12.6）; installer 更新入口 `ccb-wanding-versions.cmd` OUT→IN（whitelist §6）; §3.5 `verify-update-server` 范围澄清（smoke 非 strict）; §5 pre-TLS http allowlist |
-| Pending | **Human ops:** VPS 首包 upload + §12.4 单机冒烟 |
+| 2026-06-21 | **Doc consistency pass:** §3.1/§3.2 marked implemented; §7 About→GitHub matrix; §12.5 org auto-sync cross-ref |
+| 2026-06-21 | **Doc consistency (2):** §12.3 launcher env precedence; §12.7 verify runbook restored; strategy pointers off outline |
+| 2026-06-21 | **Implemented (Unified WanD Update Path):** Phase 1 — `ccb-update-notify.ps1`, launcher env + `update-server.env`, `ccb-wanding-versions.cmd` IN + NSIS shortcut, `upload-staged-manifest.ps1`, `smoke-hot-update-trial.ps1`, `publish-update-bundle -AionUiInstallMode bundled`. Phase 2 source — `ccbUpdateBridge.ts`, `parseCcbBlock`/`buildCcbUpdateCheckResult`, UpdateModal dual rows, About 万鼎版本, bundled → `full_installer` in `mapInternalRelease`. §3.7 marked implemented; §6.2 status table |
+| 2026-06-23 | **Compat gates implemented:** `Test-HotUpdateEligible` now checks `max_from_version` (upper bound), `layout_version` (zip layout compat, SupportedHotLayoutVersion=1), `requires_full_install` (ops override). `publish-update-bundle.ps1` created. §2.5 schema updated with 2 new fields. |
+| 2026-06-23 | **Update system hardening:** `ccb-update-auto.ps1` is authoritative launch-time updater; `ccb-update-notify.ps1` downgraded to legacy/fallback. `scripts/` added to `$HotPaths` (Copy-Tree). New §3.2a state.json, §3.2b `rollback-last-update.ps1`, §3.2c retention rules. `build-wanding-hot.ps1` default `-Components dist,scripts`. |
+| Pending | **Human ops:** VPS 首包 upload (`upload-staged-manifest.ps1` or `-Upload`); full `build-wanding.ps1` (no `-SkipAionUiBuild`/`-SkipPipMcp`); §12.4 fleet smoke + 4 trial users |
 
 ---
 
@@ -603,31 +704,33 @@ Formalizes cursor plan `unified_wand_update_path`. Phase 1 is installer/ops only
 
 ### 12.2 First publish — `publish-update-bundle.ps1`
 
-**Script:** `scripts/update/publish-update-bundle.ps1`
+**Script:** `ccb-installer/scripts/publish-update-bundle.ps1` · **Full runbook:** [`ccb-installer/docs/wanding-1.0.8-release-runbook.md`](../../ccb-installer/docs/wanding-1.0.8-release-runbook.md)
 
 **Stage locally (no upload):**
 
 ```powershell
 cd D:\Projects\claude-code-best
+New-Item -ItemType Directory -Force -Path .\_publish\updates | Out-Null
 
-.\scripts\update\publish-update-bundle.ps1 `
-  -AionUiExe 'D:\out\AionUi-2.1.18-wanding.1-win-x64.exe' `
-  -CcbDistZip 'D:\out\CCB-dist-1.0.4-win-x64.zip' `
-  -CcbNsisExe 'D:\out\CCB-Wanding-1.0.4.exe' `
-  -CcbVersion '1.0.4' `
-  -AionUiVersion '2.1.18-wanding.1' `
-  -StagingDir 'D:\publish\updates' `
-  -BaseUrl 'http://67.216.206.3/updates'   # switch to https:// after §4.2 TLS
+.\ccb-installer\scripts\publish-update-bundle.ps1 -Version 1.0.8 `
+  -HotZipPath '.\ccb-installer\out\hot\CCB-dist-1.0.8-win-x64.zip' `
+  -InstallerPath '.\ccb-installer\CCB-Wanding-1.0.8.exe' `
+  -MinFromVersion '1.0.8' `
+  -MaxFromVersion '1.0.12' `
+  -LayoutVersion 1 `
+  -RequiresFullInstall $false `
+  -ReleaseNotes '内网双轨更新；scripts 热更' `
+  -OutFile '.\_publish\updates\manifest.json' `
+  -WhatIf
 ```
 
 **Upload to VPS (scp port 39222):**
 
 ```powershell
-.\scripts\update\publish-update-bundle.ps1 `
-  -AionUiExe '...' -CcbDistZip '...' -CcbNsisExe '...' `
-  -CcbVersion '1.0.4' -AionUiVersion '2.1.18-wanding.1' `
-  -StagingDir 'D:\publish\updates' `
-  -Upload -VpsHost '67.216.206.3' -VpsPath '/var/www/updates' -SshPort 39222
+# New script: -Upload prints scp commands (stub) — run them manually, or:
+.\scripts\update\upload-staged-manifest.ps1
+
+# Legacy one-shot (aionui block + real scp): scripts/update/publish-update-bundle.ps1 — deprecated
 ```
 
 **Verify on VPS:**
@@ -647,20 +750,31 @@ ls -la /var/www/updates/aionui/ /var/www/updates/ccb/
 
 ### 12.3 WanD packaged build — env vars
 
-Bake into NSIS / installer post-step (or machine-wide env for pilot):
+**Primary injection (v2):** `$INSTALL\ccb-launch-aionui.cmd` sets defaults **before** `start AionUi.exe`, then optionally overrides from `%LOCALAPPDATA%\CCB-Wanding\config\update-server.env` (repo example: `ccb-installer/config/update-server.env.example`).
+
+**Env precedence (highest first):**
+
+1. Keys in `%LOCALAPPDATA%\CCB-Wanding\config\update-server.env` (if file exists)
+2. Inline defaults in `ccb-launch-aionui.cmd`
+3. NSIS / machine-wide env (optional pilot — rarely needed if launcher ships)
+
+**Do not** launch `AionUi.exe` directly — env will be missing on employee desktops.
 
 | Variable | Value | Purpose |
 |----------|-------|---------|
 | `AIONUI_DISABLE_AUTO_UPDATE` | `1` | Block electron-updater → GitHub |
-| `AIONUI_UPDATE_MANIFEST_URL` | `https://67.216.206.3/updates/manifest.json` | About → check update (use `http://` only pre-TLS) |
-| `CCB_UPDATE_MANIFEST_URL` | same | `ccb-check-update.ps1` unified feed |
+| `AIONUI_UPDATE_MANIFEST_URL` | `http://67.216.206.3/updates/manifest.json` (pre-TLS; flip to `https://` after §4.2) |
+| `CCB_UPDATE_MANIFEST_URL` | same |
 
 **Dev / upstream revert:** `AIONUI_USE_GITHUB_UPDATE=1` on dev machines only.
+
+**Build gate:** `Test-StagingWanDInstall` probes staged `app.asar` for `isInternalUpdateEnabled`.
 
 ### 12.4 Smoke test — one employee PC
 
 | # | Step | Pass criteria |
 |---|------|----------------|
+| 0 | `verify-update-server.ps1` or `ccb-verify-update.cmd` | VPS manifest 2xx; bundled AionUI `internal manifest code: True` |
 | 1 | AionUI About →「检查更新」 | Fetches `…/updates/manifest.json`; **no** `api.github.com` |
 | 2 | `ccb-installer\scripts\ccb-check-update.ps1 -BackgroundCheck` | `%LOCALAPPDATA%\CCB-Wanding\updates\available.json` written |
 | 3 | Temporarily corrupt manifest `sha256` on staging | Download/install **rejected** (fail-closed) |
@@ -680,7 +794,24 @@ Per machine (after pilot smoke passes):
 | 4 | About check update → sees center version when newer |
 | 5 | Tray / scheduled `ccb-check-update -BackgroundCheck` (if enabled in installer) |
 
-**Center knowledge edits:** re-login or `scripts/org-phase0/sync-org-knowledge-shadow.ps1` — **not** gated on software manifest.
+**Center knowledge edits:** not gated on software manifest — auto-sync per [`org-knowledge-phase0-rollout.md`](./org-knowledge-phase0-rollout.md) §10; manual fallback: re-login or `scripts/org-phase0/sync-org-knowledge-shadow.ps1`.
+
+### 12.7 Verify update server (ops + pre-ship)
+
+| Script | Role |
+|--------|------|
+| `ccb-installer/scripts/verify-update-server.ps1` | VPS manifest GET + CCB `-BackgroundCheck` + `app.asar` P4 probe + launcher env |
+| `ccb-installer/ccb-verify-update.cmd` | Installed-tree wrapper |
+| `ccb-check-install.cmd` | Install health + verify section |
+
+```powershell
+.\ccb-installer\scripts\verify-update-server.ps1
+.\ccb-installer\scripts\verify-update-server.ps1 -InstallDir "$env:LOCALAPPDATA\Programs\CCB-Wanding"
+```
+
+**Exit codes:** `0` = manifest reachable; `2` = manifest missing/unreachable.
+
+**Unblock:** `build-wanding.ps1` (no `-SkipAionUiBuild`) → `publish-update-bundle.ps1 -Upload` → verify exit 0 → About smoke via **`ccb-launch-aionui.cmd`**.
 
 ### 12.6 Deferred (non-blocking for first ship)
 
@@ -688,9 +819,20 @@ Per machine (after pilot smoke passes):
 |------|-------|
 | `hot_update.max_from_version` | Force full NSIS when installed too new for hot zip |
 | `manifest-dev.json` + prerelease toggle | P6 |
-| About 双轨 CCB 更新（show + apply via `ccbUpdate.*`） | **Promoted to formal P5 §3.7 (2026-06-21)** — no longer deferred |
 | Authenticode signing | Optional hardening |
 | Default `isInternalUpdateEnabled()` on non-WanD builds | Use `AIONUI_USE_GITHUB_UPDATE=1` on upstream dev |
+
+### 12.8 Pending — must land in 1.1.2 full package
+
+Items already committed to `main`; take effect **only after** a new NSIS build is published and employees install it.
+
+| # | File | Change | Why needed |
+|---|------|--------|------------|
+| 1 | `ccb-installer/installer-wanding-v2.nsi` | `IfSilent 0 finish_interactive; Exec AionUiLauncher.exe` at end of main Section | Silent NSIS install (About-page one-click) now auto-relaunches AionUI when done — user no longer has to guess when the 890 MB install finished |
+| 2 | `ccb-installer/scripts/ccb-update-auto.ps1` | WinRT Toast notification on hot-update success (exit 10) | Tells user "WanD 已更新至 X.X.X" when a hot patch is auto-applied at launch; currently inert (no `hot_update` in manifest) but ready for when hot path is enabled |
+
+**Build command:** `.\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.2`
+**Do not** use `-SkipAionUiBuild` unless a fresh `win-unpacked` is already verified complete.
 
 ---
 

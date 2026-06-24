@@ -104,6 +104,13 @@ Hot 模式继续走 `applyCcbUpdate()`（不变）。
 - 下载文件落在用户 Downloads 目录（不是 tmpdir）— 用户可找到但不影响安装流程
 - 进度 UI 与 AionUI 自身更新 UI 共享，success 状态文案可能略显 generic，可接受
 
+## Post-ship: Pending in 1.1.2 Build
+
+已在 `main` 提交，等下次全量打包生效（见 `spec/integration/internal-update.md §12.8`）：
+
+1. **NSIS 静默安装后自动重启** (`installer-wanding-v2.nsi`) — About 页一键安装完后 AionUI 自动重开
+2. **热更新 Toast 通知** (`ccb-update-auto.ps1`) — 热更新成功弹系统通知（当前 manifest 无 `hot_update`，暂未触发）
+
 ## Out of Scope
 
 - full 模式下载进度事件从 ccbUpdate bridge 发出（改动更大，不必要）
