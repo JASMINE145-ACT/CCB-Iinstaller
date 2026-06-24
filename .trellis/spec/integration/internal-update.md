@@ -832,8 +832,14 @@ Items already committed to `main`; take effect **only after** a new NSIS build i
 | 2 | `ccb-installer/scripts/ccb-update-auto.ps1` | WinRT Toast notification on hot-update success (exit 10) | Tells user "WanD 已更新至 X.X.X" when a hot patch is auto-applied at launch; currently inert (no `hot_update` in manifest) but ready for when hot path is enabled |
 | 3 | `ccb-installer/patches/aionui-acp/acp-agent.js` | Phase 1 ACP 静默重试：`retry_prompt: while(true)` 包裹 `prompt()`；`query.next timeout` 时若 `!session.cancelled && promptRetryCount < 1` 则 drain → `promptRetryCount++` → `continue retry_prompt`，否则抛原错误 | 冷启动 MCP 工具（查库存/查价）首次 timeout 后静默重试 1 次；用户主动取消时不重试；上限 1 次/prompt，可通过 `ccb-wanding-sdk.log` 中 `prompt timeout retry attempt=1` 验证 |
 | 4 | `aionui-src` `AcpChat.tsx` / `MessageList.tsx` / `AcpSendBox.tsx` | Phase 2A Tool Interrupt 重试 Banner：turn 结束后检测最后一条 assistant 消息含 `[Tool use interrupted]`，MessageList 底部显示 warning banner（`bg-message-tips` + Attention 图标 + "重试"按钮）；点击重发上一条用户消息；无自动重发 | Phase 1 兜不住时（SDK 流中断）给用户明确的重试入口，不再「呆住」；aionui-src commit `f77c697` |
+| 5 | `ccb-installer/scripts/build-wanding.ps1` | 新增 `-AioncorePath` 参数；注入时覆盖 staging 内 aioncore.exe 并将 manifest.json `sourceType` 改为 `embedded`（防止员工机启动后被上游 download 覆盖） | 1.1.2 起打包自编译 0.1.29（含 work-tasks Rust crate），需在 build 命令加 `-AioncorePath D:\Projects\claude-code-best\AionCore\target\release\aioncore.exe` |
 
-**Build command:** `.\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.2`
+**Build command（1.1.2 起）：**
+```powershell
+.\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.2 -SkipAionUiBuild `
+    -AioncorePath D:\Projects\claude-code-best\AionCore\target\release\aioncore.exe
+```
+**Do not** use `-SkipAionUiBuild` unless a fresh `win-unpacked` is already verified complete.
 **Do not** use `-SkipAionUiBuild` unless a fresh `win-unpacked` is already verified complete.
 
 ---

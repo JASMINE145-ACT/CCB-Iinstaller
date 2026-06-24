@@ -6,6 +6,7 @@
 #   .\ccb-installer\scripts\build-wanding.ps1 -Version 1.0.0 -SkipBuild -SkipNsis
 #   .\ccb-installer\scripts\build-wanding.ps1 -Version 1.0.0 -SkipAionUiBuild
 #   .\ccb-installer\scripts\build-wanding.ps1 -Version 1.0.0 -SkipBuild -SkipAionUiBuild -SkipPipMcp -SkipStagingClear
+#   Inject self-compiled aioncore: .\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.2 -SkipAionUiBuild -AioncorePath D:\Projects\claude-code-best\AionCore\target\release\aioncore.exe
 #   Partial hot zip (no full NSIS): .\ccb-installer\scripts\build-wanding-hot.ps1 -Version 1.0.2 -Components dist,python,seed
 
 [CmdletBinding()]
@@ -15,13 +16,15 @@ param(
     [string]$ClaudeCodeBRoot = 'D:\claude-code-B',
     [string]$AionUiSrc = 'D:\Projects\aionui-src',
     [string]$StagingDir = '',
+    [string]$IconSource = '',
     [switch]$SkipBuild,
     [switch]$SkipAionUiBuild,
     [switch]$SkipNsis,
     [switch]$SkipVite,
     [switch]$SkipPipMcp,
     [switch]$SkipStagingClear,
-    [switch]$IncludeWindowsTerminal
+    [switch]$IncludeWindowsTerminal,
+    [string]$AioncorePath = ''   # Optional: override bundled aioncore.exe in staging (e.g. AionCore\target\release\aioncore.exe)
 )
 
 function Invoke-NativeBuildCommand {
@@ -49,12 +52,86 @@ $repoRoot = Split-Path $installerRoot -Parent
 if (-not $StagingDir) {
     $StagingDir = Join-Path $installerRoot 'staging'
 }
+if (-not $IconSource) {
+    $defaultIcon = Get-ChildItem -LiteralPath (Join-Path $repoRoot 'data') -Filter 'ChatGPT Image*.png' -File -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object -First 1
+    if ($defaultIcon) {
+        $IconSource = $defaultIcon.FullName
+    }
+}
 
 $routeBIndex = Join-Path $installerRoot 'patches\aionui-ccb-route-b\index.js'
 $routeBRel = 'managed-resources\acp\claude-agent-acp\0.39.0\win32-x64\node_modules\@agentclientprotocol\claude-agent-acp\dist\index.js'
 
 function Write-Step([string]$Message) {
     Write-Host "==> $Message" -ForegroundColor Cyan
+}
+
+function Sync-AionUiBrandAssets {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$SourcePng,
+        [Parameter(Mandatory = $true)]
+        [string]$AionUiRoot
+    )
+
+    if (-not (Test-Path -LiteralPath $SourcePng)) {
+        Write-Host "[WARN] Brand icon source not found: $SourcePng; skipping AionUI asset sync" -ForegroundColor Yellow
+        return
+    }
+
+    $brandPng = Join-Path $AionUiRoot 'packages\desktop\src\renderer\assets\logos\brand\app.png'
+    $resourcesDir = Join-Path $AionUiRoot 'packages\desktop\resources'
+    $resourcePng = Join-Path $resourcesDir 'app.png'
+    $resourceIco = Join-Path $resourcesDir 'app.ico'
+
+    New-Item -ItemType Directory -Force -Path (Split-Path $brandPng -Parent) | Out-Null
+    New-Item -ItemType Directory -Force -Path $resourcesDir | Out-Null
+    Copy-Item -LiteralPath $SourcePng -Destination $brandPng -Force
+    Copy-Item -LiteralPath $SourcePng -Destination $resourcePng -Force
+    Update-WanDIcon -SourcePng $SourcePng -IconPath $resourceIco
+    Write-Host "  AionUI brand assets synced (renderer + resources/app.ico)" -ForegroundColor DarkGray
+}
+
+function Update-WanDIcon {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$SourcePng,
+        [Parameter(Mandatory = $true)]
+        [string]$IconPath
+    )
+
+    if (-not (Test-Path -LiteralPath $SourcePng)) {
+        Write-Host "[WARN] Icon source not found: $SourcePng; keeping existing $IconPath" -ForegroundColor Yellow
+        return
+    }
+
+    $pythonCode = @'
+from PIL import Image
+import sys
+
+src, dst = sys.argv[1], sys.argv[2]
+sizes = [(256, 256), (128, 128), (64, 64), (48, 48), (32, 32), (16, 16)]
+img = Image.open(src).convert("RGBA")
+img.thumbnail((256, 256), Image.Resampling.LANCZOS)
+canvas = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
+canvas.paste(img, ((256 - img.width) // 2, (256 - img.height) // 2), img if img.mode == "RGBA" else None)
+canvas.save(dst, format="ICO", sizes=sizes)
+'@
+
+    New-Item -ItemType Directory -Force -Path (Split-Path $IconPath -Parent) | Out-Null
+    $tempPy = Join-Path $env:TEMP "wanding-icon-gen-$([Guid]::NewGuid().ToString('n')).py"
+    try {
+        Set-Content -LiteralPath $tempPy -Value $pythonCode -Encoding UTF8
+        & python $tempPy $SourcePng $IconPath
+        if ($LASTEXITCODE -ne 0) {
+            throw "Icon generation failed: $SourcePng -> $IconPath"
+        }
+    } finally {
+        Remove-Item -LiteralPath $tempPy -Force -ErrorAction SilentlyContinue
+    }
+    Write-Host "  Icon refreshed: $IconPath" -ForegroundColor DarkGray
 }
 
 function Invoke-RobocopyMirror {
@@ -285,6 +362,9 @@ Write-Host "  dist/VERSION = $Version" -ForegroundColor DarkGray
 
 # --- Step 2: AionUI win-unpacked + route-b ---
 Write-Step "Step 2/4 — AionUI (win-unpacked + route-b)"
+if ($IconSource) {
+    Sync-AionUiBrandAssets -SourcePng $IconSource -AionUiRoot $AionUiSrc
+}
 if (-not $SkipAionUiBuild) {
     if (-not (Test-Path -LiteralPath $AionUiSrc)) {
         throw "aionui-src not found: $AionUiSrc"
@@ -327,6 +407,30 @@ Test-RequiredFile $acpAgentPatch 'aionui-acp acp-agent.js patch'
 $acpAgentDest = Join-Path (Split-Path $routeBDest -Parent) 'acp-agent.js'
 Copy-Item -LiteralPath $acpAgentPatch -Destination $acpAgentDest -Force
 Write-Host "  acp-agent patched: $acpAgentDest" -ForegroundColor DarkGray
+
+# Inject custom aioncore binary if requested
+if ($AioncorePath) {
+    if (-not (Test-Path -LiteralPath $AioncorePath)) {
+        throw "AioncorePath not found: $AioncorePath"
+    }
+    $aioncoreDestDir = Join-Path $StagingDir 'AionUi\resources\bundled-aioncore\win32-x64'
+    $aioncoreDestExe = Join-Path $aioncoreDestDir 'aioncore.exe'
+    $aioncoreManifest = Join-Path $aioncoreDestDir 'manifest.json'
+    Copy-Item -LiteralPath $AioncorePath -Destination $aioncoreDestExe -Force
+    Write-Host "  aioncore injected: $AioncorePath -> $aioncoreDestExe" -ForegroundColor DarkGray
+    # Patch manifest.json: set sourceType=embedded so runtime does not download+overwrite
+    if (Test-Path -LiteralPath $aioncoreManifest) {
+        $mf = Get-Content -LiteralPath $aioncoreManifest -Raw -Encoding UTF8 | ConvertFrom-Json
+        $mf.sourceType = 'embedded'
+        # Try to read version from binary; fall back to leaving it as-is
+        $verOut = & $AioncorePath --version 2>&1
+        if ($LASTEXITCODE -eq 0 -and $verOut -match '(\d+\.\d+\.\d+)') {
+            $mf.version = "v$($Matches[1])"
+        }
+        $mf | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $aioncoreManifest -Encoding UTF8
+        Write-Host "  aioncore manifest patched: sourceType=embedded version=$($mf.version)" -ForegroundColor DarkGray
+    }
+}
 
 function Remove-AionUiNsisCruft([string]$aionUiRoot) {
     Get-ChildItem -LiteralPath $aionUiRoot -Recurse -Directory -ErrorAction SilentlyContinue |
@@ -432,6 +536,10 @@ Get-ChildItem -LiteralPath (Join-Path $installerRoot 'config\agents') -File |
     Where-Object { $_.Name -ne 'README.md' } |
     ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $seedAgentsDest -Force }
 
+$shipManifestSrc = Join-Path $installerRoot 'seed\config-ship-manifest.json'
+Test-RequiredFile $shipManifestSrc 'seed config-ship-manifest.json'
+Copy-Item -LiteralPath $shipManifestSrc -Destination (Join-Path $StagingDir 'seed\config-ship-manifest.json') -Force
+
 $seedSkillSrc = Join-Path $installerRoot 'config\skills\ccb-subagent-gate'
 $seedSkillDest = Join-Path $StagingDir 'seed\skills\ccb-subagent-gate'
 Invoke-RobocopyMirror $seedSkillSrc $seedSkillDest @('/XD', 'tests', '__pycache__', '/XF', '*.pyc')
@@ -466,13 +574,16 @@ $shipScripts = @(
     'sync-aionui-ccb-route-b.ps1',
     'test-install-health.ps1',
     'run-wanding-bootstrap.ps1',
+    'apply-ship-config-reset.ps1',
     'smoke-wanding-e2e.ps1',
     'ccb-diagnose.ps1',
     'ccb-check-update.ps1',
     'ccb-update-notify.ps1',
+    'ccb-update-auto.ps1',
     'verify-update-server.ps1',
     'internal-upgrade.ps1',
-    'repair-wanding-install-dir.ps1'
+    'repair-wanding-install-dir.ps1',
+    'rollback-last-update.ps1'
 )
 foreach ($s in $shipScripts) {
     $src = Join-Path $installerRoot "scripts\$s"
@@ -502,7 +613,63 @@ $devOnlyScripts = @(
     'launch-ccb.ps1',
     'ccb-recent.ps1',
     'ccb-update-info.ps1',
-    'smoke-hot-update-trial.ps1'
+    'smoke-hot-update-trial.ps1',
+    'publish-update-bundle.ps1',
+    'build-wanding-lib.ps1',
+    'deploy-ccb-skills.ps1',
+    'ensure-mcp-settings.ps1',
+    'scan-i18n-gaps.ps1',
+    'vendor-ppt-master.ps1',
+    'verify-installer.ps1',
+    'dev-aionui-desktop.ps1',
+    'start-aionui-dev.ps1',
+    'test-terminal-local.ps1',
+    'build-resources.ps1',
+    'sync-ccb-wanding-bootstrap.ps1',
+    'sync-ccb-wanding-print.ps1',
+    'sync-claude-code-b-mcp-prefetch.ps1',
+    'sync-dev-wanding-vendor.ps1',
+    'deploy-claude-code-b-to-wanding.ps1',
+    'launch-ccb-wt.ps1',
+    'apply-safe-ui-i18n.mjs',
+    'apply-slash-command-i18n.mjs',
+    'build-ccb-acp-agent.mjs',
+    'build-ccb-api-server.mjs',
+    'build-serve-wanding.mjs',
+    'extract-slash-commands-registry.mjs',
+    'extract-slash-description-literals.mjs',
+    'extract-slash-descriptions.mjs',
+    'fix-dist-cjk-literals.mjs',
+    'merge-keep-set-l1-sidecar.mjs',
+    'patch-lite-command-filter.mjs',
+    'test-mcp-probe-layer.mjs',
+    'test-quotation-mcp-double.mjs',
+    'test-quotation-mcp-timing.mjs',
+    '_apply-spec.ps1',
+    '_build-excel-mcp-desc.mjs',
+    '_build-spinner-tips-patch.mjs',
+    '_find-merged-lines.ps1',
+    '_fix-query-params.mjs',
+    '_gen-search-hints-patch.mjs',
+    '_gen-spinner-tips-patch.mjs',
+    '_gen-tool-long-patch.mjs',
+    '_hex-line.ps1',
+    '_list-excel-mcp-prompts.mjs',
+    '_list-excel-mcp-prompts.mjs',
+    '_mega1-run.ps1',
+    '_mega2-run.ps1',
+    '_p1-test.ps1',
+    '_p2b-run.ps1',
+    '_p6a-run.ps1',
+    '_parse-check.ps1',
+    '_scan-search-hints.mjs',
+    '_scan-spinner-tips.mjs',
+    '_scan-tool-descriptions.mjs',
+    '_scan-ui-gaps.mjs',
+    '_test-diff2.ps1',
+    '_test-partial.ps1',
+    '_tool-long-patch.ps1',
+    '_tool-search-hints-patch.ps1'
 )
 $unclassifiedScripts = Get-ChildItem -LiteralPath (Join-Path $installerRoot 'scripts') -File -ErrorAction SilentlyContinue |
     Where-Object { $_.Extension -in '.ps1', '.mjs' } |
@@ -519,7 +686,36 @@ if ($unclassifiedScripts) {
 $resDest = Join-Path $StagingDir 'resources'
 Invoke-RobocopyMirror (Join-Path $installerRoot 'resources') $resDest
 
+# Inject JWT_SECRET from gitignored env.local into ALL staged sso.env.example copies.
+# ensure-wanding-settings.ps1 seeds from vendor\wanding\config\sso.env.example (not resources\).
+$envLocalPath = Join-Path $repoRoot 'scripts\org-phase0\env.local'
+function Set-StagedSsoJwtSecret {
+    param(
+        [string]$SsoExamplePath,
+        [string]$JwtLine
+    )
+    if (-not (Test-Path -LiteralPath $SsoExamplePath)) {
+        Write-Host "[WARN] staged sso.env.example not found: $SsoExamplePath" -ForegroundColor Yellow
+        return
+    }
+    $ssoContent = (Get-Content -LiteralPath $SsoExamplePath -Raw) -replace '(?m)^JWT_SECRET=.*$', $JwtLine
+    [System.IO.File]::WriteAllText($SsoExamplePath, $ssoContent, [System.Text.UTF8Encoding]::new($false))
+    Write-Host "  sso.env.example JWT injected: $SsoExamplePath" -ForegroundColor DarkGray
+}
+if (Test-Path -LiteralPath $envLocalPath) {
+    $jwtLine = Get-Content -LiteralPath $envLocalPath | Where-Object { $_ -match '^JWT_SECRET=' } | Select-Object -First 1
+    if ($jwtLine) {
+        Set-StagedSsoJwtSecret -SsoExamplePath (Join-Path $resDest 'sso.env.example') -JwtLine $jwtLine
+        Set-StagedSsoJwtSecret -SsoExamplePath (Join-Path $StagingDir 'vendor\wanding\config\sso.env.example') -JwtLine $jwtLine
+    } else {
+        Write-Host "[WARN] JWT_SECRET not found in env.local — sso.env.example left with empty secret" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "[WARN] env.local not found ($envLocalPath) — JWT_SECRET not injected into sso.env.example" -ForegroundColor Yellow
+}
+
 # Root launchers (v2 IN set)
+Update-WanDIcon -SourcePng $IconSource -IconPath (Join-Path $installerRoot 'resources\ccb.ico')
 Copy-Item -LiteralPath (Join-Path $installerRoot 'resources\ccb.ico') -Destination (Join-Path $StagingDir 'ccb.ico') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-wanding.cmd') -Destination (Join-Path $StagingDir 'ccb-wanding.cmd') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-diagnose.cmd') -Destination (Join-Path $StagingDir 'ccb-diagnose.cmd') -Force
