@@ -830,6 +830,7 @@ Items already committed to `main`; take effect **only after** a new NSIS build i
 |---|------|--------|------------|
 | 1 | `ccb-installer/installer-wanding-v2.nsi` | `IfSilent 0 finish_interactive; Exec AionUiLauncher.exe` at end of main Section | Silent NSIS install (About-page one-click) now auto-relaunches AionUI when done — user no longer has to guess when the 890 MB install finished |
 | 2 | `ccb-installer/scripts/ccb-update-auto.ps1` | WinRT Toast notification on hot-update success (exit 10) | Tells user "WanD 已更新至 X.X.X" when a hot patch is auto-applied at launch; currently inert (no `hot_update` in manifest) but ready for when hot path is enabled |
+| 3 | `ccb-installer/patches/aionui-acp/acp-agent.js` | Phase 1 ACP 静默重试：`retry_prompt: while(true)` 包裹 `prompt()`；`query.next timeout` 时若 `!session.cancelled && promptRetryCount < 1` 则 drain → `promptRetryCount++` → `continue retry_prompt`，否则抛原错误 | 冷启动 MCP 工具（查库存/查价）首次 timeout 后静默重试 1 次；用户主动取消时不重试；上限 1 次/prompt，可通过 `ccb-wanding-sdk.log` 中 `prompt timeout retry attempt=1` 验证 |
 
 **Build command:** `.\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.2`
 **Do not** use `-SkipAionUiBuild` unless a fresh `win-unpacked` is already verified complete.
