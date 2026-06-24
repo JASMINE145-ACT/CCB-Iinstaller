@@ -177,6 +177,9 @@ install_root_ok:
     SetOutPath "$INSTDIR\seed\agents"
     File /r "staging\seed\agents\*.*"
 
+    SetOutPath "$INSTDIR\seed"
+    File "staging\seed\config-ship-manifest.json"
+
     SetOutPath "$INSTDIR\seed\skills\ccb-subagent-gate"
     File /r /x "tests" "staging\seed\skills\ccb-subagent-gate\*.*"
 
@@ -205,6 +208,7 @@ skip_wt:
     ; Desktop + start menu -> AionUiLauncher.exe (no terminal flash; wraps ccb-launch-aionui.cmd)
     SetOutPath "$INSTDIR"
     CreateShortCut "$DESKTOP\${APPNAME}.lnk" "$INSTDIR\AionUiLauncher.exe" "" "$INSTDIR\ccb.ico"
+    !insertmacro WriteInstallLog "Desktop shortcut created: $DESKTOP\${APPNAME}.lnk -> $INSTDIR\AionUiLauncher.exe"
     CreateDirectory "$SMPROGRAMS\${STARTMENU_FOLDER}"
     CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\${APPNAME}.lnk" "$INSTDIR\AionUiLauncher.exe" "" "$INSTDIR\ccb.ico"
     CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\Check Install.lnk" "$INSTDIR\ccb-check-install.cmd" "" "$INSTDIR\ccb.ico"
@@ -213,6 +217,13 @@ skip_wt:
     CreateShortCut "$SMPROGRAMS\${STARTMENU_FOLDER}\Uninstall ${APPNAME}.lnk" "$INSTDIR\uninstall.exe"
 
     !insertmacro WriteInstallLog "Main installation finished."
+
+    ; Silent install (triggered from About-page one-click): auto-relaunch AionUI when done.
+    ; Interactive install shows the normal Finish page instead.
+    IfSilent 0 finish_interactive
+    !insertmacro WriteInstallLog "Silent install: launching AionUiLauncher.exe"
+    Exec '"$INSTDIR\AionUiLauncher.exe"'
+finish_interactive:
 SectionEnd
 
 Section "Uninstall"
