@@ -1,0 +1,79 @@
+{
+  "id": "aionui-source-level-recovery",
+  "name": "aionui-source-level-recovery",
+  "title": "Recover AionUi integration to a source-level release workflow",
+  "description": "Turn the recovered 1.1.2 bundled AionUi state into a repeatable source build, staging, and NSIS packaging workflow without treating staging as permanent source.",
+  "status": "open",
+  "dev_type": "release-hardening",
+  "scope": "aionui-installer",
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-26",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    {
+      "id": "phase-0-runtime-recovery",
+      "title": "Restore bundled 1.1.2 Mixing UI + org SSO login + WanD Guid cards on D:/CCB-Wanding",
+      "status": "completed"
+    },
+    {
+      "id": "phase-1-release-baseline-inventory",
+      "title": "Inventory 1.1.2 staging AionUi contents and map each runtime file back to a source or patch input",
+      "status": "completed"
+    },
+    {
+      "id": "phase-2-aionui-source-gap-analysis",
+      "title": "Compare bundled 1.1.2 AionUi behavior with aionui-src dev behavior and identify missing CCB Guid integration source changes",
+      "status": "completed"
+    },
+    {
+      "id": "phase-3-source-build-pipeline",
+      "title": "Make source edits flow through aionui-src build output into ccb-installer staging instead of editing staging by hand",
+      "status": "in_progress"
+    },
+    {
+      "id": "phase-4-release-verification",
+      "title": "Verify rebuilt staging installs and behaves like 1.1.2 before publishing a newer version",
+      "status": "in_progress"
+    },
+    {
+      "id": "phase-5-generated-artifact-cleanup",
+      "title": "Audit and clean stale generated AionUi/installer artifacts after the source pipeline is established",
+      "status": "pending"
+    }
+  ],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    ".trellis/tasks/06-26-aionui-source-level-recovery/prd.md",
+    ".trellis/tasks/06-26-aionui-source-level-recovery/source-recovery-plan.md",
+    ".trellis/tasks/06-26-aionui-source-level-recovery/baseline-inventory.md",
+    ".trellis/tasks/06-26-aionui-source-level-recovery/source-gap-analysis.md",
+    ".trellis/tasks/06-26-aionui-source-level-recovery/status.md",
+    "ccb-installer/scripts/recover-aionui-new-ui.ps1",
+    "ccb-installer/ccb-launch-aionui.cmd",
+    ".trellis/tasks/06-26-aionui-source-level-recovery/check.jsonl",
+    "ccb-installer/staging/AionUi/",
+    "ccb-installer/scripts/build-wanding.ps1",
+    "ccb-installer/scripts/package-aionui-exe.ps1",
+    "ccb-installer/scripts/start-aionui-dev.ps1",
+    "ccb-installer/scripts/dev-aionui-desktop.ps1",
+    "ccb-installer/patches/",
+    "D:/Projects/aionui-src/"
+  ],
+  "notes": "2026-06-26 runtime recovery ~complete (user confirmed). Bundled Mixing UI restorable via D:/CCB-Wanding/ccb-launch-aionui.cmd or ccb-installer/scripts/recover-aionui-new-ui.ps1. Key fixes: org-server.json UTF-8 BOM stripped (login networkError), ORG_SERVER_URL env in launch script, useCustomAgentsLoader aligned to bundled isAuthorityActive branch. Phase 1-2 done; phase 0 runtime recovery done. Phase 3 still blocked on committing ~130 untracked aionui-src CCB paths. Phase 4 in progress: bundled runtime verified against 1.1.2 baseline; full source rebuild not yet proven. See status.md and check.jsonl.",
+  "meta": {
+    "baseline_version": "1.1.2",
+    "baseline_staging": "ccb-installer/staging",
+    "runtime_install": "D:/CCB-Wanding",
+    "external_aionui_source": "D:/Projects/aionui-src",
+    "hard_rule": "Do not treat ccb-installer/staging/AionUi as source. It is a release baseline and comparison oracle until the source pipeline reproduces it."
+  }
+}

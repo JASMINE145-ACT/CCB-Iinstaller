@@ -1,0 +1,9 @@
+[submodule "backend"]
+	path = backend
+	url = https://github.com/JASMINE145-ACT/CCB-Iinstaller.git
+	branch = main
+
+[submodule "desktop"]
+	path = desktop
+	url = https://github.com/JASMINE145-ACT/AionUi.git
+	branch = ccb-wanding-1.1.2-recovered

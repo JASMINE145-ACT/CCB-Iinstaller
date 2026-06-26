@@ -12,6 +12,7 @@ set "CCB_INSTALL_DIR=%INSTALL%"
 set "CCB_WANDING_HOME=%INSTALL%"
 set "CCB_WANDING_CONFIG_DIR=%CONFIG%"
 set "AIONUI_DISABLE_AUTO_UPDATE=1"
+if not defined ORG_SERVER_URL set "ORG_SERVER_URL=http://67.216.206.3:13401"
 if not defined CCB_UPDATE_MANIFEST_URL set "CCB_UPDATE_MANIFEST_URL=http://67.216.206.3/updates/manifest.json"
 if not defined AIONUI_UPDATE_MANIFEST_URL set "AIONUI_UPDATE_MANIFEST_URL=http://67.216.206.3/updates/manifest.json"
 if exist "%LOCALAPPDATA%\CCB-Wanding\config\update-server.env" (
