@@ -45,7 +45,7 @@ If the symptom is an ACP event bug, **do not thicken the AionUI frontend**. Fix 
 | [`route-b-status.md`](./route-b-status.md) | **Live snapshot**: what works today (dist `$buildMcp` patch, smoke evidence, open items) |
 | [`source-migration-mcp.md`](./source-migration-mcp.md) | Migrate `$buildMcp` from dist patch → `agent.ts` (step-by-step) |
 | [`../integration/aionui-ccb-boundary.md`](../integration/aionui-ccb-boundary.md) | 4-layer chain (read when touching AionUI + backend together) |
-| [`../../../spec/aionui-ccb-wanding-acp-mcp-fix.md`](../../../spec/aionui-ccb-wanding-acp-mcp-fix.md) | **Task log** for current Route B work — not a general handbook |
+| [`../../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md`](../../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md) | **Archived task log** (Route B, 2026-06-12) — not a general handbook |
 
 ### Legacy / N/A (not separate docs)
 

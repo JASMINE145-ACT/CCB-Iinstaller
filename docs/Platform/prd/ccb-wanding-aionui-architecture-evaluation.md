@@ -176,7 +176,7 @@ AionUI 通过 `acp-agent.js` 补丁（`ccb-installer/patches/aionui-acp/`）启�
 | `D:\Projects\claude-code-best\ccb-installer\patches\aionui-acp\acp-agent.js` | AionUI 侧的 acp-agent 补丁源 |
 | `D:\Projects\claude-code-best\ccb-installer\patches\aionui-acp\index.js` | CLI/Bun 启动补丁 |
 | `D:\Projects\claude-code-best\ccb-installer\AIONUI-BACKEND-STATUS.md` | 状态日志（6+ 小时工作记录） |
-| `D:\Projects\claude-code-best\spec\aionui-ccb-wanding-acp-mcp-fix.md` | ACP 修复 spec |
+| `D:\Projects\claude-code-best\.trellis\tasks\archive\2026-06\06-12-route-b-exe-aionui-runtime\aionui-ccb-wanding-acp-mcp-fix.md` | ACP 修复 spec（归档） |
 | `D:\CCB-Wanding\dist\cli.js` | 实际部署的 ccb-wanding 入口（与 ccb-installer/dist 同步） |
 
 ### 3.2 当前可工作的子集
@@ -284,7 +284,7 @@ AionUI 通过 `acp-agent.js` 补丁（`ccb-installer/patches/aionui-acp/`）启�
 ## 7. 参考资料
 
 - [AionUI-BACKEND-STATUS.md](../ccb-installer/AIONUI-BACKEND-STATUS.md) — 6+ 小时状态日志
-- [aionui-ccb-wanding-acp-mcp-fix.md](../spec/aionui-ccb-wanding-acp-mcp-fix.md) — ACP 修复 spec
+- [aionui-ccb-wanding-acp-mcp-fix.md](../../.trellis/tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md) — ACP 修复 spec（归档）
 - [Trellis 官方文档](https://docs.trytrellis.app/) — 已安装 0.5.19
 - [AionUI GitHub](https://github.com/iOfficeAI/AionUI) — AionUI 项目
 - [Claude Code ACP 协议](https://docs.anthropic.com/en/docs/claude-code/agent-client-protocol) — AionUI 接 Claude Code 的真实机制

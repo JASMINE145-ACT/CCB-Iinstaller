@@ -8,7 +8,7 @@
 - [思路5.md](./思路5.md) — AionUI 主体 + CCB MCP（短期备选）
 - [../ccb-installer/思路三改造.Md](../ccb-installer/思路三改造.Md) — Path C 风险清单
 - [../ccb-installer/AIONUI-BACKEND-STATUS.md](../ccb-installer/AIONUI-BACKEND-STATUS.md) — 实测进度日志
-- [../spec/aionui-ccb-wanding-acp-mcp-fix.md](../spec/aionui-ccb-wanding-acp-mcp-fix.md) — 旧 B 补丁 spec（归档参考）
+- [../.trellis/tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md](../.trellis/tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md) — 旧 B 补丁 spec（归档参考）
 
 ---
 

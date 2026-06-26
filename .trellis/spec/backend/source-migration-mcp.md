@@ -147,4 +147,4 @@ After smoke passes on a clean source build (no hand-edited `entry-*.js`):
 
 - Deploy: [`build-deploy-verify.md`](./build-deploy-verify.md) §2
 - Live snapshot: [`route-b-status.md`](./route-b-status.md)
-- Task log: [`../../../spec/aionui-ccb-wanding-acp-mcp-fix.md`](../../../spec/aionui-ccb-wanding-acp-mcp-fix.md)
+- Task log: [`../../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md`](../../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md)

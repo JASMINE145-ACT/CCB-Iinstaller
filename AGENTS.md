@@ -32,7 +32,7 @@ For AionUI exe frontend work (UI, IPC, ACP event handling, CCB-Wanding integrati
 - **Project strategy** (source-first for ACP bugs): `.trellis/spec/outline.md` (Primary strategy, L95-110)
 - **Backend boundary / sync / defensive fix**: `.trellis/spec/integration/index.md`
 
-These take precedence over the empty `component-guidelines.md` / `hook-guidelines.md` / etc. — see those only when they have actual content.
+Use `.trellis/spec/frontend/coding-rules.md` and `file-map.md` for renderer patterns (legacy Trellis bootstrap stubs were removed 2026-06-26).
 
 ## CCB-Wanding Backend Pointer
 

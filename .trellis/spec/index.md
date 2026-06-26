@@ -28,17 +28,19 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 
 ---
 
-## Doc maturity (honest snapshot, 2026-06-14)
+## Doc maturity (honest snapshot, 2026-06-26)
 
 | Area | Rating | Good for | Gaps |
 |------|--------|----------|------|
-| **Integration** | **9/10** | route-b sync, boundary rules, defensive policy, CCB authority config ownership, warmup latency boundary, assistant profile handoff | — |
-| **Backend (ACP / Route B)** | **9/10** | file-map, acp-session-flow, smoke, deploy, source-level MCP, assistant profiles, capability manifest | Source MCP migration complete; assistant profile smoke pending |
-| **Frontend (core)** | **8.5/10** | file-map, chat-acp-flow (warmup timing control points), coding-rules, dev-test-ship | Trellis placeholders → redirect stubs only |
+| **Integration** | **9/10** | route-b sync, boundary rules, ship/update runbooks, org SSO, dev sync | Some version examples still cite 1.0.x — refresh when shipping 1.1.3 |
+| **Backend (ACP / Route B)** | **9/10** | file-map, acp-session-flow, smoke, deploy, source-level MCP, assistant profiles | `route-b-status.md` snapshot date lags — refresh after dist changes |
+| **Frontend (core)** | **8.5/10** | file-map, chat-acp-flow, coding-rules, dev-test-ship | `aionui-update-mechanism.md` / `ccb-model-settings-ui.md` not listed below — see `frontend/index.md` |
 | **outline.md** | **7/10** | Strategy, architecture narrative (Chinese) | Not a structured handbook — use layer indexes for tasks |
-| **Runtime verification** | **7.5/10** | `test-native-acp-agent.mjs` documented; MCP/skills/command authority verified | AionUI UI E2E + preset assistant smoke pending |
+| **Runtime verification** | **7.5/10** | `test-native-acp-agent.mjs` documented; MCP/skills/command authority verified | Phase 4 cold build + install smoke vs 1.1.2 oracle pending |
 
-**Verdict:** **OK to ship as a handbook** for Route B + layer routing + CCB authority config. Refresh [`backend/route-b-status.md`](./backend/route-b-status.md) when live behavior changes. Active work: `06-13-ccb-assistant-templates`, `06-13-ccb-session-warmup-latency`, `06-14-ccb-assistant-profile-runtime-authority`, `06-14-ccb-assistant-catalog-authority`.
+**Verdict:** **OK to ship as a handbook** for Route B + layer routing + CCB authority config. Refresh [`backend/route-b-status.md`](./backend/route-b-status.md) when live behavior changes.
+
+**Active work (2026-06-26):** [`06-26-aionui-source-level-recovery`](../tasks/06-26-aionui-source-level-recovery/status.md) — Phase 4 full cold build + install smoke (ship `1.1.3-dev`). Recovery guide: [`guides/mixing-meta-repo.md`](./guides/mixing-meta-repo.md).
 
 ---
 
@@ -54,7 +56,8 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 | [`coding-rules.md`](./frontend/coding-rules.md) | ✅ |
 | [`dev-test-ship.md`](./frontend/dev-test-ship.md) | ✅ |
 | [`electron-architecture.md`](./frontend/electron-architecture.md) | ✅ |
-| component / hook / quality / type-safety / directory-structure | ➡️ Redirect stubs — use `coding-rules.md` |
+| [`aionui-update-mechanism.md`](./frontend/aionui-update-mechanism.md) | ✅ Upstream + WanD dual-track client |
+| [`ccb-model-settings-ui.md`](./frontend/ccb-model-settings-ui.md) | ✅ CCB authority model catalog UI |
 
 ### Backend (`backend/`)
 
@@ -68,24 +71,41 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 | [`coding-rules.md`](./backend/coding-rules.md) | ✅ |
 | [`config-layer.md`](./backend/config-layer.md) | ✅ |
 | [`route-b-status.md`](./backend/route-b-status.md) | ✅ Live snapshot |
-| [`source-migration-mcp.md`](./backend/source-migration-mcp.md) | ✅ Migration plan |
+| [`source-migration-mcp.md`](./backend/source-migration-mcp.md) | ✅ Completed — regression ref |
 | [`mcp-business.md`](./backend/mcp-business.md) | ✅ Quotation / Python / data |
 
 ### Integration (`integration/`)
 
+> **Boundary decision tree** (which doc when touching layers): [`integration/index.md`](./integration/index.md) — not a full directory; this table is the complete file list.
+
 | Doc | Status |
 |-----|--------|
-| [`index.md`](./integration/index.md) | ✅ |
-| [`aionui-ccb-boundary.md`](./integration/aionui-ccb-boundary.md) | ✅ (warmup latency + assistant profile handoff added 2026-06-14) |
-| [`aionui-config-inventory.md`](./integration/aionui-config-inventory.md) | ✅ CCB authority ownership map + skills/MCP migration impl |
-| [`route-b-sync.md`](./integration/route-b-sync.md) | ✅ |
-| [`defensive-fix-policy.md`](./integration/defensive-fix-policy.md) | ✅ |
+| [`index.md`](./integration/index.md) | ✅ Entry — boundary decision tree |
+| [`aionui-ccb-boundary.md`](./integration/aionui-ccb-boundary.md) | ✅ 4-layer chain, warmup, assistant handoff |
+| [`aionui-config-inventory.md`](./integration/aionui-config-inventory.md) | ✅ CCB authority ownership map |
+| [`route-b-sync.md`](./integration/route-b-sync.md) | ✅ route-b patch sync |
+| [`defensive-fix-policy.md`](./integration/defensive-fix-policy.md) | ✅ Renderer defensive fixes |
+| [`wanding-first-ship.md`](./integration/wanding-first-ship.md) | ✅ First-ship / full exe checklist |
+| [`wanding-mvp-v1.md`](./integration/wanding-mvp-v1.md) | ✅ MVP v1 scope contract |
+| [`wanding-packaging-whitelist.md`](./integration/wanding-packaging-whitelist.md) | ✅ Install dir file whitelist |
+| [`internal-update.md`](./integration/internal-update.md) | ✅ VPS manifest + hot update ops |
+| [`mcp-health.md`](./integration/mcp-health.md) | ✅ MCP health CLI + UI |
+| [`dev-runtime-layers.md`](./integration/dev-runtime-layers.md) | ✅ Dev layer map (save ≠ deploy) |
+| [`dev-sync-playbook.md`](./integration/dev-sync-playbook.md) | ✅ Dev sync commands + smoke |
+| [`org-knowledge.md`](./integration/org-knowledge.md) | ✅ Org knowledge API / dual JWT |
+| [`org-knowledge-phase0-rollout.md`](./integration/org-knowledge-phase0-rollout.md) | ✅ Phase 0 login linkage ops |
+| [`unified-org-sso-rollout.md`](./integration/unified-org-sso-rollout.md) | ✅ Unified org SSO pilot + fleet |
+| [`agents-unified-model.md`](./integration/agents-unified-model.md) | ✅ Agent markdown + sidecar storage |
+| [`aioncore-work-tasks.md`](./integration/aioncore-work-tasks.md) | ✅ `/tasks` work-tasks API |
+| [`platform-architecture.md`](./integration/platform-architecture.md) | ✅ Platform index → `docs/` |
+| [`platform-vertical-packages.md`](./integration/platform-vertical-packages.md) | ✅ ADR — vertical packages |
+| [`web-version-ios-access-todo.md`](./integration/web-version-ios-access-todo.md) | 📋 Todo — WebUI / iOS access |
 
 ### Task logs (not handbooks)
 
 | Doc | Role |
 |-----|------|
-| [`../spec/aionui-ccb-wanding-acp-mcp-fix.md`](../spec/aionui-ccb-wanding-acp-mcp-fix.md) | Route B progress / transcripts |
+| [`../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md`](../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md) | Archived Route B progress / transcripts (2026-06-12) |
 | [`../ccb-installer/AIONUI-BACKEND-STATUS.md`](../ccb-installer/AIONUI-BACKEND-STATUS.md) | Raw status source for route-b-status |
 
 ---
@@ -98,3 +118,4 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 - **Source MCP migration lands** → ✅ Done (2026-06-12). `acp-session-flow.md` current; dual-state sections collapsed
 - **CCB authority config ownership changes** → update `integration/aionui-config-inventory.md`
 - **Assistant profile schema / handoff changes** → update `integration/aionui-ccb-boundary.md` § CCB assistant profile handoff
+- **Ship / recovery workflow changes** → update `guides/mixing-meta-repo.md` + `06-26-aionui-source-level-recovery/status.md`

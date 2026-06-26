@@ -134,7 +134,7 @@ User: 查询 直接50 价格
 → multiple candidates or single match (quotation MCP)
 ```
 
-Task log with captured transcripts: [`../../../spec/aionui-ccb-wanding-acp-mcp-fix.md`](../../../spec/aionui-ccb-wanding-acp-mcp-fix.md).
+Task log with captured transcripts: [`../../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md`](../../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md).
 
 ### 3.5 Wanding install E2E
 
@@ -168,5 +168,5 @@ cd D:\Projects\claude-code-best\ccb-installer\scripts
 3. .\ccb-installer\scripts\deploy-claude-code-b-to-wanding.ps1 -Backup
 4. Optional: sync-aionui-ccb-route-b.ps1
 5. Smoke: test-native-acp-agent.mjs (Route B) OR test-runtime-mcp.mjs OR AionUI prompt
-6. Update spec/aionui-ccb-wanding-acp-mcp-fix.md if integration behavior changed
+6. Update `.trellis/tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md` if integration behavior changed (or refresh `route-b-status.md` for current snapshot)
 ```

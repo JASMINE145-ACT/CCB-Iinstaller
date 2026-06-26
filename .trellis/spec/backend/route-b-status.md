@@ -1,6 +1,6 @@
 # Route B Status (Snapshot 2026-06-12)
 
-> Current state of the AionUI ↔ CCB-Wanding native ACP loop + MCP registration. For the live task log, see [`../../../spec/aionui-ccb-wanding-acp-mcp-fix.md`](../../../spec/aionui-ccb-wanding-acp-mcp-fix.md) and [`../../../ccb-installer/AIONUI-BACKEND-STATUS.md`](../../../ccb-installer/AIONUI-BACKEND-STATUS.md). This doc is a **distilled snapshot** — when the source files change, refresh this one.
+> Current state of the AionUI ↔ CCB-Wanding native ACP loop + MCP registration. For the archived task log, see [`../../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md`](../../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md) and [`../../../ccb-installer/AIONUI-BACKEND-STATUS.md`](../../../ccb-installer/AIONUI-BACKEND-STATUS.md). This doc is a **distilled snapshot** — when the source files change, refresh this one.
 
 ---
 

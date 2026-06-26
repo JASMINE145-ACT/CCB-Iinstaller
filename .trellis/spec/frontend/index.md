@@ -64,14 +64,6 @@ If your symptom is a backend bug, **stop patching the frontend**. See `../integr
 
 ---
 
-## Legacy Trellis placeholders
-
-| Doc | Status |
-|-----|--------|
-| component / hook / quality / type-safety / state-management / directory-structure | Redirect stubs — use core docs above |
-
----
-
 ## Project strategy (1-line)
 
 > Full version in [`../outline.md`](../outline.md) (Primary strategy, L95-110). **Bottom line:** ACP / MCP / session bugs → `D:\claude-code-B\src/`. Pure UI → desktop. Defensive fix only with `// TODO(defensive)` and a backend tracking issue.

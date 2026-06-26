@@ -1,5 +1,7 @@
 # AionUI + CCB-Wanding Native ACP Progress
 
+> **Archived task log** (2026-06-12). Distilled snapshot: [`../../../../spec/backend/route-b-status.md`](../../../../spec/backend/route-b-status.md). Regression reference: [`../../../../spec/backend/source-migration-mcp.md`](../../../../spec/backend/source-migration-mcp.md).
+
 Date: 2026-06-12
 
 ## Current Primary Goal
