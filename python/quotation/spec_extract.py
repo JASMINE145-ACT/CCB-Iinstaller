@@ -36,6 +36,10 @@ _QUOTE_SPEC_PATTERNS = [
 ]
 
 
+def _normalize_dn_spec(digits: str) -> str:
+    return f"dn{digits}"
+
+
 def _last_resort_quote_spec(quote_name: str) -> str:
     """规则未命中时，用名称末尾像规格的片段兜底（如最后一截含数字/dn）。"""
     s = (quote_name or "").strip()
@@ -57,59 +61,118 @@ def _last_resort_quote_spec(quote_name: str) -> str:
 def extract_spec_from_quote_name(quote_name: str) -> str:
     """
     从报价名称（长描述）中抽取规格部分，用于单独显示「报价产品规」列。
-    规则优先；无匹配时用末尾像规格的片段兜底；若需更高稳定性可开 QUOTATION_SPEC_LLM 批量 LLM。
+    优先输出口径类短规格（如 dn50），避免把 (管箍)、PVC-U 等品类片段拼进规格列。
     """
     s = (quote_name or "").strip()
     if not s:
         return ""
-    parts: list[str] = []
-    seen: set[str] = set()
-    for pat in _QUOTE_SPEC_PATTERNS:
-        for m in pat.finditer(s):
-            p = m.group(0).strip()
-            if p and p not in seen:
-                seen.add(p)
-                parts.append(p)
-    if parts:
-        return " ".join(parts)
+
+    dn_match = re.search(r"\bdn\s*(\d+)\b", s, re.I)
+    if dn_match:
+        return _normalize_dn_spec(dn_match.group(1))
+
+    dn_upper = re.search(r"\bDN\s*(\d+)\b", s)
+    if dn_upper:
+        return _normalize_dn_spec(dn_upper.group(1))
+
+    phi_match = re.search(r"Φ\s*(\d+)", s, re.I)
+    if phi_match:
+        return f"Φ{phi_match.group(1)}"
+
+    length_root = re.search(r"(\d+)\s*[mM]\s*/\s*根", s)
+    if length_root:
+        return f"{length_root.group(1)}M/根"
+
+    inch_paren = re.search(r"\(\s*(\d+)\s*[\"']\s*\)", s)
+    if inch_paren:
+        return f'{inch_paren.group(1)}"'
+
+    # 中文配件名后的裸数字口径（如 直通50、三通50）
+    bare_after_fitting = re.search(
+        r"(?:直接|直通|三通|弯头|管箍|异径|补芯|活接)[^\d]{0,30}(\d{2,4})\b",
+        s,
+    )
+    if bare_after_fitting:
+        return _normalize_dn_spec(bare_after_fitting.group(1))
+
     return _last_resort_quote_spec(quote_name)
+
+
+_FILL_SPEC_LLM_SYSTEM = """你为 WanD 报价单提取「报价规格」列（Excel I 列），与印尼名称/品牌/单位分列填写。
+
+规则：
+- 只输出口径/型号短文本，优先小写 dn+数字（如 dn50、dn110）。
+- 也可输出 DN200、Φ25、4M/根、8" 等纯规格；不要输出产品类型、材质系列、中文括号内容（如 管箍、PVC-U排水、配件）。
+- 若询价规格已是正确口径（如 dn50、50），可原样规范化后输出。
+- 参考中文报价名称 matched_name 与英文 description_english 中的 DN/dn 信息。
+- 只输出规格文本一行，无规格则输出空字符串。"""
+
+
+def _normalize_spec_text(text: str) -> str:
+    s = (text or "").strip()
+    if not s:
+        return ""
+    m = re.search(r"\bdn\s*(\d+)\b", s, re.I)
+    if m:
+        return _normalize_dn_spec(m.group(1))
+    return s[:200]
 
 
 def extract_spec_from_quote_name_llm(
     quote_name: str,
     *,
+    inquiry_spec: str = "",
+    description_english: str = "",
     api_key: Optional[str] = None,
     base_url: Optional[str] = None,
     model: Optional[str] = None,
 ) -> str:
     """
-    可选：用 LLM 从报价名称中抽取规格，提升稳定性。失败时退回规则结果。
+    LLM 提取报价规格（服务端补全，与 agent 语义提取同一口径）。
+    失败或无 API key 时退回规则 extract_spec_from_quote_name。
     """
     rule_result = extract_spec_from_quote_name(quote_name)
+    inquiry_spec = (inquiry_spec or "").strip()
+    if inquiry_spec and not re.search(r"[\u4e00-\u9fff]", inquiry_spec):
+        normalized_inquiry = _normalize_spec_text(inquiry_spec)
+        if normalized_inquiry:
+            return normalized_inquiry
+
     try:
         from backend.config import Config
         _api_key = api_key or getattr(Config, "OPENAI_API_KEY", None)
         _base_url = base_url or getattr(Config, "OPENAI_BASE_URL", None) or ""
         _model = model or getattr(Config, "LLM_MODEL", "glm-4.5-air")
+        use_llm = getattr(Config, "QUOTATION_SPEC_LLM", True)
     except Exception:
         return rule_result
-    if not _api_key or len((quote_name or "").strip()) < 4:
+    if not use_llm or not _api_key or len((quote_name or "").strip()) < 2:
         return rule_result
+
+    user_lines = [
+        f"中文报价名称: {quote_name.strip()}",
+    ]
+    if description_english.strip():
+        user_lines.append(f"英文描述 description_english: {description_english.strip()}")
+    if inquiry_spec.strip():
+        user_lines.append(f"询价规格: {inquiry_spec.strip()}")
+
     try:
         from backend.core.llm_client import get_openai_client
+
         client = get_openai_client(api_key=_api_key, base_url=_base_url)
         resp = client.chat.completions.create(
             model=_model,
             messages=[
-                {"role": "system", "content": "从「报价名称」中仅提取规格型号（如 DN200、8\"、4M/根、Φ25），只输出规格文本，无则输出空。"},
-                {"role": "user", "content": quote_name},
+                {"role": "system", "content": _FILL_SPEC_LLM_SYSTEM},
+                {"role": "user", "content": "\n".join(user_lines)},
             ],
-            max_tokens=80,
+            max_tokens=40,
             temperature=0,
         )
         content = (resp.choices[0].message.content or "").strip()
         if content:
-            return content[:200]
+            return _normalize_spec_text(content)
     except Exception as e:
         logger.debug("extract_spec_from_quote_name_llm 失败: %s，使用规则结果", e)
     return rule_result
@@ -117,11 +180,11 @@ def extract_spec_from_quote_name_llm(
 
 EXTRACT_SPECS_BATCH_SYSTEM = """你为报价单表格做规格提取。输入是若干行，每行有「询价名称」「当前询价规格」「报价名称」。
 对每一行输出两个字段：
-- requested_spec：询价规格。若当前询价规格已有且正确则原样返回，否则从询价名称中补全或规范化（如 50、dn、口径等），无则空字符串。
-- quoted_spec：仅从「报价名称」中抽取的规格型号（如 PVC-H、PVC-U排水、30°、异径、三级配、DN200、4M/根 等），无则空字符串。
+- requested_spec：询价规格。若当前询价规格已有且正确则规范化为 dn+数字等小写口径（如 50 → dn50），无则空字符串。
+- quoted_spec：仅从「报价名称」抽取的报价规格列文本，优先 dn50 这种口径，不要输出 PVC-U、管箍、配件等品类词。
 
 只输出一个 JSON 数组，与输入行一一对应，不要其他说明。每项格式：{"requested_spec":"...","quoted_spec":"..."}
-示例：[{"requested_spec":"50","quoted_spec":"PVC-U排水"},{"requested_spec":"dn20","quoted_spec":"30°异径三级配"}]"""
+示例：[{"requested_spec":"dn50","quoted_spec":"dn50"},{"requested_spec":"dn20","quoted_spec":"dn20"}]"""
 
 
 def _parse_batch_specs_json(raw: str) -> List[dict]:

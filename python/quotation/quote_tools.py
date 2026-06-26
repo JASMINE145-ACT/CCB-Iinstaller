@@ -6,10 +6,20 @@ import json
 import logging
 import os
 import re
+import stat
+import stat
 from copy import copy
 from datetime import date
 from pathlib import Path
+from dataclasses import dataclass
 from typing import Any, List, Tuple
+
+from quotation.fill_enrich import infer_default_satuan, resolve_quote_specification
+
+try:
+    from wanding_workspace_paths import coerce_write_path
+except ImportError:
+    from ..wanding_workspace_paths import coerce_write_path
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +65,45 @@ def _copy_cell_style(source_cell, dest_cell) -> None:
             dest_cell.number_format = source_cell.number_format
     except (TypeError, AttributeError):
         logger.debug("复制单元格样式时部分属性失败", exc_info=True)
+
+
+def _ensure_data_rows_before_total(
+    ws,
+    layout: QuotationTemplateLayout,
+    fill_items: list[dict[str, Any]],
+    total_row_1based: int | None,
+) -> int | None:
+    """
+    VANTSING 模板默认仅 10 条数据行（8–17）；超出时在 Total 行前插入行并复制末行样式。
+    返回更新后的 total_row_1based。
+    """
+    if total_row_1based is None or not fill_items:
+        return total_row_1based
+    target_rows = [
+        _to_int_or_none(it.get("row"))
+        for it in fill_items
+        if _to_int_or_none(it.get("row")) is not None
+    ]
+    if not target_rows:
+        return total_row_1based
+    max_target = max(r for r in target_rows if r is not None)
+    last_data_row = total_row_1based - 1
+    if max_target <= last_data_row:
+        return total_row_1based
+    insert_count = max_target - last_data_row
+    ws.insert_rows(total_row_1based, insert_count)
+    style_row = total_row_1based - 1
+    max_col = min(ws.max_column, 20)
+    for new_row in range(total_row_1based, total_row_1based + insert_count):
+        for col in range(1, max_col + 1):
+            _copy_cell_style(ws.cell(row=style_row, column=col), ws.cell(row=new_row, column=col))
+    logger.info(
+        "Inserted %s data row(s) before Total (layout=%s, max_target=%s)",
+        insert_count,
+        layout.template_id,
+        max_target,
+    )
+    return total_row_1based + insert_count
 
 
 def _normalize_sheet_view(ws) -> None:
@@ -123,9 +172,79 @@ def _is_green_like(rgb_hex: str) -> bool:
 TOTAL_ROW_MARKER = "Total Excluding PPN不含税总价"
 
 # 询价列表头关键词（用于自动识别列）
-NAME_COL_KEYWORDS = ["询价货物名称", "Nama Permintaan Barang", "nama permintaan"]
-SPEC_COL_KEYWORDS = ["询价规格型号", "Spesifikasi dan Model Permintaan Barang", "Spesifikasi"]
-QTY_COL_KEYWORDS = ["Jumlah", "数量", "jumlah", "Quantity"]
+NAME_COL_KEYWORDS = [
+    "询价货物名称", "询价货物", "Nama Permintaan Barang", "Nama Permintaan", "nama permintaan",
+]
+SPEC_COL_KEYWORDS = [
+    "询价规格型号", "询价规格", "Spesifikasi dan Model Permintaan Barang",
+    "Spesifikasi Permintaan", "Spesifikasi",
+]
+QTY_COL_KEYWORDS = ["Jumlah", "数量", "jumlah", "Quantity", "QTY"]
+
+
+@dataclass(frozen=True)
+class QuotationTemplateLayout:
+    """报价单模板列布局（1-based 列号）。"""
+    template_id: str
+    header_scan_rows: int
+    data_start_row: int
+    inquiry_name_col: int
+    inquiry_spec_col: int
+    inquiry_qty_col: int
+    inquiry_seq_col: int
+    product_no_col: int
+    quote_name_col: int
+    quote_spec_col: int
+    quote_qty_col: int
+    unit_price_col: int
+    total_col: int
+    totals_value_col: int
+    quote_date_value_col: int | None = None
+    indonesian_name_col: int | None = None
+    satuan_col: int | None = None
+    brand_col: int | None = None
+    inquiry_unit_col: int | None = None
+
+
+LINGWEI_LAYOUT = QuotationTemplateLayout(
+    template_id="lingwei",
+    header_scan_rows=3,
+    data_start_row=2,
+    inquiry_name_col=2,
+    inquiry_spec_col=3,
+    inquiry_qty_col=5,
+    inquiry_seq_col=1,
+    product_no_col=7,
+    quote_name_col=8,
+    quote_spec_col=10,
+    quote_qty_col=12,
+    unit_price_col=14,
+    total_col=15,
+    totals_value_col=15,
+    inquiry_unit_col=4,
+)
+
+VANTSING_LAYOUT = QuotationTemplateLayout(
+    template_id="vantsing",
+    header_scan_rows=10,
+    data_start_row=8,
+    inquiry_name_col=2,
+    inquiry_spec_col=3,
+    inquiry_qty_col=5,
+    inquiry_seq_col=1,
+    product_no_col=6,
+    quote_name_col=7,
+    quote_spec_col=9,
+    quote_qty_col=11,
+    unit_price_col=13,
+    total_col=14,
+    totals_value_col=14,
+    quote_date_value_col=11,
+    indonesian_name_col=8,
+    satuan_col=10,
+    brand_col=12,
+    inquiry_unit_col=4,
+)
 
 
 def _cell_value(cell) -> str:
@@ -202,6 +321,70 @@ def _set_cell_value_merged_safe(ws, row: int, col: int, value: Any) -> None:
         # 回退到直接写入目标单元格，若再次触发异常则交由调用方处理
         pass
     cell.value = value
+
+
+def _detect_quotation_layout(ws) -> QuotationTemplateLayout:
+    """识别凌威旧模板 vs VANTSING 标准报价单。"""
+    for r in range(1, 11):
+        for c in range(1, 20):
+            v = _cell_value(ws.cell(row=r, column=c))
+            if not v:
+                continue
+            if "PENAWARAN HARGA" in v:
+                return VANTSING_LAYOUT
+            if c == 6 and ("Product number" in v or "产品编号" in v):
+                return VANTSING_LAYOUT
+    return LINGWEI_LAYOUT
+
+
+def _find_inquiry_header(all_rows: List[List[str]], layout: QuotationTemplateLayout) -> tuple[int, int, int, int]:
+    """
+    在前 N 行表头中定位询价列，返回 (header_row_idx, name_col, spec_col, qty_col)（0-based 列索引）。
+    VANTSING 模板列位置固定，表头在第 6–7 行；凌威模板仍按关键词扫描。
+    """
+    if layout.template_id == "vantsing":
+        for idx in range(min(layout.header_scan_rows, len(all_rows))):
+            nc = _find_col_by_header(all_rows[idx], NAME_COL_KEYWORDS)
+            if nc >= 0:
+                return idx, nc, layout.inquiry_spec_col - 1, layout.inquiry_qty_col - 1
+        return -1, -1, -1, -1
+
+    for idx, header_row in enumerate(all_rows[: layout.header_scan_rows]):
+        nc = _find_col_by_header(header_row, NAME_COL_KEYWORDS)
+        if nc >= 0:
+            sc = _find_col_by_header(header_row, SPEC_COL_KEYWORDS)
+            qc = _find_col_by_header(header_row, QTY_COL_KEYWORDS)
+            return idx, nc, sc, qc
+    return -1, -1, -1, -1
+
+
+def _detect_layout_from_rows(all_rows: List[List[str]]) -> QuotationTemplateLayout:
+    """从已读取的行数据识别模板类型。"""
+    for row in all_rows[:10]:
+        for c, cell in enumerate(row):
+            s = (cell or "").strip()
+            if not s:
+                continue
+            if "PENAWARAN HARGA" in s:
+                return VANTSING_LAYOUT
+            if c == 5 and ("Product number" in s or "产品编号" in s):
+                return VANTSING_LAYOUT
+    return LINGWEI_LAYOUT
+
+
+def _ensure_writable(path: Path) -> None:
+    """清除 copy2 从只读模板继承的只读属性，避免 Windows 上 save 报 Permission denied。"""
+    try:
+        mode = path.stat().st_mode
+        path.chmod(mode | stat.S_IWRITE)
+    except OSError:
+        logger.debug("chmod writable failed for %s", path, exc_info=True)
+
+
+def _save_workbook(wb, out_p: Path) -> None:
+    """保存 workbook；先确保目标路径可写。"""
+    _ensure_writable(out_p)
+    wb.save(out_p)
 
 
 def extract_quotation_data(file_path: str, sheet_name: str | None = None) -> dict[str, Any]:
@@ -437,24 +620,20 @@ def _extract_inquiry_items_smart_fallback(
 
     name_col = spec_col = qty_col = -1
     header_row_idx = 0
-    for idx, header_row in enumerate(rows[:3]):
-        nc = _find_col_by_header(header_row, NAME_COL_KEYWORDS)
-        sc = _find_col_by_header(header_row, SPEC_COL_KEYWORDS)
-        qc = _find_col_by_header(header_row, QTY_COL_KEYWORDS)
-        if nc >= 0:
-            name_col, spec_col = nc, sc
-            if qc >= 0:
-                qty_col = qc
-            header_row_idx = idx
-            break
+    layout = _detect_layout_from_rows(rows)
+    header_row_idx, name_col, spec_col, qty_col = _find_inquiry_header(rows, layout)
 
     if name_col < 0:
         return {"success": True, "items": [], "error": None, "rows_count": 0}
 
-    data_rows = rows[header_row_idx + 1:]
+    if layout.template_id == "vantsing":
+        data_start_idx = layout.data_start_row - 1
+    else:
+        data_start_idx = header_row_idx + 1
+    data_rows = rows[data_start_idx:]
     items: List[dict] = []
     for i, row_cells in enumerate(data_rows):
-        row_num = header_row_idx + 2 + i
+        row_num = (layout.data_start_row if layout.template_id == "vantsing" else header_row_idx + 2) + i
         product_name = (row_cells[name_col] if name_col < len(row_cells) else "").strip()
         specification = (row_cells[spec_col] if spec_col >= 0 and spec_col < len(row_cells) else "").strip()
         keywords = f"{product_name} {specification}".strip() if specification else product_name
@@ -550,19 +729,10 @@ def extract_inquiry_items(
         spec_col = col_mapping.get("spec_col", col_mapping.get("specification_col", -1))
         qty_col = col_mapping.get("qty_col", col_mapping.get("quantity_col", -1))
         header_row_idx = 0
+        layout = LINGWEI_LAYOUT
     else:
-        name_col = spec_col = qty_col = -1
-        header_row_idx = 0
-        for idx, header_row in enumerate(all_rows[:3]):
-            nc = _find_col_by_header(header_row, NAME_COL_KEYWORDS)
-            sc = _find_col_by_header(header_row, SPEC_COL_KEYWORDS)
-            qc = _find_col_by_header(header_row, QTY_COL_KEYWORDS)
-            if nc >= 0:
-                name_col, spec_col = nc, sc
-                if qc >= 0:
-                    qty_col = qc
-                header_row_idx = idx
-                break
+        layout = _detect_layout_from_rows(all_rows)
+        header_row_idx, name_col, spec_col, qty_col = _find_inquiry_header(all_rows, layout)
 
     if name_col < 0:
         # Fallback：用普适解析（不依赖 Total Excluding PPN 与固定表头）再尝试识别列
@@ -573,8 +743,11 @@ def extract_inquiry_items(
             return fallback
         return {"success": False, "items": [], "error": "未找到询价货物名称列，请检查表头或提供 col_mapping", "rows_count": 0}
 
-    # 数据行从表头下一行起，到 Total Excluding PPN 上一行
-    data_start = header_row_idx + 1
+    # 数据行从表头下一行起（VANTSING 固定第 8 行），到 Total Excluding PPN 上一行
+    if layout.template_id == "vantsing":
+        data_start = layout.data_start_row - 1
+    else:
+        data_start = header_row_idx + 1
     if total_row_1based is not None and total_row_1based >= 2:
         data_end = total_row_1based - 1
     else:
@@ -591,7 +764,7 @@ def extract_inquiry_items(
     # spec_col 可为 -1，表示无规格列；qty_col 可为 -1，表示无数量列
     items: List[dict] = []
     for i, row_cells in enumerate(data_rows):
-        row_num = data_start + 1 + i  # Excel 行号 1-based
+        row_num = (layout.data_start_row if layout.template_id == "vantsing" else data_start + 1) + i
         product_name = (row_cells[name_col] if name_col < len(row_cells) else "").strip()
         specification = (row_cells[spec_col] if spec_col >= 0 and spec_col < len(row_cells) else "").strip()
         keywords = f"{product_name} {specification}".strip() if specification else product_name
@@ -606,12 +779,18 @@ def extract_inquiry_items(
                     qty_val = int(float(str(v).replace(",", "")))
             except (ValueError, TypeError) as e:
                 logger.debug("解析数量失败 row=%s: %s", row_num, e)
+        inquiry_unit = ""
+        if layout.inquiry_unit_col:
+            unit_col = layout.inquiry_unit_col - 1
+            if 0 <= unit_col < len(row_cells):
+                inquiry_unit = (row_cells[unit_col] or "").strip()
         items.append({
             "row": row_num,
             "product_name": product_name,
             "specification": specification,
             "keywords": keywords,
             "qty": qty_val,
+            "inquiry_unit": inquiry_unit,
         })
 
     return {
@@ -659,12 +838,12 @@ def fill_template_with_inquiry_items(
         tpl = Path(os.getcwd()) / tpl
     if not tpl.exists():
         return {"success": False, "output_path": "", "filled_count": 0, "error": f"模板不存在: {tpl}"}
-    out_p = Path(output_path)
-    if not out_p.is_absolute():
-        out_p = Path(os.getcwd()) / out_p
-    out_p.parent.mkdir(parents=True, exist_ok=True)
+    out_p = Path(
+        coerce_write_path(output_path, default_filename=f"{tpl.stem}_inquiry{tpl.suffix}")
+    )
     try:
         shutil.copy2(tpl, out_p)
+        _ensure_writable(out_p)
     except Exception as e:
         return {"success": False, "output_path": "", "filled_count": 0, "error": str(e)}
 
@@ -696,7 +875,8 @@ def fill_template_with_inquiry_items(
                 break
         if total_row_1based is None:
             total_row_1based = ws.max_row + 1
-        data_start = INQUIRY_DATA_START_ROW
+        layout = _detect_quotation_layout(ws)
+        data_start = layout.data_start_row
         available = max(0, total_row_1based - data_start)
         truncated_count = 0
         if len(items) > available:
@@ -719,13 +899,19 @@ def fill_template_with_inquiry_items(
             qty = _to_int_or_none(it.get("qty", 0))
             if qty is None:
                 qty = 0
-            ws.cell(row=row_num, column=INQUIRY_COL_SEQ, value=i + 1)
-            ws.cell(row=row_num, column=INQUIRY_COL_NAME, value=name)
-            ws.cell(row=row_num, column=INQUIRY_COL_SPEC, value=spec)
-            ws.cell(row=row_num, column=INQUIRY_COL_QTY, value=max(0, qty))
+            ws.cell(row=row_num, column=layout.inquiry_seq_col, value=i + 1)
+            ws.cell(row=row_num, column=layout.inquiry_name_col, value=name)
+            ws.cell(row=row_num, column=layout.inquiry_spec_col, value=spec)
+            unit = (
+                (it.get("inquiry_unit") or it.get("satuan") or "").strip()
+                or infer_default_satuan(name, spec, name)
+            )
+            if unit and layout.inquiry_unit_col:
+                ws.cell(row=row_num, column=layout.inquiry_unit_col, value=unit)
+            ws.cell(row=row_num, column=layout.inquiry_qty_col, value=max(0, qty))
             filled += 1
         _normalize_sheet_view(ws)
-        wb.save(out_p)
+        _save_workbook(wb, out_p)
         return {
             "success": True,
             "output_path": str(out_p),
@@ -926,8 +1112,8 @@ def edit_excel(
     if not path.exists():
         return {"success": False, "result": "", "error": f"文件不存在: {path}", "output_path": ""}
     out_p = Path(output_path) if output_path else path
-    if not out_p.is_absolute():
-        out_p = Path(os.getcwd()) / out_p
+    if output_path:
+        out_p = Path(coerce_write_path(output_path, default_filename=path.name))
 
     if not edits or not isinstance(edits, list):
         return {"success": False, "result": "", "error": "请提供 edits 数组（每项含 cell+value 或 range+values）", "output_path": ""}
@@ -984,7 +1170,7 @@ def get_quote_tools_openai_format() -> list[dict]:
             "type": "function",
             "function": {
                 "name": "fill_quotation_sheet",
-                "description": "【报价单导向】将数据写入报价单 Excel 指定行。fill_items 每项含 row、code、quote_name、unit_price、qty、specification。写入列：G=产品编号, H=报价名称, J=规格, L=数量, N=单价, O=总价；并按表头自动填写「交货日期」「报价日期」（不传则用当天 YYYY/MM/DD）。",
+                "description": "【报价单导向】将数据写入报价单 Excel 指定行。用户已确认选型、说“可以/没问题/直接填/按这个报”后，必须使用 fill_items 精确模式并设置 require_exact_codes=true；禁止再走 keywords/file 自动重匹配。output_path 省略或为相对路径时，runtime 必须注入 workspace_path（workspace_kind=aionui_project_temp），否则拒绝写入，避免文件落到 UI 看不到的隐藏目录。fill_items 每项含 row、code、quote_name、unit_price、qty、specification，以及可选的 indonesian_name（印尼名称/Nama Indonesia）、satuan（单位/Satuan）、brand（品牌/Brand）。服务端可按 code 自动补全缺失字段。写入列（VANTSING模板）：F=产品编号, G=报价名称, H=印尼名称, I=报价规格, J=单位, K=数量, L=品牌, M=单价, N=总额；并按表头自动填写「交货日期」「报价日期」（不传则用当天 YYYY/MM/DD）。",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -995,16 +1181,24 @@ def get_quote_tools_openai_format() -> list[dict]:
                                 "type": "object",
                                 "properties": {
                                     "row": {"type": "integer", "description": "Excel 行号 1-based"},
-                                    "code": {"type": "string"},
+                                    "code": {"type": "string", "description": "产品编码。确认态/锁定态必填；也可用 product_code 传入。"},
+                                    "product_code": {"type": "string", "description": "产品编码别名。确认态/锁定态必填 code 或 product_code。"},
                                     "quote_name": {"type": "string"},
                                     "unit_price": {"type": "number"},
                                     "qty": {"type": "integer"},
                                     "specification": {"type": "string"},
+                                    "indonesian_name": {"type": "string", "description": "印尼名称（Nama Indonesia）：通常直接取 match_quotation 返回的 description_english 原文"},
+                                    "satuan": {"type": "string", "description": "单位（Satuan）：如 根、pcs、set、m，从 matched_name 或 description_english 中提取"},
+                                    "brand": {"type": "string", "description": "品牌（Brand/Merk）：如 LESSO、VINILON，从 description_english 末尾 ' - ' 后面的词提取"},
                                 },
                                 "required": ["row"],
                             },
                             "description": "要回填的项列表",
                         },
+                        "require_exact_codes": {"type": "boolean", "description": "确认态/锁定态设为 true；要求每行有 code/product_code，并禁止 keywords 自动重匹配。"},
+                        "locked_lines": {"type": "boolean", "description": "require_exact_codes 的别名；用户确认选型后可设为 true。"},
+                        "workspace_path": {"type": "string", "description": "AionUI 项目临时空间路径；output_path 省略或相对路径时必需。"},
+                        "workspace_kind": {"type": "string", "description": "workspace 类型，项目临时空间为 aionui_project_temp。"},
                         "output_path": {"type": "string", "description": "可选，输出路径，默认覆盖原文件"},
                         "sheet_name": {"type": "string", "description": "工作表名，不传用第一个"},
                         "quotation_date": {"type": "string", "description": "报价日期，如 2026/03/11，不传用当天"},
@@ -1131,14 +1325,23 @@ def fill_quotation(
     if not path.exists():
         return {"success": False, "output_path": "", "filled_count": 0, "error": f"文件不存在: {path}"}
     out_p = Path(output_path) if output_path else path
-    if not out_p.is_absolute():
-        out_p = Path(os.getcwd()) / out_p
+    if output_path:
+        out_p = Path(coerce_write_path(output_path, default_filename=path.name))
+    load_path = path
+    if out_p != path:
+        import shutil
+        if not out_p.exists():
+            shutil.copy2(path, out_p)
+        load_path = out_p
+    _ensure_writable(load_path)
     try:
-        wb = openpyxl.load_workbook(path)
+        wb = openpyxl.load_workbook(load_path)
         if sheet_name and sheet_name in wb.sheetnames:
             ws = wb[sheet_name]
         else:
             ws = wb.active or wb[wb.sheetnames[0]]
+
+        layout = _detect_quotation_layout(ws)
 
         # 先定位「Total Excluding PPN」行，避免后续 iter_rows 与写表顺序导致样式错乱
         total_row_1based = None
@@ -1151,12 +1354,23 @@ def fill_quotation(
             if total_row_1based is not None:
                 break
 
+        total_row_1based = _ensure_data_rows_before_total(
+            ws, layout, fill_items, total_row_1based
+        )
+
         today_str = date.today().strftime("%Y/%m/%d")
         qdate_str = (quotation_date or today_str).strip() or today_str
         ddate_str = (delivery_date or today_str).strip() or today_str
 
         delivery_col = _find_delivery_date_column(ws)
         quotation_date_cell = _find_quotation_date_cell(ws, total_row_1based or 0) if total_row_1based else None
+        if (
+            layout.template_id == "vantsing"
+            and layout.quote_date_value_col
+            and quotation_date_cell
+        ):
+            qr, qc = quotation_date_cell
+            quotation_date_cell = (qr, layout.quote_date_value_col)
 
         # Safe document-fill mode:
         # - only write values into target cells
@@ -1174,30 +1388,53 @@ def fill_quotation(
                 continue
             code = it.get("code")
             if code:
-                _set_cell_value_merged_safe(ws, row=row_num, col=COL_PRODUCT_NO, value=str(code))
+                _set_cell_value_merged_safe(ws, row=row_num, col=layout.product_no_col, value=str(code))
                 filled += 1
             if it.get("quote_name"):
-                _set_cell_value_merged_safe(ws, row=row_num, col=COL_QUOTE_NAME, value=str(it["quote_name"]))
+                _set_cell_value_merged_safe(ws, row=row_num, col=layout.quote_name_col, value=str(it["quote_name"]))
             up = _to_float_or_none(it.get("unit_price"))
             q = _to_int_or_none(it.get("qty"))
             if up is not None:
-                _set_cell_value_merged_safe(ws, row=row_num, col=COL_UNIT_PRICE, value=up)
+                _set_cell_value_merged_safe(ws, row=row_num, col=layout.unit_price_col, value=up)
             if q is not None:
-                _set_cell_value_merged_safe(ws, row=row_num, col=COL_QTY_OUT, value=q)
-            # 报价产品规格：有 specification 用 specification，否则用 quote_name，保证该列有内容（避免留空）
-            spec_val = (it.get("specification") or it.get("quote_name") or "").strip()
+                _set_cell_value_merged_safe(ws, row=row_num, col=layout.quote_qty_col, value=q)
+            spec_val = resolve_quote_specification(
+                str(it.get("quote_name") or ""),
+                str(it.get("specification") or ""),
+                inquiry_spec=str(it.get("inquiry_spec") or ""),
+                description_english=str(
+                    it.get("description_english") or it.get("indonesian_name") or ""
+                ),
+            )
             _set_cell_value_merged_safe(
                 ws,
                 row=row_num,
-                col=COL_QUOTE_SPEC,
+                col=layout.quote_spec_col,
                 value=spec_val if spec_val else None,
             )
+            if layout.indonesian_name_col and it.get("indonesian_name"):
+                _set_cell_value_merged_safe(
+                    ws, row=row_num, col=layout.indonesian_name_col, value=str(it["indonesian_name"])
+                )
+            satuan_val = it.get("satuan")
+            if not satuan_val and layout.inquiry_unit_col:
+                satuan_val = _cell_value(ws.cell(row=row_num, column=layout.inquiry_unit_col))
+            if not satuan_val:
+                satuan_val = infer_default_satuan(
+                    str(it.get("quote_name") or ""),
+                    str(it.get("inquiry_spec") or it.get("specification") or ""),
+                    str(it.get("product_name") or ""),
+                )
+            if layout.satuan_col and satuan_val:
+                _set_cell_value_merged_safe(ws, row=row_num, col=layout.satuan_col, value=str(satuan_val))
+            if layout.brand_col and it.get("brand"):
+                _set_cell_value_merged_safe(ws, row=row_num, col=layout.brand_col, value=str(it["brand"]))
             if up is not None and q is not None and code and str(code) != "无货":
                 row_total = up * q
-                _set_cell_value_merged_safe(ws, row=row_num, col=COL_TOTAL, value=round(row_total, 2))
+                _set_cell_value_merged_safe(ws, row=row_num, col=layout.total_col, value=round(row_total, 2))
                 total_excluding_ppn += row_total
             elif up is not None and q is not None and (not code or str(code) == "无货"):
-                _set_cell_value_merged_safe(ws, row=row_num, col=COL_TOTAL, value=0)
+                _set_cell_value_merged_safe(ws, row=row_num, col=layout.total_col, value=0)
             if delivery_col:
                 _set_cell_value_merged_safe(ws, row=row_num, col=delivery_col, value=ddate_str)
 
@@ -1207,25 +1444,25 @@ def fill_quotation(
             _set_cell_value_merged_safe(
                 ws,
                 row=total_row_1based,
-                col=TOTALS_VALUE_COL,
+                col=layout.totals_value_col,
                 value=round(total_excluding_ppn, 2),
             )
             _set_cell_value_merged_safe(
                 ws,
                 row=total_row_1based + 1,
-                col=TOTALS_VALUE_COL,
+                col=layout.totals_value_col,
                 value=ppn,
             )
             _set_cell_value_merged_safe(
                 ws,
                 row=total_row_1based + 2,
-                col=TOTALS_VALUE_COL,
+                col=layout.totals_value_col,
                 value=freight_value,
             )
             _set_cell_value_merged_safe(
                 ws,
                 row=total_row_1based + 3,
-                col=TOTALS_VALUE_COL,
+                col=layout.totals_value_col,
                 value=total_including,
             )
         if quotation_date_cell:
@@ -1249,7 +1486,7 @@ def fill_quotation(
             logger.error(f"裁剪列失败: {e}", exc_info=True)
         
         _normalize_sheet_view(ws)
-        wb.save(out_p)
+        _save_workbook(wb, out_p)
         return {"success": True, "output_path": str(out_p), "filled_count": filled, "error": None}
     except Exception as e:
         return {"success": False, "output_path": "", "filled_count": 0, "error": str(e)}

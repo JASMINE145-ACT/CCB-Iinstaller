@@ -80,6 +80,46 @@ def match_wanding_price_candidates(
     )
 
 
+def _candidate_description_english(candidate: dict[str, Any]) -> str:
+    return str(
+        candidate.get("description_english")
+        or candidate.get("Describrition_English")
+        or ""
+    ).strip()
+
+
+def enrich_quotation_candidate(
+    candidate: dict[str, Any],
+    *,
+    customer_level: str = "B",
+    price_library_path: Optional[str] = None,
+) -> dict[str, Any]:
+    """
+    为查价候选附加价格库英文描述。
+    indonesian_name 与 description_english 同值（印尼填表 H 列用英文产品名）。
+    """
+    from inventory.services.wanding_fuzzy_matcher import get_wanding_price_by_code
+
+    row = dict(candidate)
+    desc = _candidate_description_english(row)
+    code = str(row.get("code") or "").strip()
+    if not desc and code:
+        try:
+            price_row = get_wanding_price_by_code(
+                code,
+                customer_level=customer_level,
+                price_library_path=price_library_path,
+            )
+            if price_row is not None:
+                desc = str(price_row.get("description_english") or "").strip()
+        except Exception as e:
+            logger.debug("按 code 查万鼎英文描述失败: %s", e)
+    if desc:
+        row["description_english"] = desc[:500]
+    row["indonesian_name"] = desc
+    return row
+
+
 def _merge_candidates_by_code(
     mapping_candidates: List[dict],
     wanding_candidates: List[dict],
@@ -100,24 +140,93 @@ def _merge_candidates_by_code(
             "unit_price": float(c.get("unit_price", 0) or 0),
             "source": "历史报价",
         }
+        desc = _candidate_description_english(c)
+        if desc:
+            by_code[code]["description_english"] = desc[:500]
     for c in wanding_candidates:
         code = (c.get("code") or "").strip()
         if not code:
             continue
+        desc = _candidate_description_english(c)
         if code in by_code:
             if (c.get("unit_price") or 0) != 0:
                 by_code[code]["unit_price"] = float(c.get("unit_price", 0) or 0)
             if c.get("matched_name"):
                 by_code[code]["matched_name"] = (c.get("matched_name") or "")[:200]
+            if desc:
+                by_code[code]["description_english"] = desc[:500]
             by_code[code]["source"] = "共同"
         else:
-            by_code[code] = {
+            entry: dict[str, Any] = {
                 "code": code,
                 "matched_name": (c.get("matched_name") or "")[:200],
                 "unit_price": float(c.get("unit_price", 0) or 0),
                 "source": "字段匹配",
             }
+            if desc:
+                entry["description_english"] = desc[:500]
+            by_code[code] = entry
     return list(by_code.values())
+
+
+def _candidate_compat(keywords: str, candidate: dict[str, Any]) -> tuple[bool, float]:
+    try:
+        from inventory.services.wanding_fuzzy_matcher import _hard_filter_and_bonus, _normalize
+
+        return _hard_filter_and_bonus(
+            _normalize(keywords),
+            str(candidate.get("matched_name", "") or ""),
+            str(candidate.get("code", "") or ""),
+            str(candidate.get("Product_Type", "") or ""),
+        )
+    except Exception:
+        return True, 0.0
+
+
+def _is_strict_category_query(keywords: str) -> bool:
+    try:
+        from inventory.services.wanding_fuzzy_matcher import _normalize, _query_fitting
+
+        return _query_fitting(_normalize(keywords)) in {
+            "glue",
+            "hose",
+            "welder",
+            "triangle_valve",
+            "angle_valve",
+            "faucet",
+            "valve",
+            "tee",
+            "elbow",
+            "reducer",
+            "coupling",
+            "cap",
+        }
+    except Exception:
+        return False
+
+
+def _rank_compatible_candidates(
+    keywords: str,
+    candidates: List[dict[str, Any]],
+) -> List[dict[str, Any]]:
+    scored: list[tuple[dict[str, Any], bool, float]] = [
+        (candidate, *_candidate_compat(keywords, candidate)) for candidate in candidates
+    ]
+    if any(keep for _, keep, _ in scored):
+        scored = [item for item in scored if item[1]]
+    elif _is_strict_category_query(keywords):
+        return []
+    return sorted(
+        (candidate for candidate, _keep, _bonus in scored),
+        key=lambda c: _compat_sort_key(keywords, c),
+    )
+
+
+def _compat_sort_key(keywords: str, candidate: dict[str, Any]) -> tuple[int, float, int]:
+    keep, bonus = _candidate_compat(keywords, candidate)
+    penalty = 0 if keep else 1
+    source_rank = _SOURCE_PRIORITY.get(candidate.get("source", "字段匹配"), 2)
+    return penalty, -bonus, source_rank
 
 
 def match_quotation_union(
@@ -130,7 +239,8 @@ def match_quotation_union(
     """
     报价历史 + 字段匹配 并行取并集（仅匹配，不查库存、不 LLM 选型）。
     用于 Chat 询价/查 code：一次调用同时查历史与万鼎，返回带 source 的候选列表。
-    每条候选含 code, matched_name, unit_price, source（历史报价/字段匹配/共同）。
+    每条候选含 code, matched_name, unit_price, source（历史报价/字段匹配/共同），
+    以及 description_english / indonesian_name（价格库英文描述，填表 H 列用）。
     """
     from inventory.services.mapping_table_matcher import match_mapping_top_candidates
     from inventory.services.wanding_fuzzy_matcher import get_wanding_price_by_code
@@ -183,7 +293,15 @@ def match_quotation_union(
                     c["unit_price"] = float(price_row.get("unit_price", 0) or 0)
             except Exception as e:
                 logger.debug("按 code 查万鼎价格失败: %s", e)
-    return merged
+    ranked = _rank_compatible_candidates(keywords, merged)
+    return [
+        enrich_quotation_candidate(
+            c,
+            customer_level=customer_level,
+            price_library_path=price_library_path,
+        )
+        for c in ranked
+    ]
 
 
 def match_price_and_get_inventory(
@@ -237,10 +355,17 @@ def match_price_and_get_inventory(
             except Exception as e:
                 logger.debug("并行查询之一失败: %s", e)
 
-    candidates = sorted(
-        _merge_candidates_by_code(mapping_candidates, wanding_candidates),
-        key=lambda c: _SOURCE_PRIORITY.get(c.get("source", "字段匹配"), 2),
-    )[:10]
+    candidates = [
+        enrich_quotation_candidate(
+            c,
+            customer_level=customer_level,
+            price_library_path=price_library_path,
+        )
+        for c in _rank_compatible_candidates(
+            keywords,
+            _merge_candidates_by_code(mapping_candidates, wanding_candidates),
+        )
+    ][:10]
     r: Optional[dict[str, Any]] = None
 
     if not candidates:
@@ -254,6 +379,8 @@ def match_price_and_get_inventory(
             "matched_name": c.get("matched_name", ""),
             "unit_price": float(c.get("unit_price", 0) or 0),
             "match_source": c.get("source", "共同"),
+            "description_english": c.get("description_english", ""),
+            "indonesian_name": c.get("indonesian_name", ""),
         }
     else:
         options = []
@@ -299,6 +426,8 @@ def match_price_and_get_inventory(
         "available_qty": available_qty,
         "warehouse_qty": warehouse_qty,
         "match_source": r.get("match_source", "共同"),
+        "description_english": r.get("description_english", ""),
+        "indonesian_name": r.get("indonesian_name", ""),
     }
     selection_meta = r.get("_selection_meta")
     if selection_meta:
@@ -319,9 +448,16 @@ def match_quotation_english(
     """
     from inventory.services.wanding_fuzzy_matcher import match_english_candidates
 
-    return match_english_candidates(
-        keywords,
-        customer_level=customer_level,
-        price_library_path=price_library_path,
-        product_type=product_type,
-    )
+    return [
+        enrich_quotation_candidate(
+            c,
+            customer_level=customer_level,
+            price_library_path=price_library_path,
+        )
+        for c in match_english_candidates(
+            keywords,
+            customer_level=customer_level,
+            price_library_path=price_library_path,
+            product_type=product_type,
+        )
+    ]

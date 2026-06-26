@@ -4,7 +4,9 @@
 
 **Runtime recovery: ~complete.** Bundled 1.1.2 (Mixing UI + 万鼎 Guid cards) is restorable and usable from `D:\CCB-Wanding`.
 
-**Source-level pipeline: still open.** `aionui-src` has ~130 uncommitted CCB files; full rebuild-from-source → staging → NSIS not yet proven.
+**Source-level pipeline: still open.** Desktop CCB integration is committed locally (`109aa15`); push to fork + prove `build-wanding.ps1` rebuild.
+
+**Canonical doc**: [`.trellis/spec/guides/mixing-meta-repo.md`](../../spec/guides/mixing-meta-repo.md)
 
 ---
 
@@ -58,7 +60,7 @@ D:\CCB-Wanding\ccb-launch-aionui.cmd
 
 ## Remaining (Source-Level — Phase 3+)
 
-1. **Snapshot/commit** ~130 untracked paths in `D:\Projects\aionui-src` before any more `git restore`.
+1. **Push** `aionui-src` + `claude-code-best` + Mixing per [mixing-meta-repo.md](../../spec/guides/mixing-meta-repo.md) §7.
 2. **Rebuild pipeline**: `build-wanding.ps1 -Version 1.1.3-dev -SkipNsis` → verify Guid cards without hand-copying staging.
 3. **Dev parity**: bundled shows Mixing branding; dev source may still differ until rebuild.
 4. **Optional**: fix `D:\CCB-Wanding\scripts\ccb-update-auto.ps1` encoding parse error (non-blocking).
@@ -76,3 +78,16 @@ Key commands that passed:
 - `POST http://67.216.206.3:13401/login` (yjc) — success
 - `bun test tests/unit/common-config/ccbAgentCatalog.test.ts` — pass
 - User confirmed: **恢复的差不多** (2026-06-26)
+
+### Git snapshots (2026-06-26)
+
+| Repo | Branch | Commit | Remote |
+|------|--------|--------|--------|
+| `aionui-src` | `ccb-wanding-1.1.2-recovered` | `109aa15` | push to `wanding` → `JASMINE145-ACT/AionUi` (fork required) |
+| `claude-code-best` | `main` | `4432998e` | `JASMINE145-ACT/CCB-Iinstaller` |
+| `D:\Projects\Mixing` | `master` | `8403412` | `JASMINE145-ACT/Mixing` + tag `v1.1.2-recovered` |
+
+See `aionui-src-commit-audit.md` for file-level commit/ignore audit.  
+Meta-repo templates: `meta-repo/` in claude-code-best; local Mixing at `D:\Projects\Mixing`.  
+**Trellis guide**: [`.trellis/spec/guides/mixing-meta-repo.md`](../../spec/guides/mixing-meta-repo.md)
+

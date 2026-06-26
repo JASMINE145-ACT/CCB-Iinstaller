@@ -16,6 +16,7 @@ from quotation.quote_tools import (
     fill_quotation,
 )
 from quotation.shortage_report import generate_shortage_report
+from wanding_workspace_paths import coerce_write_path
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ def run_quotation_fill_flow(
     Args:
         quotation_path: 原始报价单 Excel 路径
         price_library_path: 万鼎价格库路径，默认从 Config 读取
-        output_path: 填充后输出路径，默认原文件_suffix_filled.xlsx
+        output_path: 填充后输出路径；未指定时写入当前会话工作区 `{stem}_filled{suffix}`
         sheet_name: 报价单工作表名
         customer_level: 客户级别 A/B/C/D（A=第一档利润价格）
     fill_even_shortage_for_test: 测试用，库存不足时仍回填（便于验证完整流程）
@@ -52,7 +53,10 @@ def run_quotation_fill_flow(
     """
     if not output_path:
         p = Path(quotation_path)
-        output_path = str(p.parent / (p.stem + "_filled" + p.suffix))
+        output_path = coerce_write_path(
+            None,
+            default_filename=f"{p.stem}_filled{p.suffix}",
+        )
 
     ext = extract_inquiry_items(quotation_path, sheet_name=sheet_name)
     if not ext.get("success"):
@@ -170,11 +174,36 @@ def run_quotation_fill_flow(
             "specification": u.get("specification", ""),
         })
 
+    from quotation.fill_enrich import enrich_fill_item
+    from inventory.services.wanding_fuzzy_matcher import get_wanding_price_by_code
+
+    enriched_fill_items: list[dict] = []
+    for fi in fill_items_merged:
+        code = str(fi.get("code") or "").strip()
+        price_row = None
+        if code and code != "无货":
+            try:
+                price_row = get_wanding_price_by_code(
+                    code,
+                    customer_level=customer_level,
+                    price_library_path=str(price_library_path) if price_library_path else None,
+                )
+            except Exception:
+                logger.debug("get_wanding_price_by_code failed for %s", code, exc_info=True)
+        inquiry_unit = ""
+        for it in items:
+            if it.get("row") == fi.get("row"):
+                inquiry_unit = str(it.get("inquiry_unit") or it.get("unit") or "").strip()
+                break
+        enriched_fill_items.append(
+            enrich_fill_item(fi, price_row=price_row, inquiry_unit=inquiry_unit)
+        )
+
     fill_result = {"filled_count": 0, "error": None}
-    if fill_items_merged:
+    if enriched_fill_items:
         fill_result = fill_quotation(
             file_path=quotation_path,
-            fill_items=fill_items_merged,
+            fill_items=enriched_fill_items,
             sheet_name=sheet_name,
             output_path=output_path,
         )

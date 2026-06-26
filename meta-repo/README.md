@@ -63,6 +63,13 @@ D:\CCB-Wanding\ccb-launch-aionui.cmd
 |-----|---------|
 | `v1.1.2-recovered` | Runtime recovery complete; submodule SHAs pinned |
 
+### Pinned commits (2026-06-26)
+
+| Submodule | Branch | Commit |
+|-----------|--------|--------|
+| `backend/` | `main` | `4432998e` (CCB-Iinstaller) |
+| `desktop/` | `ccb-wanding-1.1.2-recovered` | `109aa15` (AionUi fork) |
+
 ## What not to commit here
 
 - `backend/ccb-installer/staging/` (generated)

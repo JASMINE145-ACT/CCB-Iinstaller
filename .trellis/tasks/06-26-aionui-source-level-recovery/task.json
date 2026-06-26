@@ -56,7 +56,8 @@
     ".trellis/tasks/06-26-aionui-source-level-recovery/source-recovery-plan.md",
     ".trellis/tasks/06-26-aionui-source-level-recovery/baseline-inventory.md",
     ".trellis/tasks/06-26-aionui-source-level-recovery/source-gap-analysis.md",
-    ".trellis/tasks/06-26-aionui-source-level-recovery/status.md",
+    ".trellis/spec/guides/mixing-meta-repo.md",
+    ".trellis/tasks/06-26-aionui-source-level-recovery/aionui-src-commit-audit.md",
     "ccb-installer/scripts/recover-aionui-new-ui.ps1",
     "ccb-installer/ccb-launch-aionui.cmd",
     ".trellis/tasks/06-26-aionui-source-level-recovery/check.jsonl",
@@ -68,7 +69,7 @@
     "ccb-installer/patches/",
     "D:/Projects/aionui-src/"
   ],
-  "notes": "2026-06-26 runtime recovery ~complete (user confirmed). Bundled Mixing UI restorable via D:/CCB-Wanding/ccb-launch-aionui.cmd or ccb-installer/scripts/recover-aionui-new-ui.ps1. Key fixes: org-server.json UTF-8 BOM stripped (login networkError), ORG_SERVER_URL env in launch script, useCustomAgentsLoader aligned to bundled isAuthorityActive branch. Phase 1-2 done; phase 0 runtime recovery done. Phase 3 still blocked on committing ~130 untracked aionui-src CCB paths. Phase 4 in progress: bundled runtime verified against 1.1.2 baseline; full source rebuild not yet proven. See status.md and check.jsonl.",
+  "notes": "2026-06-26 runtime recovery ~complete (user confirmed). Canonical guide: .trellis/spec/guides/mixing-meta-repo.md. Git snapshots: desktop 109aa15 (ccb-wanding-1.1.2-recovered), backend 4432998e, Mixing 8403412 + tag v1.1.2-recovered. Phase 3 open: push forks + prove build-wanding rebuild. See status.md and check.jsonl.",
   "meta": {
     "baseline_version": "1.1.2",
     "baseline_staging": "ccb-installer/staging",

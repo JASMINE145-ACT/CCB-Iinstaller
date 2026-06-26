@@ -73,20 +73,87 @@ def _normalize_price_level(customer_level: str) -> str:
     s = (customer_level or "B_QUOTE").strip()
     if not s:
         return "B_QUOTE"
+    compact = re.sub(r"[\s_\-（）()：:]+", "", s).lower()
     # 中文：出厂价含税/不含税、采购不含税
-    if "出厂价" in s and "含税" in s:
-        return "FACTORY_INC_TAX"
     if "出厂价" in s and "不含税" in s:
         return "FACTORY_EXC_TAX"
+    if "出厂价" in s and "含税" in s:
+        return "FACTORY_INC_TAX"
     if "采购" in s and "不含税" in s:
         return "PURCHASE_EXC_TAX"
+    # LOCAL / RUCIKA / PE 须在通用 exctax/inctax 之前，避免 localexctax 等被误判为出厂价
+    if any(alias in compact for alias in ("localexctax", "local不含税", "localexc")) or (
+        "local" in compact and ("不含税" in s or "exctax" in compact)
+    ):
+        return "LOCAL_EXC_TAX"
+    if any(alias in compact for alias in ("localinctax", "local含税", "localinc")) or (
+        "local" in compact and ("inctax" in compact or ("含税" in s and "不含税" not in s))
+    ):
+        return "LOCAL_INC_TAX"
+    if "local" in compact or "本地价" in s or "本地价格" in s:
+        return "LOCAL_EXC_TAX"
+    if "rucika" in compact or "rucika" in s.lower():
+        if any(alias in compact for alias in ("quote2", "报单2", "第二组")):
+            return "RUCIKA_QUOTE_2"
+        if any(alias in compact for alias in ("quote1", "报单1", "第一组")):
+            return "RUCIKA_QUOTE_1"
+        if any(alias in compact for alias in ("pricelistexc", "excvat11")) or (
+            "pricelist" in compact and compact.endswith("exc")
+        ) or ("目录价" in s and "不含税" in s):
+            return "RUCIKA_PRICELIST_EXC"
+        if any(alias in compact for alias in ("pricelistinc", "incvat11")) or (
+            "pricelist" in compact and compact.endswith("inc")
+        ) or ("目录价" in s and "含税" in s and "不含税" not in s):
+            return "RUCIKA_PRICELIST_INC"
+        return "RUCIKA_QUOTE_1"
+    if any(alias in compact for alias in ("penominal", "pe面价", "nominalprice")) or (
+        "pe" in compact and "面价" in s
+    ):
+        return "PE_NOMINAL"
+    if any(alias in compact for alias in ("pefactory", "pe出厂价", "pe出厂")):
+        return "PE_FACTORY"
+    if any(alias in compact for alias in ("includetax", "含税出厂价", "出厂价含税")):
+        return "FACTORY_INC_TAX"
+    if any(alias in compact for alias in ("excludetax", "exctax", "不含税出厂价", "出厂价不含税")):
+        return "FACTORY_EXC_TAX"
+    if any(alias in compact for alias in ("purchaseprice", "purchaseexctax", "采购价", "采购价格", "采购不含税")):
+        return "PURCHASE_EXC_TAX"
+    if any(alias in compact for alias in ("二级代理", "二级代理a", "a级别", "a级", "aprice", "pricea")):
+        return "A_QUOTE"
+    if any(alias in compact for alias in ("一级代理", "一级代理b", "b级别", "b级", "默认价", "默认价格", "generalprice", "priceb")):
+        return "B_QUOTE"
+    if any(alias in compact for alias in ("聚万大客户", "聚万", "c级别", "c级", "pricec")):
+        return "C_QUOTE"
+    if any(alias in compact for alias in ("青山大客户降低", "青山降低", "d低", "dlow", "price_d_low", "pricedlow")):
+        return "D_LOW"
+    if any(alias in compact for alias in ("青山大客户", "青山价格", "青山价", "青山", "d级别", "d级", "mrkongprice", "孔总价", "孔总价格", "孔总", "priced")):
+        return "D_QUOTE"
+    if any(alias in compact for alias in ("大唐大客户", "大唐价格", "大唐价", "大唐", "e级别", "e级", "pricee")):
+        return "E_QUOTE"
+    if any(alias in compact for alias in ("其他客户价", "其他价格", "其他价", "其他")):
+        return "B_QUOTE"
     # 英文/代码
     u = s.upper().replace(" ", "_")
     if u in ("D_LOW", "D LOW", "DLOW"):
         return "D_LOW"
-    for key in ("FACTORY_INC_TAX", "FACTORY_EXC_TAX", "PURCHASE_EXC_TAX"):
-        if key in u or u == key:
+    for key in (
+        "FACTORY_INC_TAX",
+        "FACTORY_EXC_TAX",
+        "PURCHASE_EXC_TAX",
+        "LOCAL_EXC_TAX",
+        "LOCAL_INC_TAX",
+        "RUCIKA_PRICELIST_EXC",
+        "RUCIKA_PRICELIST_INC",
+        "RUCIKA_QUOTE_1",
+        "RUCIKA_QUOTE_2",
+        "PE_NOMINAL",
+        "PE_FACTORY",
+    ):
+        if u == key or u.replace("_", "") == key.replace("_", ""):
             return key
+    single_letter_quote = {"A": "A_QUOTE", "B": "B_QUOTE", "C": "C_QUOTE", "D": "D_QUOTE", "E": "E_QUOTE"}
+    if u in single_letter_quote:
+        return single_letter_quote[u]
     return u if u in PRICE_COLS else "B_QUOTE"
 
 
@@ -106,6 +173,14 @@ PRICE_LEVEL_DISPLAY_NAMES: dict[str, str] = {
     "D_LOW": "（青山大客户）D级别 降低利润率",
     "E_MARGIN": "（大唐大客户）E级别（包运费） 利润率",
     "E_QUOTE": "（大唐大客户）E级别（包运费） 报单价格",
+    "LOCAL_EXC_TAX": "LOCAL EXC TAX（本地不含税价）",
+    "LOCAL_INC_TAX": "LOCAL INC TAX（本地含税价）",
+    "RUCIKA_PRICELIST_EXC": "RUCIKA Pricelist Exc Vat 11%",
+    "RUCIKA_PRICELIST_INC": "RUCIKA Pricelist Inc Vat 11%",
+    "RUCIKA_QUOTE_1": "RUCIKA 报单价格（第一组）",
+    "RUCIKA_QUOTE_2": "RUCIKA 报单价格（第二组）",
+    "PE_NOMINAL": "PE 面价（印尼盾/条）",
+    "PE_FACTORY": "PE 出厂价/条",
     # 兼容旧代码
     "A": "（二级代理）A级别 利润率",
     "A_TURN": "（二级代理）A级别 利润率",
@@ -205,23 +280,25 @@ def _load_field_matching_rules_from_knowledge() -> List[tuple[List[str], List[st
     global _FIELD_MATCHING_RULES_CACHE
     try:
         from inventory.config import config
+        from admin.org_knowledge_client import load_doc_content
+
         path_str = getattr(config, "WANDING_BUSINESS_KNOWLEDGE_PATH", None)
-        if not path_str:
+        content = load_doc_content(
+            "wanding_business_knowledge",
+            fallback_path=path_str,
+            use_cache=True,
+        )
+        if not content and path_str:
+            p = Path(path_str)
+            if p.exists():
+                content = p.read_text(encoding="utf-8")
+        if not content:
             return []
-        p = Path(path_str)
-        if not p.exists():
-            return []
-        mtime: Optional[float] = None
-        try:
-            mtime = p.stat().st_mtime
-        except OSError:
-            pass
-        if (
-            _FIELD_MATCHING_RULES_CACHE.get("path") == path_str
-            and _FIELD_MATCHING_RULES_CACHE.get("mtime") == mtime
-        ):
+
+        cache_key = "org-api:wanding_business_knowledge" if content else str(path_str)
+        if _FIELD_MATCHING_RULES_CACHE.get("path") == cache_key:
             return _FIELD_MATCHING_RULES_CACHE.get("rules") or []
-        content = p.read_text(encoding="utf-8")
+
         rules: List[tuple[List[str], List[str]]] = []
         in_section = False
         for line in content.splitlines():
@@ -246,7 +323,7 @@ def _load_field_matching_rules_from_knowledge() -> List[tuple[List[str], List[st
             targets = [t.strip() for t in right.split() if t.strip()]
             if sources and targets:
                 rules.append((sources, targets))
-        _FIELD_MATCHING_RULES_CACHE = {"path": path_str, "mtime": mtime, "rules": rules}
+        _FIELD_MATCHING_RULES_CACHE = {"path": cache_key, "mtime": None, "rules": rules}
         return rules
     except Exception as e:
         logger.debug("加载字段匹配规则失败: %s", e)
@@ -377,6 +454,17 @@ CUN_INTEGER_TO_MM_STR = {
 
 # 脚本/旧测试兼容别名（仅「寸」映射；「分」见 FEN_TO_MM_STR）
 CUN_TO_MM = CUN_INTEGER_TO_MM_STR
+
+# 主径×副径口语规则：内外丝类询价里副径常按英寸侧理解。
+THREAD_SIDE_TO_INCH = {
+    "15": '1/2"',
+    "16": '1/2"',
+    "20": '1/2"',
+    "25": '3/4"',
+    "32": '1"',
+    "40": '1-1/4"',
+    "50": '1-1/2"',
+}
 
 # 日标 PVC-U 排水管件：外径口语数字 → 公称通径 DN
 # 这些数字不在 MM_TO_INCH（标准 DN 系列）中，出现在查询里必然是外径，不是 DN：
@@ -588,6 +676,8 @@ def _safe_to_float(val: Any) -> Optional[float]:
         f = float(val)
     except (TypeError, ValueError):
         return None
+    if f != f or f in (float("inf"), float("-inf")):
+        return None
     return f
 
 
@@ -669,6 +759,511 @@ def normalize_price(raw_price: Any) -> float:
     return value
 
 
+def _contains_any(text: str, patterns: list[str]) -> bool:
+    return any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
+
+
+def _is_pressure_token(token: str) -> bool:
+    text = _normalize(token or "")
+    return bool(
+        re.fullmatch(r"pn\s*[0-9]+(?:\.[0-9]+)?", text)
+        or re.fullmatch(r"[0-9]+(?:\.[0-9]+)?\s*mpa", text)
+    )
+
+
+def _query_ceiling(norm_kw: str) -> bool:
+    return _contains_any(
+        norm_kw,
+        [
+            r"\bceiling\b",
+            r"\bmain\s*hollow\b",
+            r"\bstelldrat\b",
+            r"\bsteel\s*drat\b",
+            r"\bsoldays\b",
+            r"\bdynabolt\b",
+            r"\bmur\s+soldays\b",
+        ],
+    )
+
+
+def _product_ceiling(product_text: str, product_type: str = "") -> bool:
+    text = _normalize(f"{product_text} {product_type}")
+    if re.search(r"\bceiling\b", _normalize(product_type or "")):
+        return True
+    return _contains_any(
+        text,
+        [
+            r"\bceiling\b",
+            r"\bmain\s*hollow\b",
+            r"\bstelldrat\b",
+            r"\bsteel\s*drat\b",
+            r"\bsoldays\b",
+            r"\bdynabolt\b",
+        ],
+    )
+
+
+def _query_ceiling_category(norm_kw: str) -> str | None:
+    if _contains_any(norm_kw, [r"\bmain\s*hollow\b", r"\bhollow\b"]):
+        return "main_hollow"
+    if _contains_any(norm_kw, [r"\bsteel\s*drat\b", r"\bstelldrat\b", r"\bdrat\b"]):
+        return "stelldrat"
+    if _contains_any(norm_kw, [r"\bdynabolt\b"]):
+        return "dynabolt"
+    if _contains_any(norm_kw, [r"\bmur\b"]):
+        return "mur"
+    if _contains_any(norm_kw, [r"\bmetal\s*ceiling\b", r"\bsnap\s*in\b", r"\bkeel\b"]):
+        return "panel"
+    if _contains_any(norm_kw, [r"\bhook\b"]):
+        return "hook"
+    return None
+
+
+def _product_ceiling_category(product_text: str) -> str | None:
+    text = _normalize(product_text or "")
+    if _contains_any(text, [r"\bmain\s*hollow\b", r"\bhollow\b"]):
+        return "main_hollow"
+    if _contains_any(text, [r"\bstelldrat\b", r"\bsteel\s*drat\b", r"\bdrat\b"]):
+        return "stelldrat"
+    if _contains_any(text, [r"\bdynabolt\b"]):
+        return "dynabolt"
+    if _contains_any(text, [r"\bmur\b"]):
+        return "mur"
+    if _contains_any(text, [r"\bmetal\s*ceiling\b", r"\bsnap\s*in\b", r"\bkeel\b", r"\btriangle\b"]):
+        return "panel"
+    if _contains_any(text, [r"\bhook\b"]):
+        return "hook"
+    return None
+
+
+def _query_rucika(norm_kw: str) -> bool:
+    return bool(re.search(r"\brucika\b", norm_kw))
+
+
+def _product_rucika_brand(product_text: str, product_type: str = "") -> bool:
+    """RUCIKA 品牌产品线（RUCIKA STANDARD/JIS），不含仅后缀带 - RUCIKA 的联塑日标件。"""
+    ptype = _normalize(product_type or "")
+    return bool(re.search(r"\brucika\b", ptype))
+
+
+def _looks_like_material_code(text: str) -> bool:
+    s = (text or "").strip()
+    if not s or " " in s:
+        return False
+    if re.fullmatch(r"\d{8,14}", s):
+        return True
+    return bool(re.fullmatch(r"[A-Za-z]{2,}(?:-[A-Za-z0-9]+)+", s))
+
+
+def _query_material(norm_kw: str) -> str | None:
+    if re.search(r"\bhdpe\b", norm_kw):
+        return "hdpe"
+    if re.search(r"\bppr\b", norm_kw):
+        return "ppr"
+    if re.search(r"\bpvc\b|\bupvc\b|\bcpvc\b", norm_kw):
+        return "pvc"
+    if re.search(r"\bpe\b", norm_kw):
+        return "pe"
+    return None
+
+
+def _product_material(product_text: str, product_type: str = "") -> str | None:
+    text = _normalize(f"{product_text} {product_type}")
+    if re.search(r"\bppr\b", text):
+        return "ppr"
+    if re.search(r"\bhdpe\b", text):
+        return "hdpe"
+    if re.search(r"\bpe\b", text):
+        return "pe"
+    if re.search(r"\bpvc\b|\bupvc\b|\bcpvc\b|rucika|\baw\b|\bd\b", text):
+        return "pvc"
+    return None
+
+
+def _query_usage(norm_kw: str) -> str | None:
+    if _contains_any(norm_kw, [r"穿线", r"电线", r"线管", r"conduit", r"electrical"]):
+        return "conduit"
+    if _contains_any(norm_kw, [r"排水", r"排污", r"下水", r"drain"]):
+        return "drain"
+    if _contains_any(norm_kw, [r"给水", r"供水", r"自来水", r"water supply", r"pressure"]):
+        return "water"
+    return None
+
+
+def _product_usage(product_text: str, code: str = "") -> str | None:
+    text = _normalize(product_text)
+    if code.startswith(("803002", "803004", "803005")):
+        return "conduit"
+    if _contains_any(text, [r"穿线", r"电线", r"线管", r"conduit", r"electrical"]):
+        return "conduit"
+    if _contains_any(text, [r"排水", r"排污", r"下水", r"drainage", r"drain", r"\bd\s*pipe\b"]):
+        return "drain"
+    if _contains_any(text, [r"给水", r"供水", r"自来水", r"water supply", r"\baw\b"]):
+        return "water"
+    return None
+
+
+def _query_fitting(norm_kw: str) -> str | None:
+    categories: list[tuple[str, list[str]]] = [
+        ("glue", [r"胶水", r"胶粘剂", r"cement", r"glue"]),
+        ("welder", [r"热熔器", r"焊接机", r"welding machine", r"welder"]),
+        ("hose", [r"软管", r"\bhose\b", r"flexible pipe", r"flexible tube"]),
+        ("triangle_valve", [r"三角阀", r"triangle valve"]),
+        ("angle_valve", [r"角阀", r"angle valve"]),
+        ("faucet", [r"水龙头", r"龙头", r"tap", r"faucet"]),
+        ("valve", [r"阀", r"valve"]),
+        ("tee", [r"三通", r"\btee\b"]),
+        ("elbow", [r"弯头", r"弯管", r"弯", r"elbow"]),
+        ("reducer", [r"变径", r"异径", r"大小头", r"reduc"]),
+        ("cap", [r"管帽", r"堵头", r"端盖", r"\bcap\b", r"\bplug\b"]),
+        ("coupling", [r"直接", r"直通", r"管箍", r"套筒", r"coupling", r"socket"]),
+    ]
+    for category, patterns in categories:
+        if _contains_any(norm_kw, patterns):
+            return category
+    if _contains_any(norm_kw, [r"管件", r"fitting"]):
+        return "fitting"
+    if _contains_any(norm_kw, [r"管材", r"水管", r"管子", r"\bpipe\b"]):
+        return "pipe"
+    return None
+
+
+def _product_fitting(product_text: str) -> str | None:
+    text = _normalize(product_text)
+    categories: list[tuple[str, list[str]]] = [
+        ("glue", [r"胶水", r"胶粘剂", r"cement", r"glue"]),
+        ("welder", [r"热熔器", r"焊接机", r"welding machine", r"welder"]),
+        ("hose", [r"软管", r"\bhose\b", r"flexible pipe", r"flexible tube"]),
+        ("triangle_valve", [r"三角阀", r"triangle valve"]),
+        ("angle_valve", [r"角阀", r"angle valve"]),
+        ("faucet", [r"水龙头", r"龙头", r"tap", r"faucet"]),
+        ("valve", [r"阀", r"valve"]),
+        ("tee", [r"三通", r"\btee\b"]),
+        ("elbow", [r"弯头", r"弯管", r"elbow"]),
+        ("reducer", [r"变径", r"异径", r"大小头", r"reduc"]),
+        ("cap", [r"管帽", r"堵头", r"端盖", r"\bcap\b", r"\bplug\b"]),
+        ("coupling", [r"直接", r"直通", r"管箍", r"套筒", r"coupling", r"socket"]),
+        ("pipe", [r"管材", r"水管", r"\bpipe\b", r"\btube\b"]),
+    ]
+    for category, patterns in categories:
+        if _contains_any(text, patterns):
+            return category
+    return None
+
+
+def _thread_gender(text: str) -> str | None:
+    norm_text = _normalize(text)
+    if _contains_any(norm_text, [r"内丝", r"内螺纹", r"female thread", r"\bfemale\b"]):
+        return "female"
+    if _contains_any(norm_text, [r"外丝", r"外螺纹", r"male thread", r"\bmale\b"]):
+        return "male"
+    return None
+
+
+def _extract_query_pressure(norm_kw: str) -> float | None:
+    match = re.search(r"\bpn\s*([0-9]+(?:\.[0-9]+)?)\b", norm_kw)
+    if match:
+        # Inverse of _apply_pressure_expansion: PN数字 = MPa × 10（PN6→0.6, PN16→1.6）
+        return float(match.group(1)) / 10
+    match = re.search(r"([0-9]+(?:\.[0-9]+)?)\s*mpa\b", norm_kw)
+    if match:
+        return float(match.group(1))
+    return None
+
+
+def _canon_numeric_token(value: str) -> str:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return str(value).strip().lower()
+    if number.is_integer():
+        return str(int(number))
+    return f"{number:.4f}".rstrip("0").rstrip(".")
+
+
+def _canon_size_component(value: str) -> str:
+    token = _normalize(value or "")
+    token = token.strip().strip('"＂')
+    token = token.replace("inch", "").replace("in", "").strip()
+    if token.startswith(("dn", "de", "od")):
+        token = re.sub(r"^(?:dn|de|od)\s*", "", token)
+    if re.fullmatch(r"\d+(?:\.\d+)?", token):
+        return _canon_numeric_token(token)
+    return token
+
+
+def _sub_size_equivalents(value: str, thread_side: bool = False) -> set[str]:
+    component = _canon_size_component(value)
+    equivalents = set()
+    if thread_side and component in THREAD_SIDE_TO_INCH:
+        equivalents.add(THREAD_SIDE_TO_INCH[component].strip('"'))
+        return equivalents
+    equivalents.add(component)
+    if component in MM_TO_INCH:
+        equivalents.add(MM_TO_INCH[component].strip('"'))
+    if component + '"' in INCH_TO_MM:
+        equivalents.add(INCH_TO_MM[component + '"'])
+    if component in INCH_TO_MM:
+        equivalents.add(INCH_TO_MM[component])
+    return equivalents
+
+
+def _compound_specs(text: str) -> set[tuple[str, frozenset[str]]]:
+    norm_text = _normalize(text)
+    specs: set[tuple[str, frozenset[str]]] = set()
+    side_pattern = r'([0-9]+(?:\.[0-9]+)?(?:\s*-\s*[0-9]+)?(?:/[0-9]+)?\s*(?:"|＂|in|inch)?)'
+    for match in re.finditer(
+        rf"\b(dn|de|od)?\s*([0-9]+(?:\.[0-9]+)?)\s*[x×*]\s*{side_pattern}",
+        norm_text,
+    ):
+        prefix = (match.group(1) or "").strip()
+        main = _canon_numeric_token(match.group(2))
+        sub = _sub_size_equivalents(match.group(3), thread_side=not bool(prefix))
+        if main and sub:
+            specs.add((main, frozenset(sub)))
+
+    # 口语紧凑写法，如 3220内丝三通 => dn32 x 1/2"。
+    for match in re.finditer(r"\b([1-9][0-9])([1-9][0-9])(?=[\u4e00-\u9fff]|$)", norm_text):
+        main = _canon_numeric_token(match.group(1))
+        sub = _sub_size_equivalents(match.group(2), thread_side=True)
+        if main and sub:
+            specs.add((main, frozenset(sub)))
+    return specs
+
+
+def _diameter_values(text: str) -> set[str]:
+    norm_text = _normalize(text)
+    values: set[str] = set()
+    for match in re.finditer(r"\b(?:dn|de|od|d)\s*([0-9]+(?:\.[0-9]+)?)(?=\b|x|×|\*)", norm_text):
+        values.add(_canon_numeric_token(match.group(1)))
+    for match in re.finditer(r"([0-9]+(?:\.[0-9]+)?)\s*mm\b", norm_text):
+        values.add(_canon_numeric_token(match.group(1)))
+    for match in re.finditer(r"\b([0-9]+(?:/[0-9]+)?|[0-9]+(?:\.[0-9]+)?)\s*(?:in|inch|英寸|寸|[\"＂])", norm_text):
+        values.add(match.group(1).strip().lower())
+    return values
+
+
+def _angle_values(text: str) -> set[int]:
+    norm_text = _normalize(text)
+    values: set[int] = set()
+    for match in re.finditer(r"\b(22\.5|45|90)\s*(?:°|度|deg|degree)?", norm_text):
+        values.add(int(float(match.group(1))))
+    if _contains_any(norm_text, [r"半弯", r"45\s*度", r"45\s*°", r"45\s*deg"]):
+        values.add(45)
+    if _contains_any(norm_text, [r"全弯", r"直角弯", r"90\s*度", r"90\s*°", r"90\s*deg"]):
+        values.add(90)
+    return values
+
+
+def _query_angle_preference(norm_kw: str) -> int | None:
+    angles = _angle_values(norm_kw)
+    if 45 in angles:
+        return 45
+    if 90 in angles:
+        return 90
+    if _query_fitting(norm_kw) == "elbow":
+        return 90
+    return None
+
+
+def _product_pressure_values(product_text: str) -> set[float]:
+    text = _normalize(product_text)
+    values: set[float] = set()
+    for match in re.finditer(r"\bpn\s*([0-9]+(?:\.[0-9]+)?)\b", text):
+        value = float(match.group(1))
+        values.add(value / 10 if value >= 10 else value)
+    for match in re.finditer(r"([0-9]+(?:\.[0-9]+)?)\s*mpa\b", text):
+        values.add(float(match.group(1)))
+    return values
+
+
+def _extract_query_length(norm_kw: str) -> float | None:
+    match = re.search(r"([0-9]+(?:\.[0-9]+)?)\s*(?:m(?![a-z])|米)\s*(?:/|每)?\s*(?:根|pcs|pc)?", norm_kw)
+    if match:
+        return float(match.group(1))
+    return None
+
+
+def _product_length(product_text: str) -> float | None:
+    text = _normalize(product_text)
+    match = re.search(r"([0-9]+(?:\.[0-9]+)?)\s*(?:m(?![a-z])|米)\s*(?:/|每)?\s*(?:根|pcs|pc)?", text)
+    if match:
+        return float(match.group(1))
+    return None
+
+
+def _hard_filter_and_bonus(
+    norm_kw: str,
+    product_text: str,
+    code: str = "",
+    product_type: str = "",
+) -> tuple[bool, float]:
+    product_norm = _normalize(f"{product_text} {product_type}")
+    bonus = 0.0
+
+    if _query_ceiling(norm_kw):
+        if not _product_ceiling(product_norm, product_type):
+            return False, 0.0
+        bonus += 0.2
+        q_ceiling_cat = _query_ceiling_category(norm_kw)
+        p_ceiling_cat = _product_ceiling_category(product_norm)
+        if q_ceiling_cat and p_ceiling_cat and q_ceiling_cat != p_ceiling_cat:
+            return False, 0.0
+        if q_ceiling_cat and p_ceiling_cat and q_ceiling_cat == p_ceiling_cat:
+            bonus += 0.2
+
+    if _query_rucika(norm_kw):
+        if not _product_rucika_brand(product_norm, product_type):
+            return False, 0.0
+        bonus += 0.25
+    elif _product_rucika_brand(product_norm, product_type):
+        return False, 0.0
+
+    q_material = _query_material(norm_kw)
+    p_material = _product_material(product_norm, product_type)
+    if q_material and p_material and q_material != p_material:
+        if not (q_material == "pe" and p_material == "hdpe"):
+            return False, 0.0
+    if q_material and p_material:
+        bonus += 0.08
+
+    q_usage = _query_usage(norm_kw)
+    p_usage = _product_usage(product_norm, code)
+    if q_usage and p_usage and q_usage != p_usage:
+        return False, 0.0
+    if q_usage and p_usage:
+        bonus += 0.12
+
+    q_fit = _query_fitting(norm_kw)
+    p_fit = _product_fitting(product_norm)
+    non_pipe_categories = {
+        "tee",
+        "elbow",
+        "reducer",
+        "coupling",
+        "valve",
+        "triangle_valve",
+        "angle_valve",
+        "faucet",
+        "cap",
+        "glue",
+        "hose",
+        "welder",
+    }
+    exact_categories = {
+        "tee",
+        "elbow",
+        "reducer",
+        "coupling",
+        "valve",
+        "triangle_valve",
+        "angle_valve",
+        "faucet",
+        "cap",
+        "glue",
+        "hose",
+        "welder",
+    }
+    if q_fit == "pipe" and p_fit in non_pipe_categories:
+        return False, 0.0
+    if q_fit in exact_categories:
+        if p_fit and p_fit != q_fit:
+            return False, 0.0
+        if p_fit is None and q_fit != "glue":
+            return False, 0.0
+    if q_fit == "fitting" and p_fit in {"pipe", "faucet", "glue", "hose", "welder"}:
+        return False, 0.0
+    if q_fit and p_fit == q_fit:
+        bonus += 0.18
+    if q_material == "pvc" and q_usage is None and q_fit == "pipe":
+        if p_usage == "drain":
+            bonus += 0.14
+        elif p_usage == "water":
+            bonus -= 0.04
+
+    q_compounds = _compound_specs(norm_kw)
+    p_compounds = _compound_specs(product_norm)
+    if q_compounds:
+        if p_compounds:
+            matched_compound = any(
+                q_main == p_main and not q_subs.isdisjoint(p_subs)
+                for q_main, q_subs in q_compounds
+                for p_main, p_subs in p_compounds
+            )
+            if not matched_compound:
+                return False, 0.0
+            bonus += 0.18
+        elif q_fit in {"tee", "elbow", "reducer", "coupling"}:
+            return False, 0.0
+
+    if q_fit == "tee" and not _contains_any(norm_kw, [r"异径", r"变径", r"大小头", r"reduc", r"[x×*]"]):
+        if _contains_any(product_norm, [r"异径", r"变径", r"reduc", r"[x×*]"]):
+            bonus -= 0.1
+        else:
+            bonus += 0.08
+
+    q_thread = _thread_gender(norm_kw)
+    p_thread = _thread_gender(product_norm)
+    if q_thread:
+        if p_thread != q_thread:
+            return False, 0.0
+        bonus += 0.12
+
+    q_angle = _query_angle_preference(norm_kw)
+    p_angles = _angle_values(product_norm)
+    if q_angle is not None and p_angles:
+        if q_angle not in p_angles:
+            if not (_query_fitting(norm_kw) == "elbow" and not _angle_values(norm_kw)):
+                return False, 0.0
+            bonus -= 0.08
+        else:
+            bonus += 0.08
+
+    q_diameters = _diameter_values(norm_kw)
+    p_diameters = _diameter_values(product_norm)
+    if q_diameters and p_diameters:
+        if q_diameters.isdisjoint(p_diameters):
+            return False, 0.0
+        bonus += 0.1
+
+    q_pressure = _extract_query_pressure(norm_kw)
+    p_pressures = _product_pressure_values(product_norm)
+    if q_pressure is not None and p_pressures:
+        if not any(abs(q_pressure - pressure) < 0.001 for pressure in p_pressures):
+            return False, 0.0
+        bonus += 0.1
+
+    q_length = _extract_query_length(norm_kw)
+    p_length = _product_length(product_norm)
+    if q_length is not None and p_length is not None:
+        if abs(q_length - p_length) > 0.001:
+            return False, 0.0
+        bonus += 0.06
+
+    if _contains_any(norm_kw, [r"热水", r"hot water"]) and _contains_any(product_norm, [r"冷水", r"cold water"]):
+        return False, 0.0
+    if _contains_any(norm_kw, [r"冷水", r"cold water"]) and _contains_any(product_norm, [r"热水", r"hot water"]):
+        return False, 0.0
+
+    if q_material in {"pe", "hdpe"}:
+        wants_electrofusion = _contains_any(norm_kw, [r"电熔", r"electrofusion"])
+        wants_butt = _contains_any(norm_kw, [r"对接", r"butt", r"welding"])
+        is_electrofusion = _contains_any(product_norm, [r"电熔", r"electrofusion"])
+        if wants_electrofusion and not is_electrofusion:
+            return False, 0.0
+        if not wants_electrofusion and is_electrofusion:
+            return False, 0.0
+        if wants_butt and is_electrofusion:
+            return False, 0.0
+        if wants_electrofusion:
+            bonus += 0.14
+
+    if q_fit == "glue" and not _contains_any(product_norm, [r"胶水", r"胶粘剂", r"cement", r"glue"]):
+        return False, 0.0
+
+    return True, bonus
+
+
 def search_fuzzy(
     df: pd.DataFrame,
     keyword: str,
@@ -697,6 +1292,17 @@ def search_fuzzy(
         query_text_tokens = {
             t for t in chinese_tokens if not (re.search(r"\d", t) and not t.endswith("°"))
         }
+        query_size_tokens = {t for t in query_size_tokens if not _is_pressure_token(t)}
+        query_text_tokens = {t for t in query_text_tokens if not _is_pressure_token(t)}
+        query_pressure = _extract_query_pressure(norm_kw)
+        if query_pressure is not None:
+            pressure_tokens = {
+                _canon_numeric_token(str(query_pressure)),
+                _canon_numeric_token(str(query_pressure * 10)),
+            }
+            query_size_tokens = {
+                t for t in query_size_tokens if _canon_numeric_token(t) not in pressure_tokens
+            }
         query_material = material_tokens[0] if material_tokens else None
 
         # q_eq 提出行循环：只依赖 q_spec + query_material，与当前行无关
@@ -718,6 +1324,15 @@ def search_fuzzy(
         for row in df.itertuples(index=False):
             row_id = getattr(row, "Material", getattr(row, "Describrition", str(row)))
             raw_text = str(getattr(row, field, ""))
+            code_text = str(getattr(row, "Material", "") or "")
+            product_type_text = str(getattr(row, "Product_Type", "") or "")
+            product_text_for_rules = " ".join(
+                [
+                    raw_text,
+                    str(getattr(row, "Describrition_English", "") or ""),
+                    product_type_text,
+                ]
+            )
 
             # 使用预计算列，fallback 到实时计算（兼容未预计算的 df）
             if has_precomputed:
@@ -729,7 +1344,33 @@ def search_fuzzy(
                     t for t in _split_tokens(raw_text) if re.search(r"\d", t)
                 )
 
+            keep_candidate, compat_bonus = _hard_filter_and_bonus(
+                norm_kw,
+                product_text_for_rules,
+                code_text,
+                product_type_text,
+            )
+            if not keep_candidate:
+                continue
+
             if material_tokens and not all(m.lower() in normalized_text for m in material_tokens):
+                if _query_material(norm_kw) != _product_material(product_text_for_rules, product_type_text):
+                    continue
+
+            if _query_fitting(norm_kw) == "glue" and not query_size_tokens:
+                score = compat_bonus or 0.1
+                row_dict = {
+                    "code": code_text,
+                    "matched_name": raw_text,
+                }
+                if hasattr(row, "unit_price"):
+                    row_dict["unit_price"] = getattr(row, "unit_price", 0.0)
+                if hasattr(row, "Product_Type"):
+                    row_dict["Product_Type"] = product_type_text.strip()
+                desc_en = str(getattr(row, "Describrition_English", "") or "").strip()
+                if desc_en:
+                    row_dict["description_english"] = desc_en
+                iter_rows.append((row_dict, score, 0))
                 continue
 
             # set 交集替代 any(eq in product_specs for eq in q_eq)
@@ -750,16 +1391,20 @@ def search_fuzzy(
 
             hit_weight = size_hits + multi_hits + single_hits * _SINGLE_CHAR_WEIGHT
             score = hit_weight / total_weight if total_weight > 0 else 0.0
+            score += compat_bonus
 
             if score > 0 and (row_id not in results or score > results[row_id][1]):
                 row_dict: dict[str, Any] = {
-                    "code": str(getattr(row, "Material", "")),
+                    "code": code_text,
                     "matched_name": raw_text,
                 }
                 if hasattr(row, "unit_price"):
                     row_dict["unit_price"] = getattr(row, "unit_price", 0.0)
                 if hasattr(row, "Product_Type"):
-                    row_dict["Product_Type"] = str(getattr(row, "Product_Type", "") or "").strip()
+                    row_dict["Product_Type"] = product_type_text.strip()
+                desc_en = str(getattr(row, "Describrition_English", "") or "").strip()
+                if desc_en:
+                    row_dict["description_english"] = desc_en
                 iter_rows.append((row_dict, score, inch_exact_hits))
 
         # 英寸优先：若查询里显式给了英寸，且存在英寸精确命中的候选，
@@ -804,6 +1449,175 @@ def _load_one_sheet(ws, price_col: int) -> list[dict]:
     return rows
 
 
+def _new_price_field_for_level(level: str) -> str:
+    lu = _normalize_price_level(level)
+    if lu == "FACTORY_INC_TAX":
+        return "factory_inc_tax"
+    if lu == "FACTORY_EXC_TAX":
+        return "factory_exc_tax"
+    if lu == "PURCHASE_EXC_TAX":
+        return "purchase_exc_tax"
+    if lu == "LOCAL_EXC_TAX":
+        return "local_exc_tax"
+    if lu == "LOCAL_INC_TAX":
+        return "local_inc_tax"
+    if lu == "RUCIKA_PRICELIST_EXC":
+        return "rucika_pricelist_exc_vat11"
+    if lu == "RUCIKA_PRICELIST_INC":
+        return "rucika_pricelist_inc_vat11"
+    if lu == "RUCIKA_QUOTE_1":
+        return "rucika_quote_price_1"
+    if lu == "RUCIKA_QUOTE_2":
+        return "rucika_quote_price_2"
+    if lu == "PE_NOMINAL":
+        return "pe_nominal_price"
+    if lu == "PE_FACTORY":
+        return "pe_factory_price"
+    if lu.startswith("A_") or lu == "A":
+        return "price_a"
+    if lu.startswith("B_") or lu == "B":
+        return "price_b"
+    if lu.startswith("C_") or lu == "C":
+        return "price_c"
+    if lu in ("D_LOW", "D_WHOLESALE"):
+        return "price_d_low"
+    if lu.startswith("D_") or lu == "D":
+        return "price_d"
+    if lu.startswith("E_") or lu == "E":
+        return "price_e"
+    return "price_b"
+
+
+def _fallback_price_fields_for_level(level: str) -> list[str]:
+    """Price columns to try in order. Extended tiers avoid cross-tier fallback to B."""
+    lu = _normalize_price_level(level)
+    field = _new_price_field_for_level(lu)
+    extended: dict[str, list[str]] = {
+        "LOCAL_EXC_TAX": ["local_exc_tax", "local_inc_tax"],
+        "LOCAL_INC_TAX": ["local_inc_tax", "local_exc_tax"],
+        "RUCIKA_PRICELIST_EXC": [
+            "rucika_pricelist_exc_vat11",
+            "factory_exc_tax",
+            "rucika_quote_price_1",
+        ],
+        "RUCIKA_PRICELIST_INC": [
+            "rucika_pricelist_inc_vat11",
+            "factory_inc_tax",
+            "rucika_quote_price_1",
+        ],
+        "RUCIKA_QUOTE_1": ["rucika_quote_price_1", "price_b"],
+        "RUCIKA_QUOTE_2": ["rucika_quote_price_2", "price_d"],
+        "PE_NOMINAL": ["pe_nominal_price", "pe_factory_price", "price_b"],
+        "PE_FACTORY": [
+            "pe_factory_price",
+            "factory_exc_tax",
+            "purchase_exc_tax",
+            "price_b",
+        ],
+    }
+    if lu in extended:
+        seen: set[str] = set()
+        ordered: list[str] = []
+        for name in extended[lu]:
+            if name not in seen:
+                seen.add(name)
+                ordered.append(name)
+        return ordered
+    chain = [
+        field,
+        "price_b",
+        "factory_exc_tax",
+        "purchase_exc_tax",
+        "factory_inc_tax",
+        "pe_factory_price",
+        "rucika_quote_price_1",
+    ]
+    ordered: list[str] = []
+    seen: set[str] = set()
+    for name in chain:
+        if name not in seen:
+            seen.add(name)
+            ordered.append(name)
+    return ordered
+
+
+def _coerce_bool(value: Any, default: bool = True) -> bool:
+    if value in (None, ""):
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    text = str(value).strip().lower()
+    if text in {"1", "true", "yes", "y", "on"}:
+        return True
+    if text in {"0", "false", "no", "n", "off"}:
+        return False
+    return default
+
+
+def _safe_float_or_zero(value: Any) -> float:
+    parsed = _safe_to_float(value)
+    return float(parsed) if parsed is not None else 0.0
+
+
+def _load_new_price_library_sheet(ws, customer_level: str) -> list[dict]:
+    """Load unified price_library sheet and adapt it to legacy matcher columns."""
+    rows = list(ws.iter_rows(values_only=True))
+    if not rows:
+        return []
+    headers = [str(v or "").strip() for v in rows[0]]
+    header_idx = {name: idx for idx, name in enumerate(headers) if name}
+    required = {"material", "description"}
+    if not required.issubset(header_idx):
+        return []
+    out: list[dict] = []
+    fallback_price_fields = _fallback_price_fields_for_level(customer_level)
+
+    def cell(row: tuple[Any, ...], name: str) -> Any:
+        idx = header_idx.get(name)
+        if idx is None or idx >= len(row):
+            return None
+        return row[idx]
+
+    for row in rows[1:]:
+        material = str(cell(row, "material") or "").strip()
+        desc = str(cell(row, "description") or "").strip()
+        if not material or not desc:
+            continue
+        if not _coerce_bool(cell(row, "is_preferred_price"), default=True):
+            continue
+
+        desc_cn = str(cell(row, "description_cn") or "").strip()
+        desc_en = str(cell(row, "description_english") or "").strip()
+        display_desc = desc_cn or desc
+        unit_price = 0.0
+        for field_name in fallback_price_fields:
+            unit_price = _safe_float_or_zero(cell(row, field_name))
+            if unit_price:
+                break
+        search_text = " ".join(
+            part for part in [display_desc, desc, desc_cn, desc_en] if part
+        )
+        out.append(
+            {
+                "Material": material,
+                "Describrition": display_desc,
+                "Describrition_Raw": desc,
+                "Describrition_CN": desc_cn,
+                "Describrition_English": desc_en,
+                "Product_Type": str(cell(row, "product_type") or "").strip(),
+                "unit_price": unit_price,
+                "source_file": str(cell(row, "source_file") or "").strip(),
+                "source_sheet": str(cell(row, "source_sheet") or "").strip(),
+                "source_row": cell(row, "source_row"),
+                "search_text": search_text,
+                "is_preferred_price": True,
+            }
+        )
+    return out
+
+
 def load_wanding_df(
     path: str | Path,
     sheet_name: str = "管材",
@@ -832,18 +1646,22 @@ def load_wanding_df(
     try:
         wb = openpyxl.load_workbook(p, read_only=True, data_only=True)
         all_rows: list[dict] = []
-        # 先加载管材
-        ws_guan = wb["管材"] if "管材" in wb.sheetnames else (wb.active or wb[wb.sheetnames[0]])
-        all_rows.extend(_load_one_sheet(ws_guan, price_col))
-        # 若存在国标管件 sheet，一并加载（8020020643 带检查口弯头、8020020205 管帽等在此表）
-        if "国标管件" in wb.sheetnames:
-            all_rows.extend(_load_one_sheet(wb["国标管件"], price_col))
+        if "price_library" in wb.sheetnames:
+            all_rows.extend(_load_new_price_library_sheet(wb["price_library"], level))
+        else:
+            # 先加载管材
+            ws_guan = wb["管材"] if "管材" in wb.sheetnames else (wb.active or wb[wb.sheetnames[0]])
+            all_rows.extend(_load_one_sheet(ws_guan, price_col))
+            # 若存在国标管件 sheet，一并加载（8020020643 带检查口弯头、8020020205 管帽等在此表）
+            if "国标管件" in wb.sheetnames:
+                all_rows.extend(_load_one_sheet(wb["国标管件"], price_col))
         wb.close()
         df = pd.DataFrame(all_rows)
         if not df.empty:
             # 预计算 normalized text 和规格 token 集，避免 search_fuzzy 每行重算
-            df["norm_text"] = df["Describrition"].apply(_normalize)
-            df["spec_tokens"] = df["Describrition"].apply(
+            search_series = df["search_text"] if "search_text" in df.columns else df["Describrition"]
+            df["norm_text"] = search_series.apply(_normalize)
+            df["spec_tokens"] = search_series.apply(
                 lambda t: frozenset(tok for tok in _split_tokens(t) if re.search(r"\d", tok))
             )
         return df
@@ -854,11 +1672,10 @@ def load_wanding_df(
 
 def invalidate_wanding_cache() -> None:
     """清除万鼎 DataFrame 缓存（admin 更新 Neon 数据后调用）。"""
-    global _full_df_cache
     with _df_cache_lock:
         _df_cache.clear()
     with _full_df_lock:
-        _full_df_cache = None
+        _full_df_cache.clear()
     logger.info("wanding_fuzzy_matcher: DataFrame caches cleared")
 
 
@@ -971,25 +1788,35 @@ def _try_load_from_db(level: str) -> Optional[pd.DataFrame]:
             return None
         records = []
         for r in rows:
+            if not _coerce_bool(r.get("is_preferred_price"), default=True):
+                continue
             up = r.get(field)
             try:
                 up_f = float(up) if up is not None else 0.0
             except (TypeError, ValueError):
                 up_f = 0.0
+            desc = str(r.get("description") or "").strip()
+            desc_cn = str(r.get("description_cn") or "").strip()
+            desc_en = str(r.get("description_english") or "").strip()
+            display_desc = desc_cn or desc
             records.append(
                 {
                     "Material": str(r.get("material") or "").strip(),
-                    "Describrition": str(r.get("description") or "").strip(),
-                    "Describrition_English": str(r.get("description_english") or "").strip(),
+                    "Describrition": display_desc,
+                    "Describrition_Raw": desc,
+                    "Describrition_CN": desc_cn,
+                    "Describrition_English": desc_en,
                     "Product_Type": str(r.get("product_type") or "").strip(),
                     "unit_price": up_f,
+                    "search_text": " ".join(part for part in [display_desc, desc, desc_cn, desc_en] if part),
                 }
             )
         df = pd.DataFrame(records)
         if df.empty:
             return None
-        df["norm_text"] = df["Describrition"].apply(_normalize)
-        df["spec_tokens"] = df["Describrition"].apply(
+        search_series = df["search_text"] if "search_text" in df.columns else df["Describrition"]
+        df["norm_text"] = search_series.apply(_normalize)
+        df["spec_tokens"] = search_series.apply(
             lambda t: frozenset(tok for tok in _split_tokens(t) if re.search(r"\d", tok))
         )
         logger.info("wanding_fuzzy_matcher: loaded %d rows from DB (level=%s)", len(df), level)
@@ -1005,7 +1832,7 @@ _df_cache_lock = threading.Lock()
 
 
 def _get_cached_df(path, customer_level: str) -> pd.DataFrame:
-    """线程安全地获取 DataFrame。优先 Neon（有数据时），否则读本地 xlsx。"""
+    """线程安全地获取 DataFrame。优先 Neon（有数据时），否则读本地新价库 xlsx（不回退旧表）。"""
     level = _normalize_price_level(customer_level)
     cache_key = f"{path}:{level}"
     with _df_cache_lock:
@@ -1014,46 +1841,58 @@ def _get_cached_df(path, customer_level: str) -> pd.DataFrame:
             if df_db is not None and not df_db.empty:
                 _df_cache[cache_key] = df_db
             else:
-                _df_cache[cache_key] = load_wanding_df(path, customer_level=level)
+                df_local = load_wanding_df(path, customer_level=level)
+                if df_local.empty:
+                    logger.error(
+                        "price library missing or empty (legacy fallback disabled): %s",
+                        path,
+                    )
+                _df_cache[cache_key] = df_local
         return _df_cache[cache_key]
 
 
 # --------- 利润率查询（按 code / 完整名称 + 价格）---------
 
-_full_df_cache: Optional[pd.DataFrame] = None
+_full_df_cache: dict[str, pd.DataFrame] = {}
 _full_df_lock = threading.Lock()
 
 
 def _load_full_price_df(path: str | Path) -> pd.DataFrame:
     """加载完整万鼎价格库 DataFrame（包含所有价格与利润率列），供利润率查询使用。"""
-    global _full_df_cache
-    if _full_df_cache is not None:
-        return _full_df_cache
+    p = Path(path)
+    if not p.is_absolute():
+        root = Path(__file__).resolve().parent.parent.parent
+        p = root / p
+    cache_key = str(p.resolve()) if p.exists() else str(p)
+    if cache_key in _full_df_cache:
+        return _full_df_cache[cache_key]
     with _full_df_lock:
-        if _full_df_cache is not None:
-            return _full_df_cache
-        p = Path(path)
-        if not p.is_absolute():
-            root = Path(__file__).resolve().parent.parent.parent
-            p = root / p
+        if cache_key in _full_df_cache:
+            return _full_df_cache[cache_key]
         if not p.exists():
             logger.warning("万鼎价格库不存在: %s", p)
-            _full_df_cache = pd.DataFrame()
-            return _full_df_cache
+            _full_df_cache[cache_key] = pd.DataFrame()
+            return _full_df_cache[cache_key]
         try:
             # 同时加载「管材」与「国标管件」两个 sheet 并合并
             sheets = pd.read_excel(p, sheet_name=None)
+            if "price_library" in sheets:
+                df_new = sheets["price_library"]
+                if "is_preferred_price" in df_new.columns:
+                    df_new = df_new[df_new["is_preferred_price"].apply(lambda v: _coerce_bool(v, default=True))]
+                _full_df_cache[cache_key] = df_new
+                return _full_df_cache[cache_key]
             frames: list[pd.DataFrame] = []
             for name, df in sheets.items():
                 if name in ("管材", "国标管件") or not frames:
                     frames.append(df)
             df_all = pd.concat(frames, ignore_index=True)
-            _full_df_cache = df_all
-            return _full_df_cache
+            _full_df_cache[cache_key] = df_all
+            return _full_df_cache[cache_key]
         except Exception as e:
             logger.warning("加载完整万鼎价格库失败: %s", e)
-            _full_df_cache = pd.DataFrame()
-            return _full_df_cache
+            _full_df_cache[cache_key] = pd.DataFrame()
+            return _full_df_cache[cache_key]
 
 
 def _compute_profit_for_price(row: pd.Series, price: float) -> dict[str, Any]:
@@ -1066,6 +1905,52 @@ def _compute_profit_for_price(row: pd.Series, price: float) -> dict[str, Any]:
       不再回退到“距离最小”的近似档位。
     """
     all_levels: list[dict[str, Any]] = []
+    if any(name in row.index for name in ("price_a", "price_b", "price_c", "price_d", "price_d_low", "price_e")):
+        named_levels = [
+            ("A_QUOTE", "price_a", "profit_a"),
+            ("B_QUOTE", "price_b", "profit_b"),
+            ("C_QUOTE", "price_c", "profit_c"),
+            ("D_QUOTE", "price_d", "profit_d"),
+            ("D_LOW", "price_d_low", "profit_d_low"),
+            ("E_QUOTE", "price_e", "profit_e"),
+            ("LOCAL_EXC_TAX", "local_exc_tax", "local_profit"),
+            ("LOCAL_INC_TAX", "local_inc_tax", "local_profit"),
+            ("RUCIKA_QUOTE_1", "rucika_quote_price_1", "rucika_quote_profit_1"),
+            ("RUCIKA_QUOTE_2", "rucika_quote_price_2", "rucika_quote_profit_2"),
+        ]
+        for level, price_field, profit_field in named_levels:
+            price_val = _safe_to_float(row.get(price_field))
+            if price_val is None or price_val == 0:
+                continue
+            all_levels.append(
+                {
+                    "level": level,
+                    "price": price_val,
+                    "profit": _safe_to_float(row.get(profit_field)),
+                    "level_display": PRICE_LEVEL_DISPLAY_NAMES.get(level, level),
+                }
+            )
+        matched_level = None
+        matched_price = None
+        matched_profit = None
+        if all_levels:
+            target = float(price)
+            _tolerance = max(0.01, abs(target) * 1e-5)
+            exact = [entry for entry in all_levels if abs(entry["price"] - target) <= _tolerance]
+            if exact:
+                best = exact[0]
+                matched_level = best["level"]
+                matched_price = best["price"]
+                matched_profit = best["profit"]
+        return {
+            "code": str(row.get("material") or row.get("Material") or row.get("code") or "").strip(),
+            "name": str(row.get("description_cn") or row.get("description") or row.get("Describrition") or row.get("Description") or "").strip(),
+            "matched_price_level": matched_level,
+            "matched_price": matched_price,
+            "matched_profit": matched_profit,
+            "all_levels": all_levels,
+        }
+
     for level in ("A_QUOTE", "B_QUOTE", "C_QUOTE", "D_QUOTE", "D_LOW", "E_QUOTE"):
         price_col = PRICE_COLS.get(level)
         profit_col = PROFIT_COLS.get(level)
@@ -1116,7 +2001,10 @@ def get_profit_rows_by_code(code: str, price: float, path: str | Path) -> list[d
     if df.empty:
         return []
     code_norm = _normalize_code_for_match(code)
-    if "Material" in df.columns:
+    if "material" in df.columns:
+        mask = df["material"].apply(lambda v: _normalize_code_for_match(v) == code_norm)
+        rows = df[mask]
+    elif "Material" in df.columns:
         # 统一规范化：库中可能是 8010072480.0，用户传 8010072480，需一致
         mask = df["Material"].apply(lambda v: _normalize_code_for_match(v) == code_norm)
         rows = df[mask]
@@ -1131,10 +2019,26 @@ def get_profit_rows_by_name(name: str, price: float, path: str | Path) -> list[d
     if df.empty:
         return []
     name_norm = _normalize(name)
-    col = "Describrition" if "Describrition" in df.columns else "Description"
+    if "description_cn" in df.columns:
+        col = "description_cn"
+    elif "description" in df.columns:
+        col = "description"
+    else:
+        col = "Describrition" if "Describrition" in df.columns else "Description"
     series = df[col].astype(str).apply(_normalize)
     rows = df[series == name_norm]
     return [_compute_profit_for_price(row, price) for _, row in rows.iterrows()]
+
+
+def _try_match_material_code(
+    keywords: str,
+    customer_level: str = "B",
+    price_library_path: Optional[str | Path] = None,
+) -> Optional[dict[str, Any]]:
+    code = (keywords or "").strip()
+    if not _looks_like_material_code(code):
+        return None
+    return get_wanding_price_by_code(code, customer_level, price_library_path)
 
 
 def match_fuzzy(
@@ -1149,6 +2053,18 @@ def match_fuzzy(
     先按业务知识【字段匹配补充规则】扩展检索词，再做同义/外语替换（SYNONYM_GROUPS、QUERY_TERM_TO_CHINESE）。
     """
     keywords = (keywords or "").strip()
+    hit = _try_match_material_code(keywords, customer_level, price_library_path)
+    if hit:
+        out: dict[str, Any] = {
+            "code": (hit.get("code") or "").strip(),
+            "matched_name": (hit.get("matched_name") or "")[:200],
+            "unit_price": float(hit.get("unit_price", 0) or 0),
+        }
+        desc_en = str(hit.get("description_english") or "").strip()
+        if desc_en:
+            out["description_english"] = desc_en[:500]
+            out["indonesian_name"] = desc_en[:500]
+        return out
     keywords = _apply_knowledge_expansion(keywords)
     keywords = _apply_pressure_expansion(keywords)
     keywords = _normalize_keyword_terms(keywords)
@@ -1175,11 +2091,16 @@ def match_fuzzy(
         return None
 
     row_dict, _ = results[0]
-    return {
+    out: dict[str, Any] = {
         "code": (row_dict.get("code") or "").strip(),
         "matched_name": (row_dict.get("matched_name") or "")[:200],
         "unit_price": float(row_dict.get("unit_price", 0) or 0),
     }
+    desc_en = str(row_dict.get("description_english") or "").strip()
+    if desc_en:
+        out["description_english"] = desc_en[:500]
+        out["indonesian_name"] = desc_en[:500]
+    return out
 
 
 def match_fuzzy_candidates(
@@ -1201,6 +2122,19 @@ def match_fuzzy_candidates(
     先按业务知识【字段匹配补充规则】扩展检索词，再做同义/外语替换。
     """
     keywords = (keywords or "").strip()
+    hit = _try_match_material_code(keywords, customer_level, price_library_path)
+    if hit:
+        item: dict[str, Any] = {
+            "code": hit["code"],
+            "matched_name": hit["matched_name"],
+            "unit_price": hit["unit_price"],
+            "score": 1.0,
+            "Product_Type": "",
+        }
+        desc_en = str(hit.get("description_english") or "").strip()
+        if desc_en:
+            item["description_english"] = desc_en
+        return [item]
     keywords = _apply_knowledge_expansion(keywords)
     keywords = _apply_pressure_expansion(keywords)
     keywords = _normalize_keyword_terms(keywords)
@@ -1257,13 +2191,17 @@ def match_fuzzy_candidates(
         results = results[:max_candidates]
     out = []
     for row_dict, score in results:
-        out.append({
+        item: dict[str, Any] = {
             "code": (row_dict.get("code") or "").strip(),
             "matched_name": (row_dict.get("matched_name") or "")[:200],
             "unit_price": float(row_dict.get("unit_price", 0) or 0),
             "score": round(score, 4),
             "Product_Type": (row_dict.get("Product_Type") or "").strip(),
-        })
+        }
+        desc_en = str(row_dict.get("description_english") or "").strip()
+        if desc_en:
+            item["description_english"] = desc_en[:500]
+        out.append(item)
     return out
 
 
@@ -1311,23 +2249,35 @@ def match_english_candidates(
     if not tokens:
         return []
 
+    norm_kw = _normalize(keywords or "")
     results: list[dict[str, Any]] = []
     for row in df.itertuples(index=False):
         en_desc = str(getattr(row, "Describrition_English", "") or "").lower()
         if not en_desc:
             continue
         if all(t in en_desc for t in tokens):
-            results.append({
+            row_dict = {
                 "code": str(getattr(row, "Material", "")).strip(),
                 "matched_name": str(getattr(row, "Describrition", "")).strip(),
                 "description_english": str(getattr(row, "Describrition_English", "")).strip(),
                 "Product_Type": str(getattr(row, "Product_Type", "")).strip(),
                 "unit_price": float(getattr(row, "unit_price", 0) or 0),
                 "source": "英文字段匹配",
-            })
-        if len(results) >= max_candidates:
-            break
-    return results
+            }
+            ok, bonus = _hard_filter_and_bonus(
+                norm_kw,
+                f"{row_dict['matched_name']} {row_dict['description_english']}",
+                row_dict["code"],
+                row_dict["Product_Type"],
+            )
+            if ok:
+                row_dict["_rank_bonus"] = bonus
+                results.append(row_dict)
+
+    results.sort(key=lambda r: -float(r.get("_rank_bonus", 0.0)))
+    for row in results:
+        row.pop("_rank_bonus", None)
+    return results[:max_candidates]
 
 
 def get_wanding_price_by_code(
@@ -1338,7 +2288,7 @@ def get_wanding_price_by_code(
     """
     按产品编号（Material）在万鼎价格表中精确查找，返回该 code 的单价及名称。
     用于历史匹配拿到 code 后，从万鼎表把价格补全。
-    返回 {code, matched_name, unit_price} 或 None（万鼎表无此 code）。
+    返回 {code, matched_name, unit_price, description_english} 或 None（万鼎表无此 code）。
     """
     code = (code or "").strip()
     if not code:
@@ -1353,8 +2303,12 @@ def get_wanding_price_by_code(
     if row.empty:
         return None
     r = row.iloc[0]
-    return {
+    desc_en = str(r.get("Describrition_English", "") or r.get("description_english", "") or "").strip()
+    result: dict[str, Any] = {
         "code": code,
         "matched_name": str(r.get("Describrition", "") or "")[:200],
         "unit_price": float(r.get("unit_price", 0) or 0),
     }
+    if desc_en:
+        result["description_english"] = desc_en[:500]
+    return result

@@ -29,12 +29,16 @@ class InventoryConfig:
     MAX_DETAILS_FOR_AGENT = int(os.environ.get("MAX_DETAILS_FOR_AGENT", "10"))
 
     PRICE_LIBRARY_PATH = os.environ.get("PRICE_LIBRARY_PATH") or os.environ.get(
-        "WANDING_PRICE_LIB_PATH", str(DATA_DIR / "wanding_price_lib.xlsx")
+        "WANDING_PRICE_LIB_PATH", str(DATA_DIR / "price_library_cleaned_2026_05_15.xlsx")
     )
+    # Regression/tests only — runtime matcher does not fall back to this file.
+    LEGACY_PRICE_LIBRARY_PATH = os.environ.get("LEGACY_PRICE_LIBRARY_PATH", str(DATA_DIR / "wanding_price_lib.xlsx"))
     MAPPING_TABLE_PATH = os.environ.get("MAPPING_TABLE_PATH", str(DATA_DIR / "mapping_table.xlsx"))
     WANDING_BUSINESS_KNOWLEDGE_PATH = os.environ.get(
         "WANDING_BUSINESS_KNOWLEDGE_PATH", str(DATA_DIR / "wanding_business_knowledge.md")
     )
+    ORG_SERVER_URL = (os.environ.get("ORG_SERVER_URL") or "").strip().rstrip("/")
+    ORG_SESSION_TOKEN_FILE = os.environ.get("ORG_SESSION_TOKEN_FILE", "")
 
     ENABLE_WANDING_VECTOR = _env_bool("ENABLE_WANDING_VECTOR", False)
     WANDING_VECTOR_TOP_K = int(os.environ.get("WANDING_VECTOR_TOP_K", "3"))
@@ -82,7 +86,14 @@ class InventoryConfig:
     WORK_SINGLE_CAND_USE_LLM = _env_bool("WORK_SINGLE_CAND_USE_LLM", False)
     WORK_MATCH_MAX_WORKERS = int(os.environ.get("WORK_MATCH_MAX_WORKERS", "5"))
     MATCH_QUOTATION_BATCH_MIN_ITEMS = int(os.environ.get("MATCH_QUOTATION_BATCH_MIN_ITEMS", "3"))
+    MATCH_QUOTATION_BATCH_MAX_ITEMS = int(os.environ.get("MATCH_QUOTATION_BATCH_MAX_ITEMS", "10"))
 
 
 Config = InventoryConfig
 config = InventoryConfig()
+
+# Module-level aliases keep older callers compatible with the singleton config
+# while new code can continue to use inventory.config.config.
+PRICE_LIBRARY_PATH = config.PRICE_LIBRARY_PATH
+LEGACY_PRICE_LIBRARY_PATH = config.LEGACY_PRICE_LIBRARY_PATH
+MAPPING_TABLE_PATH = config.MAPPING_TABLE_PATH

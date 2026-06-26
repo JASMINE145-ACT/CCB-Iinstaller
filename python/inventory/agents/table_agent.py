@@ -148,39 +148,46 @@ class InventoryTableAgent:
             列表，每项至少包含 id（及可能有 no）
         """
         try:
-            params = {"fields": ",".join(config.LIST_FIELDS)}
+            base = {"fields": ",".join(config.LIST_FIELDS)}
             if item_code is not None:
-                params["filter.no"] = item_code
-            elif keywords is not None:
-                # item list.do 实测不支持 filter.keywords.op，仅传 filter.keywords（后端自行解释为包含或模糊）
-                params["filter.keywords"] = keywords
-            else:
+                return self._run_list_query({**base, "filter.no": item_code})
+            if keywords is not None:
+                # 实测：Accurate item/list.do 的 filter.keywords 对产品名几乎不命中
+                # （如 "Tee" 返回 0），而 filter.name 支持名称包含匹配（"Tee" 返回 20）。
+                # 因此名称搜索优先用 filter.name，命中为空再回退 filter.keywords。
+                for filt in ("filter.name", "filter.keywords"):
+                    rows = self._run_list_query({**base, filt: keywords})
+                    if rows:
+                        return rows
                 return []
-
-            result = self.api_client.get_table_data(
-                table_name="item",
-                params=params,
-                timeout=config.API_TIMEOUT
-            )
-            if not result.get("s", False):
-                d = result.get("d")
-                if isinstance(d, dict):
-                    error_msg = d.get("message", "未知错误")
-                elif isinstance(d, list) and d:
-                    error_msg = d[0] if isinstance(d[0], str) else str(d)
-                else:
-                    error_msg = str(d) if d is not None else "未知错误"
-                logger.warning(f"API 返回错误: {error_msg}")
-                return []
-
-            data_list = result.get("d", [])
-            if isinstance(data_list, dict):
-                data_list = data_list.get("r", [])
-            return data_list if isinstance(data_list, list) else []
+            return []
 
         except Exception as e:
             logger.error(f"调用 list.do API 失败: {e}")
             return []
+
+    def _run_list_query(self, params: dict) -> List[dict]:
+        """执行一次 item/list.do 查询并解析为行列表（失败返回空列表）。"""
+        result = self.api_client.get_table_data(
+            table_name="item",
+            params=params,
+            timeout=config.API_TIMEOUT,
+        )
+        if not result.get("s", False):
+            d = result.get("d")
+            if isinstance(d, dict):
+                error_msg = d.get("message", "未知错误")
+            elif isinstance(d, list) and d:
+                error_msg = d[0] if isinstance(d[0], str) else str(d)
+            else:
+                error_msg = str(d) if d is not None else "未知错误"
+            logger.warning(f"API 返回错误: {error_msg}")
+            return []
+
+        data_list = result.get("d", [])
+        if isinstance(data_list, dict):
+            data_list = data_list.get("r", [])
+        return data_list if isinstance(data_list, list) else []
 
     def _fetch_items_by_ids(self, list_rows: List[dict], max_items: Optional[int] = None) -> List[Item]:
         """根据 list 返回的行（含 id）依次调 detail.do，解析为 Item 列表。max_items 为 None 时用 config.MAX_RESULTS。"""

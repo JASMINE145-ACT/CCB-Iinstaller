@@ -17,7 +17,26 @@ logger = logging.getLogger(__name__)
 _SOURCE_PRIORITY = {"共同": 0, "历史报价": 1, "字段匹配": 2, "英文字段匹配": 2}
 
 # 推送给前端的 chosen 字段白名单（与 extension.py 保持同步）
-_KNOWN_CHOSEN_FIELDS: set[str] = {"code", "matched_name", "unit_price", "source"}
+_KNOWN_CHOSEN_FIELDS: set[str] = {
+    "code",
+    "matched_name",
+    "unit_price",
+    "source",
+    "description_english",
+    "indonesian_name",
+}
+
+
+def _english_fields_from(candidate: dict[str, Any]) -> dict[str, str]:
+    desc = str(
+        candidate.get("description_english")
+        or candidate.get("indonesian_name")
+        or candidate.get("Describrition_English")
+        or ""
+    ).strip()
+    if not desc:
+        return {}
+    return {"description_english": desc, "indonesian_name": desc}
 
 # 延迟初始化，避免启动时即依赖 src.api.client / src.cache
 _table_agent = None
@@ -179,14 +198,15 @@ def _build_formatted_response(payload: dict[str, Any], keywords: str = "") -> st
     n = len(candidates)
     lines.append(f"**候选产品**（共 {n} 条）")
     lines.append("")
-    lines.append("| # | 产品编号(code) | 产品名称 | 来源 | 单价（B级代理） |")
-    lines.append("|---|---|---|---|---|")
+    lines.append("| # | 产品编号(code) | 产品名称 | 英文/印尼名称 | 来源 | 单价（B级代理） |")
+    lines.append("|---|---|---|---|---|---|")
     for i, c in enumerate(candidates, 1):
         code = c.get("code") or "—"
         name = c.get("matched_name") or "—"
+        english = c.get("indonesian_name") or c.get("description_english") or "—"
         source = c.get("source") or "—"
         price = c.get("unit_price", "—")
-        lines.append(f"| {i} | {code} | {name} | {source} | {price} |")
+        lines.append(f"| {i} | {code} | {name} | {english} | {source} | {price} |")
 
     lines.append("")
     if chosen_index:
@@ -198,16 +218,17 @@ def _build_formatted_response(payload: dict[str, Any], keywords: str = "") -> st
     lines.append("")
     lines.append(f"匹配来源：{match_source}")
     lines.append("")
-    lines.append("| 产品编号(code) | 产品名称 | 来源 | 单价（B级代理） |")
-    lines.append("|---|---|---|---|")
+    lines.append("| 产品编号(code) | 产品名称 | 英文/印尼名称 | 来源 | 单价（B级代理） |")
+    lines.append("|---|---|---|---|---|")
     code = chosen.get("code") or "—"
     name = chosen.get("matched_name") or "—"
+    english = chosen.get("indonesian_name") or chosen.get("description_english") or "—"
     price = chosen.get("unit_price", "—")
     source = next(
         (c.get("source") for c in candidates if (c.get("code") or "") == code),
         match_source,
     )
-    lines.append(f"| {code} | {name} | {source} | {price} |")
+    lines.append(f"| {code} | {name} | {english} | {source} | {price} |")
 
     if reasoning:
         lines.append("")
@@ -239,14 +260,15 @@ def _build_formatted_response_list_only(
     n = len(candidates)
     lines.append(f"**候选产品**（共 {n} 条）")
     lines.append("")
-    lines.append("| # | 产品编号(code) | 产品名称 | 来源 | 单价（B级代理） |")
-    lines.append("|---|---|---|---|---|")
+    lines.append("| # | 产品编号(code) | 产品名称 | 英文/印尼名称 | 来源 | 单价（B级代理） |")
+    lines.append("|---|---|---|---|---|---|")
     for i, c in enumerate(candidates, 1):
         code = c.get("code") or "—"
         name = c.get("matched_name") or "—"
+        english = c.get("indonesian_name") or c.get("description_english") or "—"
         source = c.get("source") or "—"
         price = c.get("unit_price", "—")
-        lines.append(f"| {i} | {code} | {name} | {source} | {price} |")
+        lines.append(f"| {i} | {code} | {name} | {english} | {source} | {price} |")
     lines.append("")
     lines.append(
         "**提示**：请从表中选择一条物料编号，或补充更具体的型号/系列；"
@@ -401,9 +423,7 @@ def _execute_match_quotation(arguments: dict[str, Any], push_event=None) -> dict
                 "unit_price": float(c.get("unit_price", 0) or 0),
                 "source": c.get("source", "未知"),
             }
-            de = c.get("description_english")
-            if de:
-                item["description_english"] = str(de)
+            item.update(_english_fields_from(c))
             pt = c.get("Product_Type")
             if pt:
                 item["Product_Type"] = str(pt)
@@ -515,12 +535,19 @@ def _execute_match_quotation(arguments: dict[str, Any], push_event=None) -> dict
 
         chosen_code = (r.get("code") or "").strip()
         chosen_index = 0
+        chosen_row = r
         for i, c in enumerate(norm):
             if (c.get("code") or "").strip() == chosen_code:
                 chosen_index = i + 1
+                chosen_row = c
                 break
 
-        chosen = {"code": r.get("code", ""), "matched_name": r.get("matched_name", ""), "unit_price": r.get("unit_price", 0)}
+        chosen = {
+            "code": chosen_row.get("code", ""),
+            "matched_name": chosen_row.get("matched_name", ""),
+            "unit_price": chosen_row.get("unit_price", 0),
+        }
+        chosen.update(_english_fields_from(chosen_row))
         selection_meta = r.get("_selection_meta") or {}
         payload = {
             "single": True,
@@ -561,10 +588,15 @@ def _execute_match_wanding_price(arguments: dict[str, Any]) -> dict[str, Any]:
         if not candidates:
             return {"success": True, "result": f"未匹配到产品：{keywords}"}
 
-        norm = [
-            {"code": str(c.get("code", "")), "matched_name": str(c.get("matched_name", "")), "unit_price": float(c.get("unit_price", 0) or 0)}
-            for c in candidates
-        ]
+        norm = []
+        for c in candidates:
+            item = {
+                "code": str(c.get("code", "")),
+                "matched_name": str(c.get("matched_name", "")),
+                "unit_price": float(c.get("unit_price", 0) or 0),
+            }
+            item.update(_english_fields_from(c))
+            norm.append(item)
         max_candidates_for_react = 10
         norm_truncated = norm[:max_candidates_for_react]
 
@@ -1183,7 +1215,7 @@ def _execute_get_inventory_by_code_batch(arguments: dict[str, Any], push_event=N
 
 _MATCH_QUOTATION_BATCH_MAX_ITEMS = int(
     getattr(config, "MATCH_QUOTATION_BATCH_MAX_ITEMS", 0) or 0
-) or 30  # 并行执行后可适当提高上限
+) or 10
 _MATCH_QUOTATION_BATCH_MAX_WORKERS = int(
     getattr(config, "MATCH_QUOTATION_BATCH_MAX_WORKERS", 0) or 0
 ) or 8  # 单次最大并行线程数（受 LLM API 并发限制）
@@ -1207,7 +1239,7 @@ def _execute_match_quotation_batch(arguments: dict[str, Any], push_event=None, c
     批量询价匹配（只读）：对 keywords_list 中每个产品独立调用 match_quotation，
     每个产品结果各自推送 tool_render SSE，最终返回紧凑汇总供 LLM 用。
     - 入参：keywords_list（产品关键词列表，每项为一个独立产品）、可选 customer_level。
-    - 每次最多 _MATCH_QUOTATION_BATCH_MAX_ITEMS（默认 15）条；超出时截断并告知剩余。
+    - 每次最多 _MATCH_QUOTATION_BATCH_MAX_ITEMS（默认 10）条；超出时截断并告知剩余。
     - 返回：{ success, result(紧凑汇总), items[{ keywords, status, payload }] }。
     """
     keywords_list = arguments.get("keywords_list") or []
@@ -1385,11 +1417,18 @@ def _execute_select_wanding_match(arguments: dict[str, Any]) -> dict[str, Any]:
             return {"success": True, "result": json.dumps(payload, ensure_ascii=False)}
         chosen_code = (r.get("code") or "").strip()
         chosen_index = 0
+        chosen_row = r
         for i, c in enumerate(candidates):
             if (c.get("code") or "").strip() == chosen_code:
                 chosen_index = i + 1
+                chosen_row = c
                 break
-        chosen = {"code": r.get("code", ""), "matched_name": r.get("matched_name", ""), "unit_price": r.get("unit_price", 0)}
+        chosen = {
+            "code": chosen_row.get("code", ""),
+            "matched_name": chosen_row.get("matched_name", ""),
+            "unit_price": chosen_row.get("unit_price", 0),
+        }
+        chosen.update(_english_fields_from(chosen_row))
         payload: dict[str, Any] = {
             "single": True,
             "candidates": candidates,
@@ -1552,7 +1591,7 @@ def get_inventory_tools_openai_format() -> list[dict]:
                             "items": {"type": "string"},
                             "description": "产品关键词列表，每项为一个独立产品（如 [\"直接50\", \"三通50\"]）",
                         },
-                        "customer_level": {"type": "string", "description": "价格档位，同 match_quotation。默认 B"},
+                        "customer_level": {"type": "string", "description": "价格档位或原表字段口径，同 match_quotation。默认 B"},
                         "lang": {
                             "type": "string",
                             "description": "同 match_quotation：全英文产品名批量询价时传 'en'。",
@@ -1576,7 +1615,7 @@ def get_inventory_tools_openai_format() -> list[dict]:
                     "type": "object",
                     "properties": {
                         "keywords": {"type": "string", "description": "产品名+规格，如 直接50mm、直径25PPR"},
-                        "customer_level": {"type": "string", "description": "价格档位：A/B/C/D/D_low/E（报单）或 出厂价_含税/出厂价_不含税/采购不含税。用户说「二级代理」用 A、「青山大客户」用 D、「出厂价含税」用 出厂价_含税。默认 B"},
+                        "customer_level": {"type": "string", "description": "价格档位或原表字段口径：A/B/C/D/D_low/E（报单）或 出厂价_含税/出厂价_不含税/采购不含税；LOCAL/local不含税/local含税（LESSO管材）；RUCIKA目录价/报单1/报单2；PE面价/PE出厂价。映射：二级代理/A级->A；一级代理/B级/GENERAL PRICE/其他客户价->B；聚万/C级->C；青山/青山大客户/D级/MR KONG PRICE/孔总->D；青山降低/D低->D_low；大唐/E级->E；INCLUDE TAX/出厂价含税->出厂价_含税；EXCLUDE TAX/出厂价不含税->出厂价_不含税；PURCHASE PRICE/采购价->采购不含税；LOCAL/本地价->local_exc_tax；LOCAL含税->local_inc_tax；RUCIKA pricelist exc/inc->RUCIKA_PRICELIST_EXC/INC；RUCIKA报单1/2->RUCIKA_QUOTE_1/2；PE面价/PE nominal->PE_NOMINAL；PE出厂->PE_FACTORY。默认 B"},
                         "show_all_candidates": {"type": "boolean", "description": "true 时跳过 LLM 选型，直接返回全部候选列表（用户说「全部list/所有候选/我想自己选/列出所有」时传 true）"},
                         "lang": {
                             "type": "string",
@@ -1601,7 +1640,7 @@ def get_inventory_tools_openai_format() -> list[dict]:
                     "type": "object",
                     "properties": {
                         "keywords": {"type": "string", "description": "产品名+规格"},
-                        "customer_level": {"type": "string", "description": "价格档位：A/B/C/D/D_low/E（报单）或 出厂价_含税/出厂价_不含税/采购不含税。用户说「二级代理」用 A、「青山大客户」用 D、「出厂价含税」用 出厂价_含税。默认 B"},
+                        "customer_level": {"type": "string", "description": "价格档位或原表字段口径：A/B/C/D/D_low/E（报单）、出厂价_含税/出厂价_不含税/采购不含税、LOCAL、RUCIKA、PE 扩展档；映射同 match_quotation。默认 B"},
                     },
                     "required": ["keywords"],
                 },
@@ -1617,7 +1656,7 @@ def get_inventory_tools_openai_format() -> list[dict]:
                     "type": "object",
                     "properties": {
                         "keywords": {"type": "string", "description": "产品名+规格，如 25三通、进水软管 50cm"},
-                        "customer_level": {"type": "string", "description": "价格档位：A/B/C/D/D_low/E 或 出厂价_含税/出厂价_不含税/采购不含税；「二级代理」→A、「青山大客户」→D。默认 B"},
+                        "customer_level": {"type": "string", "description": "价格档位或原表字段口径：A/B/C/D/D_low/E、出厂价_含税/出厂价_不含税/采购不含税、LOCAL、RUCIKA、PE 扩展档；映射同 match_quotation。默认 B"},
                     },
                     "required": ["keywords"],
                 },

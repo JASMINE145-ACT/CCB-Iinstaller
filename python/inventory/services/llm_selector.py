@@ -145,8 +145,22 @@ _SOURCE_PRIORITY = {"共同": 0, "历史报价": 1, "字段匹配": 2}
 
 
 def _load_business_knowledge() -> str:
-    """Load business knowledge with 3-tier fallback: Neon → local file → embedded."""
+    """Load business knowledge: org API → Neon → local file → embedded."""
     global _business_knowledge_cache
+
+    # --- Tier 0: organization aioncore API ---
+    try:
+        from admin.org_knowledge_client import load_doc_content
+
+        api_content = load_doc_content(
+            "wanding_business_knowledge",
+            fallback_path=_get_knowledge_path(),
+            use_cache=True,
+        )
+        if api_content:
+            return api_content
+    except Exception as e:
+        logger.debug("business knowledge: org API unavailable (%s), continuing fallback chain", e)
 
     # --- Tier 1: Neon KnowledgeBackend ---
     if _kb_singleton is not None:
@@ -204,6 +218,12 @@ def invalidate_business_knowledge_cache() -> None:
     """Clear business knowledge cache, forcing reload on next call."""
     global _business_knowledge_cache
     _business_knowledge_cache = {}
+    try:
+        from admin.org_knowledge_client import invalidate_org_knowledge_cache
+
+        invalidate_org_knowledge_cache("wanding_business_knowledge")
+    except Exception:
+        pass
 
 
 def _extract_keyword_tokens(keywords: str) -> list[str]:
@@ -686,12 +706,17 @@ def llm_select_best(
 
 
 def _candidate_to_result(c: dict[str, Any], reasoning: str = "") -> dict[str, Any]:
-    return {
+    out: dict[str, Any] = {
         "code": (c.get("code") or "").strip(),
         "matched_name": (c.get("matched_name") or "")[:200],
         "unit_price": float(c.get("unit_price", 0) or 0),
         "reasoning": reasoning,
     }
+    desc = str(c.get("description_english") or c.get("indonesian_name") or "").strip()
+    if desc:
+        out["description_english"] = desc
+        out["indonesian_name"] = desc
+    return out
 
 
 def _apply_candidate_pre_filter(
