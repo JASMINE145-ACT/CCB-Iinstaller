@@ -4,7 +4,7 @@
 
 **Runtime recovery: ~complete.** Bundled 1.1.2 (Mixing UI + 万鼎 Guid cards) is restorable and usable from `D:\CCB-Wanding`.
 
-**Source-level pipeline: still open.** Desktop CCB integration is committed locally (`109aa15`); push to fork + prove `build-wanding.ps1` rebuild.
+**Source-level pipeline: Phase 3 staging validation passed (2026-06-26).** `build-wanding.ps1 -Version 1.1.3-dev -SkipNsis -SkipBuild -SkipAionUiBuild -SkipPipMcp -SkipStagingClear` → manifest validation OK; staging includes `python/system/tool_dispatch.py`.
 
 **Canonical doc**: [`.trellis/spec/guides/mixing-meta-repo.md`](../../spec/guides/mixing-meta-repo.md)
 
@@ -58,13 +58,13 @@ D:\CCB-Wanding\ccb-launch-aionui.cmd
 
 ---
 
-## Remaining (Source-Level — Phase 3+)
+## Remaining (Source-Level — Phase 4+)
 
-1. **Push** `aionui-src` + `claude-code-best` + Mixing per [mixing-meta-repo.md](../../spec/guides/mixing-meta-repo.md) §7.
-2. **Rebuild pipeline**: `build-wanding.ps1 -Version 1.1.3-dev -SkipNsis` → verify Guid cards without hand-copying staging.
-3. **Dev parity**: bundled shows Mixing branding; dev source may still differ until rebuild.
+1. **Full cold build** (no `-SkipBuild`/`-SkipAionUiBuild`): rebuild CCB dist + AionUi win-unpacked from pinned SHAs, then NSIS.
+2. **MCP pip on clean build**: run without `-SkipPipMcp` (or document copy-from-runtime for dev iteration).
+3. **Dev parity**: bundled shows Mixing branding; dev source may still differ until full rebuild.
 4. **Optional**: fix `D:\CCB-Wanding\scripts\ccb-update-auto.ps1` encoding parse error (non-blocking).
-5. **Phase 5**: archive stale generated artifacts after pipeline proven.
+5. **Mixing clone smoke**: `git clone --recurse-submodules https://github.com/JASMINE145-ACT/Mixing.git` on a second machine.
 
 ---
 
@@ -79,13 +79,16 @@ Key commands that passed:
 - `bun test tests/unit/common-config/ccbAgentCatalog.test.ts` — pass
 - User confirmed: **恢复的差不多** (2026-06-26)
 
-### Git snapshots (2026-06-26)
+### Git snapshots (2026-06-26, all pushed)
 
 | Repo | Branch | Commit | Remote |
 |------|--------|--------|--------|
-| `aionui-src` | `ccb-wanding-1.1.2-recovered` | `109aa15` | push to `wanding` → `JASMINE145-ACT/AionUi` (fork required) |
-| `claude-code-best` | `main` | `4432998e` | `JASMINE145-ACT/CCB-Iinstaller` |
-| `D:\Projects\Mixing` | `master` | `8403412` | `JASMINE145-ACT/Mixing` + tag `v1.1.2-recovered` |
+| `aionui-src` | `ccb-wanding-1.1.2-recovered` | `109aa15` | [JASMINE145-ACT/AionUi](https://github.com/JASMINE145-ACT/AionUi/tree/ccb-wanding-1.1.2-recovered) |
+| `CCB-Iinstaller` | `main` | `f8ab39ae` | [JASMINE145-ACT/CCB-Iinstaller](https://github.com/JASMINE145-ACT/CCB-Iinstaller) |
+| `claude-code` | `ccb-wanding-1.1.2-recovered` | `238f4635` | [JASMINE145-ACT/claude-code](https://github.com/JASMINE145-ACT/claude-code/tree/ccb-wanding-1.1.2-recovered) |
+| `Mixing` | `master` | `5513401` | [JASMINE145-ACT/Mixing](https://github.com/JASMINE145-ACT/Mixing) + tag `v1.1.2-recovered` (real submodules) |
+
+Phase 3 build log: `build-1.1.3-dev-pass2.log` in this task folder.
 
 See `aionui-src-commit-audit.md` for file-level commit/ignore audit.  
 Meta-repo templates: `meta-repo/` in claude-code-best; local Mixing at `D:\Projects\Mixing`.  

@@ -43,7 +43,7 @@ Templates for Mixing live in repo: `meta-repo/README.md`, `meta-repo/.gitmodules
 
 | Submodule | Branch | Commit | Notes |
 |-----------|--------|--------|-------|
-| `backend/` | `main` | `9647d454` | Installer source, python, Trellis; settings.json removed from tree |
+| `backend/` | `main` | `f8ab39ae` | Installer + python/system refactor + Trellis |
 | `desktop/` | `ccb-wanding-1.1.2-recovered` | `109aa15` | 158 files — full CCB/Mixing desktop integration on `f77c697` |
 | CLI core | `ccb-wanding-1.1.2-recovered` | `238f4635` | `JASMINE145-ACT/claude-code` — ACP/MCP rebuild source |
 | Mixing meta | `master` | `8403412` | README + `.gitmodules` + tag `v1.1.2-recovered` |
