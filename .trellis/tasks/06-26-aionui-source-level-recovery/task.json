@@ -36,11 +36,11 @@
     {
       "id": "phase-3-source-build-pipeline",
       "title": "Make source edits flow through aionui-src build output into ccb-installer staging instead of editing staging by hand",
-      "status": "in_progress"
+      "status": "completed"
     },
     {
       "id": "phase-4-release-verification",
-      "title": "Verify rebuilt staging installs and behaves like 1.1.2 before publishing a newer version",
+      "title": "Full cold build from git; verify install behaves like 1.1.2 oracle (ship as 1.1.3-dev)",
       "status": "in_progress"
     },
     {
@@ -69,7 +69,7 @@
     "ccb-installer/patches/",
     "D:/Projects/aionui-src/"
   ],
-  "notes": "2026-06-26 runtime recovery ~complete (user confirmed). Canonical guide: .trellis/spec/guides/mixing-meta-repo.md. Git snapshots: desktop 109aa15 (ccb-wanding-1.1.2-recovered), backend 4432998e, Mixing 8403412 + tag v1.1.2-recovered. Phase 3 open: push forks + prove build-wanding rebuild. See status.md and check.jsonl.",
+  "notes": "2026-06-26: Phase 0 runtime recovery done. All repos pushed (Mixing real submodules @ 5513401). Phase 3 staging manifest passed (build-wanding 1.1.3-dev with SkipBuild/SkipAionUiBuild/SkipPipMcp). 06-25 python/system refactor recovered @ f8ab39ae. Phase 4 = full cold build + install smoke vs 1.1.2 oracle; ship version 1.1.3-dev not 1.1.2. Canonical: mixing-meta-repo.md, status.md, check.jsonl.",
   "meta": {
     "baseline_version": "1.1.2",
     "baseline_staging": "ccb-installer/staging",

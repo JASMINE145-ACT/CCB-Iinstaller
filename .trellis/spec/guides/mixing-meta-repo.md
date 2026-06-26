@@ -33,7 +33,8 @@ Templates for Mixing live in repo: `meta-repo/README.md`, `meta-repo/.gitmodules
 | Level | Question | Status (2026-06-26) |
 |-------|----------|---------------------|
 | **Runtime recovery (Phase 0)** | Can I run Mixing + 万鼎 Guid today? | **Done** — `D:\CCB-Wanding` + `ccb-launch-aionui.cmd` |
-| **Source pipeline (Phase 3)** | Can I rebuild staging/NSIS from git without hand-copy? | **Open** — run `build-wanding.ps1` and verify |
+| **Source pipeline (Phase 3)** | Can staging be assembled from git (manifest check)? | **Done** — `build-wanding.ps1 -Version 1.1.3-dev` with partial skips; staging validation OK |
+| **Full cold build (Phase 4)** | Rebuild CCB + AionUi + pip MCP from git, behave like 1.1.2? | **Open** — no `-SkipBuild`/`-SkipAionUiBuild`/`-SkipPipMcp`; then install smoke |
 
 **Runtime ≠ source.** Copying `ccb-installer/staging/` to `D:\CCB-Wanding` fixes the install; it does not replace committing `aionui-src` CCB integration.
 
@@ -46,7 +47,8 @@ Templates for Mixing live in repo: `meta-repo/README.md`, `meta-repo/.gitmodules
 | `backend/` | `main` | `f8ab39ae` | Installer + python/system refactor + Trellis |
 | `desktop/` | `ccb-wanding-1.1.2-recovered` | `109aa15` | 158 files — full CCB/Mixing desktop integration on `f77c697` |
 | CLI core | `ccb-wanding-1.1.2-recovered` | `238f4635` | `JASMINE145-ACT/claude-code` — ACP/MCP rebuild source |
-| Mixing meta | `master` | `8403412` | README + `.gitmodules` + tag `v1.1.2-recovered` |
+| Mixing meta | `master` | `5513401` | Real submodules + tag `v1.1.2-recovered` |
+| Trellis docs | `main` | `6f2e4963` | Latest backend commit with Phase 3 status (optional pin) |
 
 Update this table when you bump submodules and re-tag.
 
@@ -172,16 +174,32 @@ git clone --recurse-submodules https://github.com/JASMINE145-ACT/Mixing.git Mixi
 
 ---
 
-## 8. Build from source (Phase 3 — not yet verified)
+## 8. Build from source
 
-After submodules are pinned:
+### Phase 3 (done — staging manifest)
+
+Partial rebuild; proves git → staging assembly without hand-copying `AionUi.exe`:
 
 ```powershell
-cd backend   # or Mixing/backend after clone
-.\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.3-dev -SkipNsis
+cd backend
+.\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.3-dev -SkipNsis -SkipBuild -SkipAionUiBuild -SkipPipMcp -SkipStagingClear
 ```
 
-Acceptance: rebuilt `staging/AionUi` shows 万鼎报价专家 without manual copy from old staging. See [task PRD](../../tasks/06-26-aionui-source-level-recovery/prd.md).
+Evidence: `staging validation OK`; `vendor/wanding/python/system/tool_dispatch.py` present. See task `check.jsonl` phase `source-build-partial`.
+
+### Phase 4 (open — full cold build)
+
+**Not** “repackage installer version 1.1.2 again.” Goal: from pinned Git SHAs, **fully rebuild** dist + AionUi + pip MCP, install on a test machine, and verify behavior matches the **1.1.2 runtime oracle** (`D:\CCB-Wanding`). Ship version should be **`1.1.3-dev`** or **`1.1.3`** to avoid colliding with the already-released 1.1.2.
+
+```powershell
+cd backend
+.\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.3-dev -SkipNsis
+# Do NOT pass -SkipBuild -SkipAionUiBuild -SkipPipMcp
+```
+
+Acceptance: rebuilt install shows 万鼎报价专家 Guid cards, org SSO login, quotation MCP — without manual copy from old staging. Optional: drop `-SkipNsis` for `CCB-Wanding-1.1.3-dev.exe`.
+
+See [task status](../../tasks/06-26-aionui-source-level-recovery/status.md) and [PRD](../../tasks/06-26-aionui-source-level-recovery/prd.md).
 
 ---
 

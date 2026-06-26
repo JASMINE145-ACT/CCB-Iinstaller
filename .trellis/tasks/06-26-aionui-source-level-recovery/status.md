@@ -58,13 +58,15 @@ D:\CCB-Wanding\ccb-launch-aionui.cmd
 
 ---
 
-## Remaining (Source-Level — Phase 4+)
+## Remaining (Phase 4 — full cold build)
 
-1. **Full cold build** (no `-SkipBuild`/`-SkipAionUiBuild`): rebuild CCB dist + AionUi win-unpacked from pinned SHAs, then NSIS.
-2. **MCP pip on clean build**: run without `-SkipPipMcp` (or document copy-from-runtime for dev iteration).
-3. **Dev parity**: bundled shows Mixing branding; dev source may still differ until full rebuild.
-4. **Optional**: fix `D:\CCB-Wanding\scripts\ccb-update-auto.ps1` encoding parse error (non-blocking).
-5. **Mixing clone smoke**: `git clone --recurse-submodules https://github.com/JASMINE145-ACT/Mixing.git` on a second machine.
+**Phase 4 ≠ 再打一个叫 1.1.2 的安装包。** 目标是从 Git 全冷构建，行为对齐现网 `D:\CCB-Wanding`（1.1.2 参照物），对外版本号用 **`1.1.3-dev`** / **`1.1.3`**。
+
+1. **Full cold build**（去掉 `-SkipBuild` / `-SkipAionUiBuild` / `-SkipPipMcp`）→ 可选 `-SkipNsis` 先只验 staging
+2. **Install smoke** on test machine: Mixing title, 万鼎报价专家, org SSO, quotation MCP
+3. **Optional NSIS**: `CCB-Wanding-1.1.3-dev.exe`
+4. **Mixing clone smoke** on second machine: `git clone --recurse-submodules`
+5. **Optional**: fix `ccb-update-auto.ps1` encoding (non-blocking)
 
 ---
 
@@ -84,7 +86,7 @@ Key commands that passed:
 | Repo | Branch | Commit | Remote |
 |------|--------|--------|--------|
 | `aionui-src` | `ccb-wanding-1.1.2-recovered` | `109aa15` | [JASMINE145-ACT/AionUi](https://github.com/JASMINE145-ACT/AionUi/tree/ccb-wanding-1.1.2-recovered) |
-| `CCB-Iinstaller` | `main` | `f8ab39ae` | [JASMINE145-ACT/CCB-Iinstaller](https://github.com/JASMINE145-ACT/CCB-Iinstaller) |
+| `CCB-Iinstaller` | `main` | `6f2e4963` | [JASMINE145-ACT/CCB-Iinstaller](https://github.com/JASMINE145-ACT/CCB-Iinstaller) (code `f8ab39ae` + Trellis docs) |
 | `claude-code` | `ccb-wanding-1.1.2-recovered` | `238f4635` | [JASMINE145-ACT/claude-code](https://github.com/JASMINE145-ACT/claude-code/tree/ccb-wanding-1.1.2-recovered) |
 | `Mixing` | `master` | `5513401` | [JASMINE145-ACT/Mixing](https://github.com/JASMINE145-ACT/Mixing) + tag `v1.1.2-recovered` (real submodules) |
 
