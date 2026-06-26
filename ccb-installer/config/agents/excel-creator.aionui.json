@@ -1,0 +1,28 @@
+{
+    "updated_at":  "2026-06-16T17:10:00.000Z",
+    "skills":  {
+                   "enabled":  [
+
+                               ],
+                   "disabled":  [
+
+                                ]
+               },
+    "source":  "bundled",
+    "display_name":  "Excel 表格助手",
+    "created_at":  "2026-06-13T17:47:59.843Z",
+    "agent_id":  "excel-creator",
+    "guid_primary":  true,
+    "avatar":  "📈",
+    "recommended_prompts":  [
+                                "创建一个 3 页的财务看板，包含利润表、营收分布图和差异条件格式",
+                                "创建一个销售管道追踪表，包含阶段统计、加权管道公式、漏斗图和销售代表业绩看板",
+                                "创建一个预算追踪表，包含跨表差异公式、预算对比柱状图和超支红色高亮"
+                            ],
+    "delegatable":  true,
+    "schema_version":  1,
+    "mcp_allowlist":  [
+                          "excel"
+                      ],
+    "enabled":  true
+}

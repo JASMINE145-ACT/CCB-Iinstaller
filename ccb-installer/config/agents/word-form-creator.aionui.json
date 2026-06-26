@@ -1,0 +1,28 @@
+{
+    "updated_at":  "2026-06-17T00:00:00.000Z",
+    "skills":  {
+                   "enabled":  [
+                                   "officecli-word-form"
+                               ],
+                   "disabled":  [
+
+                                ]
+               },
+    "source":  "bundled",
+    "display_name":  "可填表单助手",
+    "created_at":  "2026-06-13T17:47:59.000Z",
+    "agent_id":  "word-form-creator",
+    "guid_primary":  true,
+    "avatar":  "📋",
+    "recommended_prompts":  [
+                                "做一份新员工入职登记 .docx 表单，包含姓名、入职日期、部门、直属上级、岗位培训 checklist 和设备申请复选框；其他排版保护，只字段可填。",
+                                "做一份 SOW 合同模板 .docx，邮件合并占位客户名、生效日期、工作范围 bullets、总费用、签署栏；签名区以外全部保护。",
+                                "做一份医疗问诊表 .docx，就诊原因下拉、过敏史 / 正在服用药物文本字段、既往病史复选矩阵、末尾签名行。"
+                            ],
+    "delegatable":  true,
+    "schema_version":  1,
+    "mcp_allowlist":  [
+
+                      ],
+    "enabled":  true
+}

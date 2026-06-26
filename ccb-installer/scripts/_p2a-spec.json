@@ -1,0 +1,16 @@
+{
+  "Prompt": {
+    "Your directive: ": "您的指令：",
+    "Shell command failed": "Shell 命令执行失败",
+    "Structured output error": "结构化输出错误",
+    "Structured output provided successfully": "结构化输出已成功提供",
+    "Structured output rejected": "结构化输出已拒绝",
+    "Structured output tool result": "结构化输出工具结果",
+    "Return structured output in the requested format": "按要求格式返回结构化输出",
+    "Output does not match required schema: ${e}": "输出与要求的模式不匹配：${e}",
+    "Use this tool to return your final response in the requested structured format. You MUST call this tool exactly once at the end of your response to provide the structured output.": "使用此工具以要求的结构化格式返回最终回应。必须在回应末尾恰好调用此工具一次以提供结构化输出。",
+    "Provide a concise response based on the content above. Include relevant details, code examples, and documentation excerpts as needed.": "请基于上述内容提供简洁的回应。包含相关细节、代码示例和文档摘录。",
+    "Wait for a specified duration": "等待指定时长",
+    "Read a file from the local filesystem.": "从本地文件系统读取文件。"
+  }
+}

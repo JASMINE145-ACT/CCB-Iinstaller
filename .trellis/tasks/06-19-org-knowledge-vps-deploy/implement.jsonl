@@ -1,0 +1,5 @@
+{"ts":"2026-06-19T02:00:00Z","type":"implement","summary":"Clarified Phase-1 scope: center shares org knowledge only; runtime API consumer is wanding_business_knowledge"}
+{"ts":"2026-06-19T02:30:00Z","type":"implement","summary":"Local bootstrap smoke: 1-doc seed, admin password, 127.0.0.1:13401"}
+{"ts":"2026-06-19T02:45:00Z","type":"implement","summary":"Added scripts/deploy-org-aioncore-vps.ps1 + vps-org-aioncore-bootstrap.sh (tar exclude target/, SSH password auth opts)"}
+{"ts":"2026-06-19T01:58:00Z","type":"implement","summary":"VPS hot-snap-1: cargo build 17m32s, bootstrap seed 8 slugs, systemd aionorg active, external /api/auth/status 200"}
+{"ts":"2026-06-19T02:20:00Z","type":"implement","summary":"Employee prod org-server.json written: http://67.216.206.3:13401"}

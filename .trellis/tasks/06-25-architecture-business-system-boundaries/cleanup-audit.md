@@ -1,0 +1,415 @@
+# Cleanup Audit - Phase 1 to Phase 5
+
+Date: 2026-06-25
+
+Scope: files introduced or affected by the architecture boundary work, plus high-confidence generated/cache clutter found while checking Phase 1 through Phase 5.
+
+## Findings
+
+| Path | Classification | Reason | Recommendation |
+| --- | --- | --- | --- |
+| `ccb-wanding-web/src/components/` | absent | Old flat component directory was removed during refactor | No action |
+| `ccb-wanding-web/src/hooks/` | absent | Old flat hook directory was removed during refactor | No action |
+| `ccb-wanding-web/dist/` | generated | Created/updated by `npm run build`; production output, not source | Delete after verification when not needed locally; add ignore rule |
+| `ccb-wanding-web/tsconfig.tsbuildinfo` | generated | Created/updated by TypeScript incremental build | Delete after verification when not needed locally; add ignore rule |
+| `ccb-wanding-web/node_modules/` | dependency payload | Local install payload; should not be source | Keep locally if needed, add ignore rule |
+| `ccb-installer/dist/README.md` | misplaced hand-authored doc | `dist/` is generated output; hand-authored boundary docs should not live there | Remove; central docs already cover this |
+| `ccb-installer/staging/README.md` | misplaced hand-authored doc | `staging/` is generated package assembly output | Remove; central docs already cover this |
+| `ccb-installer/vendor/README.md` | questionable hand-authored doc | `vendor/` is vendored payload; root marker may be useful, but it violates generated/vendor source rule | Removed; guidance is centralized in Trellis `boundary-map.md` |
+| `ccb-installer/out/README.md` | misplaced hand-authored doc | `out/` is generated release/update output | Remove; central docs already cover this |
+
+## Recommended Safe Cleanup
+
+1. Remove generated Phase 1 verification outputs:
+   - `ccb-wanding-web/dist/`
+   - `ccb-wanding-web/tsconfig.tsbuildinfo`
+2. Remove Phase 2 README files placed inside generated/vendor payload roots:
+   - `ccb-installer/dist/README.md`
+   - `ccb-installer/staging/README.md`
+   - `ccb-installer/vendor/README.md`
+   - `ccb-installer/out/README.md`
+3. Keep boundary docs in Trellis:
+   - `.trellis/tasks/06-25-architecture-business-system-boundaries/boundary-map.md`
+   - `.trellis/tasks/06-25-architecture-business-system-boundaries/cleanup-audit.md`
+4. Add `.gitignore` coverage for recurring frontend generated outputs:
+   - `**/node_modules/`
+   - `**/dist/`
+   - `**/tsconfig.tsbuildinfo`
+
+## Risk
+
+Low for generated Phase 1 outputs. Moderate for `vendor/README.md` only because a root vendor marker can be convenient, but keeping vendor clean is more consistent with the boundary rule.
+
+## Additional Candidates Found During Phase 4
+
+These are outside the Phase 1/2 safe cleanup set. Do not delete until their role in tests or docs is confirmed.
+
+| Path | Classification | Reason | Recommendation |
+| --- | --- | --- | --- |
+| `python/.pytest_cache/` | generated | pytest cache | Safe delete candidate; add/confirm ignore coverage |
+| `python/__pycache__/` | generated | Python bytecode cache | Safe delete candidate; already covered by ignore |
+| `python/test_output/` | generated/test artifact | likely test output directory | Audit contents before deletion |
+| `python/_tmp_fill_out.txt` | temporary/debug output | name indicates scratch output | Audit then delete if reproducible |
+| `python/_tmp_scan_out.txt` | temporary/debug output | name indicates scratch output | Audit then delete if reproducible |
+| `python/_test_fill_output.xlsx` | generated/test artifact | likely output workbook from fill tests | Audit before deletion; may be useful fixture only if referenced |
+| `python/test_price_library_expanded_report.json` | generated report | report-style test output | Audit references before deletion |
+| `python/test_price_library_real_report.json` | generated report | report-style test output | Audit references before deletion |
+| `python/test_price_library_smoke_extended_report.json` | generated report | report-style test output | Audit references before deletion |
+
+## Phase 5 Cleanup Applied
+
+Deleted after reference audit confirmed these are generated/cache/output files:
+
+- `python/.pytest_cache/`
+- `python/__pycache__/`
+- `python/test_output/`
+- `python/_tmp_fill_out.txt`
+- `python/_tmp_scan_out.txt`
+- `python/_test_fill_output.xlsx`
+- `python/test_price_library_expanded_report.json`
+- `python/test_price_library_real_report.json`
+- `python/test_price_library_smoke_extended_report.json`
+
+Deleted again after verification regenerated cache files:
+
+- `python/.pytest_cache/`
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/agents/__pycache__/`
+- `python/inventory/lib/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 10 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 10 compile/test/smoke verification:
+
+- `python/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+
+## Phase 13 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 13 compile/test/smoke verification:
+
+- `python/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 29 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 29 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 28 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 28 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 27 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 27 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 26 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 26 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 25 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 25 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 24 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 24 compile/test/smoke verification:
+
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 23 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 23 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 22 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 22 compile/test/smoke verification:
+
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 14 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 14 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 15 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 15 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 16 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 16 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 17 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 17 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 18 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 18 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 19 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 19 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 20 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 20 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 11 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 11 compile/test/smoke verification:
+
+- `python/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+- `python/tools/__pycache__/`
+- `.cursor/hooks/__pycache__/`
+- `.trellis/scripts/common/__pycache__/`
+
+Ignore rules added:
+
+- `.pytest_cache/`
+- `python/test_output/`
+- `python/_tmp_*.txt`
+- `python/_test_*.xlsx`
+- `python/*_report.json`
+
+## Phase 5 Retained / Not Deleted
+
+These paths look generated, but are not safe to delete in this task because they may be runtime, release, or dependency payloads:
+
+| Path | Classification | Decision |
+| --- | --- | --- |
+| `ccb-installer/dist/` | built CLI/runtime payload | Keep. The installer flow references dist output and this work did not rebuild the installer package. |
+| `ccb-installer/staging/dist/` | staging/release assembly payload | Keep. Staging state may be part of current packaging/debug workflow. |
+| `mcp_servers/quotation-server/dist/` | built MCP server payload | Keep. It is likely used by the live MCP route. |
+| `**/node_modules/` | dependency payload | Keep locally, ignore in git. |
+| root `$tmp/`, `_tmp/`, `.tmp-ppt-master-extract/`, `.tmp-ppt-master.zip` | broad temporary workspace artifacts | Not deleted in this pass because ownership is unrelated to the architecture phases and may belong to an active packaging/docs workflow. Audit separately before removal. |
+
+## Phase 5 Verification
+
+- `python`: `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests/test_dispatch_error_codes.py tests/test_fill_row_guard.py -q` passed, 19 tests.
+- `python`: reran with `PYTHONDONTWRITEBYTECODE=1` and `-p no:cacheprovider`; passed, 19 tests, no cache left behind.
+- `ccb-wanding-web`: `.\node_modules\.bin\tsc.exe --noEmit --pretty false` passed.
+- `ccb-wanding-web`: confirmed `dist/` and `tsconfig.tsbuildinfo` are absent after verification.
+
+## Phase 6 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 6 compile/test verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+
+## Phase 8 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 8 compile/test verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`
+
+## Phase 9 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 9 compile/test verification:
+
+- `python/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/tests/__pycache__/`
+
+Deleted final caches generated by the post-cleanup verification rerun:
+
+- `python/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+
+## Phase 7 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 7 compile/test verification:
+
+- `python/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+
+## Phase 12 Cleanup Applied
+
+Removed obsolete hand-authored compatibility file after caller migration:
+
+- `python/wanding_workspace_paths.py`
+
+Bytecode/test caches generated by Phase 12 verification are deleted after the verification pass.
+
+Deleted Python bytecode caches found after the Phase 12 verification pass:
+
+- `.trellis/scripts/common/__pycache__/`
+- `ccb-installer/vendor/mcp-servers/accurate-mcp/__pycache__/`
+- `ccb-installer/vendor/python-wanding/Lib/__pycache__/`
+- `ccb-installer/vendor/python-wanding/Scripts/__pycache__/`
+- `python/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/lib/api/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+
+## Phase 21 Cleanup Applied
+
+Deleted Python bytecode caches generated by the Phase 21 compile/test/smoke verification:
+
+- `.trellis/scripts/common/__pycache__/`
+- `python/__pycache__/`
+- `python/admin/__pycache__/`
+- `python/inventory/__pycache__/`
+- `python/inventory/services/__pycache__/`
+- `python/quotation/__pycache__/`
+- `python/system/__pycache__/`
+- `python/tests/__pycache__/`

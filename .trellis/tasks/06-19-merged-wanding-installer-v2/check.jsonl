@@ -1,0 +1,4 @@
+{"ts":"2026-06-19T12:00:00Z","type":"check","summary":"PENDING: build-wanding.ps1 produces staging/ with AionUi + dist + vendor"}
+{"ts":"2026-06-19T12:00:00Z","type":"check","summary":"PENDING: installer-wanding-v2.nsi installs merged tree; shortcut AionUi.exe"}
+{"ts":"2026-06-19T12:00:00Z","type":"check","summary":"PENDING: fresh VM smoke A1-A6 per prd.md acceptance table"}
+{"ts":"2026-06-19T12:00:00Z","type":"check","summary":"PENDING: test-mcp-health.ps1 -Probe -Session on merged install"}

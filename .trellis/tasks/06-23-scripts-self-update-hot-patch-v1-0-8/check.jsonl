@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/integration/wanding-packaging-whitelist.md", "reason": "Verify §16 hot-update path table is updated to include scripts component"}
+{"file": "ccb-installer/scripts/internal-upgrade.ps1", "reason": "Verify $HotPaths contains 'scripts' and uses Copy-Tree (not Mirror-Tree)"}
+{"file": "ccb-installer/scripts/build-wanding-lib.ps1", "reason": "Verify ComponentCatalog has scripts entry, Stage-WandingHotComponent handles scripts, AutoFromGitDiff maps ccb-installer/scripts/ -> scripts"}
+{"file": "ccb-installer/scripts/build-wanding-hot.ps1", "reason": "Verify default -Components includes scripts"}

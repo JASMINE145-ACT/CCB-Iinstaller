@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent_id": "accurate-agent",
+  "display_name": "万鼎账务专家",
+  "avatar": "📊",
+  "guid_primary": true,
+  "delegatable": true,
+  "enabled": true,
+  "sort_order": 110,
+  "source": "bundled",
+  "mcp_allowlist": [
+    "accurate"
+  ]
+}

@@ -1,0 +1,5 @@
+{"ts":"2026-06-15T00:00:00Z","type":"implement","summary":"Trellis task 06-15-aionui-work-tasks: PRD, spec integration doc, AionCore aionui-work-tasks crate, AionUI /tasks UI + ipcBridge.workTask"}
+{"ts":"2026-06-15T00:01:00Z","type":"implement","summary":"AionUI: workTaskTypes, pages/workTasks, SiderWorkTasksEntry, Router /tasks, i18n zh-CN/en-US, e2e routes, unit test workTaskTypes.test.ts"}
+{"ts":"2026-06-15T12:00:00Z","type":"implement","summary":"Post-review fixes: WS delete task_id, CreateWorkTaskDialog transition guards, AionCore assignee_id default + default_new Accepted; spec PUT alignment"}
+{"ts":"2026-06-15T12:30:00Z","type":"implement","summary":"Spec docs: aioncore-work-tasks handbook, integration index, boundary § aioncore, file-map §6, dev-test-ship §9, spec index, outline, prd completion"}
+{"ts":"2026-06-15T18:30:00Z","type":"implement","summary":"Dev toolchain: rustup+VS2022 Build Tools; scripts/build-aioncore-work-tasks.cmd+.ps1, start-aionui-dev-work-tasks.ps1; service.rs metadata compile fix; cargo build --release → aioncore.exe v0.1.29"}

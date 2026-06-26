@@ -1,0 +1,52 @@
+# Install ppt-master skill, gate skill, agent seeds, and Python deps (CCB-Wanding installer hook).
+# Usage:
+#   .\ccb-installer\scripts\install-ppt-master.ps1 -InstallDir "D:\CCB-Wanding"
+
+param(
+    [string]$InstallDir = (Split-Path -Parent $PSScriptRoot),
+    [string]$ConfigDir = (Join-Path $env:LOCALAPPDATA "CCB-Wanding\.claude")
+)
+
+$ErrorActionPreference = "Stop"
+
+$skillsDir = Join-Path $ConfigDir "skills"
+$agentsDir = Join-Path $ConfigDir "agents"
+New-Item -ItemType Directory -Path $skillsDir -Force | Out-Null
+New-Item -ItemType Directory -Path $agentsDir -Force | Out-Null
+
+Write-Host "[ppt-master] Deploy skill from $InstallDir\vendor\ppt-master-skill ..."
+& (Join-Path $PSScriptRoot "deploy-ppt-master-skill.ps1") `
+    -SkillsDir $skillsDir `
+    -SourceDir (Join-Path $InstallDir "vendor\ppt-master-skill")
+
+$gateSource = Join-Path $InstallDir "seed\skills\ccb-subagent-gate"
+if (-not (Test-Path -LiteralPath $gateSource)) {
+    $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+    $gateSource = Join-Path $repoRoot "ccb-installer\config\skills\ccb-subagent-gate"
+}
+if (Test-Path -LiteralPath $gateSource) {
+    Write-Host "[ppt-master] Deploy ccb-subagent-gate ..."
+    & (Join-Path $PSScriptRoot "deploy-subagent-gate-skill.ps1") `
+        -SkillsDir $skillsDir `
+        -SourceDir $gateSource
+} else {
+    Write-Warning "[ppt-master] ccb-subagent-gate source not found; skipping gate skill deploy."
+}
+
+$seedAgents = Join-Path $InstallDir "seed\agents"
+if (-not (Test-Path -LiteralPath $seedAgents)) {
+    $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+    $seedAgents = Join-Path $repoRoot "ccb-installer\config\agents"
+}
+
+Write-Host "[ppt-master] Sync ppt-creator + cowork agent seeds ..."
+& (Join-Path $PSScriptRoot "sync-ppt-master-agents.ps1") `
+    -AgentsDir $agentsDir `
+    -SeedDir $seedAgents
+
+Write-Host "[ppt-master] Install Python dependencies (python-wanding) ..."
+& (Join-Path $PSScriptRoot "ensure-ppt-master-deps.ps1") `
+    -InstallDir $InstallDir `
+    -SkillDir (Join-Path $skillsDir "ppt-master")
+
+Write-Host "[ok] ppt-master install complete."

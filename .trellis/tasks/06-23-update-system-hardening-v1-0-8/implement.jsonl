@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/integration/internal-update.md", "reason": "Authoritative internal update flow, launcher env contract, hot/full update behavior, and manifest compatibility rules to update"}
+{"file": ".trellis/spec/integration/wanding-packaging-whitelist.md", "reason": "Packaging whitelist, shipped scripts, hot-update component paths, and desktop launcher contract"}
+{"file": ".trellis/spec/frontend/aionui-update-mechanism.md", "reason": "AionUI update bridge/full NSIS interaction and UI boundary for deferred update-all work"}
+{"file": ".trellis/spec/guides/wanding-build-path-decision.md", "reason": "Build path decision guide must distinguish pre-scripts-hot-update vs post-scripts-hot-update behavior"}

@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #0e0e0e;
+  color: #ffffff;
+}
+
+/* ─── Scrollbars (AionUI style) ─────────────────────────────────────────── */
+::-webkit-scrollbar            { width: 4px; height: 4px; }
+::-webkit-scrollbar-track      { background: transparent; }
+::-webkit-scrollbar-thumb      { background: #333333; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover{ background: #404040; }
+
+/* ─── Prose (markdown) overrides ─────────────────────────────────────────── */
+.prose { color: #ced3da; }
+.prose strong { color: #ffffff; }
+.prose h1, .prose h2, .prose h3 { color: #ffffff; font-weight: 600; margin-top: 1em; margin-bottom: 0.4em; }
+.prose p { margin-top: 0.5em; margin-bottom: 0.5em; line-height: 1.7; }
+.prose ul, .prose ol { padding-left: 1.4em; margin: 0.4em 0; }
+.prose li { margin: 0.25em 0; }
+.prose pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  background: #1a1a1a !important;
+  border: 1px solid #333333;
+  border-radius: 8px;
+  padding: 12px 14px;
+  overflow-x: auto;
+}
+.prose code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8em;
+  background: #262626;
+  border: 1px solid #333333;
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: #a1aacb;
+}
+.prose pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+.prose a { color: #4d9fff; text-decoration: none; }
+.prose a:hover { color: #6aafff; text-decoration: underline; }
+.prose blockquote {
+  border-left: 3px solid #333333;
+  padding-left: 12px;
+  color: #737373;
+  margin: 8px 0;
+  font-style: normal;
+}
+.prose table { border-collapse: collapse; width: 100%; font-size: 0.875em; }
+.prose thead th {
+  border-bottom: 1px solid #333333;
+  padding: 6px 12px;
+  text-align: left;
+  color: #ffffff;
+  font-weight: 500;
+}
+.prose tbody td {
+  border-bottom: 1px solid #262626;
+  padding: 6px 12px;
+  color: #ced3da;
+}
+.prose tbody tr:last-child td { border-bottom: none; }

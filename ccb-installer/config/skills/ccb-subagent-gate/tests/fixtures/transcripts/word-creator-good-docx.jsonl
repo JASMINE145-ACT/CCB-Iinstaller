@@ -1,0 +1,2 @@
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Bash","input":{"command":"officecli close \"C:\\tmp\\gate-test-good.docx\""}}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"文档: C:\\tmp\\gate-test-good.docx"}]}}

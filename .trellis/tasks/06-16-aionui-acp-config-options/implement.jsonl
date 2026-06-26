@@ -1,0 +1,6 @@
+{"ts":"2026-06-16T10:00:00Z","type":"implement","summary":"acpConfigOptionsTypes.ts: AcpConfigOptionDto with JSON field type (not option_type)"}
+{"ts":"2026-06-16T10:05:00Z","type":"implement","summary":"acpConfigOptionsAdapter.ts: dual-path read/write, route-not-found detection cache, double-404 silent reads, mode-missing branch"}
+{"ts":"2026-06-16T10:10:00Z","type":"implement","summary":"ipcBridge acpConversation get/set Model|Mode via adapter; setMode + invokeWithAcpWarmupRetry"}
+{"ts":"2026-06-16T10:12:00Z","type":"implement","summary":"e2e routes config-options; adapter unit tests; useAcpModelInfo ipcBridge mock + confirmedModelId typo fix"}
+{"ts":"2026-06-16T10:15:00Z","type":"implement","summary":"Trellis: aioncore-work-tasks.md config-options section, dev-test-ship §9 chat+tasks unified smoke"}
+{"ts":"2026-06-16T18:00:00Z","type":"implement","summary":"User acceptance recorded: manual smoke chat + /tasks via start-aionui-dev-work-tasks.ps1 — PASS"}

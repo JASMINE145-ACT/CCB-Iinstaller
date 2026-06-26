@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "defaultAgentId": "ccb-wanding-route-b",
+  "agents": [
+    {
+      "id": "ccb-wanding-route-b",
+      "name": "CCB-Wanding",
+      "description": "Route B — ccb-runtime via --ccb-acp (no SDK query)",
+      "command": "D:\\CCB-Wanding\\vendor\\bun\\bun.exe",
+      "args": ["D:\\CCB-Wanding\\dist\\cli.js", "--ccb-acp"],
+      "env": {
+        "CLAUDE_CONFIG_DIR": "%LOCALAPPDATA%\\CCB-Wanding\\.claude",
+        "ANTHROPIC_BASE_URL": "https://api.minimaxi.com/anthropic",
+        "CLAUDE_CODE_DISABLE_FAST_MODE": "1",
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+      }
+    }
+  ]
+}

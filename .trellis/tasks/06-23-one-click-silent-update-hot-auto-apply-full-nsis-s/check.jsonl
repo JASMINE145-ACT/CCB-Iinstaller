@@ -1,0 +1,5 @@
+{"file":"ccb-installer/scripts/ccb-update-auto.ps1","reason":"Verified launch-time hot auto-apply script exists, honors CCB_NO_UPDATE=1, uses 30s timeout, delegates to ccb-check-update.ps1 -AutoApplyHot, and logs fail-open."}
+{"file":"ccb-installer/ccb-launch-aionui.cmd","reason":"Verified launcher calls ccb-update-auto.ps1 synchronously before starting AionUi.exe and falls back to ccb-update-notify.ps1 when auto script is absent."}
+{"file":"D:/Projects/aionui-src/packages/desktop/src/process/bridge/silentNsisInstall.ts","reason":"Verified internal installer apply uses NSIS /S and quits Electron to release file locks."}
+{"file":"D:/Projects/aionui-src/packages/desktop/src/process/bridge/updateBridge.ts","reason":"Verified update.silentInstall IPC is registered for internal-feed AionUI installer apply."}
+{"file":"D:/Projects/aionui-src/packages/desktop/src/renderer/components/settings/UpdateModal.tsx","reason":"Verified internal-feed install path calls update.silentInstall; CCB apply path is wired through ccbUpdate.apply."}

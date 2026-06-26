@@ -1,0 +1,6 @@
+{"file": ".trellis/spec/integration/wanding-packaging-whitelist.md", "reason": "§16 defines hot-update zip paths and component whitelist — must stay consistent with $HotPaths changes"}
+{"file": ".trellis/spec/integration/internal-update.md", "reason": "§3.4 defines internal-upgrade apply contract; §6.1 defines ccb-update-auto spec"}
+{"file": "ccb-installer/scripts/internal-upgrade.ps1", "reason": "Add 'scripts' to $HotPaths with Copy-Tree semantics"}
+{"file": "ccb-installer/scripts/build-wanding-lib.ps1", "reason": "Add scripts to Get-WandingHotComponentCatalog, Stage-WandingHotComponent, and Resolve-WandingHotComponentsFromGit"}
+{"file": "ccb-installer/scripts/build-wanding-hot.ps1", "reason": "Add scripts to default -Components list"}
+{"file": "ccb-installer/scripts/build-wanding.ps1", "reason": "$shipScripts whitelist reference for which scripts to stage into hot zip"}

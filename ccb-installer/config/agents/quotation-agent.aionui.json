@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "agent_id": "quotation-agent",
+  "display_name": "万鼎报价专家",
+  "avatar": "💰",
+  "guid_primary": true,
+  "delegatable": true,
+  "enabled": true,
+  "sort_order": 100,
+  "source": "bundled",
+  "mcp_allowlist": [
+    "quotation",
+    "excel"
+  ]
+}

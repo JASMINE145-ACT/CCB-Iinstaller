@@ -1,0 +1,32 @@
+[
+  {
+    "wxid": "yjc",
+    "nickname": "jasmine",
+    "avatar": "J",
+    "createdAt": "2026-05-30T10:30:13.779Z"
+  },
+  {
+    "wxid": "testhmac",
+    "nickname": "����",
+    "avatar": "�",
+    "createdAt": "2026-05-30T11:37:17.985Z"
+  },
+  {
+    "wxid": "conctest",
+    "nickname": "��������",
+    "avatar": "�",
+    "createdAt": "2026-05-30T11:39:36.210Z"
+  },
+  {
+    "wxid": "rltestuser",
+    "nickname": "�����û�",
+    "avatar": "�",
+    "createdAt": "2026-05-30T11:41:50.621Z"
+  },
+  {
+    "wxid": "testuser2",
+    "nickname": "Rate Limit Tester",
+    "avatar": "R",
+    "createdAt": "2026-05-30T11:43:13.948Z"
+  }
+]

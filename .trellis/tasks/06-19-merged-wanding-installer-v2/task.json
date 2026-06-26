@@ -1,0 +1,42 @@
+{
+  "id": "merged-wanding-installer-v2",
+  "name": "06-19-merged-wanding-installer-v2",
+  "title": "Merged CCB-Wanding + AionUI NSIS installer (v2)",
+  "description": "One-shot NSIS packages AionUi win-unpacked + CCB dist/vendor/seed under %LOCALAPPDATA%\\Programs\\CCB-Wanding; desktop shortcut targets ccb-launch-aionui.cmd so bootstrap runs before AionUI; post-install ensure-wanding-settings + org-server.json seed.",
+  "status": "pending",
+  "dev_type": "implementation",
+  "scope": "packaging",
+  "package": "ccb-installer+aionui",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-19",
+  "completedAt": null,
+  "parent_task": null,
+  "relatedFiles": [
+    "d:\\Projects\\claude-code-best\\.trellis\\spec\\integration\\wanding-packaging-whitelist.md",
+    "d:\\Projects\\claude-code-best\\ccb-installer\\installer-wanding.nsi",
+    "d:\\Projects\\claude-code-best\\ccb-installer\\scripts\\package-aionui-exe.ps1",
+    "d:\\Projects\\claude-code-best\\ccb-installer\\scripts\\ensure-wanding-settings.ps1",
+    "d:\\Projects\\claude-code-best\\ccb-installer\\resources\\org-server.json",
+    "d:\\Projects\\claude-code-best\\ccb-installer\\patches\\aionui-ccb-route-b\\index.js",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\electron-builder.yml"
+  ],
+  "notes": "2026-06-20 strict audit: implementation now uses ccb-launch-aionui.cmd for desktop/start-menu launch, exports CCB_INSTALL_DIR/CCB_WANDING_HOME/CCB_WANDING_CONFIG_DIR, route-b prefers launcher env and bundled install discovery before stale fallback slots, and build-wanding.ps1 preinstalls MCP/ppt Python deps into bundled python-wanding. Quotation MCP runtime node_modules are packaged. Field test found AionUI can still use a stale %APPDATA% runtime ACP cache and show 'undetected Claude Code' even when Check Install has no MISSING. Fixed by shipping sync-aionui-ccb-route-b.ps1, running it from run-wanding-bootstrap.ps1 on every Quick/Full bootstrap, and making ccb-check-install.cmd run Quick bootstrap plus verify OK bundled route-b and OK runtime route-b. Latest CCB-Wanding-1.0.1.exe SHA256 0566D3439A84D0DD1167F82689E279DA6CC7828289E9575A106E08046EF4B15E, size 948246404 bytes. Staging bootstrap route-b sync passed with temp APPDATA; staged Check Install reports OK runtime route-b; staged MCP -Probe passed for quotation/accurate/office-word/excel. Baseline decision: this route-b cache fix needs one new full NSIS because older installs lack self-heal; after this baseline, backend-only components (dist/python/data/seed/quotation-mcp/accurate-mcp/office-word/excel/mcp-pip) can use hot-update zip, while AionUI/frontend/installer/launcher/vendor-runtime/new-machine cases still need full NSIS. Remaining highest-confidence gap: no clean-VM AionUI GUI click-through after this route-b cache fix.",
+  "meta": {
+    "2026-06-20_pause_state": "Strict installer hardening source changes are recorded in info.md but not repackaged yet. Existing CCB-Wanding-1.0.1.exe remains the 2026-06-20 21:21:37 artifact and must be rebuilt before sending if the NSIS install-root guard and test-mcp-health spawn EPERM retry are required.",
+    "problem": "Employees need two artifacts today; AionUI green zip is not full stack.",
+    "target_install_root": "%LOCALAPPDATA%\\Programs\\CCB-Wanding",
+    "target_shortcut": "$INSTALL\\ccb-launch-aionui.cmd",
+    "staging_root": "ccb-installer\\staging",
+    "verification": {
+      "fresh_install_smoke": "chat + quotation MCP + org-knowledge menu",
+      "route_b_resolve": "resolveInstallDir finds launcher-provided or bundled $INSTALL before D:\\CCB-Wanding fallback",
+      "mcp_health": "ccb-installer/scripts/test-mcp-health.ps1 -Probe -Session"
+    },
+    "depends_on": [
+      "06-19-org-knowledge-vps-deploy",
+      "ccb-installer/resources/org-server.json seed"
+    ]
+  }
+}

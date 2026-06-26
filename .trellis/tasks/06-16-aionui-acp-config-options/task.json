@@ -1,0 +1,44 @@
+{
+  "id": "aionui-acp-config-options",
+  "name": "06-16-aionui-acp-config-options",
+  "title": "AionUI ACP config-options migration",
+  "description": "Migrate ipcBridge acpConversation get/set Model|Mode from legacy /model|/mode to /config-options with 404 fallback for bundled aioncore. Fixes Route not found when using self-built v0.1.29+ with work-tasks dev.",
+  "status": "completed",
+  "dev_type": "implementation",
+  "scope": "acp-config-options",
+  "package": "aionui",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-16",
+  "completedAt": "2026-06-16",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "06-15-aionui-work-tasks",
+  "relatedFiles": [
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\types\\platform\\acpConfigOptionsTypes.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\adapter\\acpConfigOptionsAdapter.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\adapter\\ipcBridge.ts",
+    "D:\\Projects\\aionui-src\\tests\\unit\\common-adapter\\acpConfigOptionsAdapter.test.ts",
+    "D:\\Projects\\aionui-src\\tests\\e2e\\helpers\\bridge\\routes.ts",
+    "D:\\Projects\\claude-code-best\\.trellis\\spec\\integration\\aioncore-work-tasks.md",
+    "D:\\Projects\\claude-code-best\\.trellis\\spec\\frontend\\dev-test-ship.md"
+  ],
+  "notes": "Follow-up to work-tasks self-build: v0.1.29 removed /model|/mode. Dual-path adapter; upper hooks unchanged.",
+  "meta": {
+    "verification": {
+      "code_review": "PASS",
+      "test_agent": "PASS",
+      "unit_tests": "acpConfigOptionsAdapter + ensureCcb + useAcpModelInfo 30/30",
+      "binary_smoke": "self-built aioncore.exe contains config-options; bundled lacks it",
+      "gui_smoke": "PASS — user acceptance: start-aionui-dev-work-tasks.ps1; new CCB chat「你好」+ /tasks CRUD",
+      "user_acceptance": "PASS",
+      "accepted_at": "2026-06-16"
+    }
+  }
+}

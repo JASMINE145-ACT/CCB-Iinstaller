@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/integration/wanding-packaging-whitelist.md", "reason": "§16.1 hot-update zip IN list and §17.5 shipped scripts need updating for scripts component and rollback script"}
+{"file": ".trellis/spec/integration/internal-update.md", "reason": "§3.2 needs state.json, rollback, retention docs; §16.1 HotPaths needs scripts note"}

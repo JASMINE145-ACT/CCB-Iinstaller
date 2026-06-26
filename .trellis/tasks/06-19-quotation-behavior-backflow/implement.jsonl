@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend/MCP layer routing and source-of-truth rules for quotation-agent behavior."}
+{"file": ".trellis/spec/backend/mcp-business.md", "reason": "Quotation MCP candidate cap, selection payload, and agent flow contracts."}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "Agent eval regression contract and specialist routing boundaries."}
+{"file": "eval/scenarios/quotation-ppr-image-sheet-20260619.md", "reason": "Golden quotation behavior and observed anti-pattern context."}

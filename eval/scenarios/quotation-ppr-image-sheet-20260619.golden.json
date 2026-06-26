@@ -1,0 +1,66 @@
+{
+  "scenario_id": "quotation-ppr-image-sheet-20260619",
+  "title": "PPR 图片询价 → 选型 → 库存 → 填表（2026-06-19 真实会话）",
+  "source": "AionUI dev session claude-temp-882206a0 / project temp 209447e5",
+  "agent": "quotation-agent",
+  "customer_level": "B",
+  "inquiry_rows": [
+    { "row": 1, "name": "PPR 四通", "spec": "25", "unit": "个", "qty": 20 },
+    { "row": 2, "name": "PPR 弯头", "spec": "25", "unit": "个", "qty": 40 },
+    { "row": 3, "name": "PPR 内丝弯头", "spec": "25×1/2", "unit": "个", "qty": 30 },
+    { "row": 4, "name": "PPR 热水管", "spec": "25", "unit": "米", "qty": 50 },
+    { "row": 5, "name": "生料带", "spec": "通用", "unit": "个", "qty": 200 }
+  ],
+  "locked_selection": [
+    {
+      "row": 1,
+      "code": "8010072478",
+      "quote_name_hint": "正四通 PPR 印尼绿色 dn25",
+      "unit_price_idr": 4072
+    },
+    {
+      "row": 2,
+      "code": "8010071402",
+      "quote_name_hint": "90°弯头 PPR 印尼绿色 dn25",
+      "unit_price_idr": 1713,
+      "inventory_note": "available_qty=0 warehouse_qty=2939"
+    },
+    {
+      "row": 3,
+      "code": "8010071394",
+      "quote_name_hint": "内螺纹弯头Ⅰ型 PPR dn25×1/2",
+      "unit_price_idr": 10100
+    },
+    {
+      "row": 4,
+      "code": "8010062288",
+      "quote_name_hint": "PPR 热给水 S3.2 (1.6MPa) dn25",
+      "unit_price_idr": 41197,
+      "forbidden_substitutes": ["8010062299"]
+    },
+    {
+      "row": 5,
+      "code": "GPR-EQ07E01001",
+      "quote_name_hint": "Sealtape HQ 12mm×10M 生料带",
+      "unit_price_idr": 3862,
+      "forbidden_substitutes": ["8020020643"],
+      "inventory_note": "available_qty=97 demand=200 gap=103"
+    }
+  ],
+  "totals_idr": {
+    "line_amounts": [81440, 68520, 303000, 2059850, 772400],
+    "grand_total": 3285210
+  },
+  "workspace": {
+    "must_not_default": ["Desktop", "Roaming\\\\...\\\\conversations\\\\claude-temp"],
+    "preferred_relative": "Wanding-Quotation_<timestamp>.xlsx",
+    "ui_panel": "AionUI 项目 → 临时空间 (Local\\Temp\\aionui\\<projectId>\\)"
+  },
+  "known_failures_from_session": [
+    "keywords fill_quotation_sheet rematched row4 to 8010062299 (S2.5)",
+    "keywords fill rematched row5 to 8020020643 (PVC elbow dn50)",
+    "B-E inquiry columns empty after keywords-only fill",
+    "write_data_to_excel wrote O-column remarks into J (unit column)",
+    "fill created timestamp-suffixed duplicate instead of in-place update"
+  ]
+}

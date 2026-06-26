@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "agent_id": "wande-orchestrator",
+  "display_name": "全局路由",
+  "avatar": "🧭",
+  "guid_primary": false,
+  "delegatable": false,
+  "enabled": true,
+  "sort_order": 500,
+  "source": "bundled",
+  "mcp_allowlist": []
+}

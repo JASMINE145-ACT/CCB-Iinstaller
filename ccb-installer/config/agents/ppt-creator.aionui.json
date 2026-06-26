@@ -1,0 +1,28 @@
+{
+    "updated_at":  "2026-06-16T18:00:00.000Z",
+    "skills":  {
+                   "enabled":  [
+                                   "ppt-master"
+                               ],
+                   "disabled":  [
+                                    "officecli-pptx"
+                                ]
+               },
+    "source":  "bundled",
+    "display_name":  "PPT 演示助手",
+    "created_at":  "2026-06-16T18:00:00.000Z",
+    "agent_id":  "ppt-creator",
+    "guid_primary":  true,
+    "avatar":  "📊",
+    "recommended_prompts":  [
+                                "根据工作区 projects 里的 PDF 做一份 10 页业务汇报 PPT",
+                                "把下面这段文字做成 8 页产品介绍 PPT（16:9）",
+                                "基于刚才对话里的表格数据做一份客户汇报 PPT"
+                            ],
+    "delegatable":  true,
+    "schema_version":  1,
+    "mcp_allowlist":  [
+
+                      ],
+    "enabled":  true
+}

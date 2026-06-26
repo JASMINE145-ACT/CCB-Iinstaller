@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/backend/index.md", "reason": "Verify backend/MCP changes stay in the correct layer."}
+{"file": ".trellis/spec/backend/mcp-business.md", "reason": "Verify quotation-agent behavior remains consistent with MCP contracts."}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "Verify eval additions match the regression harness contract."}
+{"file": "eval/scenarios/quotation-ppr-image-sheet-20260619.md", "reason": "Verify golden scenario behavior is preserved."}

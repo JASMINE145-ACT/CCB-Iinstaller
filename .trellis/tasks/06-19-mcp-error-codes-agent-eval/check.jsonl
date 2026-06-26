@@ -1,0 +1,21 @@
+{"file": ".trellis/spec/backend/mcp-business.md", "reason": "Verify MCP response contract and smoke loop remain aligned."}
+{"file": ".trellis/spec/backend/build-deploy-verify.md", "reason": "Use backend verification checklist when deciding which tests/smokes to run."}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "Check eval cases cover direct specialist and orchestrator routing contracts."}
+{"command": "python -m py_compile python\\main.py python\\quotation\\quote_tools.py python\\tests\\test_dispatch_error_codes.py", "result": "PASS"}
+{"command": "node --check mcp_servers\\quotation-server\\dist\\index.js", "result": "PASS"}
+{"command": "node eval\\run-agent-eval.mjs", "result": "PASS: loaded=42 selected=42 schema ok"}
+{"command": "python -m unittest python.tests.test_dispatch_error_codes python.tests.test_dispatch_match_price_and_inventory", "result": "PASS: 9 tests"}
+{"command": ".\\ccb-installer\\scripts\\sync-dev-wanding-vendor.ps1 -InstallDir D:\\CCB-Wanding -Smoke", "result": "PASS: live vendor Python/MCP synced; HDPE smoke PASS"}
+{"command": "live vendor fill_quotation_sheet require_exact_codes without fill_items", "result": "PASS: INVALID_INPUT"}
+{"command": "live vendor fill_quotation_sheet require_exact_codes with uncoded fill_items", "result": "PASS: INVALID_INPUT"}
+{"command": "python -m py_compile python\\main.py python\\wanding_workspace_paths.py python\\quotation\\quote_tools.py python\\tests\\test_dispatch_error_codes.py python\\test_quotation_output_workspace.py", "result": "PASS"}
+{"command": "node --check mcp_servers\\quotation-server\\dist\\index.js", "result": "PASS"}
+{"command": "node --check mcp_servers\\quotation-server\\dist\\python-spawner.js", "result": "PASS"}
+{"command": "node eval\\run-agent-eval.mjs", "result": "PASS: loaded=55 selected=55 schema ok"}
+{"command": "python -m unittest python.tests.test_dispatch_error_codes python.tests.test_dispatch_match_price_and_inventory", "result": "PASS: 10 tests"}
+{"command": "python python\\test_quotation_output_workspace.py", "result": "PASS"}
+{"command": "repo fill_quotation_sheet default output without workspace", "result": "PASS: INVALID_INPUT"}
+{"command": "repo fill_quotation_sheet default output with WANDING_WORKSPACE", "result": "PASS: output_path under AppData\\Local\\Temp\\aionui\\workspace-contract-*"}
+{"command": ".\\ccb-installer\\scripts\\sync-dev-wanding-vendor.ps1 -InstallDir D:\\CCB-Wanding -Smoke", "result": "PASS: live vendor Python/MCP synced; HDPE smoke PASS"}
+{"command": "live vendor fill_quotation_sheet default output without workspace", "result": "PASS: INVALID_INPUT"}
+{"command": "live vendor fill_quotation_sheet default output with WANDING_WORKSPACE", "result": "PASS: output_path under AppData\\Local\\Temp\\aionui\\live-workspace-contract-*"}

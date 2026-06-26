@@ -1,0 +1,14 @@
+{
+  "Onboarding": {
+    "To change this later, run /theme": "稍后可通过 /theme 修改",
+    "Option+Enter for newlines and visual bell": "Option+Enter 换行并触发视觉提示",
+    "Shift+Enter for newlines": "Shift+Enter 换行"
+  },
+  "WelcomeV2": {
+    "Welcome to Claude Code": "欢迎使用 Claude Code"
+  },
+  "StartupProfiler": {
+    "Startup profiling not enabled": "未启用启动性能分析",
+    "No profiling checkpoints recorded": "未记录启动性能分析检查点"
+  }
+}

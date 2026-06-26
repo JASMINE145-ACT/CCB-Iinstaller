@@ -1,0 +1,17 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "ccb-installer",
+      "dependencies": {
+        "@agentclientprotocol/sdk": "0.19.0",
+      },
+    },
+  },
+  "packages": {
+    "@agentclientprotocol/sdk": ["@agentclientprotocol/sdk@0.19.0", "", { "peerDependencies": { "zod": "^3.25.0 || ^4.0.0" } }, "sha512-U9I8ws9WTOk6jCBAWpXefGSDgVXn14/kV6HFzwWGcstQ02mOQgClMAROHmoIn9GqZbDBDEOkdIbP4P4TEMQdug=="],
+
+    "zod": ["zod@4.4.3", "", {}, "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="],
+  }
+}

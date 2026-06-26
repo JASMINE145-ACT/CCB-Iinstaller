@@ -29,3 +29,33 @@ __pycache__/
 
 # Logs
 *.log
+
+# Large vendored trees (restore via build / staging scripts)
+ccb-installer/staging/
+ccb-installer/node_modules/
+ccb-installer/launcher-src/target/
+ccb-installer/out/
+ccb-installer/vendor/python-wanding/
+ccb-installer/vendor/windows-terminal/
+
+# Secrets
+ccb-installer/resources/settings/
+
+# Large local artifacts
+AionCore/
+aioncore-src.tgz
+_publish/
+_tmp/
+$tmp/
+Microsoft/
+
+# Test / data binaries
+data/*.xlsx
+data/*.png
+python/test_output/
+python/_test_fill_output.xlsx
+python/test_*_report.json
+
+# ASAR audit extract (rebuild from staging)
+.trellis/tasks/*/asar-1.1.2-extract/
+.trellis/tasks/*/asar-1.1.2-list.txt

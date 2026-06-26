@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/integration/wanding-packaging-whitelist.md", "reason": "Verify scripts/** in §16.1 IN list and rollback-last-update.ps1 + ccb-update-auto.ps1 in §17.5"}
+{"file": ".trellis/spec/integration/internal-update.md", "reason": "Verify state.json fields, rollback script, retention rules documented; changelog entry present"}

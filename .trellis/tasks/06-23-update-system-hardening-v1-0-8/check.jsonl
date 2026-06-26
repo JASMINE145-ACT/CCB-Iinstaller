@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/integration/internal-update.md", "reason": "Check specs describe ccb-update-auto.ps1 as authoritative and do not retain stale notify-only flow"}
+{"file": ".trellis/spec/integration/wanding-packaging-whitelist.md", "reason": "Check scripts component, shipped-script whitelist, and launcher/icon contracts remain consistent"}
+{"file": ".trellis/spec/frontend/aionui-update-mechanism.md", "reason": "Check full NSIS and deferred update-all UI boundaries remain accurate"}
+{"file": ".trellis/spec/guides/wanding-build-path-decision.md", "reason": "Check operator build guidance reflects when NSIS is still required vs hot update is enough"}

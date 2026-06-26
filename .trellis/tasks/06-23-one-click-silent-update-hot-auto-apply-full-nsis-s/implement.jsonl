@@ -1,0 +1,3 @@
+{"file":".trellis/spec/integration/internal-update.md","reason":"Recorded 2026-06-23 authoritative update: launch-time ccb-update-auto.ps1 hot auto-apply and NSIS /S silent full install contract."}
+{"file":".trellis/spec/frontend/aionui-update-mechanism.md","reason":"Recorded update.silentInstall / silentNsisInstall.ts behavior for internal-feed AionUI installers and CCB full installer apply."}
+{"file":".trellis/spec/integration/wanding-packaging-whitelist.md","reason":"Recorded packaged launcher/scripts inclusion and desktop/icon packaging contract touched during the same release task."}

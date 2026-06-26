@@ -1,0 +1,45 @@
+{
+  "id": "aionui-work-tasks",
+  "name": "06-15-aionui-work-tasks",
+  "title": "AionUI organization work tasks (/tasks)",
+  "description": "Org-level human work task center: sidebar /tasks, CRUD + attachments via aioncore /api/work-tasks, separate from cron and agent team_tasks.",
+  "status": "completed",
+  "dev_type": "implementation",
+  "scope": "work-tasks",
+  "package": "aionui+aioncore",
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-15",
+  "completedAt": "2026-06-15",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\pages\\workTasks",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\types\\workTasks",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\adapter\\ipcBridge.ts",
+    "D:\\Projects\\claude-code-best\\AionCore\\crates\\aionui-work-tasks",
+    "D:\\Projects\\claude-code-best\\scripts\\build-aioncore-work-tasks.cmd",
+    "D:\\Projects\\claude-code-best\\scripts\\build-aioncore-work-tasks.ps1",
+    "D:\\Projects\\claude-code-best\\scripts\\start-aionui-dev-work-tasks.ps1",
+    "d:\\Projects\\claude-code-best\\.trellis\\spec\\integration\\aioncore-work-tasks.md"
+  ],
+  "notes": "Phase 1 single-user. Self-built aioncore v0.1.29 at AionCore/target/release/aioncore.exe. Dev: scripts/start-aionui-dev-work-tasks.ps1. Bundled v0.1.27 still lacks /api/work-tasks.",
+  "meta": {
+    "blocked_by_resolved": "aioncore open source; self-build path documented and verified on Windows",
+    "verification": {
+      "code_review": "PASS",
+      "test_agent": "PASS",
+      "unit_tests": "workTaskTypes.test.ts 4/4",
+      "cargo_build_release": "PASS (4m22s, aioncore v0.1.29)",
+      "api_smoke": "GET /api/work-tasks → 200",
+      "dev_binary": "AionCore/target/release/aioncore.exe on PATH"
+    }
+  }
+}

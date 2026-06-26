@@ -1,0 +1,2 @@
+{"file": "ccb-installer/scripts/ccb-check-update.ps1", "reason": "Verify Test-HotUpdateEligible returns false for all three new gate conditions"}
+{"file": ".trellis/spec/integration/internal-update.md", "reason": "Verify §2.5 has three new fields and §2.6 example is updated"}

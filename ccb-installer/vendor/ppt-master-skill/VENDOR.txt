@@ -1,0 +1,4 @@
+﻿source: https://github.com/hugohe3/ppt-master
+ref: main
+path: skills/ppt-master
+vendored_at: 2026-06-17T08:02:41.6844267+08:00

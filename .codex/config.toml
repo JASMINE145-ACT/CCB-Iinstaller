@@ -1,0 +1,9 @@
+[shell_environment_policy]
+inherit = "core"
+
+[shell_environment_policy.set]
+CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR = "1"
+
+[mcp_servers.ccb-deploy]
+command = "python"
+args = ['d:\Projects\claude-code-best\ccb-installer\vendor\mcp-servers\ccb-deploy-mcp\server.py']

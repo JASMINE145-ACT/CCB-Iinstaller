@@ -1,0 +1,3 @@
+{"ts":"2026-06-19T12:00:00Z","type":"research","summary":"PRD + task.json created. Spec: wanding-packaging-whitelist.md v2 merged tree. Gap: build-wanding.ps1 + installer-wanding-v2.nsi missing."}
+{"ts":"2026-06-19T12:00:00Z","type":"research","summary":"Partial prereq done: ensure-wanding-settings Ensure-OrgServerDesktopConfig + resources/org-server.json + installer-wanding.nsi config copy (v1 only)."}
+{"ts":"2026-06-19T12:00:00Z","type":"research","summary":"route-b already resolves %LOCALAPPDATA%\\Programs\\CCB-Wanding when dist+bun present — no ACP change for merge."}

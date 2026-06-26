@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/integration/internal-update.md", "reason": "§2.5 HotUpdate schema needs layout_version + requires_full_install; §2.6 example and §6.2 status table need updating"}
+{"file": "ccb-installer/scripts/ccb-check-update.ps1", "reason": "Test-HotUpdateEligible needs max_from_version + requires_full_install + layout_version checks"}

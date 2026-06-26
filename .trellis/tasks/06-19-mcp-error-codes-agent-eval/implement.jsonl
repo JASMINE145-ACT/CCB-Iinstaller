@@ -1,0 +1,19 @@
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend entry point and source-vs-dist ownership for CCB-Wanding/MCP work."}
+{"file": ".trellis/spec/backend/mcp-business.md", "reason": "Quotation MCP tool semantics, smoke commands, and current business-layer contracts."}
+{"file": ".trellis/spec/backend/coding-rules.md", "reason": "Hard rules for backend/MCP changes and verification expectations."}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "Agent routing, specialist direct sessions, and eval-relevant behavior contracts."}
+{"file": "python/main.py", "reason": "Added require_exact_codes/locked_lines/confirmed guard for fill_quotation_sheet so confirmed rows cannot fall back to keyword rematching."}
+{"file": "python/quotation/quote_tools.py", "reason": "Exposed require_exact_codes and product_code in the fill_quotation_sheet tool schema and description."}
+{"file": "mcp_servers/quotation-server/dist/index.js", "reason": "Synced MCP-facing fill_quotation_sheet schema so ACP sessions see the locked-SKU direct-fill contract."}
+{"file": "ccb-installer/config/agents/quotation-agent.md", "reason": "Added lightweight locked_lines SOP: confirmed SKUs must fill by code with require_exact_codes and no whole-sheet rematch."}
+{"file": ".trellis/spec/backend/mcp-business.md", "reason": "Documented the locked quotation line contract without adding draft storage or a state machine."}
+{"file": "eval/agent_eval_cases.jsonl", "reason": "Added a regression case for confirmed SKU fill requiring exact codes and forbidding match_quotation rematch."}
+{"file": "python/tests/test_dispatch_error_codes.py", "reason": "Added tests for confirmed fill without fill_items and confirmed fill_items without code/product_code."}
+{"file": "python/wanding_workspace_paths.py", "reason": "Added strict workspace resolution mode so quotation outputs can reject hidden fallback paths when workspace_path is required."}
+{"file": "python/main.py", "reason": "Made fill_quotation_sheet require an injected workspace for omitted or relative output_path while preserving explicit absolute output paths."}
+{"file": "mcp_servers/quotation-server/dist/python-spawner.js", "reason": "Injected workspace_kind=aionui_project_temp alongside workspace_path when runtime workspace is available."}
+{"file": "mcp_servers/quotation-server/dist/index.js", "reason": "Documented workspace_path/workspace_kind in the MCP-facing fill_quotation_sheet schema."}
+{"file": "ccb-installer/config/agents/quotation-agent.md", "reason": "Updated quotation-agent SOP to report only UI-visible project temporary workspace paths and avoid Desktop/vendor/Roaming alternatives."}
+{"file": ".trellis/spec/backend/mcp-business.md", "reason": "Added the workspace output contract: default and relative quotation outputs require AionUI project temp workspace."}
+{"file": "eval/agent_eval_cases.jsonl", "reason": "Added an eval case requiring project temporary workspace output and forbidding hidden fallback paths."}
+{"file": "python/test_quotation_output_workspace.py", "reason": "Added strict workspace path tests for omitted, relative, and absolute output paths."}

@@ -1,0 +1,57 @@
+{
+  "Settings": {
+    "Auto (match terminal)": "自动（匹配终端）",
+    "Default (English)": "默认（英文）",
+    "Default (recommended)": "默认（推荐）",
+    "Current week (all models)": "本周（所有模型）",
+    "Current week (Sonnet only)": "本周（仅 Sonnet）",
+    "Claude completes coding tasks efficiently and provides concise responses": "Claude 高效完成编码任务并提供简洁回应",
+    "Claude in Chrome enabled by default": "默认启用 Chrome 中的 Claude",
+    "Config dialog dismissed": "配置对话框已关闭",
+    "Default (leader's model)": "默认（队长的模型）",
+    "Default model for newly spawned teammates. The leader can override via the tool call's model parameter.": "新生成队友的默认模型。队长可通过工具调用的 model 参数覆盖。",
+    "Enable with latest channel": "使用最新通道启用",
+    "Enable with stable channel": "使用稳定通道启用",
+    "Extra usage not enabled · /extra-usage to enable": "未启用额外用量 · 使用 /extra-usage 启用",
+    "Failed to load usage data: ${n}": "加载用量数据失败：${n}",
+    "Failed to load usage data": "加载用量数据失败",
+    "How would you like to handle this?": "您希望如何处理？",
+    "Auto-updates are controlled by an environment variable and cannot be changed here.": "自动更新由环境变量控制，此处无法更改。",
+    "Auto-updates are disabled in development builds.": "开发版本中禁用自动更新。",
+    "Changing thinking mode mid-conversation will increase latency and may reduce quality.": "对话中途切换思考模式会增加延迟并可能降低质量。",
+    "Dark mode (ANSI colors only)": "暗色模式（仅 ANSI 颜色）",
+    "Dark mode (colorblind-friendly)": "暗色模式（色盲友好）",
+    "Light mode (ANSI colors only)": "浅色模式（仅 ANSI 颜色）",
+    "Light mode (colorblind-friendly)": "浅色模式（色盲友好）",
+    "Push when idle": "空闲时推送",
+    "Push when input needed": "需要输入时推送",
+    "Push when Claude decides": "由 Claude 决定时推送",
+    "Teammate mode": "队友模式",
+    "Use custom API key: ": "使用自定义 API 密钥："
+  },
+  "PrivacySettings": {
+    "Accept terms · Help improve Claude: OFF": "接受条款 · 帮助改进 Claude：关",
+    "Accept terms · Help improve Claude: ON": "接受条款 · 帮助改进 Claude：开",
+    "Accept terms · Help improve Claude: OFF (for emails with your domain)": "接受条款 · 帮助改进 Claude：关（针对您域名的邮件）",
+    "An update to our Consumer Terms and Privacy Policy will take effect on ": "我们的消费者条款和隐私政策更新将于以下日期生效：",
+    "Please select how you'd like to continue": "请选择您希望如何继续",
+    "Privacy settings dialog dismissed": "隐私设置对话框已关闭",
+    "Review and manage your privacy settings at https://claude.ai/settings/data-privacy-controls": "在以下链接查看并管理您的隐私设置：https://claude.ai/settings/data-privacy-controls",
+    "Review and manage your privacy settings at": "在以下链接查看并管理您的隐私设置：",
+    "Unable to retrieve updated privacy settings": "无法获取更新的隐私设置",
+    "Updates to Consumer Terms and Policies": "消费者条款和政策更新",
+    "Updates to data retention ": "数据保留更新 ",
+    "We've updated our Consumer Terms and Privacy Policy.": "我们已更新消费者条款和隐私政策。",
+    "What's changing?": "有什么变化？",
+    "You can help improve Claude ": "您可以帮助改进 Claude ",
+    "Your choice takes effect immediately upon confirmation.": "您的选择将在确认后立即生效。"
+  },
+  "ErrorLogSink": {
+    "Error log sink initialized": "错误日志接收器已初始化",
+    "MCP server \"${e}\" ${t}": "MCP 服务器 \"${e}\" ${t}",
+    "MCP server \"${e}\": ${t}": "MCP 服务器 \"${e}\"：${t}"
+  },
+  "ProcessBash": {
+    "No result received from shell command": "Shell 命令未返回结果"
+  }
+}

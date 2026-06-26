@@ -1,0 +1,1475 @@
+{
+  "ab7cf86b": {
+    "id": "ab7cf86b",
+    "name": "test conv",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "created_at": 1781164358496,
+    "modified_at": 1781164358496,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": []
+  },
+  "90fff028": {
+    "id": "90fff028",
+    "name": "hi, say hello back in one word",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "created_at": 1781164413931,
+    "modified_at": 1781164419000,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": [
+      {
+        "id": "81f0dea8",
+        "conversation_id": "90fff028",
+        "msg_id": "81f0dea8",
+        "type": "text",
+        "content": {
+          "content": "hi, say hello back in one word"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781164413969
+      }
+    ]
+  },
+  "353bb191": {
+    "id": "353bb191",
+    "name": "Hello",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "created_at": 1781164560409,
+    "modified_at": 1781164563734,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": [
+      {
+        "id": "5c6feacc",
+        "conversation_id": "353bb191",
+        "msg_id": "5c6feacc",
+        "type": "text",
+        "content": {
+          "content": "say just the word hello"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781164560463
+      },
+      {
+        "id": "0eff83bc",
+        "conversation_id": "353bb191",
+        "msg_id": "0eff83bc",
+        "type": "text",
+        "content": {
+          "content": "Hello"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781164563734
+      }
+    ]
+  },
+  "415aca22": {
+    "id": "415aca22",
+    "name": "1+1 = ?",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "created_at": 1781164642053,
+    "modified_at": 1781164647078,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": [
+      {
+        "id": "c57c012d",
+        "conversation_id": "415aca22",
+        "msg_id": "c57c012d",
+        "type": "text",
+        "content": {
+          "content": "1+1 = ?"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781164642060
+      }
+    ]
+  },
+  "219e6fe9": {
+    "id": "219e6fe9",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "created_at": 1781166739722,
+    "modified_at": 1781166739853,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": [
+      {
+        "id": "691b5833",
+        "conversation_id": "219e6fe9",
+        "msg_id": "691b5833",
+        "type": "text",
+        "content": {
+          "content": "测试阶段1"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781166739829
+      },
+      {
+        "id": "c5513be7",
+        "conversation_id": "219e6fe9",
+        "msg_id": "c5513be7",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781166739853
+      }
+    ]
+  },
+  "2e0bcc4d": {
+    "id": "2e0bcc4d",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "created_at": 1781169311241,
+    "modified_at": 1781169311324,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": [
+      {
+        "id": "3c5fcbc2",
+        "conversation_id": "2e0bcc4d",
+        "msg_id": "3c5fcbc2",
+        "type": "text",
+        "content": {
+          "content": "hello stage1"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781169311306
+      },
+      {
+        "id": "75620265",
+        "conversation_id": "2e0bcc4d",
+        "msg_id": "75620265",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781169311324
+      }
+    ]
+  },
+  "028e10b7": {
+    "id": "028e10b7",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781170717188,
+    "modified_at": 1781170778202,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": [
+      {
+        "id": "2bf24790",
+        "conversation_id": "028e10b7",
+        "msg_id": "2bf24790",
+        "type": "text",
+        "content": {
+          "content": "model smoke"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781170717300
+      },
+      {
+        "id": "80848905",
+        "conversation_id": "028e10b7",
+        "msg_id": "80848905",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781170717320
+      },
+      {
+        "id": "30f0681a",
+        "conversation_id": "028e10b7",
+        "msg_id": "30f0681a",
+        "type": "text",
+        "content": {
+          "content": "你好"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781170778179
+      },
+      {
+        "id": "8b4a9b51",
+        "conversation_id": "028e10b7",
+        "msg_id": "8b4a9b51",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781170778202
+      }
+    ]
+  },
+  "08ed3b8a": {
+    "id": "08ed3b8a",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "aionrs",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781171022441,
+    "modified_at": 1781171022474,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": [
+      {
+        "id": "d1ccf9c7",
+        "conversation_id": "08ed3b8a",
+        "msg_id": "d1ccf9c7",
+        "type": "text",
+        "content": {
+          "content": "full smoke"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781171022454
+      },
+      {
+        "id": "6613d70c",
+        "conversation_id": "08ed3b8a",
+        "msg_id": "6613d70c",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781171022474
+      }
+    ]
+  },
+  "cb997998": {
+    "id": "cb997998",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "aionrs",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781171141892,
+    "modified_at": 1781171141924,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": [
+      {
+        "id": "87c27d6e",
+        "conversation_id": "cb997998",
+        "msg_id": "87c27d6e",
+        "type": "text",
+        "content": {
+          "content": "final smoke"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781171141903
+      },
+      {
+        "id": "64f8be72",
+        "conversation_id": "cb997998",
+        "msg_id": "64f8be72",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781171141924
+      }
+    ]
+  },
+  "aa7f0b2a": {
+    "id": "aa7f0b2a",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781171337545,
+    "modified_at": 1781171337614,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom",
+      "workspace": "",
+      "custom_workspace": false,
+      "default_files": [],
+      "selected_mcp_server_ids": [],
+      "selected_session_mcp_servers": [],
+      "session_mode": "default",
+      "current_model_id": "minimax-m3"
+    },
+    "messages": [
+      {
+        "id": "72eab251",
+        "conversation_id": "aa7f0b2a",
+        "msg_id": "72eab251",
+        "type": "text",
+        "content": {
+          "content": "你好"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781171337595
+      },
+      {
+        "id": "d81fc178",
+        "conversation_id": "aa7f0b2a",
+        "msg_id": "d81fc178",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781171337614
+      }
+    ]
+  },
+  "40ec28a1": {
+    "id": "40ec28a1",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "aionrs",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781171647584,
+    "modified_at": 1781171647608,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": [
+      {
+        "id": "11881ca9",
+        "conversation_id": "40ec28a1",
+        "msg_id": "11881ca9",
+        "type": "text",
+        "content": {
+          "content": "patched smoke"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781171647589
+      },
+      {
+        "id": "e81d125f",
+        "conversation_id": "40ec28a1",
+        "msg_id": "e81d125f",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781171647608
+      }
+    ]
+  },
+  "83401b76": {
+    "id": "83401b76",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781171753030,
+    "modified_at": 1781171753106,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom",
+      "workspace": "",
+      "custom_workspace": false,
+      "default_files": [],
+      "selected_mcp_server_ids": [],
+      "selected_session_mcp_servers": [],
+      "session_mode": "default",
+      "current_model_id": "minimax-m3"
+    },
+    "messages": [
+      {
+        "id": "fad81e92",
+        "conversation_id": "83401b76",
+        "msg_id": "fad81e92",
+        "type": "text",
+        "content": {
+          "content": "你好"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781171753088
+      },
+      {
+        "id": "83e54e94",
+        "conversation_id": "83401b76",
+        "msg_id": "83e54e94",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781171753106
+      }
+    ]
+  },
+  "b353cda2": {
+    "id": "b353cda2",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "aionrs",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781172031692,
+    "modified_at": 1781172031731,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": [
+      {
+        "id": "79240440",
+        "conversation_id": "b353cda2",
+        "msg_id": "79240440",
+        "type": "text",
+        "content": {
+          "content": "ws format"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781172031698
+      },
+      {
+        "id": "95a67c89",
+        "conversation_id": "b353cda2",
+        "msg_id": "95a67c89",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781172031731
+      }
+    ]
+  },
+  "2b0cc5c0": {
+    "id": "2b0cc5c0",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781172460254,
+    "modified_at": 1781172460318,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom",
+      "workspace": "",
+      "custom_workspace": false,
+      "default_files": [],
+      "selected_mcp_server_ids": [],
+      "selected_session_mcp_servers": [],
+      "session_mode": "default",
+      "current_model_id": "minimax-m3"
+    },
+    "messages": [
+      {
+        "id": "d428b532",
+        "conversation_id": "2b0cc5c0",
+        "msg_id": "d428b532",
+        "type": "text",
+        "content": {
+          "content": "你好"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781172460302
+      },
+      {
+        "id": "0ef4f8f1",
+        "conversation_id": "2b0cc5c0",
+        "msg_id": "0ef4f8f1",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781172460318
+      }
+    ]
+  },
+  "8a15882a": {
+    "id": "8a15882a",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781173265529,
+    "modified_at": 1781173265606,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom",
+      "workspace": "",
+      "custom_workspace": false,
+      "default_files": [],
+      "selected_mcp_server_ids": [],
+      "selected_session_mcp_servers": [],
+      "session_mode": "default",
+      "current_model_id": "minimax-m3"
+    },
+    "messages": [
+      {
+        "id": "fcad3cba",
+        "conversation_id": "8a15882a",
+        "msg_id": "fcad3cba",
+        "type": "text",
+        "content": {
+          "content": "你好"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781173265587
+      },
+      {
+        "id": "2a433b8e",
+        "conversation_id": "8a15882a",
+        "msg_id": "2a433b8e",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781173265606
+      }
+    ]
+  },
+  "2403ea30": {
+    "id": "2403ea30",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781173526795,
+    "modified_at": 1781173526861,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom",
+      "workspace": "",
+      "custom_workspace": false,
+      "default_files": [],
+      "selected_mcp_server_ids": [],
+      "selected_session_mcp_servers": [],
+      "session_mode": "default",
+      "current_model_id": "minimax-m3"
+    },
+    "messages": [
+      {
+        "id": "fb33ff8c",
+        "conversation_id": "2403ea30",
+        "msg_id": "fb33ff8c",
+        "type": "text",
+        "content": {
+          "content": "你好"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781173526839
+      },
+      {
+        "id": "bf2eb93e",
+        "conversation_id": "2403ea30",
+        "msg_id": "bf2eb93e",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781173526861
+      }
+    ]
+  },
+  "553cb5fd": {
+    "id": "553cb5fd",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781173612009,
+    "modified_at": 1781173612080,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom",
+      "workspace": "",
+      "custom_workspace": false,
+      "default_files": [],
+      "selected_mcp_server_ids": [],
+      "selected_session_mcp_servers": [],
+      "session_mode": "default",
+      "current_model_id": "minimax-m3"
+    },
+    "messages": [
+      {
+        "id": "ae68bd08",
+        "conversation_id": "553cb5fd",
+        "msg_id": "ae68bd08",
+        "type": "text",
+        "content": {
+          "content": "你好"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781173612057
+      },
+      {
+        "id": "19d10c34",
+        "conversation_id": "553cb5fd",
+        "msg_id": "19d10c34",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781173612080
+      }
+    ]
+  },
+  "7f368cce": {
+    "id": "7f368cce",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "aionrs",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781174211908,
+    "modified_at": 1781174211937,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": [
+      {
+        "id": "00f39f79",
+        "conversation_id": "7f368cce",
+        "msg_id": "00f39f79",
+        "type": "text",
+        "content": {
+          "content": "你好"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781174211917
+      },
+      {
+        "id": "16d91cd2",
+        "conversation_id": "7f368cce",
+        "msg_id": "16d91cd2",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781174211937
+      }
+    ],
+    "active_turn_id": null
+  },
+  "a14f798a": {
+    "id": "a14f798a",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "aionrs",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781174251738,
+    "modified_at": 1781174251783,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": [
+      {
+        "id": "c3a3f721",
+        "conversation_id": "a14f798a",
+        "msg_id": "c3a3f721",
+        "type": "text",
+        "content": {
+          "content": "你好"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781174251752
+      },
+      {
+        "id": "2059e245",
+        "conversation_id": "a14f798a",
+        "msg_id": "2059e245",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781174251783
+      }
+    ],
+    "active_turn_id": null
+  },
+  "a9fc8f04": {
+    "id": "a9fc8f04",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "acp",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781174337112,
+    "modified_at": 1781174337630,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom",
+      "workspace": "",
+      "custom_workspace": false,
+      "default_files": [],
+      "selected_mcp_server_ids": [],
+      "selected_session_mcp_servers": [],
+      "session_mode": "default",
+      "current_model_id": "minimax-m3"
+    },
+    "messages": [
+      {
+        "id": "2675f558",
+        "conversation_id": "a9fc8f04",
+        "msg_id": "2675f558",
+        "type": "text",
+        "content": {
+          "content": "你好"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781174337615
+      },
+      {
+        "id": "659ee630",
+        "conversation_id": "a9fc8f04",
+        "msg_id": "659ee630",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781174337630
+      }
+    ],
+    "active_turn_id": null
+  },
+  "1e564785": {
+    "id": "1e564785",
+    "name": "你好，我是 CCB-Wanding。",
+    "type": "aionrs",
+    "status": "finished",
+    "source": "aionui",
+    "pinned": false,
+    "model": {
+      "platform": "ccb-wanding",
+      "name": "minimax-m3",
+      "use_model": "minimax-m3",
+      "model_id": "minimax-m3",
+      "id": "ccb-wanding"
+    },
+    "created_at": 1781176324512,
+    "modified_at": 1781176324544,
+    "extra": {
+      "agent_id": "ccb-wanding",
+      "agent_name": "CCB-Wanding",
+      "backend": "custom"
+    },
+    "messages": [
+      {
+        "id": "efc555d5",
+        "conversation_id": "1e564785",
+        "msg_id": "efc555d5",
+        "type": "text",
+        "content": {
+          "content": "1+1=?"
+        },
+        "position": "right",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781176324523
+      },
+      {
+        "id": "47dd34b8",
+        "conversation_id": "1e564785",
+        "msg_id": "47dd34b8",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。"
+        },
+        "position": "left",
+        "status": "finish",
+        "hidden": false,
+        "created_at": 1781176324544
+      }
+    ],
+    "active_turn_id": "turn_9c0445b4"
+  },
+  "a7f043c69951483e": {
+    "id": "a7f043c69951483e",
+    "title": "????",
+    "userId": "local",
+    "createdAt": "2026-06-11T13:27:55.879Z",
+    "updatedAt": "2026-06-11T13:27:55.879Z",
+    "messages": []
+  },
+  "4f1ead2b219b41cc": {
+    "id": "4f1ead2b219b41cc",
+    "title": "ws-test",
+    "userId": "local",
+    "createdAt": "2026-06-11T13:28:12.813Z",
+    "updatedAt": "2026-06-11T13:28:12.813Z",
+    "messages": []
+  },
+  "fc27fbf61a944051": {
+    "id": "fc27fbf61a944051",
+    "title": "你好世界。",
+    "userId": "local",
+    "createdAt": "2026-06-11T13:28:42.404Z",
+    "updatedAt": "2026-06-11T13:28:47.145Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "say hello in 3 words",
+        "ts": "2026-06-11T13:28:42.657Z"
+      },
+      {
+        "role": "assistant",
+        "content": "你好世界。",
+        "ts": "2026-06-11T13:28:47.145Z"
+      }
+    ]
+  },
+  "0de25abf75414fb7": {
+    "id": "0de25abf75414fb7",
+    "title": "你好！我是 CCB-Wanding 报价、库存与业务数据助手。请问有什么可以帮您…",
+    "userId": "246a4666-2884-440a-8427-7a7349ff55c0",
+    "createdAt": "2026-06-11T13:29:39.422Z",
+    "updatedAt": "2026-06-11T13:30:21.497Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "你好",
+        "ts": "2026-06-11T13:29:49.535Z"
+      },
+      {
+        "role": "assistant",
+        "content": "你好！我是 CCB-Wanding 报价、库存与业务数据助手。请问有什么可以帮您的？\n\n我可以帮您：\n- 🔍 **查价/询价**：匹配报价库产品\n- 📦 **查库存**：查询 Accurate Online 实时库存\n- 📊 **业务汇总**：采购额、销售额、供应商/客户往来统计\n- 📝 **生成报价单**：填写标准报价单并放到桌面\n\n请直接告诉我您需要处理的任务，或提供产品名称/型号/客户名称等信息。",
+        "ts": "2026-06-11T13:29:56.411Z"
+      },
+      {
+        "role": "user",
+        "content": "查询 直接价格",
+        "ts": "2026-06-11T13:30:18.183Z"
+      },
+      {
+        "role": "assistant",
+        "content": "好的，您想查询直接价格。请问您要查什么产品/物料？\n\n请提供以下任意信息：\n- **物料名称**（如：钢板、阀门、轴承等）\n- **物料编码**（如有）\n- **规格/型号**\n- **品牌**（如有）\n\n或者您可以直接告诉我\"查询某某产品的直接价格\"，我帮您在报价库中匹配。",
+        "ts": "2026-06-11T13:30:21.497Z"
+      }
+    ]
+  },
+  "3bbcba49e30e4835": {
+    "id": "3bbcba49e30e4835",
+    "title": "你好！我是 CCB-Wanding 报价、库存与业务数据助手。请问有什么可以帮你…",
+    "userId": "246a4666-2884-440a-8427-7a7349ff55c0",
+    "createdAt": "2026-06-11T13:34:16.561Z",
+    "updatedAt": "2026-06-11T13:34:41.125Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "你好",
+        "ts": "2026-06-11T13:34:19.398Z"
+      },
+      {
+        "role": "assistant",
+        "content": "你好！我是 CCB-Wanding 报价、库存与业务数据助手。请问有什么可以帮你的？比如：\n\n- **询价 / 查价**：匹配报价库产品\n- **查库存**：查询 Accurate Online 实时库存\n- **业务汇总**：采购额、销售额、供应商/客户往来统计\n- **报价单**：生成或填写标准报价单\n\n请告诉我你的需求。",
+        "ts": "2026-06-11T13:34:26.141Z"
+      },
+      {
+        "role": "user",
+        "content": "查询 直接50价格",
+        "ts": "2026-06-11T13:34:39.212Z"
+      },
+      {
+        "role": "assistant",
+        "content": "好的，我先读取报价分册确认查询方式。",
+        "ts": "2026-06-11T13:34:41.125Z"
+      }
+    ]
+  },
+  "efa77763b613444f": {
+    "id": "efa77763b613444f",
+    "title": "你好！我是 CCB-Wanding，万鼎业务 AI 助手，专注于为你提供报价、库…",
+    "userId": "local",
+    "createdAt": "2026-06-11T15:44:57.107Z",
+    "updatedAt": "2026-06-11T15:45:02.459Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "你好，请用一句话介绍你自己",
+        "ts": "2026-06-11T15:44:57.114Z"
+      },
+      {
+        "role": "assistant",
+        "content": "你好！我是 CCB-Wanding，万鼎业务 AI 助手，专注于为你提供报价、库存和 Accurate 数据支持。",
+        "ts": "2026-06-11T15:45:02.459Z"
+      }
+    ]
+  },
+  "9990fd90a49b4376": {
+    "id": "9990fd90a49b4376",
+    "title": "你好！我是 CCB-Wanding 报价、库存与业务数据助手。请问有什么可以帮到…",
+    "userId": "local",
+    "createdAt": "2026-06-11T15:48:30.104Z",
+    "updatedAt": "2026-06-11T15:50:57.843Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "你好",
+        "ts": "2026-06-11T15:49:50.236Z"
+      },
+      {
+        "role": "assistant",
+        "content": "你好！我是 CCB-Wanding 报价、库存与业务数据助手。请问有什么可以帮到你的？例如：\n\n- 查询产品报价或库存\n- 生成标准报价单\n- 统计采购/销售业务数据\n- 产品选型与匹配\n\n请告诉我你的需求。",
+        "ts": "2026-06-11T15:50:57.843Z"
+      }
+    ]
+  },
+  "fd3f88bde6c54b1f": {
+    "id": "fd3f88bde6c54b1f",
+    "title": "你好",
+    "userId": "local",
+    "createdAt": "2026-06-11T15:51:40.865Z",
+    "updatedAt": "2026-06-11T15:51:40.871Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "你好",
+        "ts": "2026-06-11T15:51:40.871Z"
+      }
+    ]
+  },
+  "f3b762e22e8d4534": {
+    "id": "f3b762e22e8d4534",
+    "title": "用户查询的是「三通50」，但搜索结果里没有 dn50 的三通——返回的是 dn4…",
+    "userId": "local",
+    "createdAt": "2026-06-11T15:53:07.697Z",
+    "updatedAt": "2026-06-11T15:54:01.670Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "请查询「三通50」的库存，必须使用库存查询工具，最后用 Markdown 表格总结结果（列：产品、库存、价格）。",
+        "ts": "2026-06-11T15:53:07.707Z"
+      },
+      {
+        "role": "assistant",
+        "content": "用户查询的是「三通50」，但搜索结果里没有 dn50 的三通——返回的是 dn40、dn20、dn32 等其他规格，以及一堆电盒/接线盒（Elbow、Gang Box 等）干扰项。我应该先反馈这点，再询问是哪一个。\n\n| 编码 | 产品 | 库存(可售/总) | 单位 |\n|---|---|---|---|\n| 8030020580 | #C11 Tee With Cover / dn40 - LESSO | 0 / 0 | PCS |\n| 8030020185 | #C12 Tee With Cover / dn20 - LESSO | 0 / 240 | PCS |\n| 8030020187 | #C12 Tee With Cover / dn32 - LESSO | 20 / 20 | PCS |\n\n**说明**：搜索「三通50」未找到 dn50 的等径三通。返回的结果里没有「三通 dn50」这个规格，列出的 dn40 / dn20 / dn32 都是「Tee With Cover」（带盖三通，电盒类），其他条目其实是弯头、接线盒等干扰项，不是三通。\n\n请问您指的是哪一种？",
+        "ts": "2026-06-11T15:54:01.670Z"
+      }
+    ]
+  },
+  "32d799b8190c44c3": {
+    "id": "32d799b8190c44c3",
+    "title": "你好！我是 CCB-Wanding 报价、库存与业务数据助手，可以帮你：\n\n- …",
+    "userId": "246a4666-2884-440a-8427-7a7349ff55c0",
+    "createdAt": "2026-06-11T15:54:54.567Z",
+    "updatedAt": "2026-06-11T15:55:58.964Z",
+    "messages": [
+      {
+        "role": "user",
+        "content": "你好",
+        "ts": "2026-06-11T15:55:01.866Z"
+      },
+      {
+        "role": "assistant",
+        "content": "你好！我是 CCB-Wanding 报价、库存与业务数据助手，可以帮你：\n\n- 🔍 **查价 / 询价 / 选型**：按产品描述匹配万鼎报价库\n- 📦 **查库存**：实时查询 Accurate Online 库存数量\n- 📊 **业务汇总**：采购额、销售额、供应商/客户往来统计\n- 📝 **生成报价单**：标准 Excel 报价单填写到桌面\n\n请告诉我你需要什么帮助？例如：\n- \"查一下直接50的价格\"\n- \"三通50有没有货\"\n- \"统计一下联塑2026年上半年的采购额\"\n- \"把这些产品做成报价单放到桌面\"",
+        "ts": "2026-06-11T15:55:07.152Z"
+      },
+      {
+        "role": "user",
+        "content": "查询直接50价格",
+        "ts": "2026-06-11T15:55:26.526Z"
+      },
+      {
+        "role": "assistant",
+        "content": "请选择你需要的\"直接50\"系列：\n\n| 选项 | 系列 | 用途 |\n|---|---|---|\n| **PVC_D_50** ⭐ 默认 | 直通(管箍) PVC-U 排水 白色 dn50 | 排水（最常见理解） |\n| PVC_AW_50 | 直通 PVC-U AW 给水(日标) 灰色 DN50 联塑 | 给水 |\n| PVC_D_INDO_50 | 直通 PVC-U D 排水(日标) 灰色 DN50 联塑 | 排水（日标） |\n| PPR_50 | 直通 PPR 印尼绿色 dn50 联塑 | PPR 冷热水管件 |\n\n如果不指定，默认走 **PVC-U 排水 白色 dn50**（最常见的\"直接50\"理解）。请告诉我你的选择，或者直接描述具体用途（如\"PVC-U 排水 50\"、\"PPR 热熔直接50\"等），我直接报价。",
+        "ts": "2026-06-11T15:55:58.964Z"
+      }
+    ]
+  },
+  "71ff8d0087b54e4f": {
+    "id": "71ff8d0087b54e4f",
+    "title": "你好，我是 CCB-Wanding。",
+    "userId": "local",
+    "type": "aionrs",
+    "createdAt": "2026-06-11T23:42:45.531Z",
+    "updatedAt": "2026-06-11T23:42:45.749Z",
+    "messages": [
+      {
+        "id": "u-1781221365554",
+        "role": "user",
+        "type": "text",
+        "content": {
+          "content": "你好",
+          "type": "text"
+        },
+        "status": "finish",
+        "created_at": "2026-06-11T23:42:45.555Z"
+      },
+      {
+        "id": "a-1781221365749",
+        "role": "assistant",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。",
+          "type": "text"
+        },
+        "status": "finish",
+        "created_at": "2026-06-11T23:42:45.749Z"
+      }
+    ],
+    "model": {
+      "platform": "ccb-wanding",
+      "use_model": "minimax-m3"
+    },
+    "runtime": {
+      "is_processing": false,
+      "can_send_message": true,
+      "phase": "idle"
+    }
+  },
+  "1da694e11f1b44e6": {
+    "id": "1da694e11f1b44e6",
+    "title": "你好！我是 CCB-Wanding 报价、库存与业务数据助手，主要帮你匹配报价库…",
+    "userId": "local",
+    "type": "aionrs",
+    "createdAt": "2026-06-11T23:43:07.034Z",
+    "updatedAt": "2026-06-11T23:43:11.424Z",
+    "messages": [
+      {
+        "id": "u-1781221387051",
+        "role": "user",
+        "type": "text",
+        "content": {
+          "content": "你好，请用一句话介绍你自己",
+          "type": "text"
+        },
+        "status": "finish",
+        "created_at": "2026-06-11T23:43:07.051Z"
+      },
+      {
+        "id": "a-1781221391424",
+        "role": "assistant",
+        "type": "text",
+        "content": {
+          "content": "你好！我是 CCB-Wanding 报价、库存与业务数据助手，主要帮你匹配报价库产品、查询 Accurate Online 实时库存、做业务汇总，并生成标准报价单。",
+          "type": "text"
+        },
+        "status": "finish",
+        "created_at": "2026-06-11T23:43:11.424Z"
+      }
+    ],
+    "model": {
+      "platform": "ccb-wanding",
+      "use_model": "minimax-m3"
+    },
+    "runtime": {
+      "is_processing": false,
+      "can_send_message": true,
+      "phase": "idle"
+    }
+  },
+  "9379012080f84cd9": {
+    "id": "9379012080f84cd9",
+    "title": "你好！我是 CCB-Wanding 业务助手，专注于万鼎的报价、库存查询和 Ac…",
+    "userId": "local",
+    "type": "aionrs",
+    "createdAt": "2026-06-11T23:43:43.101Z",
+    "updatedAt": "2026-06-11T23:43:46.737Z",
+    "messages": [
+      {
+        "id": "u-1781221423113",
+        "role": "user",
+        "type": "text",
+        "content": {
+          "content": "你好，请用一句话介绍你自己",
+          "type": "text"
+        },
+        "status": "finish",
+        "created_at": "2026-06-11T23:43:43.113Z"
+      },
+      {
+        "id": "a-1781221426736",
+        "role": "assistant",
+        "type": "text",
+        "content": {
+          "content": "你好！我是 CCB-Wanding 业务助手，专注于万鼎的报价、库存查询和 Accurate 业务数据汇总，随时为你服务。",
+          "type": "text"
+        },
+        "status": "finish",
+        "created_at": "2026-06-11T23:43:46.736Z"
+      }
+    ],
+    "model": {
+      "platform": "ccb-wanding",
+      "use_model": "minimax-m3"
+    },
+    "runtime": {
+      "is_processing": false,
+      "can_send_message": true,
+      "phase": "idle"
+    }
+  },
+  "49ecb1a1f86e412d": {
+    "id": "49ecb1a1f86e412d",
+    "title": "我先读取报价和库存相关规则，然后调用库存工具查询。搜索到 PPR 三通系列，但关…",
+    "userId": "local",
+    "type": "aionrs",
+    "createdAt": "2026-06-11T23:49:13.754Z",
+    "updatedAt": "2026-06-11T23:53:19.921Z",
+    "messages": [
+      {
+        "id": "u-1781221753776",
+        "role": "user",
+        "type": "text",
+        "content": {
+          "content": "请查询「三通50」的库存，必须使用库存查询工具，最后用 Markdown 表格总结结果（列：产品、库存、价格）。",
+          "type": "text"
+        },
+        "status": "finish",
+        "created_at": "2026-06-11T23:49:13.776Z"
+      },
+      {
+        "id": "a-1781221999920",
+        "role": "assistant",
+        "type": "text",
+        "content": {
+          "content": "我先读取报价和库存相关规则，然后调用库存工具查询。搜索到 PPR 三通系列，但关键词「三通 50」匹到了 DN20-DN50 全系列，且库存均为 0。库存接口本身不返回价格字段，需要我再用关键词精确匹配 DN50 才能拿到具体型号。我再试一次关键词，确认是否有其他品牌或材质的 DN50 三通在库。精确关键词两次都超时，我换一种方式重试，缩小搜索范围。英文关键词继续超时，我改回中文并限定到 PPR 三通 DN50 这一条确认。多次精确查询都超时，工具临时不可用。我用首次已拿到的结果回答，并在备注里说明情况。\n\n## 「三通 50」库存查询结果\n\n| 产品编码 | 产品名称 | 单位 | 库存数量（仓库） | 可售数量 |\n|---|---|---|---:|---:|\n| GPR-PP04C03004 | PPR Tee / DN20 | PCS | 0 | 0 |\n| GPR-PP04C03005 | PPR Tee / DN25 | PCS | 0 | 0 |\n| GPR-PP04C03006 | PPR Tee / DN32 | PCS | 0 | 0 |\n| GPR-PP04C03007 | PPR Tee / DN40 | PCS | 0 | 0 |\n| GPR-PP04C03008 | PPR Tee / DN50 | PCS | 0 | 0 |\n\n**说明：**\n\n- 关键词「三通 50」在 Accurate 库存中匹配到的是 **PPR Tee / DN20~DN50 整系列**，其中 DN50 对应 `GPR-PP04C03008`。\n- 当前全系列库存和可售数量均为 **0**，暂无现货。\n- 库存查询工具（`accurate_search_items`）**不返回价格字段**，价格需要走报价库匹配流程；本次未获取到报价数据。\n- 后续若需要把\"库存 0\"的产品按 DN50 单独精确查询，工具多次返回超时，建议稍后重试或换用 `item` 表的 `accurate_fetch_by_date` 进一步确认。",
+          "type": "text"
+        },
+        "status": "finish",
+        "created_at": "2026-06-11T23:53:19.920Z"
+      }
+    ],
+    "model": {
+      "platform": "ccb-wanding",
+      "use_model": "minimax-m3"
+    },
+    "runtime": {
+      "is_processing": false,
+      "can_send_message": true,
+      "phase": "idle"
+    }
+  },
+  "96717c19c73e4a9a": {
+    "id": "96717c19c73e4a9a",
+    "title": "你好，我是 CCB-Wanding。",
+    "userId": "local",
+    "type": "aionrs",
+    "createdAt": "2026-06-12T01:50:56.163Z",
+    "updatedAt": "2026-06-12T01:50:56.387Z",
+    "messages": [
+      {
+        "id": "u-1781229056189",
+        "role": "user",
+        "type": "text",
+        "content": {
+          "content": "你好",
+          "type": "text"
+        },
+        "status": "finish",
+        "created_at": "2026-06-12T01:50:56.189Z"
+      },
+      {
+        "id": "a-1781229056386",
+        "role": "assistant",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。",
+          "type": "text"
+        },
+        "status": "finish",
+        "created_at": "2026-06-12T01:50:56.386Z"
+      }
+    ],
+    "model": {
+      "platform": "ccb-wanding",
+      "use_model": "minimax-m3"
+    },
+    "runtime": {
+      "is_processing": false,
+      "can_send_message": true,
+      "phase": "idle"
+    }
+  },
+  "576344cbe1fd4d41": {
+    "id": "576344cbe1fd4d41",
+    "title": "你好，我是 CCB-Wanding。",
+    "userId": "local",
+    "type": "aionrs",
+    "createdAt": "2026-06-12T02:20:27.056Z",
+    "updatedAt": "2026-06-12T02:20:27.278Z",
+    "messages": [
+      {
+        "id": "u-1781230827076",
+        "role": "user",
+        "type": "text",
+        "content": {
+          "content": "你好",
+          "type": "text"
+        },
+        "status": "finish",
+        "created_at": "2026-06-12T02:20:27.076Z"
+      },
+      {
+        "id": "a-1781230827278",
+        "role": "assistant",
+        "type": "text",
+        "content": {
+          "content": "你好，我是 CCB-Wanding。",
+          "type": "text"
+        },
+        "status": "finish",
+        "created_at": "2026-06-12T02:20:27.278Z"
+      }
+    ],
+    "model": {
+      "platform": "ccb-wanding",
+      "use_model": "minimax-m3"
+    },
+    "runtime": {
+      "is_processing": false,
+      "can_send_message": true,
+      "phase": "idle"
+    }
+  }
+}

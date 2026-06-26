@@ -1,0 +1,4 @@
+{"ts":"2026-06-16T10:12:00Z","type":"check","summary":"code-review PASS: detection cache, double-404, mode default, warmup retry, type field — no blocking issues"}
+{"ts":"2026-06-16T10:13:00Z","type":"check","summary":"test-agent PASS: vitest 30/30 (acpConfigOptionsAdapter, ensureCcbSessionPreferredModel, useAcpModelInfo)"}
+{"ts":"2026-06-16T10:14:00Z","type":"check","summary":"binary smoke: AionCore/target/release/aioncore.exe has config-options string; bundled v0.1.27 does not — dual-path justified"}
+{"ts":"2026-06-16T18:00:00Z","type":"check","summary":"user acceptance PASS: start-aionui-dev-work-tasks.ps1 — new CCB conversation「你好」no Route not found; /tasks CRUD OK (unified self-built aioncore v0.1.29)"}

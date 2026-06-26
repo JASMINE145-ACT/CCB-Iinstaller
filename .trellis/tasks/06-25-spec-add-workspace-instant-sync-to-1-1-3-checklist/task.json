@@ -1,0 +1,31 @@
+{
+  "id": "spec-add-workspace-instant-sync-to-1-1-3-checklist",
+  "name": "spec-add-workspace-instant-sync-to-1-1-3-checklist",
+  "title": "spec: add workspace instant sync to 1.1.3 checklist",
+  "description": "Workspace instant sync + 1.1.3.1 hot boundary + compareCcbVersions (#15) documented in internal-update §12.9 and whitelist §16.6.",
+  "completedAt": "2026-06-25",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-25",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    ".trellis/spec/integration/internal-update.md",
+    ".trellis/spec/integration/wanding-packaging-whitelist.md",
+    ".trellis/tasks/06-25-spec-add-workspace-instant-sync-to-1-1-3-checklist/prd.md"
+  ],
+  "notes": "2026-06-25: spec landed — internal-update §12.9 (#1–#16, §12.9.1–3); whitelist §16.6; aionui #15 code done, awaits 1.1.3 NSIS build.",
+  "meta": {}
+}

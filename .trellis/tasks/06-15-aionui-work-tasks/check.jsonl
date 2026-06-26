@@ -1,0 +1,4 @@
+{"ts":"2026-06-15T00:02:00Z","type":"check","summary":"Pending: cargo check after Rust install; bun test workTaskTypes; code-review gate"}
+{"ts":"2026-06-15T12:00:00Z","type":"check","summary":"code-review PASS (3 must-fix resolved: WS task_id, assignee default, status transition guards; bonus default_new Accepted)"}
+{"ts":"2026-06-15T12:01:00Z","type":"check","summary":"test-agent PASS: bun test workTaskTypes 4/4; e2e routes 7/7 HTTP workTask.*; cargo check skipped (no Rust toolchain)"}
+{"ts":"2026-06-15T18:30:00Z","type":"check","summary":"Local build smoke: rustup+VS2022 Build Tools installed; cargo build --release PASS (aioncore v0.1.29, 4m22s); GET /api/work-tasks → 200; dev uses AionCore/target/release/aioncore.exe"}

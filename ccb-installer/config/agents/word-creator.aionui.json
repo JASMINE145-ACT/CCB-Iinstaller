@@ -1,0 +1,28 @@
+{
+    "updated_at":  "2026-06-16T16:00:00.000Z",
+    "skills":  {
+                   "enabled":  [
+
+                               ],
+                   "disabled":  [
+
+                                ]
+               },
+    "source":  "bundled",
+    "display_name":  "Word 文档助手",
+    "created_at":  "2026-06-13T17:47:59.790Z",
+    "agent_id":  "word-creator",
+    "guid_primary":  true,
+    "avatar":  "📝",
+    "recommended_prompts":  [
+                                "创建一份 2026 年 Q1 季度报告，包含目录、财务亮点表格、营收趋势图和 KPI 指标",
+                                "写一篇关于机器学习的学术论文，包含 LaTeX 公式、引用、数据表格和参考文献",
+                                "创建一份项目状态报告，带 DRAFT 水印、彩色状态表格和横向甘特图时间线"
+                            ],
+    "delegatable":  true,
+    "schema_version":  1,
+    "mcp_allowlist":  [
+                          "office-word"
+                      ],
+    "enabled":  true
+}

@@ -1,0 +1,42 @@
+{
+  "id": "org-knowledge-vps-deploy",
+  "name": "06-19-org-knowledge-vps-deploy",
+  "title": "Org knowledge center — VPS production deploy",
+  "description": "Deploy center org aioncore to 67.216.206.3:13401; tarball upload (exclude target/); bootstrap + systemd; employee org-server.json.",
+  "status": "completed",
+  "dev_type": "operations",
+  "scope": "org-knowledge",
+  "package": "aioncore+ops",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-19",
+  "completedAt": "2026-06-19",
+  "parent_task": "06-11-org-knowledge-aioncore",
+  "relatedFiles": [
+    "D:\\Projects\\claude-code-best\\scripts\\deploy-org-aioncore-vps.ps1",
+    "D:\\Projects\\claude-code-best\\scripts\\vps-org-aioncore-bootstrap.sh",
+    "D:\\Projects\\claude-code-best\\docs\\org-knowledge-deploy.md",
+    "d:\\Projects\\claude-code-best\\.trellis\\spec\\integration\\org-knowledge.md"
+  ],
+  "notes": "VPS hot-snap-1 Ubuntu 22.04. Seed: 8 md from /opt/aionorg/data (full data dir on server). Runtime hot path remains wanding_business_knowledge only. Admin password from bootstrap — not in git.",
+  "meta": {
+    "vps": {
+      "host": "67.216.206.3",
+      "ssh_port": 39222,
+      "http_port": 13401,
+      "remote_root": "/opt/aionorg",
+      "systemd": "aionorg.service"
+    },
+    "verification": {
+      "external_auth_status": "200 needs_setup=false",
+      "bootstrap_login": "POST /login token OK",
+      "employee_org_server_json": "%APPDATA%\\AionUi\\aionui\\org-server.json"
+    },
+    "pending": [
+      "ufw restrict 13401 by office IP",
+      "AionUI org-knowledge UI login smoke",
+      "quotation MCP Org API smoke after org login"
+    ]
+  }
+}

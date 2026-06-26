@@ -1,0 +1,34 @@
+{
+  "id": "org-knowledge-aioncore",
+  "name": "06-11-org-knowledge-aioncore",
+  "title": "Organization knowledge in center aioncore",
+  "description": "Org-knowledge crate on center aioncore, dual JWT desktop, Python API-first client, /org-knowledge UI, --cors-any deploy.",
+  "status": "completed",
+  "dev_type": "implementation",
+  "scope": "org-knowledge",
+  "package": "aionui+aioncore+python",
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-11",
+  "completedAt": "2026-06-11",
+  "branch": null,
+  "base_branch": "main",
+  "relatedFiles": [
+    "D:\\Projects\\claude-code-best\\AionCore\\crates\\aionui-org-knowledge",
+    "D:\\Projects\\claude-code-best\\scripts\\start-org-aioncore.ps1",
+    "D:\\Projects\\claude-code-best\\python\\admin\\org_knowledge_client.py",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\adapter\\orgHttpBridge.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\pages\\orgKnowledge",
+    "d:\\Projects\\claude-code-best\\.trellis\\spec\\integration\\org-knowledge.md",
+    "d:\\Projects\\claude-code-best\\docs\\org-knowledge-deploy.md",
+  ],
+  "notes": "Work-tasks remain local. Center instance: org-knowledge + org users only.",
+  "meta": {
+    "verification": {
+      "cargo_test": "aionui-org-knowledge",
+      "python_unittest": "admin.test_org_knowledge_client",
+      "bun_test": "orgHttpBridge.test.ts"
+    }
+  }
+}
