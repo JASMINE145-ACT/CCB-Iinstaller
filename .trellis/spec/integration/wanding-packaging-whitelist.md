@@ -659,6 +659,25 @@ Schema should reserve `installMode: "standalone" | "bundled"` before bundled shi
 
 Cross-refs: [`internal-update.md`](./internal-update.md); add row to [`integration/index.md`](./index.md).
 
+### 16.6 Full NSIS **1.1.3** vs hot zip **1.1.3.1** (2026-06-26)
+
+> **Oracle:** installed **1.1.2** at `D:\CCB-Wanding`. **Full pack** target `1.1.3-dev` / `1.1.3`. **Hot patch** `1.1.3.1` for quotation fixes without rebundling `app.asar`.
+
+| Item | Full NSIS 1.1.3 | Hot zip 1.1.3.1 |
+|------|-----------------|-----------------|
+| Workspace instant file tree refresh (#1–#4) | ✅ required | ❌ not in zip |
+| Org knowledge UI + route (#5–#6) | ✅ required | ❌ |
+| `compareCcbVersions` About/update (#7, #15) | ✅ required | ❌ |
+| Self-built aioncore 0.1.29 (#8) | ✅ `-AioncorePath` | ❌ |
+| Quotation `fill_items` / `fill_row_guard` (#9–#11) | ✅ (cold build) | ✅ primary path |
+| `seed/agents` overlay (#12) | ✅ | ✅ |
+| `dist/**` CCB rebuild (#13) | optional same release | optional |
+| §12.8 NSIS relaunch / Toast / ACP retry / Tool banner (#1–#4) | ✅ if not already on 1.1.2 | partial (`acp-agent.js` in zip if included) |
+
+**Ops note:** After publishing hot `1.1.3.1`, manifest `ccb.version` becomes `1.1.3.1` while employees may still show About AionUI `1.1.2` until full NSIS — expected until #15 ships.
+
+**Build commands:** [`internal-update.md`](./internal-update.md) §12.9.3.
+
 ---
 
 ## 17. OOTB install hardening (2026-06-20)

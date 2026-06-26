@@ -8,9 +8,11 @@
 
 | 文档 | 节 | 内容 |
 |------|-----|------|
-| `internal-update.md` | **§12.9** | 全量清单 #1–#16；§12.9.1–12.9.3；Pre-flight；build command |
-| `wanding-packaging-whitelist.md` | **§16.6** | 全量 vs 热更合流表；四段版本 ops 注意 |
-| `aionui-src` | `internalUpdateManifest.ts` | `compareCcbVersions()`（#15，待进包） |
+| `internal-update.md` | **§12.9** | 全量清单 #1–#16；§12.9.1–12.9.3；Pre-flight；build command — **restored 2026-06-26** after git refactor gap |
+| `wanding-packaging-whitelist.md` | **§16.6** | 全量 vs 热更合流表；四段版本 ops 注意 — **restored 2026-06-26** |
+| `aionui-src` | `internalUpdateManifest.ts` | `compareCcbVersions()`（#15）— **code in repo**; needs NSIS pack |
+| `aionui-src` | Workspace hooks | `useWorkspaceWatchLifecycle` + `useWorkspaceInstantRefresh` + `patchDirectoryChildren` — **wired 2026-06-26** |
+| `aionui-src` | Org knowledge UI | `/org-knowledge` route + sider entry — **wired 2026-06-26** |
 
 ## Scope split — 全量 vs 热更
 

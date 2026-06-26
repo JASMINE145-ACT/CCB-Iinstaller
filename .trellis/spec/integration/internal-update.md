@@ -861,6 +861,64 @@ Test-Path "D:\Projects\aionui-src\out\win-unpacked\AionUi.exe"   # 期望 True
 
 **Do not** use `-SkipAionUiBuild` unless a fresh `win-unpacked` is already verified complete.
 
+### 12.9 Pending — must land in **1.1.3** full package (restored 2026-06-26)
+
+> **Baseline:** oracle **1.1.2** at `D:\CCB-Wanding`. Ship **`1.1.3-dev`** / **`1.1.3`** full NSIS. Hot-fix line **`1.1.3.1`** via hot zip only (see §12.9.1).
+>
+> **§12.8 items #1–#5** still apply unless superseded below.
+
+| # | Layer | File / area | Change | Delivery |
+|---|-------|-------------|--------|----------|
+| 1 | AionUI renderer | `Workspace/hooks/useWorkspaceWatchLifecycle.ts` | Start `/api/fs/office-watch` for conversation workspace | **NSIS only** |
+| 2 | AionUI renderer | `Workspace/hooks/useWorkspaceInstantRefresh.ts` | On `workspaceOfficeWatch.fileAdded`, patch parent dir via `patchDirectoryChildren` | **NSIS only** |
+| 3 | AionUI renderer | `Workspace/utils/treeHelpers.ts` | `patchDirectoryChildren` + existing `mergeLoadedChildren` | **NSIS only** |
+| 4 | AionUI renderer | `renderer/utils/workspace/watchPaths.ts` | Path normalize + parent refresh debounce keys | **NSIS only** |
+| 5 | AionUI renderer | `OrgKnowledgePage` + `SiderOrgKnowledgeEntry` + route `/org-knowledge` | Business knowledge editor UI (org VPS) | **NSIS only** |
+| 6 | AionUI main | `orgKnowledgeShadowSync.ts` | Login shadow sync + websocket `org-knowledge.updated` | **NSIS only** |
+| 7 | AionUI main | `internalUpdateManifest.ts` | `compareCcbVersions()` for 4-part Windows versions | **NSIS only** |
+| 8 | AionCore | self-built **0.1.29+** | `/api/fs/office-watch`, org knowledge REST | **NSIS** (`-AioncorePath`) |
+| 9 | Backend Python | `python/quotation/fill_items.py` | Direct-fill normalization + enrichment | **hot zip 1.1.3.1** |
+| 10 | Backend Python | `python/quotation/fill_row_guard.py` | Header-row guard for `fill_quotation_sheet` | **hot zip 1.1.3.1** |
+| 11 | Backend Python | `python/quotation/quote_tools.py` | `validate_and_fix_fill_rows` integration | **hot zip 1.1.3.1** |
+| 12 | Installer seed | `seed/agents/*` + `deploy-seed-agents` | Agent sidecar / `.md` overlay rules | **hot zip 1.1.3.1** |
+| 13 | CCB dist | `claude-code-B` rebuild | ACP/session fixes since 1.1.2 | hot zip or NSIS |
+| 14 | route-b | `sync-aionui-ccb-route-b.ps1` | After dist or patch changes | both |
+| 15 | AionUI | `compareCcbVersions` in About/update | Fixes `1.1.3.1` vs `1.1.3` ordering | **NSIS only** |
+| 16 | Manifest | `publish-update-bundle.ps1` | `full_installer` row for 1.1.3 NSIS when ready | ops |
+
+#### 12.9.1 Full NSIS vs hot zip **1.1.3.1**
+
+| Track | Version | Contents | Spec anchor |
+|-------|---------|----------|-------------|
+| **Full NSIS** | `1.1.3-dev` / `1.1.3` | #1–#8, #15–#16 + §12.8 #1–#5 | This §12.9 |
+| **Hot zip** | `1.1.3.1` | #9–#12 (+ optional #13 dist) | [`wanding-packaging-whitelist.md`](./wanding-packaging-whitelist.md) §16.6 |
+
+#### 12.9.2 Known bug — About four-segment version display
+
+`semver.coerce('1.1.3.1')` → `1.1.3`. **Do not use npm semver for CCB version compare.** Use `compareCcbVersions()` in `internalUpdateManifest.ts` (#15). Until #15 is in the installed `app.asar`, verify hot updates with `ccb-check-update.ps1 -AutoApplyHot`.
+
+#### 12.9.3 Recommended full pack order
+
+1. Merge **1.1.3.1** hot-path Python + seed to `main` (`claude-code-best`).
+2. `bun test` / `vitest` in `aionui-src` (workspace + `internalUpdateManifest`).
+3. Build **AionCore 0.1.29+**: `cargo build --release` in `AionCore/`.
+4. Build **AionUI win-unpacked**: `cd aionui-src/packages/desktop && bun run dist:win` (or `build-wanding` without `-SkipAionUiBuild`).
+5. Full pack:
+
+```powershell
+cd D:\Projects\claude-code-best
+.\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.3-dev -SkipNsis `
+  -AioncorePath D:\Projects\claude-code-best\AionCore\target\release\aioncore.exe
+```
+
+6. Staging smoke → optional NSIS → `publish-update-bundle.ps1` + VPS manifest.
+
+**Hot zip only (1.1.3.1):**
+
+```powershell
+.\ccb-installer\scripts\build-wanding-hot.ps1 -Version 1.1.3.1 -Components dist,python,seed
+```
+
 ---
 
 ## 13. Cross-references
