@@ -2,24 +2,20 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 import re
-import stat
-import stat
 from copy import copy
 from datetime import date
 from pathlib import Path
-from dataclasses import dataclass
 from typing import Any, List, Tuple
 
 from quotation.fill_enrich import infer_default_satuan, resolve_quote_specification
-
-try:
-    from wanding_workspace_paths import coerce_write_path
-except ImportError:
-    from ..wanding_workspace_paths import coerce_write_path
+from quotation.fill_row_guard import validate_and_fix_fill_rows
+from quotation.inquiry_backfill import backfill_inquiry_columns_if_empty
+from quotation.layout import LINGWEI_LAYOUT, VANTSING_LAYOUT, QuotationTemplateLayout
+from quotation.excel_io import ensure_writable, save_workbook
+from system.workspace_paths import coerce_write_path
 
 logger = logging.getLogger(__name__)
 
@@ -182,71 +178,6 @@ SPEC_COL_KEYWORDS = [
 QTY_COL_KEYWORDS = ["Jumlah", "数量", "jumlah", "Quantity", "QTY"]
 
 
-@dataclass(frozen=True)
-class QuotationTemplateLayout:
-    """报价单模板列布局（1-based 列号）。"""
-    template_id: str
-    header_scan_rows: int
-    data_start_row: int
-    inquiry_name_col: int
-    inquiry_spec_col: int
-    inquiry_qty_col: int
-    inquiry_seq_col: int
-    product_no_col: int
-    quote_name_col: int
-    quote_spec_col: int
-    quote_qty_col: int
-    unit_price_col: int
-    total_col: int
-    totals_value_col: int
-    quote_date_value_col: int | None = None
-    indonesian_name_col: int | None = None
-    satuan_col: int | None = None
-    brand_col: int | None = None
-    inquiry_unit_col: int | None = None
-
-
-LINGWEI_LAYOUT = QuotationTemplateLayout(
-    template_id="lingwei",
-    header_scan_rows=3,
-    data_start_row=2,
-    inquiry_name_col=2,
-    inquiry_spec_col=3,
-    inquiry_qty_col=5,
-    inquiry_seq_col=1,
-    product_no_col=7,
-    quote_name_col=8,
-    quote_spec_col=10,
-    quote_qty_col=12,
-    unit_price_col=14,
-    total_col=15,
-    totals_value_col=15,
-    inquiry_unit_col=4,
-)
-
-VANTSING_LAYOUT = QuotationTemplateLayout(
-    template_id="vantsing",
-    header_scan_rows=10,
-    data_start_row=8,
-    inquiry_name_col=2,
-    inquiry_spec_col=3,
-    inquiry_qty_col=5,
-    inquiry_seq_col=1,
-    product_no_col=6,
-    quote_name_col=7,
-    quote_spec_col=9,
-    quote_qty_col=11,
-    unit_price_col=13,
-    total_col=14,
-    totals_value_col=14,
-    quote_date_value_col=11,
-    indonesian_name_col=8,
-    satuan_col=10,
-    brand_col=12,
-    inquiry_unit_col=4,
-)
-
-
 def _cell_value(cell) -> str:
     v = getattr(cell, "value", None)
     if v is None:
@@ -370,21 +301,6 @@ def _detect_layout_from_rows(all_rows: List[List[str]]) -> QuotationTemplateLayo
             if c == 5 and ("Product number" in s or "产品编号" in s):
                 return VANTSING_LAYOUT
     return LINGWEI_LAYOUT
-
-
-def _ensure_writable(path: Path) -> None:
-    """清除 copy2 从只读模板继承的只读属性，避免 Windows 上 save 报 Permission denied。"""
-    try:
-        mode = path.stat().st_mode
-        path.chmod(mode | stat.S_IWRITE)
-    except OSError:
-        logger.debug("chmod writable failed for %s", path, exc_info=True)
-
-
-def _save_workbook(wb, out_p: Path) -> None:
-    """保存 workbook；先确保目标路径可写。"""
-    _ensure_writable(out_p)
-    wb.save(out_p)
 
 
 def extract_quotation_data(file_path: str, sheet_name: str | None = None) -> dict[str, Any]:
@@ -843,7 +759,7 @@ def fill_template_with_inquiry_items(
     )
     try:
         shutil.copy2(tpl, out_p)
-        _ensure_writable(out_p)
+        ensure_writable(out_p)
     except Exception as e:
         return {"success": False, "output_path": "", "filled_count": 0, "error": str(e)}
 
@@ -911,7 +827,7 @@ def fill_template_with_inquiry_items(
             ws.cell(row=row_num, column=layout.inquiry_qty_col, value=max(0, qty))
             filled += 1
         _normalize_sheet_view(ws)
-        _save_workbook(wb, out_p)
+        save_workbook(wb, out_p)
         return {
             "success": True,
             "output_path": str(out_p),
@@ -1069,210 +985,6 @@ def parse_excel_smart(
     return {"success": True, "result": result_text, "error": None, "sheet_name": used_sheet, "rows_read": len(rows)}
 
 
-def _parse_cell_ref(ref: str) -> tuple[int, int] | None:
-    """将 A1 形式转为 (row: 1-based, col: 1-based)，失败返回 None。"""
-    m = re.match(r"^([A-Za-z]+)(\d+)$", (ref or "").strip())
-    if not m:
-        return None
-    col_str, row_str = m.group(1).upper(), m.group(2)
-    col = 0
-    for c in col_str:
-        col = col * 26 + (ord(c) - ord("A") + 1)
-    try:
-        row = int(row_str)
-        return (row, col) if row >= 1 and col >= 1 else None
-    except ValueError:
-        return None
-
-
-def edit_excel(
-    file_path: str,
-    edits: List[dict[str, Any]],
-    sheet_name: str | None = None,
-    output_path: str | None = None,
-) -> dict[str, Any]:
-    """
-    【普适性】编辑任意 Excel：按单元格或区域写入。不依赖报价单列结构，任意 .xlsx/.xlsm 可用。
-
-    edits 每项为以下之一：
-    - {"cell": "A1", "value": 任意}：单格写入
-    - {"range": "A1:B2", "values": [[v1,v2],[v3,v4]]}：区域按行写入
-
-    Returns:
-        {"success": bool, "result": str, "error": str | None, "output_path": str}
-    """
-    try:
-        import openpyxl
-    except ImportError:
-        return {"success": False, "result": "", "error": "请安装 openpyxl: pip install openpyxl", "output_path": ""}
-
-    path = Path(file_path)
-    if not path.is_absolute():
-        path = Path(os.getcwd()) / path
-    if not path.exists():
-        return {"success": False, "result": "", "error": f"文件不存在: {path}", "output_path": ""}
-    out_p = Path(output_path) if output_path else path
-    if output_path:
-        out_p = Path(coerce_write_path(output_path, default_filename=path.name))
-
-    if not edits or not isinstance(edits, list):
-        return {"success": False, "result": "", "error": "请提供 edits 数组（每项含 cell+value 或 range+values）", "output_path": ""}
-
-    try:
-        wb = openpyxl.load_workbook(path)
-        if sheet_name and sheet_name in wb.sheetnames:
-            ws = wb[sheet_name]
-        else:
-            ws = wb.active or wb[wb.sheetnames[0]]
-        applied = 0
-        for op in edits:
-            if op.get("cell") is not None and "value" in op:
-                cell_ref = str(op["cell"]).strip()
-                parsed = _parse_cell_ref(cell_ref)
-                if not parsed:
-                    continue
-                row, col = parsed
-                ws.cell(row=row, column=col, value=op["value"])
-                applied += 1
-            elif op.get("range") is not None and op.get("values") is not None:
-                range_ref = str(op["range"]).strip()
-                parts = range_ref.split(":")
-                if len(parts) != 2:
-                    continue
-                start = _parse_cell_ref(parts[0])
-                end = _parse_cell_ref(parts[1])
-                if not start or not end:
-                    continue
-                row_s, col_s = start
-                row_e, col_e = end
-                vals = op["values"]
-                if not isinstance(vals, list):
-                    continue
-                for ri, row_vals in enumerate(vals):
-                    if not isinstance(row_vals, list):
-                        continue
-                    for ci, v in enumerate(row_vals):
-                        r, c = row_s + ri, col_s + ci
-                        if r > row_e or c > col_e:
-                            break
-                        ws.cell(row=r, column=c, value=v)
-                applied += 1
-        wb.save(out_p)
-        return {"success": True, "result": json.dumps({"applied_edits": applied, "output_path": str(out_p)}, ensure_ascii=False), "error": None, "output_path": str(out_p)}
-    except Exception as e:
-        return {"success": False, "result": "", "error": str(e), "output_path": ""}
-
-
-def get_quote_tools_openai_format() -> list[dict]:
-    """OpenAI function calling 格式：报价 Agent 工具。仅暴露 parse_excel_smart 做 Excel 解析，不再暴露 extract_quotation_data。"""
-    return [
-        {
-            "type": "function",
-            "function": {
-                "name": "fill_quotation_sheet",
-                "description": "【报价单导向】将数据写入报价单 Excel 指定行。用户已确认选型、说“可以/没问题/直接填/按这个报”后，必须使用 fill_items 精确模式并设置 require_exact_codes=true；禁止再走 keywords/file 自动重匹配。output_path 省略或为相对路径时，runtime 必须注入 workspace_path（workspace_kind=aionui_project_temp），否则拒绝写入，避免文件落到 UI 看不到的隐藏目录。fill_items 每项含 row、code、quote_name、unit_price、qty、specification，以及可选的 indonesian_name（印尼名称/Nama Indonesia）、satuan（单位/Satuan）、brand（品牌/Brand）。服务端可按 code 自动补全缺失字段。写入列（VANTSING模板）：F=产品编号, G=报价名称, H=印尼名称, I=报价规格, J=单位, K=数量, L=品牌, M=单价, N=总额；并按表头自动填写「交货日期」「报价日期」（不传则用当天 YYYY/MM/DD）。",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "file_path": {"type": "string", "description": "报价单 Excel 路径"},
-                        "fill_items": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "row": {"type": "integer", "description": "Excel 行号 1-based"},
-                                    "code": {"type": "string", "description": "产品编码。确认态/锁定态必填；也可用 product_code 传入。"},
-                                    "product_code": {"type": "string", "description": "产品编码别名。确认态/锁定态必填 code 或 product_code。"},
-                                    "quote_name": {"type": "string"},
-                                    "unit_price": {"type": "number"},
-                                    "qty": {"type": "integer"},
-                                    "specification": {"type": "string"},
-                                    "indonesian_name": {"type": "string", "description": "印尼名称（Nama Indonesia）：通常直接取 match_quotation 返回的 description_english 原文"},
-                                    "satuan": {"type": "string", "description": "单位（Satuan）：如 根、pcs、set、m，从 matched_name 或 description_english 中提取"},
-                                    "brand": {"type": "string", "description": "品牌（Brand/Merk）：如 LESSO、VINILON，从 description_english 末尾 ' - ' 后面的词提取"},
-                                },
-                                "required": ["row"],
-                            },
-                            "description": "要回填的项列表",
-                        },
-                        "require_exact_codes": {"type": "boolean", "description": "确认态/锁定态设为 true；要求每行有 code/product_code，并禁止 keywords 自动重匹配。"},
-                        "locked_lines": {"type": "boolean", "description": "require_exact_codes 的别名；用户确认选型后可设为 true。"},
-                        "workspace_path": {"type": "string", "description": "AionUI 项目临时空间路径；output_path 省略或相对路径时必需。"},
-                        "workspace_kind": {"type": "string", "description": "workspace 类型，项目临时空间为 aionui_project_temp。"},
-                        "output_path": {"type": "string", "description": "可选，输出路径，默认覆盖原文件"},
-                        "sheet_name": {"type": "string", "description": "工作表名，不传用第一个"},
-                        "quotation_date": {"type": "string", "description": "报价日期，如 2026/03/11，不传用当天"},
-                        "delivery_date": {"type": "string", "description": "交货日期（每行同一值），如 2026/03/20，不传用当天"},
-                    },
-                    "required": ["file_path", "fill_items"],
-                },
-                "x_tool_meta": {"access_mode": "write", "risk_level": "medium", "deferred": True},
-            },
-        },
-        {
-            "type": "function",
-            "function": {
-                "name": "parse_excel_smart",
-                "description": "【普适性，推荐】解析任意 Excel：按行读取全表（默认最多 500 行），返回完整 Markdown 表。提取/查看报价单或 Excel 数据时优先使用此工具，可拿到全表行数，不受「Total」行位置影响。",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "file_path": {"type": "string", "description": "Excel 文件完整路径（可从 context.file_path 获取）"},
-                        "sheet_name": {"type": "string", "description": "工作表名称，不传则使用第一个工作表"},
-                        "max_rows": {"type": "integer", "description": "最多读取行数，默认 500", "default": 500},
-                    },
-                    "required": ["file_path"],
-                },
-                "x_tool_meta": {"access_mode": "read", "risk_level": "low", "deferred": True},
-            },
-        },
-        {
-            "type": "function",
-            "function": {
-                "name": "edit_excel",
-                "description": "【普适性】编辑任意 Excel：按单元格或区域写入，不依赖报价单列结构。edits 每项：{\"cell\": \"A1\", \"value\": 任意} 单格写入，或 {\"range\": \"A1:B2\", \"values\": [[v1,v2],[v3,v4]]} 区域按行写入。可写多格后保存到 output_path 或覆盖原文件。",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "file_path": {"type": "string", "description": "要编辑的 Excel 路径"},
-                        "edits": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "cell": {"type": "string", "description": "单格引用，如 A1"},
-                                    "value": {"description": "写入的值（字符串或数字）"},
-                                    "range": {"type": "string", "description": "区域引用，如 A1:B2"},
-                                    "values": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "array",
-                                            "items": {
-                                                "oneOf": [
-                                                    {"type": "string"},
-                                                    {"type": "number"},
-                                                    {"type": "boolean"},
-                                                    {"type": "null"}
-                                                ]
-                                            }
-                                        },
-                                        "description": "二维数组，按行写入，每个单元格为字符串/数字/布尔或 null",
-                                    },
-                                },
-                            },
-                            "description": "编辑操作列表：单格用 cell+value，区域用 range+values",
-                        },
-                        "sheet_name": {"type": "string", "description": "工作表名，不传用第一个"},
-                        "output_path": {"type": "string", "description": "保存路径，不传则覆盖原文件"},
-                    },
-                    "required": ["file_path", "edits"],
-                },
-                "x_tool_meta": {"access_mode": "write", "risk_level": "medium", "deferred": True},
-            },
-        },
-    ]
-
-
 # 凌威报价单回填列（1-based）
 COL_PRODUCT_NO = 7   # G 产品编号
 COL_QUOTE_NAME = 8   # H 报价名称
@@ -1333,7 +1045,7 @@ def fill_quotation(
         if not out_p.exists():
             shutil.copy2(path, out_p)
         load_path = out_p
-    _ensure_writable(load_path)
+    ensure_writable(load_path)
     try:
         wb = openpyxl.load_workbook(load_path)
         if sheet_name and sheet_name in wb.sheetnames:
@@ -1342,6 +1054,7 @@ def fill_quotation(
             ws = wb.active or wb[wb.sheetnames[0]]
 
         layout = _detect_quotation_layout(ws)
+        fill_items = validate_and_fix_fill_rows(list(fill_items), layout)
 
         # 先定位「Total Excluding PPN」行，避免后续 iter_rows 与写表顺序导致样式错乱
         total_row_1based = None
@@ -1398,6 +1111,14 @@ def fill_quotation(
                 _set_cell_value_merged_safe(ws, row=row_num, col=layout.unit_price_col, value=up)
             if q is not None:
                 _set_cell_value_merged_safe(ws, row=row_num, col=layout.quote_qty_col, value=q)
+            backfill_inquiry_columns_if_empty(
+                ws,
+                row_num,
+                layout,
+                it,
+                satuan=str(it.get("satuan") or "") or None,
+                qty=q,
+            )
             spec_val = resolve_quote_specification(
                 str(it.get("quote_name") or ""),
                 str(it.get("specification") or ""),
@@ -1486,67 +1207,27 @@ def fill_quotation(
             logger.error(f"裁剪列失败: {e}", exc_info=True)
         
         _normalize_sheet_view(ws)
-        _save_workbook(wb, out_p)
+        save_workbook(wb, out_p)
         return {"success": True, "output_path": str(out_p), "filled_count": filled, "error": None}
+    except ValueError as e:
+        return {"success": False, "output_path": "", "filled_count": 0, "error": str(e)}
     except Exception as e:
         return {"success": False, "output_path": "", "filled_count": 0, "error": str(e)}
 
 
+def get_quote_tools_openai_format() -> list[dict]:
+    from quotation.tool_schema import get_quote_tools_openai_format as _get
+
+    return _get()
+
+
 def execute_quote_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
-    """执行报价 Agent 工具，返回 {success, result, error, ...} 或 {success, items, error, rows_count}。"""
-    if name == "extract_quotation_data":
-        file_path = (arguments.get("file_path") or "").strip()
-        sheet_name = (arguments.get("sheet_name") or "").strip() or None
-        if not file_path:
-            return {"success": False, "result": "", "error": "请提供 file_path", "rows_count": 0}
-        return extract_quotation_data(file_path=file_path, sheet_name=sheet_name)
-    if name == "fill_quotation_sheet":
-        file_path = (arguments.get("file_path") or "").strip()
-        fill_items = arguments.get("fill_items") or []
-        output_path = (arguments.get("output_path") or "").strip() or None
-        sheet_name = (arguments.get("sheet_name") or "").strip() or None
-        quotation_date = (arguments.get("quotation_date") or "").strip() or None
-        delivery_date = (arguments.get("delivery_date") or "").strip() or None
-        if not file_path:
-            return {"success": False, "result": "", "error": "请提供 file_path"}
-        if not fill_items or not isinstance(fill_items, list):
-            return {"success": False, "result": "", "error": "请提供 fill_items 数组"}
-        out = fill_quotation(
-            file_path=file_path,
-            fill_items=fill_items,
-            sheet_name=sheet_name,
-            output_path=output_path,
-            quotation_date=quotation_date,
-            delivery_date=delivery_date,
-        )
-        if out.get("success"):
-            return {"success": True, "result": json.dumps({"filled_count": out["filled_count"], "output_path": out["output_path"]}, ensure_ascii=False), "error": None}
-        return {"success": False, "result": "", "error": out.get("error", "填表失败")}
-    if name == "parse_excel_smart":
-        fp = (arguments.get("file_path") or "").strip()
-        sheet_name = (arguments.get("sheet_name") or "").strip() or None
-        max_rows = arguments.get("max_rows")
-        if max_rows is None:
-            max_rows = 500
-        try:
-            max_rows = int(max_rows)
-        except (TypeError, ValueError):
-            max_rows = 500
-        if not fp:
-            return {"success": False, "result": "", "error": "请提供 file_path", "rows_read": 0}
-        out = parse_excel_smart(file_path=fp, sheet_name=sheet_name, max_rows=max_rows)
-        if out.get("success"):
-            return {"success": True, "result": out["result"], "error": None, "rows_read": out.get("rows_read", 0)}
-        return {"success": False, "result": "", "error": out.get("error", "解析失败"), "rows_read": 0}
-    if name == "edit_excel":
-        fp = (arguments.get("file_path") or "").strip()
-        edits = arguments.get("edits") or []
-        sheet_name = (arguments.get("sheet_name") or "").strip() or None
-        output_path = (arguments.get("output_path") or "").strip() or None
-        if not fp:
-            return {"success": False, "result": "", "error": "请提供 file_path", "output_path": ""}
-        out = edit_excel(file_path=fp, edits=edits, sheet_name=sheet_name, output_path=output_path)
-        if out.get("success"):
-            return {"success": True, "result": out["result"], "error": None, "output_path": out.get("output_path", "")}
-        return {"success": False, "result": "", "error": out.get("error", "编辑失败"), "output_path": ""}
-    return {"success": False, "result": "", "error": f"未知工具: {name}", "rows_count": 0}
+    from quotation.tool_adapter import execute_quote_tool as _execute
+
+    return _execute(name, arguments)
+
+
+def edit_excel(*args, **kwargs):
+    from quotation.excel_edit import edit_excel as _edit
+
+    return _edit(*args, **kwargs)

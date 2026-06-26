@@ -16,7 +16,7 @@ from quotation.quote_tools import (
     fill_quotation,
 )
 from quotation.shortage_report import generate_shortage_report
-from wanding_workspace_paths import coerce_write_path
+from system.workspace_paths import coerce_write_path
 
 logger = logging.getLogger(__name__)
 

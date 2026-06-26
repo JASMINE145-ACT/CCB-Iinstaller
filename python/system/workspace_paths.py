@@ -79,12 +79,12 @@ def coerce_write_path(
     require_workspace: bool = False,
 ) -> str:
     """
-  Resolve a user/tool write path.
+    Resolve a user/tool write path.
 
-  - Absolute explicit path → use as given (optionally uniquified).
-  - Relative explicit path → under session workspace.
-  - Empty / missing → workspace + default_filename (required).
-  """
+    - Absolute explicit path → use as given (optionally uniquified).
+    - Relative explicit path → under session workspace.
+    - Empty / missing → workspace + default_filename (required).
+    """
     text = (str(path).strip() if path is not None else "")
     if text:
         candidate = Path(text)
