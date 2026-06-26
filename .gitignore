@@ -51,6 +51,10 @@ Microsoft/
 
 # Test / data binaries
 data/*.xlsx
+!data/wanding_price_lib.xlsx
+!data/mapping_table.xlsx
+!data/price_library_cleaned_2026_05_15.xlsx
+!data/空白标准报价单.xlsx
 data/*.png
 python/test_output/
 python/_test_fill_output.xlsx
