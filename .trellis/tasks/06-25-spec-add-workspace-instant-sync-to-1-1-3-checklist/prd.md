@@ -12,7 +12,9 @@
 | `wanding-packaging-whitelist.md` | **§16.6** | 全量 vs 热更合流表；四段版本 ops 注意 — **restored 2026-06-26** |
 | `aionui-src` | `internalUpdateManifest.ts` | `compareCcbVersions()`（#15）— **code in repo**; needs NSIS pack |
 | `aionui-src` | Workspace hooks | `useWorkspaceWatchLifecycle` + `useWorkspaceInstantRefresh` + `patchDirectoryChildren` — **wired 2026-06-26** |
-| `aionui-src` | Org knowledge UI | `/org-knowledge` route + sider entry — **wired 2026-06-26** |
+| `aionui-src` | Org knowledge UI | `/org-knowledge` route + sider entry — **wired 2026-06-26**; i18n `orgKnowledge` module registered **2026-06-26** |
+| `aionui-src` | Dev shell / SSO | Desktop auth, `/tasks`, Mixing brand, `start-dev-full.ps1` — **wired 2026-06-26** |
+| `aionui-src` | Dev Settings Layer 2 | Settings 模型/助手/Agents CCB branches + `runBackendMigrations` prune — **wired 2026-06-26** (uncommitted); task `06-26-aionui-source-level-recovery` |
 
 ## Scope split — 全量 vs 热更
 

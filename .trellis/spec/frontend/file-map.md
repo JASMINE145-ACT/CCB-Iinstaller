@@ -93,6 +93,7 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Status tag | `…/components/WorkTaskStatusTag.tsx` |
 | SWR hooks (scope, members, query, pending badge) | `…/useWorkTasks.ts` |
 | Sidebar entry + pending badge | `packages/desktop/src/renderer/components/layout/Sider/SiderNav/SiderWorkTasksEntry.tsx` |
+| **Wiring status (2026-06-26)** | Routes + sider entry + `AuthContext` desktop SSO **wired** (uncommitted). API needs self-built aioncore (`/api/work-tasks` 404 on bundled 0.1.27). |
 | Auth user `work_task_role` + session token | `packages/desktop/src/common/auth/authSession.ts`, `packages/desktop/src/renderer/hooks/context/AuthContext.tsx` |
 | HTTP credentials policy | `packages/desktop/src/common/adapter/httpBridge.ts` — `backendFetchCredentials()` (`omit` desktop, `include` WebUI) |
 | Team members admin (manager) | `packages/desktop/src/renderer/pages/settings/TeamMembersPage.tsx`, route `#/settings/team-members` |
@@ -121,11 +122,14 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Model catalog (ids, labels, description i18n keys) | `packages/desktop/src/common/config/ccbModelSettingsShared.ts` — `CCB_MINIMAX_M3_CATALOG` |
 | Read `settings.json` model for IPC | `packages/desktop/src/common/config/ccbModelSettings.ts` (main only) |
 | IPC bridge | `packages/desktop/src/process/bridge/ccbModelBridge.ts` |
-| Settings page cards + descriptions | `packages/desktop/src/renderer/components/settings/SettingsModal/contents/ModelModalContent.tsx` |
+| Settings page cards + descriptions | `packages/desktop/src/renderer/components/settings/SettingsModal/contents/CcbModelSettingsPanel.tsx` (CCB branch); `ModelModalContent.tsx` delegates when `useCcbAuthorityActive` |
+| Shared assistant catalog (Guid + Settings) | `packages/desktop/src/common/assistants/fetchAssistantsCatalog.ts` — `ASSISTANTS_LIST_SWR_KEY` |
+| Settings → Agents (CCB) | `packages/desktop/src/renderer/pages/settings/AgentSettings/CcbWandingAgentsPanel.tsx`; `LocalAgents.tsx` wrapper |
+| CCB startup migrations (incl. prune) | `packages/desktop/src/process/utils/runBackendMigrations.ts` — `CCB_MIGRATION_STEPS` |
 | Description resolve / IPC enrich | `packages/desktop/src/renderer/utils/ccbModelCatalogDisplay.ts` |
 | Guid / conversation model dropdown merge | `packages/desktop/src/common/config/ccbAcpModelInfo.ts` |
 | Guid input-bar model menu (CCB vs aionrs path) | `packages/desktop/src/renderer/pages/guid/components/GuidModelSelector.tsx` |
 | Guid agent restore + `aionrs`→`claude` under CCB | `packages/desktop/src/renderer/pages/guid/hooks/useGuidAgentSelection.ts` |
 | `isGeminiMode` gate (`aionrs` only) | `packages/desktop/src/renderer/pages/guid/GuidPage.tsx` — `PROVIDER_BASED_AGENTS` |
 | zh-CN / en-US description strings | `packages/desktop/src/renderer/services/i18n/locales/{zh-CN,en-US}/settings.json` |
-| Unit tests | `tests/unit/common-config/ccbModelSettings.test.ts`, `ccbAcpModelInfo.test.ts`, `tests/unit/renderer/ccbModelCatalogDisplay.test.ts` |
+| Unit tests | `tests/unit/common-config/ccbModelSettings.test.ts`, `ccbAcpModelInfo.test.ts`, `tests/unit/renderer/ccbModelCatalogDisplay.test.ts`, `tests/unit/common-assistants/fetchAssistantsCatalog.test.ts` |

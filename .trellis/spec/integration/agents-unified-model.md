@@ -500,6 +500,22 @@ When `listCcbAgents()` returns empty (CCB not installed), list falls back entire
 
 ## Migration
 
+> **Startup hook (2026-06-26):** `packages/desktop/src/process/utils/runBackendMigrations.ts` runs `CCB_MIGRATION_STEPS` after legacy `MIGRATION_STEPS`. Log prefix: `[AionUi] CCB migration step completed: <name>`. Requires **full app restart** (main process); renderer HMR is insufficient.
+
+**Chain order in `CCB_MIGRATION_STEPS`:**
+
+1. `migrateAionUiRuntimeConfigToCcb`
+2. `migrateAssistantProfilesToCcbAgentsWithFlag`
+3. `repairGuidCatalogFlagsWithFlag`
+4. `pruneBundledAgentsNotInKeepSetWithFlag`
+5. `repairWanDSubagentMcpServersWithFlag`
+6. `repairWanDSpecialistGuidCardsWithFlag`
+7. `repairOfficeAgentAgentTypeIdsWithFlag`
+8. `repairWordCreatorOfficeWordMcpWithFlag`
+9. `repairExcelCreatorExcelMcpWithFlag`
+10. `repairWanDL1SelfContainedWithFlag`
+11. `repairAgentMarkdownBomWithFlag`
+
 - Flag: `migration.ccbAgentsUnified_v1` in AionUI local config
 - Trigger: `migrateAssistantProfilesToCcbAgentsWithFlag()` during backend migrations
 - Action: For each `assistants/<id>.json` without a matching agent, write `agents/<id>.md` + sidecar via `saveCcbAgent(ccbAgentInputFromProfile(profile))`

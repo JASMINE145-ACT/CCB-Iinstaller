@@ -1,0 +1,182 @@
+# start-dev-full.ps1 — AionUI dev launcher with full 1.1.2 parity (org SSO login)
+#
+# Purpose : Complete-parity dev launcher. Runs pre-flight checks, bootstraps CCB,
+#           then starts `bun run dev` WITHOUT AIONUI_BYPASS_AUTH so the org SSO
+#           login page appears exactly as in the 1.1.2 installed runtime.
+#
+# Compare with start-aionui-dev.ps1 (keeps AIONUI_BYPASS_AUTH=1 for quick UI work).
+#
+# Usage:
+#   .\ccb-installer\scripts\start-dev-full.ps1
+#   .\ccb-installer\scripts\start-dev-full.ps1 -InstallDir D:\CCB-Wanding -Clean
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# COMPLETENESS CHECKLIST (manual verification after launch)
+# ─────────────────────────────────────────────────────────────────────────────
+#  □  Org SSO login page appears (http://67.216.206.3:13401)
+#  □  Login with yjc + password succeeds
+#  □  Window title: Mixing (not AionUI)
+#  □  Left sider: 万鼎报价专家 Guid card visible
+#  □  Settings → Tools: quotation / accurate / excel MCP entries present
+#  □  Settings → Models: model list non-empty (CCB models)
+#  □  Chat → 万鼎报价专家: WanD MCP warmup completes within ~15 s
+# ─────────────────────────────────────────────────────────────────────────────
+
+param(
+    [string]$InstallDir   = 'D:\CCB-Wanding',
+    [string]$AionUiSrc    = 'D:\Projects\aionui-src',
+    [switch]$Clean,
+    [switch]$SkipBootstrap
+)
+
+$ErrorActionPreference = 'Stop'
+$repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+
+function Import-EnvLine {
+    param([string]$Line)
+    if ($Line -match '^\s*#' -or $Line -match '^\s*$') { return }
+    if ($Line -match '^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$') {
+        Set-Item -Path "Env:$($matches[1])" -Value $matches[2].Trim()
+    }
+}
+
+function Import-SsoEnvFile {
+    param([string]$Path, [string]$Label)
+    if (-not (Test-Path -LiteralPath $Path)) { return $false }
+    Get-Content -LiteralPath $Path | ForEach-Object { Import-EnvLine $_ }
+    Write-Host "[ok] Loaded SSO env from $Label" -ForegroundColor Green
+    return $true
+}
+
+# ── Pre-flight checks ────────────────────────────────────────────────────────
+
+function Assert-Path {
+    param([string]$Label, [string]$Path)
+    if (-not (Test-Path -LiteralPath $Path)) {
+        Write-Host "[PREFLIGHT FAIL] $Label" -ForegroundColor Red
+        Write-Host "  Missing: $Path" -ForegroundColor Red
+        throw "Pre-flight failed: $Label"
+    }
+    Write-Host "[ok] $Label" -ForegroundColor Green
+}
+
+Write-Host ''
+Write-Host 'Pre-flight checks...' -ForegroundColor Cyan
+
+Assert-Path 'Org server config (AionUi-Dev)' `
+    "$env:APPDATA\AionUi-Dev\aionui\org-server.json"
+
+Assert-Path 'Route B patch (AionUi-Dev runtime slot)' `
+    "$env:APPDATA\AionUi-Dev\aionui\runtime\managed-tools\acp\claude-agent-acp\0.39.0\win32-x64\node_modules\@agentclientprotocol\claude-agent-acp\dist\index.js"
+
+Assert-Path 'Bun runtime' `
+    "$InstallDir\vendor\bun\bun.exe"
+
+Assert-Path 'Python runtime' `
+    "$InstallDir\vendor\python-wanding\python.exe"
+
+Assert-Path 'Quotation MCP server' `
+    "$InstallDir\vendor\mcp-servers\quotation-server\dist\index.js"
+
+Assert-Path 'Seed agent (quotation-agent.md)' `
+    "$env:LOCALAPPDATA\CCB-Wanding\.claude\agents\quotation-agent.md"
+
+Assert-Path 'Org knowledge (quotation SOP)' `
+    "$InstallDir\vendor\wanding\data\ccb-wanding-quotation.md"
+
+Write-Host 'All pre-flight checks passed.' -ForegroundColor Green
+Write-Host ''
+
+# ── Bootstrap ────────────────────────────────────────────────────────────────
+
+$configDir = Join-Path $env:LOCALAPPDATA 'CCB-Wanding\.claude'
+$logDir    = Join-Path $env:LOCALAPPDATA 'CCB-Wanding\logs'
+$logFile   = Join-Path $logDir 'dev-full-bootstrap.log'
+New-Item -ItemType Directory -Force -Path $logDir | Out-Null
+
+$env:CCB_INSTALL_DIR           = $InstallDir
+$env:CCB_WANDING_HOME          = $InstallDir
+$env:CCB_WANDING_CONFIG_DIR    = $configDir
+$env:AIONUI_DISABLE_AUTO_UPDATE = '1'
+if (-not $env:CCB_UPDATE_MANIFEST_URL) {
+    $env:CCB_UPDATE_MANIFEST_URL = 'http://67.216.206.3/updates/manifest.json'
+}
+if (-not $env:AIONUI_UPDATE_MANIFEST_URL) {
+    $env:AIONUI_UPDATE_MANIFEST_URL = $env:CCB_UPDATE_MANIFEST_URL
+}
+
+if (-not $SkipBootstrap) {
+    Write-Host 'Bootstrapping CCB-Wanding dev baseline (Quick)...' -ForegroundColor Cyan
+    & (Join-Path $InstallDir 'scripts\run-wanding-bootstrap.ps1') `
+        -InstallDir $InstallDir -ConfigDir $configDir -Mode Quick -LogFile $logFile
+    if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+        throw "run-wanding-bootstrap failed (exit $LASTEXITCODE); see $logFile"
+    }
+} else {
+    Write-Host 'Skipping bootstrap (-SkipBootstrap).' -ForegroundColor Yellow
+}
+
+Write-Host 'Syncing Route B patch into dev/runtime slots...' -ForegroundColor Cyan
+& (Join-Path $repoRoot 'ccb-installer\scripts\sync-aionui-ccb-route-b.ps1') -InstallDir $InstallDir
+if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+    throw "sync-aionui-ccb-route-b failed (exit $LASTEXITCODE)"
+}
+
+# ── Unified org SSO (must match packaged ccb-launch-aionui.cmd + VPS JWT) ───
+
+$envLocal = Join-Path $repoRoot 'scripts\org-phase0\env.local'
+$ssoEnv   = Join-Path $env:LOCALAPPDATA 'CCB-Wanding\config\sso.env'
+$loadedSso = Import-SsoEnvFile $envLocal 'scripts/org-phase0/env.local'
+if (-not $loadedSso) {
+    $null = Import-SsoEnvFile $ssoEnv 'CCB-Wanding/config/sso.env'
+}
+
+if (-not $env:ORG_SERVER_URL) { $env:ORG_SERVER_URL = 'http://67.216.206.3:13401' }
+if (-not $env:AIONUI_SSO_MODE) { $env:AIONUI_SSO_MODE = 'org-idp' }
+if (-not $env:JWT_SECRET) {
+    throw 'JWT_SECRET missing — add scripts/org-phase0/env.local or %LOCALAPPDATA%\CCB-Wanding\config\sso.env'
+}
+Remove-Item Env:AIONUI_BYPASS_AUTH -ErrorAction SilentlyContinue
+
+# ── Start dev ────────────────────────────────────────────────────────────────
+
+$selfBuiltCore = 'D:\Projects\claude-code-best\AionCore\target\release'
+$bundledCore   = Join-Path $InstallDir 'AionUi\resources\bundled-aioncore\win32-x64'
+$env:PATH = "$selfBuiltCore;$bundledCore;$env:PATH"
+
+Set-Location $AionUiSrc
+
+Write-Host 'Stopping stale AionUI/Electron processes...' -ForegroundColor Yellow
+Get-Process -Name electron, aioncore -ErrorAction SilentlyContinue |
+    Stop-Process -Force -ErrorAction SilentlyContinue
+Start-Sleep -Seconds 2
+
+if ($Clean) {
+    Write-Host 'Clearing Vite/Electron build cache (-Clean)...' -ForegroundColor Yellow
+    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue `
+        "$AionUiSrc\packages\desktop\out", `
+        "$AionUiSrc\node_modules\.vite", `
+        "$AionUiSrc\packages\desktop\node_modules\.vite"
+}
+
+$env:ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
+if (-not $env:ELECTRON_EXTRA_LAUNCH_ARGS) {
+    $env:ELECTRON_EXTRA_LAUNCH_ARGS = '--disable-gpu --disable-gpu-compositing --disable-software-rasterizer'
+}
+
+Write-Host ''
+Write-Host '  ⚠  DO NOT press Ctrl+R in the Electron window.' -ForegroundColor Yellow
+Write-Host '     White screen after Ctrl+R = quit fully and rerun this script.' -ForegroundColor Yellow
+Write-Host ''
+Write-Host 'Starting AionUI dev (full parity — org SSO login)...' -ForegroundColor Cyan
+Write-Host "  CCB baseline : $InstallDir" -ForegroundColor DarkGray
+Write-Host "  CCB config   : $configDir" -ForegroundColor DarkGray
+Write-Host "  aioncore     : $bundledCore" -ForegroundColor DarkGray
+Write-Host "  renderer     : http://localhost:5173/" -ForegroundColor DarkGray
+Write-Host "  Auth mode    : org SSO ($($env:AIONUI_SSO_MODE))" -ForegroundColor DarkGray
+Write-Host "  Org server   : $($env:ORG_SERVER_URL)" -ForegroundColor DarkGray
+Write-Host "  JWT_SECRET   : len=$($env:JWT_SECRET.Length)" -ForegroundColor DarkGray
+Write-Host ''
+
+# No AIONUI_BYPASS_AUTH — login page is shown, matching 1.1.2 installed behavior.
+bun run dev

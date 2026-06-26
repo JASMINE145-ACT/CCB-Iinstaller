@@ -155,6 +155,8 @@ Temporary desktop dev escape hatch while org-login E2E is deferred:
 
 **Re-enable real login:** remove `$env:AIONUI_BYPASS_AUTH = '1'` from the dev start script, rebuild `aioncore`, restart dev. Org-login code (POST `/api/users`, `TeamMembersPage`, Bearer session) remains in tree.
 
+**Desktop org SSO wiring (2026-06-26, uncommitted):** `start-dev-full.ps1` sets `AIONUI_SSO_MODE=org-idp` + `JWT_SECRET`; preload exposes `__ssoMode`, `__orgServerUrl`, `__bypassAuth`, `__forceRelogin`; `AuthContext` calls `performOrgLogin` on desktop; `/tasks` + `SiderWorkTasksEntry` + sider user chip wired. See task `06-26-aionui-source-level-recovery/dev-parity-wiring-2026-06-26.md`.
+
 **First admin password:** `POST /api/webui/reset-password` when `needs_setup: true`; username default `admin`.
 
 ### Post-reinstall JWT / stale session (2026-06-22)

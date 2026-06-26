@@ -23,6 +23,19 @@ AionUI owns **display catalog**: labels, per-model descriptions, and read-only s
 
 AionUI must **not** inject MiniMax `thinking` or effort-tier controls — display and selection only.
 
+### Delivery status (2026-06-26)
+
+| Surface | Packaged 1.1.2 oracle | `aionui-src` dev source |
+|---------|----------------------|---------------------------|
+| Catalog + IPC (`ccbModelSettingsShared`, `ccbModelBridge`) | Present | Present |
+| **Settings → 模型** cards | MiniMax cards | **Wired** — `CcbModelSettingsPanel.tsx` + `ModelModalContent` CCB branch (`useCcbModelInfo` + `enrichCcbModelCatalogEntries`) |
+| Guid model dropdown (`GuidModelSelector`, `ccbAcpModelInfo`) | Works when CCB authority active | Works when `isAuthorityActive` |
+| Settings → 助手 | CCB-filtered presets | **Wired** — `fetchAssistantsCatalog.ts` shared with Guid (`useAssistantList` + `useCustomAgentsLoader`) |
+| Settings → Agents | CCB WanD agents | **Wired** — `CcbWandingAgentsPanel.tsx` when CCB active (replaces upstream CLI grid) |
+| Preset prune on startup | Packaged behavior | **Wired** — `runBackendMigrations.ts` → `pruneBundledAgentsNotInKeepSetWithFlag` in `CCB_MIGRATION_STEPS` |
+
+**Dev smoke:** Full restart via `ccb-installer/scripts/start-dev-full.ps1` (not Ctrl+R). Task: `06-26-aionui-source-level-recovery` → `dev-parity-wiring-2026-06-26.md` § Layer 2. **Uncommitted** in `aionui-src` working tree as of 2026-06-26.
+
 ---
 
 ## Two model UI surfaces (do not confuse)
@@ -234,3 +247,4 @@ Also listed in [`dev-test-ship.md`](./dev-test-ship.md) symptom table.
 | 2026-06-14 | ACP merge + session switch fix; effort tier replacement in dropdown |
 | 2026-06-15 | Independent per-model cards; `CCB_MINIMAX_M3_CATALOG`; flat i18n + `ccbModelCatalogDisplay.ts` description fix |
 | 2026-06-15 | Guid empty model menu fix: CCB authority bypasses `aionrs` provider path; migrate `guid.lastSelectedAgent` to `claude` |
+| 2026-06-26 | **Layer 2 dev wiring:** `CcbModelSettingsPanel` + `ModelModalContent` CCB branch; `fetchAssistantsCatalog` for Settings 助手; prune via `runBackendMigrations` |

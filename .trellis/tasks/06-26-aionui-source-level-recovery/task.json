@@ -39,6 +39,26 @@
       "status": "completed"
     },
     {
+      "id": "phase-3b-dev-shell-wiring",
+      "title": "Wire dev shell parity: SSO login, /tasks routes, Mixing brand, start-dev-full SSO env",
+      "status": "completed"
+    },
+    {
+      "id": "phase-3c-dev-settings-layer2",
+      "title": "Wire dev Layer 2: Settings 模型/助手/Agents CCB branches + runBackendMigrations prune chain",
+      "status": "completed"
+    },
+    {
+      "id": "phase-3d-dev-capabilities-layer3",
+      "title": "Wire dev Layer 3: Settings 技能/工具 CCB branches (fetchSkillsCatalog + CcbMcpHealthPanel)",
+      "status": "completed"
+    },
+    {
+      "id": "phase-3e-dev-guid-layer4",
+      "title": "Wire dev Layer 4: Guid preset handoff + CCB skills/MCP catalog (loadGuidCapabilitiesCatalog)",
+      "status": "completed"
+    },
+    {
       "id": "phase-4-release-verification",
       "title": "Full cold build from git; verify install behaves like 1.1.2 oracle (ship as 1.1.3-dev)",
       "status": "in_progress"
@@ -58,6 +78,8 @@
     ".trellis/tasks/06-26-aionui-source-level-recovery/source-gap-analysis.md",
     ".trellis/spec/guides/mixing-meta-repo.md",
     ".trellis/tasks/06-26-aionui-source-level-recovery/aionui-src-commit-audit.md",
+    ".trellis/tasks/06-26-aionui-source-level-recovery/dev-parity-wiring-2026-06-26.md",
+    "ccb-installer/scripts/start-dev-full.ps1",
     "ccb-installer/scripts/recover-aionui-new-ui.ps1",
     "ccb-installer/ccb-launch-aionui.cmd",
     ".trellis/tasks/06-26-aionui-source-level-recovery/check.jsonl",
@@ -67,9 +89,14 @@
     "ccb-installer/scripts/start-aionui-dev.ps1",
     "ccb-installer/scripts/dev-aionui-desktop.ps1",
     "ccb-installer/patches/",
+    "D:/Projects/aionui-src/packages/desktop/src/common/assistants/fetchAssistantsCatalog.ts",
+    "D:/Projects/aionui-src/packages/desktop/src/process/utils/runBackendMigrations.ts",
+    "D:/Projects/aionui-src/packages/desktop/src/common/skills/fetchSkillsCatalog.ts",
+    "D:/Projects/aionui-src/packages/desktop/src/common/utils/ccbPresetConversationExtra.ts",
+    "D:/Projects/aionui-src/packages/desktop/src/renderer/pages/guid/utils/guidCapabilitiesCatalog.ts",
     "D:/Projects/aionui-src/"
   ],
-  "notes": "2026-06-26: Phase 0 runtime recovery done. All repos pushed (Mixing real submodules @ 5513401). Phase 3 staging manifest passed (build-wanding 1.1.3-dev with SkipBuild/SkipAionUiBuild/SkipPipMcp). 06-25 python/system refactor recovered @ f8ab39ae. Phase 4 = full cold build + install smoke vs 1.1.2 oracle; ship version 1.1.3-dev not 1.1.2. Canonical: mixing-meta-repo.md, status.md, check.jsonl.",
+  "notes": "2026-06-27: Layer 1–4 wired in uncommitted aionui-src (shell, Settings 五页, Guid handoff). Phase 4 = full cold build + runtime smoke; commit aionui-src pending.",
   "meta": {
     "baseline_version": "1.1.2",
     "baseline_staging": "ccb-installer/staging",

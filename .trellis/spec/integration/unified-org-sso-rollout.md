@@ -163,6 +163,7 @@ JWT_SECRET=nUGIBanC8Wdg8XAT...
 | `vps-fix-jwt-env-dropin.sh` | Create systemd drop-in + restart + smoke |
 | `configure-vps-jwt-secret.sh` | Write `/etc/aionorg/env` + drop-in (same as fix script) |
 | `start-aionui-dev-org-test.ps1` | Dev: `AIONUI_SSO_MODE=org-idp`, `JWT_SECRET`, no bypass |
+| `ccb-installer/scripts/start-dev-full.ps1` | Dev: org SSO env from `scripts/org-phase0/env.local` or `%LOCALAPPDATA%\CCB-Wanding\config\sso.env` + CCB bootstrap + route-b — **2026-06-26** |
 | `repair-employee-sso-env.ps1` | Fix empty `sso.env` on 1.0.6 installs (`-EnvLocalPath env.local`) |
 
 ---
@@ -173,6 +174,7 @@ JWT_SECRET=nUGIBanC8Wdg8XAT...
 |------|--------|
 | 2026-06-22 | Pilot PASS; VPS drop-in; JIT orphan cleanup |
 | 2026-06-23 | **1.0.7 fleet pack** — JWT inject both template paths; `ensure-wanding-settings` repair; `repair-employee-sso-env.ps1`; employee login stable |
+| 2026-06-26 | **`start-dev-full.ps1`** loads `env.local` / `sso.env` before `bun run dev` — fixes dev posting to local `/login` instead of org VPS |
 
 ---
 

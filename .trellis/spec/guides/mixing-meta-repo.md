@@ -34,6 +34,8 @@ Templates for Mixing live in repo: `meta-repo/README.md`, `meta-repo/.gitmodules
 |-------|----------|---------------------|
 | **Runtime recovery (Phase 0)** | Can I run Mixing + 万鼎 Guid today? | **Done** — `D:\CCB-Wanding` + `ccb-launch-aionui.cmd` |
 | **Source pipeline (Phase 3)** | Can staging be assembled from git (manifest check)? | **Done** — `build-wanding.ps1 -Version 1.1.3-dev` with partial skips; staging validation OK |
+| **Dev shell wiring (Phase 3b)** | Can `bun run dev` show Mixing login + `/tasks` shell? | **Done (uncommitted)** — see `dev-parity-wiring-2026-06-26.md` § Layer 1 |
+| **Dev settings Layer 2 (Phase 3c)** | Settings 模型/助手/Agents + preset prune in dev? | **Done (uncommitted)** — see wiring doc § Layer 2; runtime smoke pending |
 | **Full cold build (Phase 4)** | Rebuild CCB + AionUi + pip MCP from git, behave like 1.1.2? | **Open** — no `-SkipBuild`/`-SkipAionUiBuild`/`-SkipPipMcp`; then install smoke |
 
 **Runtime ≠ source.** Copying `ccb-installer/staging/` to `D:\CCB-Wanding` fixes the install; it does not replace committing `aionui-src` CCB integration.
@@ -66,11 +68,14 @@ Update this table when you bump submodules and re-tag.
 D:\CCB-Wanding\ccb-launch-aionui.cmd
 ```
 
-| Expect | Bundled (`ccb-launch`) | Dev (`start-aionui-dev.ps1`) |
-|--------|------------------------|------------------------------|
-| Window title | **Mixing** | Often **AionUi** |
-| Guid cards | WanD presets when CCB authority on | Needs bootstrap + correct source |
-| Login | Org SSO (`yjc` etc.) | Often `AIONUI_BYPASS_AUTH=1` |
+| Expect | Bundled (`ccb-launch`) | Dev (`start-dev-full.ps1`) | Dev (`start-aionui-dev.ps1`) |
+|--------|------------------------|----------------------------|------------------------------|
+| Window title | **Mixing** | **Mixing** (wired 2026-06-26) | Often **AionUi** |
+| Login | Org SSO (`yjc` etc.) | Org SSO (`env.local`) | `AIONUI_BYPASS_AUTH=1` |
+| Sidebar | 任务 / 知识库 | Wired (uncommitted source) | Partial without full wiring |
+| Guid cards | WanD presets when CCB authority on | Needs bootstrap + CCB authority | Needs bootstrap + correct source |
+| Settings → 模型 | MiniMax cards (packaged) | MiniMax cards when CCB active (**wired 2026-06-26**) | Upstream provider list |
+| Settings → 助手 / Agents | WanD presets | CCB catalog (**wired 2026-06-26**) | Upstream full list |
 
 Org login password: `scripts/org-phase0/env.local` → `EMPLOYEE_PASSWORD`.
 

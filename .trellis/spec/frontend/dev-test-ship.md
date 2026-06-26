@@ -48,7 +48,18 @@ bun run dev
 
 Dev and production exe **data directories differ** — sessions and agent config may not match; that is expected.
 
-**When to restart dev:** main process, preload, or native deps changed → Ctrl+C and `bun run dev` again. Pure `renderer/` / `common/` saves usually HMR without restart.
+### Dev launchers (pick the right script)
+
+| Script | SSO / login | CCB bootstrap + route-b | Use when |
+|--------|-------------|-------------------------|----------|
+| `ccb-installer/scripts/start-dev-full.ps1` | **Yes** — loads `scripts/org-phase0/env.local` or `%LOCALAPPDATA%\CCB-Wanding\config\sso.env` (`AIONUI_SSO_MODE=org-idp`, `JWT_SECRET`) | Yes (Quick bootstrap + route-b sync) | **Default for Mixing parity** — org login (`yjc`), sidebar 任务/知识库, user chip |
+| `ccb-installer/scripts/start-aionui-dev.ps1` | **Bypass** (`AIONUI_BYPASS_AUTH=1`) unless overridden | Yes | Fast UI iteration without login; **not** for SSO smoke |
+| `scripts/org-phase0/start-aionui-dev-org-test.ps1` | Org-idp, no bypass | Minimal | Org SSO-only test from org-phase0 scripts |
+| `scripts/start-aionui-dev-work-tasks.ps1` | Bypass + self-built aioncore | Work-tasks API smoke | `/tasks` API needs `AionCore/target/release` on PATH |
+
+> **2026-06-26:** Bare `bun run dev` without SSO env posts login to **local** `POST /login` → 401 with valid org credentials. Always use `start-dev-full.ps1` for employee SSO parity.
+
+**When to restart dev:** main process, preload, or native deps changed → Ctrl+C and relaunch via script (not Ctrl+R in Electron). Pure `renderer/` / `common/` saves usually HMR without restart.
 
 ---
 
@@ -105,6 +116,8 @@ Dev and production exe **data directories differ** — sessions and agent config
 | `/` menu only shows `/btw` `/copy` `/open` (no CCB commands) | Slash list fetched before `available_commands_update`, or stale session after dev restart | Restart dev → **new CCB conversation** → wait warmup (~10–15s) → type `/`. See `chat-acp-flow.md` § Slash Command Flow |
 | `USER_LLM_PROVIDER_ENDPOINT_NOT_FOUND` after dev restart / error recovery | Stale ACP session id (`Session … not found` in aioncore log); UI mislabels as provider 404 | **New conversation** (do not reuse old id); full dev restart if needed |
 | `bunx tsc --noEmit` fails on `MessageAcpPermission.tsx` | AskUserQuestion UI types out of sync with `AcpPermissionOption` | Fix per `chat-acp-flow.md` §3.5b; re-run tsc before ship |
+| Dev login posts to local `/login` (401) with valid org password | `AIONUI_SSO_MODE` / `JWT_SECRET` not set in dev shell | Use `ccb-installer/scripts/start-dev-full.ps1` (loads `env.local` / `sso.env`) — **not** bare `bun run dev` |
+| Dev shows upstream Settings → 模型 / 助手 / Agents after **2026-06-26 Layer 2** | Old dev session (Ctrl+R) or CCB authority inactive (`D:\CCB-Wanding` missing) | Kill electron/aioncore → `start-dev-full.ps1` full restart; confirm `isAuthorityActive` in logs |
 | **Electron dev 白屏**（窗口空白，无 UI） | Renderer 打包了 `node:fs` 等 Node-only 模块 → Vite bundle 崩溃；或 Vite/Electron 缓存仍是旧 bundle | 见 **§8 White screen playbook**；优先用 `ccb-installer/scripts/start-aionui-dev.ps1`（已含杀进程 + 清缓存） |
 | **设置 → 能力扩展** 一点就白屏 | 懒加载 `SkillsHubSettings` 曾直接 import `ccbSkills.ts`（含 fs） | 已改 IPC `ccbSkillsService`；若复现，查 renderer 是否又 direct-import 了 `ccbSkills.ts` |
 | 多题 AskUserQuestion 答完 Q1 后一直 spinner | 点了 Cancel 但前端误设 `isAwaitingNextQuestion`；或 backend 未发下一题 permission | Cancel 应显示「已取消」；确认路径 30s 后显示超时警告。见 `chat-acp-flow.md` §3.5b |

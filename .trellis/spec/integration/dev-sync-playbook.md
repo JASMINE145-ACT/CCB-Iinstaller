@@ -27,9 +27,10 @@
 
 | 启动脚本 | aioncore 来源 | 典型用途 |
 |----------|---------------|----------|
-| `ccb-installer/scripts/start-aionui-dev.ps1` | PATH：`AionCore/target/release` **优先**，其次 bundled | 默认 dev；work-tasks 需 fork |
+| `ccb-installer/scripts/start-dev-full.ps1` | 同下 + **org SSO env**（`env.local` / `sso.env`） | **Mixing 外壳 parity**：org 登录、`/tasks` 侧栏、用户 chip — **2026-06-26** |
+| `ccb-installer/scripts/start-aionui-dev.ps1` | PATH：`AionCore/target/release` **优先**，其次 bundled | 默认 dev（bypass 登录）；work-tasks 需 fork |
 | `scripts/start-aionui-dev-work-tasks.ps1` | 仅自编译 fork | `/tasks` + config-options smoke |
-| 手动 `bun run dev`（未设 PATH） | 可能找不到 aioncore 或落到错误 binary | ❌ 不推荐 |
+| 手动 `bun run dev`（未设 PATH / SSO） | 可能找不到 aioncore；登录走 local `/login` | ❌ 不推荐 |
 
 **四层运行时链（AionUI dev 发消息时）：**
 
