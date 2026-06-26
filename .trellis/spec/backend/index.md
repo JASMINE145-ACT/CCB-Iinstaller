@@ -66,4 +66,4 @@ Live snapshot + open items: [`route-b-status.md`](./route-b-status.md). Migratio
 
 ## Project strategy (1-line)
 
-> Full version: [`../outline.md`](../outline.md) (Primary strategy, L95–110). **Bottom line:** fix ACP/MCP in `claude-code-B` source; config for business knowledge; never hand-patch minified `dist` except emergency hotfix with a migration ticket.
+> Full version: [`../outline.md`](../outline.md) § Primary strategy. **Bottom line:** fix ACP/MCP in `claude-code-B` source; config for business knowledge; never hand-patch minified `dist` except emergency hotfix with a migration ticket.

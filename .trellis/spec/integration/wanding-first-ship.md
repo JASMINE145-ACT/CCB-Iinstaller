@@ -14,6 +14,8 @@
 > **内网更新：** 客户端 **已实现**（P3–P5）；**ops 可后做** — [`internal-update.md`](./internal-update.md) §12.7  
 > **MVP v1.0 范围（不含 /tasks、不含 unified SSO）：** [`wanding-mvp-v1.md`](./wanding-mvp-v1.md)
 
+> **Current baseline (2026-06-26):** Recovered **1.1.2** oracle at `D:\CCB-Wanding`; next ship target **`1.1.3-dev`** (Phase 4 full cold build — [`guides/mixing-meta-repo.md`](../guides/mixing-meta-repo.md)). §5 及以下示例命令中的 `1.0.x` 为历史记录；**新打包请用 `1.1.3-dev`**（热更 patch 可用 `1.1.3.1` 等，见 [`internal-update.md`](./internal-update.md) §12.9）。
+
 ---
 
 ## 0. 目标定义

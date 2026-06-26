@@ -29,7 +29,7 @@ Managed by Trellis. Edits outside this block are preserved; edits inside may be 
 For AionUI exe frontend work (UI, IPC, ACP event handling, CCB-Wanding integration), start at:
 
 - **Entry**: `.trellis/spec/frontend/index.md` — Rule 0, decision tree, Docs Index
-- **Project strategy** (source-first for ACP bugs): `.trellis/spec/outline.md` (Primary strategy, L95-110)
+- **Project strategy** (source-first for ACP bugs): `.trellis/spec/outline.md` (Primary strategy / Rule 0)
 - **Backend boundary / sync / defensive fix**: `.trellis/spec/integration/index.md`
 
 Use `.trellis/spec/frontend/coding-rules.md` and `file-map.md` for renderer patterns (legacy Trellis bootstrap stubs were removed 2026-06-26).

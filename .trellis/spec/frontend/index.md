@@ -29,7 +29,7 @@ If your symptom is a backend bug, **stop patching the frontend**. See `../integr
    → Run this decision tree:
    ```
    Is the root cause in the BACKEND (greeting emitted twice, permission payload missing fields)?
-   ├── YES  → STOP. Read ../outline.md (Primary strategy, L95-110), fix in D:\claude-code-B\src/, rebuild.
+   ├── YES  → STOP. Read ../outline.md § Primary strategy, fix in D:\claude-code-B\src/, rebuild.
    ├── NO   → Pure UI? → file-map.md to find the right desktop file
    └── UNSURE
        ├── Archived: tasks/archive/2026-06/06-12-aionui-exe/prd.md — ACP event bugs → backend root fix; UI guards in aionui-src
@@ -66,6 +66,6 @@ If your symptom is a backend bug, **stop patching the frontend**. See `../integr
 
 ## Project strategy (1-line)
 
-> Full version in [`../outline.md`](../outline.md) (Primary strategy, L95-110). **Bottom line:** ACP / MCP / session bugs → `D:\claude-code-B\src/`. Pure UI → desktop. Defensive fix only with `// TODO(defensive)` and a backend tracking issue.
+> Full version in [`../outline.md`](../outline.md) § Primary strategy. **Bottom line:** ACP / MCP / session bugs → `D:\claude-code-B\src/`. Pure UI → desktop. Defensive fix only with `// TODO(defensive)` and a backend tracking issue.
 
 **Full project spec map:** [`../index.md`](../index.md)

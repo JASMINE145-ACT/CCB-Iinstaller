@@ -1,10 +1,12 @@
-# Unified Org SSO — Ops & Verification (pilot verified 2026-06-22 · fleet pack **1.0.7** 2026-06-23)
+# Unified Org SSO — Ops & Verification (pilot verified 2026-06-22)
 
 > **OpenSpec:** `openspec/changes/unified-org-sso/` · **Parent:** [`org-knowledge.md`](./org-knowledge.md) · **Scripts:** [`scripts/org-phase0/README.md`](../../scripts/org-phase0/README.md)
 
+> **Current fleet (2026-06-26):** Production install **`1.1.2`** at `D:\CCB-Wanding` (Mixing UI + org login). SSO rules below unchanged. **`1.0.6` / `1.0.7`** pack notes are historical regression context only.
+
 **Pilot outcome:** VPS `67.216.206.3:13401` + dev desktop (`AionUi-Dev`) — `verify-sso-jit.ps1` **PASS** after systemd drop-in fix and Phase 0 orphan user cleanup.
 
-**Fleet pack:** **`CCB-Wanding-1.0.7.exe`** — JWT auto-seeded at install; employee **yjc** login stable on packaged install (verified 2026-06-23). Do **not** ship **1.0.6** for SSO rollout (empty `JWT_SECRET` bug — see § Pack / 1.0.6 regression).
+**First fleet SSO pack (historical):** **`CCB-Wanding-1.0.7.exe`** — JWT auto-seeded at install; employee **yjc** login stable on packaged install (verified 2026-06-23). Do **not** ship **1.0.6** for SSO rollout (empty `JWT_SECRET` bug — see § Pack / 1.0.6 regression).
 
 ---
 

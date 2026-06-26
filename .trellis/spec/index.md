@@ -35,7 +35,7 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 | **Integration** | **9/10** | route-b sync, boundary rules, ship/update runbooks, org SSO, dev sync | Some version examples still cite 1.0.x — refresh when shipping 1.1.3 |
 | **Backend (ACP / Route B)** | **9/10** | file-map, acp-session-flow, smoke, deploy, source-level MCP, assistant profiles | `route-b-status.md` snapshot date lags — refresh after dist changes |
 | **Frontend (core)** | **8.5/10** | file-map, chat-acp-flow, coding-rules, dev-test-ship | `aionui-update-mechanism.md` / `ccb-model-settings-ui.md` not listed below — see `frontend/index.md` |
-| **outline.md** | **7/10** | Strategy, architecture narrative (Chinese) | Not a structured handbook — use layer indexes for tasks |
+| **outline.md** | **8/10** | Architecture + Primary strategy (Rule 0) | Not a structured handbook — use layer indexes for tasks |
 | **Runtime verification** | **7.5/10** | `test-native-acp-agent.mjs` documented; MCP/skills/command authority verified | Phase 4 cold build + install smoke vs 1.1.2 oracle pending |
 
 **Verdict:** **OK to ship as a handbook** for Route B + layer routing + CCB authority config. Refresh [`backend/route-b-status.md`](./backend/route-b-status.md) when live behavior changes.

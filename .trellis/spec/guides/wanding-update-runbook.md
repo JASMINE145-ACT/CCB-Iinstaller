@@ -13,6 +13,8 @@
 >
 > **Nginx 实际 alias 路径**：`/var/www/updates/`（见 §9.1 — 与上传目录 `/var/www/html/updates/` 必须对齐）
 
+> **Current version line (2026-06-26):** Fleet baseline **1.1.2**; next publish **1.1.3-dev** (full NSIS) or hot zip **1.1.3.1** (see [`internal-update.md`](../integration/internal-update.md) §12.9). Examples below citing `1.0.8` → `1.0.9` are **historical** — same mechanics; always bump patch from **current** manifest `ccb.version`.
+
 ---
 
 ## 1. 核心概念速查
@@ -78,7 +80,7 @@ cd D:\Projects\claude-code-best\ccb-installer\scripts
 # 输出：ccb-installer\out\hot\CCB-dist-1.0.X-win-x64.zip
 ```
 
-> **版本号约定**：比当前 manifest 里的 `ccb.version` 大一个 patch（1.0.8 → 1.0.9）。
+> **版本号约定**：比当前 manifest 里的 `ccb.version` 大一个 patch（例：基线 **1.1.2** → 热更 **1.1.3** 或 **1.1.3.1**）。
 
 ### 3.2 生成 manifest
 

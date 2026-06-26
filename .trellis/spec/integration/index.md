@@ -19,10 +19,10 @@
 
 ## Project strategy (5 lines)
 
-> Full version lives in [`../outline.md`](../outline.md) (Primary strategy, L95-110).
+> Full version lives in [`../outline.md`](../outline.md) (Primary strategy / Rule 0).
 
 1. **ACP / MCP / session bugs** → fix in `D:\claude-code-B\src/` (source), not in AionUI
 2. **Pure UI / UX / hotkey** → fix in `packages/desktop/src/`
 3. **route-b patch + sync script** → permanent integration glue (Layer 3)
 4. **Desktop defensive fix** → only when backend fix is in flight; mark with `// TODO(defensive)` and target removal
-5. **When unsure** → read `../outline.md` (Primary strategy, L95-110) first
+5. **When unsure** → read `../outline.md` (Primary strategy / Rule 0) first

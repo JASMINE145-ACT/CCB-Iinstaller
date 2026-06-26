@@ -46,7 +46,7 @@ AionUI.exe  (Electron frontend — our code in aionui-src)
 | The way desktop invokes aioncore (env, args, port detection) | **Desktop only** (Layer 1) |
 | How desktop reads aioncore's HTTP responses | **Desktop only** (Layer 1) |
 | What the user sees in chat (new message type, card, form) | **Layers 1 + 2 + 4** — all three must agree on the new shape |
-| The greeting / permission / tool-call event flow (root cause) | **Layer 4 (primary)** — fix in `D:\claude-code-B\src/` per outline.md (Primary strategy, L95-110) |
+| The greeting / permission / tool-call event flow (root cause) | **Layer 4 (primary)** — fix in `D:\claude-code-B\src/` per [`outline.md`](../outline.md) § Primary strategy |
 | The same symptoms mitigated defensively in the renderer | **Layer 1 (exception only)** — see [`defensive-fix-policy.md`](./defensive-fix-policy.md); remove after Layer 4 fix |
 | MCP tool registration, env injection, route-b patch | **Layer 3 / 3b** — `ccb-installer/`, then re-sync (see [`route-b-sync.md`](./route-b-sync.md)) |
 
@@ -68,7 +68,7 @@ New tasks for greeting / MCP / ACP events should target `claude-code-B`, not exp
 
 ## Cross-references
 
-- Top-level architecture: [`../outline.md`](../outline.md) (Primary strategy in L95-110)
+- Top-level architecture: [`../outline.md`](../outline.md) § Primary strategy
 - **Backend entry**: [`../backend/index.md`](../backend/index.md)
 - Live MCP status: [`../backend/route-b-status.md`](../backend/route-b-status.md)
 - MCP source migration plan: [`../backend/source-migration-mcp.md`](../backend/source-migration-mcp.md)

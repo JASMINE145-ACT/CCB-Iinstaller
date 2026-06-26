@@ -24,7 +24,7 @@ These guides help you **ask the right questions before coding**.
 | CCB-Wanding backend (ACP, MCP, build) | [`../backend/index.md`](../backend/index.md) |
 | AionUI frontend (renderer, IPC) | [`../frontend/index.md`](../frontend/index.md) |
 | Integration boundary (route-b, sync) | [`../integration/index.md`](../integration/index.md) |
-| Project strategy (archived discussion) | [`../outline.md`](../outline.md) — **not** handbook; use layer indexes above |
+| Project strategy (Rule 0) | [`../outline.md`](../outline.md) — architecture + Primary strategy |
 
 ---
 

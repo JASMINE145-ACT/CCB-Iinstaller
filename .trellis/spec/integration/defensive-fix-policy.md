@@ -45,7 +45,7 @@ Do not fix these in frontend:
 
 **Frontend may only:** display, normalize minor optional fields, show safe fallback UI.
 
-**Root-cause fixes must go to:** `D:\claude-code-B\src/` (per project strategy in `../outline.md` L95-110).
+**Root-cause fixes must go to:** `D:\claude-code-B\src/` (per project strategy in `../outline.md` § Primary strategy).
 
 ---
 

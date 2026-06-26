@@ -149,7 +149,7 @@ rmdir backend desktop 2>$null   # removes link only, not target dirs
 git submodule add https://github.com/JASMINE145-ACT/CCB-Iinstaller.git backend
 git submodule add -b ccb-wanding-1.1.2-recovered https://github.com/JASMINE145-ACT/AionUi.git desktop
 
-cd backend; git checkout 4432998e; cd ..
+cd backend; git checkout f8ab39ae; cd ..
 cd desktop; git checkout 109aa15; cd ..
 
 git add .gitmodules backend desktop

@@ -4,6 +4,8 @@
 >
 > **Parent:** [`wanding-first-ship.md`](./wanding-first-ship.md) · **Update:** [`internal-update.md`](./internal-update.md) §6.2 · **Login:** [`org-knowledge-phase0-rollout.md`](./org-knowledge-phase0-rollout.md)
 
+> **Current baseline (2026-06-26):** Production oracle **1.1.2** (`D:\CCB-Wanding`); next full pack **`1.1.3-dev`**. MVP scope below unchanged; build examples updated in §1.
+
 ---
 
 ## 0. MVP definition
@@ -22,8 +24,8 @@
 
 ```powershell
 cd D:\Projects\claude-code-best
-.\ccb-installer\scripts\build-wanding.ps1 -Version 1.0.1
-# Do NOT use -SkipAionUiBuild or -SkipBuild unless emergency hotfix
+.\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.3-dev
+# Do NOT use -SkipAionUiBuild or -SkipBuild unless emergency hotfix / Phase 3 manifest-only validation
 ```
 
 **Automated smoke (install dir):**
@@ -99,7 +101,7 @@ Phase 0 dual-login remains for dev when SSO env is unset — see [`org-knowledge
 |------|-------|------|
 | `bun run build` claude-code-B | Dev | ☐ |
 | aionui `--pack-only` + route-b | Dev | ☐ |
-| `build-wanding.ps1 -Version 1.0.1` | Dev | ☐ |
+| `build-wanding.ps1 -Version 1.1.3-dev` | Dev | ☐ |
 | §1.5 smoke on clean VM or test install | QA | ☐ |
 | VPS org accounts for pilot users | Ops | ☐ |
 | `publish-update-bundle -Upload` | Ops | ☐ |

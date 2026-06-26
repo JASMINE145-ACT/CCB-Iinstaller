@@ -8,6 +8,8 @@
 >
 > **Related:** [`wanding-packaging-whitelist.md`](./wanding-packaging-whitelist.md) §16 (hot-update zip paths) · [`aionui-update-mechanism.md`](../frontend/aionui-update-mechanism.md) §8 (client extension) · [`org-knowledge-phase0-rollout.md`](./org-knowledge-phase0-rollout.md) (business knowledge **not** in this manifest) · **Go live:** §12 P0 ops runbook
 
+> **Current baseline (2026-06-26):** Installed oracle **1.1.2**; next full pack **`1.1.3-dev`**; hot-fix line **`1.1.3.1`** per §12.9. Manifest JSON examples below using `1.0.x` illustrate schema — substitute **current** `ccb.version` when publishing.
+
 ---
 
 ## 0. Decision summary

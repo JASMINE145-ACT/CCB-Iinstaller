@@ -735,7 +735,8 @@ OUT: `build-wanding*`, `vendor-ppt-master`（联网抓 skill，仅 `-VendorIfMis
 ### 17.8 Tests
 
 ```powershell
-.\ccb-installer\scripts\build-wanding.ps1 -Version 1.0.1 -SkipBuild -SkipAionUiBuild -SkipNsis
+# Staging health check (manifest-only / skip heavy build) — use current target version:
+.\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.3-dev -SkipBuild -SkipAionUiBuild -SkipNsis -SkipStagingClear
 .\ccb-installer\scripts\test-install-health.ps1 -InstallDir .\ccb-installer\staging
 ```
 
