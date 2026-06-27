@@ -1830,13 +1830,81 @@ def _try_load_from_db(level: str) -> Optional[pd.DataFrame]:
 _df_cache: dict[str, pd.DataFrame] = {}
 _df_cache_lock = threading.Lock()
 
+# Remote price source metadata keyed by normalised level.
+# Written by _try_load_from_org_remote; read by match_fuzzy / match_fuzzy_candidates.
+_remote_price_meta: dict[str, dict[str, Any]] = {}
+_remote_meta_lock = threading.Lock()
 
-def _get_cached_df(path, customer_level: str) -> pd.DataFrame:
-    """线程安全地获取 DataFrame。优先 Neon（有数据时），否则读本地新价库 xlsx（不回退旧表）。"""
+
+def get_remote_price_meta(level: str) -> dict[str, Any]:
+    """Return the latest remote price metadata for a given normalised level.
+
+    Returns an empty dict if no remote data has been loaded yet.
+    """
+    with _remote_meta_lock:
+        return dict(_remote_price_meta.get(level, {}))
+
+
+def _try_load_from_org_remote(level: str) -> Optional[pd.DataFrame]:
+    """Attempt to build a price DataFrame from the org remote client.
+
+    Source priority (handled inside org_price_client.get_price_data):
+        1. Org API   (stale=False)
+        2. LKG snapshot  (stale=True)
+        3. Bundled seed  (stale=True)
+
+    Stores source/stale metadata in ``_remote_price_meta[level]`` so that
+    callers can attach it to tool results.
+
+    Returns None on any failure so the caller falls through to Neon DB / xlsx.
+    """
+    try:
+        from admin.org_price_client import get_price_data
+        from inventory.price_loader import load_price_dataframe
+
+        price_data = get_price_data()
+        if not price_data.get("products"):
+            return None
+
+        df, meta = load_price_dataframe(price_data, customer_level=level)
+        if df is None or (hasattr(df, "empty") and df.empty):
+            return None
+
+        with _remote_meta_lock:
+            _remote_price_meta[level] = meta
+
+        logger.info(
+            "wanding_fuzzy_matcher: remote price data rows=%d source=%s stale=%s",
+            len(df),
+            meta.get("price_source"),
+            meta.get("price_stale"),
+        )
+        return df
+    except Exception as e:
+        logger.warning("_try_load_from_org_remote 失败: %s", e)
+        return None
+
+
+def _get_cached_df(path, customer_level: str, *, try_remote: bool = False) -> pd.DataFrame:
+    """线程安全地获取 DataFrame。
+
+    Source precedence (when try_remote=True):
+        0. Org remote (org_api → lkg_snapshot → bundled_seed)
+        1. Neon DB
+        2. Local xlsx
+
+    When ``try_remote=False`` (explicit price_library_path supplied by caller),
+    the remote client is skipped for backward compatibility with smoke/E2E tests.
+    """
     level = _normalize_price_level(customer_level)
     cache_key = f"{path}:{level}"
     with _df_cache_lock:
         if cache_key not in _df_cache:
+            if try_remote:
+                df_remote = _try_load_from_org_remote(level)
+                if df_remote is not None and not df_remote.empty:
+                    _df_cache[cache_key] = df_remote
+                    return _df_cache[cache_key]
             df_db = _try_load_from_db(level)
             if df_db is not None and not df_db.empty:
                 _df_cache[cache_key] = df_db
@@ -2073,8 +2141,9 @@ def match_fuzzy(
         return None
 
     from inventory.config import config
+    use_remote = price_library_path is None
     path = price_library_path or config.PRICE_LIBRARY_PATH
-    df = _get_cached_df(path, customer_level)
+    df = _get_cached_df(path, customer_level, try_remote=use_remote)
     if df.empty:
         return None
     if product_type:
@@ -2100,6 +2169,15 @@ def match_fuzzy(
     if desc_en:
         out["description_english"] = desc_en[:500]
         out["indonesian_name"] = desc_en[:500]
+    if use_remote:
+        level = _normalize_price_level(customer_level)
+        meta = get_remote_price_meta(level)
+        if meta:
+            out["price_source"] = meta.get("price_source")
+            out["price_stale"] = meta.get("price_stale", False)
+            out["price_stale_warning"] = meta.get("price_stale_warning")
+            out["price_version_id"] = meta.get("price_version_id")
+            out["price_version_number"] = meta.get("price_version_number")
     return out
 
 
@@ -2143,8 +2221,9 @@ def match_fuzzy_candidates(
         return []
 
     from inventory.config import config
+    use_remote = price_library_path is None
     path = price_library_path or config.PRICE_LIBRARY_PATH
-    df = _get_cached_df(path, customer_level)
+    df = _get_cached_df(path, customer_level, try_remote=use_remote)
     if df.empty:
         return []
     if product_type:
@@ -2189,6 +2268,10 @@ def match_fuzzy_candidates(
         results = [(rd, s) for rd, s in results if s in tiers]
     else:
         results = results[:max_candidates]
+    remote_meta: dict[str, Any] = {}
+    if use_remote:
+        level_key = _normalize_price_level(customer_level)
+        remote_meta = get_remote_price_meta(level_key)
     out = []
     for row_dict, score in results:
         item: dict[str, Any] = {
@@ -2201,6 +2284,12 @@ def match_fuzzy_candidates(
         desc_en = str(row_dict.get("description_english") or "").strip()
         if desc_en:
             item["description_english"] = desc_en[:500]
+        if remote_meta:
+            item["price_source"] = remote_meta.get("price_source")
+            item["price_stale"] = remote_meta.get("price_stale", False)
+            item["price_stale_warning"] = remote_meta.get("price_stale_warning")
+            item["price_version_id"] = remote_meta.get("price_version_id")
+            item["price_version_number"] = remote_meta.get("price_version_number")
         out.append(item)
     return out
 
@@ -2221,8 +2310,9 @@ def match_english_candidates(
     """
     from inventory.config import config
 
+    use_remote = price_library_path is None
     path = price_library_path or config.PRICE_LIBRARY_PATH
-    df = _get_cached_df(path, customer_level)
+    df = _get_cached_df(path, customer_level, try_remote=use_remote)
     if df.empty or "Describrition_English" not in df.columns:
         return []
     if product_type:
@@ -2294,8 +2384,9 @@ def get_wanding_price_by_code(
     if not code:
         return None
     from inventory.config import config
+    use_remote = price_library_path is None
     path = price_library_path or config.PRICE_LIBRARY_PATH
-    df = _get_cached_df(path, customer_level)
+    df = _get_cached_df(path, customer_level, try_remote=use_remote)
     if df.empty or "Material" not in df.columns:
         return None
     code_norm = _normalize_code_for_match(code)
@@ -2311,4 +2402,13 @@ def get_wanding_price_by_code(
     }
     if desc_en:
         result["description_english"] = desc_en[:500]
+    if use_remote:
+        level_key = _normalize_price_level(customer_level)
+        meta = get_remote_price_meta(level_key)
+        if meta:
+            result["price_source"] = meta.get("price_source")
+            result["price_stale"] = meta.get("price_stale", False)
+            result["price_stale_warning"] = meta.get("price_stale_warning")
+            result["price_version_id"] = meta.get("price_version_id")
+            result["price_version_number"] = meta.get("price_version_number")
     return result

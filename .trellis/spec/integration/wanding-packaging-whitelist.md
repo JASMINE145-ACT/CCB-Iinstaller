@@ -194,6 +194,7 @@ D:\Projects\claude-code-best\python\main.py
 D:\Projects\claude-code-best\python\quotation\**
 D:\Projects\claude-code-best\python\inventory\**
 D:\Projects\claude-code-best\python\admin\org_knowledge_client.py
+D:\Projects\claude-code-best\python\admin\org_price_client.py
 D:\Projects\claude-code-best\python\admin\repository.py
 D:\Projects\claude-code-best\python\admin\cache.py
   → $INSTALL\vendor\wanding\python\**
