@@ -32,7 +32,7 @@ def main() -> int:
         sys.path.insert(0, str(python_root))
 
     data_dir = Path(args.data_dir)
-    price_lib = data_dir / "wanding_price_lib.xlsx"
+    price_lib = data_dir / "price_library_cleaned_2026_05_15.xlsx"
     tpl_blank = _find_blank_template(data_dir)
 
     if not price_lib.is_file():

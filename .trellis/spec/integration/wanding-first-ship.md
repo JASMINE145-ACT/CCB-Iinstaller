@@ -107,11 +107,13 @@
 
 | 文件 | 必需 | 说明 |
 |------|------|------|
-| `data\price_library_cleaned_2026_05_15.xlsx` | **是** | 无价库则报价不可用 |
-| `data\wanding_price_lib.xlsx` | **是** | 同上 |
+| `data\price_library_cleaned_2026_05_15.xlsx` | **是** | 首次启动 LKG 快照前的 bootstrap seed；org 可达后由远端活跃版本替代 |
 | `data\空白标准报价单.xlsx` | **是** | 填表模板 |
 | `data\mapping_table.xlsx` | 否 | nonfatal；缺则 warn |
 | `data\*.md`（SOP / 业务知识） | **是** | 见 whitelist §5.4 列表 |
+
+> **Bootstrap-seed 合同（2026-06-27 修订）**：`price_library_cleaned_2026_05_15.xlsx` 以 `source=bundled_seed` 角色保留于安装包。一旦客户端完成首次远端同步并提升 LKG 快照，bundled seed 退出运行时权威。远端不可达且无 LKG 时，仍使用 bundled seed，但需附 stale 警告。详见 `remote-shared-price-library` PRD §Bootstrap and Offline Contract。
+> `data\wanding_price_lib.xlsx` 已从 build 必需列表移除；保留于 `data/` 作回归测试 fallback，不进入运行时默认路径。
 
 #### E. Agent 与技能种子（keep-set — 以脚本 + README 为准）
 

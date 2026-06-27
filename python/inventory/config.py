@@ -40,6 +40,14 @@ class InventoryConfig:
     ORG_SERVER_URL = (os.environ.get("ORG_SERVER_URL") or "").strip().rstrip("/")
     ORG_SESSION_TOKEN_FILE = os.environ.get("ORG_SESSION_TOKEN_FILE", "")
 
+    # Remote price library: LKG snapshot store.
+    # %APPDATA%/AionUi/aionui/price-library/<version-id>/{data.json,meta.json}
+    # Empty string = use local seed fallback (no env override expected; path is fixed).
+    PRICE_LKG_DIR = os.environ.get(
+        "PRICE_LKG_DIR",
+        str(Path(os.environ.get("APPDATA", "")) / "AionUi" / "aionui" / "price-library"),
+    )
+
     ENABLE_WANDING_VECTOR = _env_bool("ENABLE_WANDING_VECTOR", False)
     WANDING_VECTOR_TOP_K = int(os.environ.get("WANDING_VECTOR_TOP_K", "3"))
     WANDING_VECTOR_MIN_SCORE = float(os.environ.get("WANDING_VECTOR_MIN_SCORE", "0.65"))
@@ -97,3 +105,4 @@ config = InventoryConfig()
 PRICE_LIBRARY_PATH = config.PRICE_LIBRARY_PATH
 LEGACY_PRICE_LIBRARY_PATH = config.LEGACY_PRICE_LIBRARY_PATH
 MAPPING_TABLE_PATH = config.MAPPING_TABLE_PATH
+PRICE_LKG_DIR = config.PRICE_LKG_DIR

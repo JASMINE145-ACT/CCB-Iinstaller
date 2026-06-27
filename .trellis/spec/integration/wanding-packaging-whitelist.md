@@ -219,8 +219,7 @@ D:\Projects\claude-code-best\data\ccb-wanding-accurate.md
 D:\Projects\claude-code-best\data\wanding_business_knowledge.md
 D:\Projects\claude-code-best\data\wanding-matching-architecture.md
 
-D:\Projects\claude-code-best\data\price_library_cleaned_2026_05_15.xlsx  → always overwrite (gitignored — supply at build)
-D:\Projects\claude-code-best\data\wanding_price_lib.xlsx
+D:\Projects\claude-code-best\data\price_library_cleaned_2026_05_15.xlsx  → always overwrite (gitignored — supply at build); role: bootstrap seed until LKG promoted from org
 D:\Projects\claude-code-best\data\mapping_table.xlsx                       (nonfatal)
 D:\Projects\claude-code-best\data\空白标准报价单.xlsx
 ```
@@ -672,6 +671,8 @@ Cross-refs: [`internal-update.md`](./internal-update.md); add row to [`integrati
 | Quotation `fill_items` / `fill_row_guard` (#9–#11) | ✅ (cold build) | ✅ primary path |
 | `seed/agents` overlay (#12) | ✅ | ✅ |
 | `dist/**` CCB rebuild (#13) | optional same release | optional |
+| `permissions.ts` excel auto-allow (#18) | ✅ with dist rebuild | ✅ via hot zip `dist` |
+| `MessageAcpPermission` radio layout (#17) | ✅ required | ❌ not in zip |
 | §12.8 NSIS relaunch / Toast / ACP retry / Tool banner (#1–#4) | ✅ if not already on 1.1.2 | partial (`acp-agent.js` in zip if included) |
 
 **Ops note:** After publishing hot `1.1.3.1`, manifest `ccb.version` becomes `1.1.3.1` while employees may still show About AionUI `1.1.2` until full NSIS — expected until #15 ships.

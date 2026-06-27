@@ -1,0 +1,10 @@
+{"file": ".trellis/tasks/06-27-remote-shared-price-library/prd.md", "reason": "Full spec: requirements, acceptance criteria, delivery split, ADR"}
+{"file": ".trellis/spec/integration/org-knowledge.md", "reason": "Closest analog: JWT auth, API-first/fallback, concurrency, history, revert pattern to replicate"}
+{"file": ".trellis/spec/backend/mcp-business.md", "reason": "Current quotation and price matching ownership"}
+{"file": ".trellis/spec/backend/file-map.md", "reason": "Backend source and runtime file boundaries"}
+{"file": ".trellis/spec/integration/aioncore-work-tasks.md", "reason": "Reusable JWT RBAC and AionCore crate pattern (price-library crate will follow same pattern)"}
+{"file": ".trellis/spec/integration/aionui-config-inventory.md", "reason": "CCB runtime authority versus AionUI shell ownership"}
+{"file": ".trellis/spec/integration/wanding-first-ship.md", "reason": "Offline contract amendment: seed/LKG tier to replace live Excel authority"}
+{"file": ".trellis/spec/integration/wanding-packaging-whitelist.md", "reason": "xlsx pack gate: bundled seed role change, hot-update exclusion"}
+{"file": ".trellis/spec/integration/internal-update.md", "reason": "NSIS vs hot-update boundary for Price Library UI route"}
+{"file": ".trellis/tasks/06-27-remote-shared-price-library/research/current-price-flow-and-options.md", "reason": "Current price flow code anchors, matcher cache behavior, org pattern reuse"}

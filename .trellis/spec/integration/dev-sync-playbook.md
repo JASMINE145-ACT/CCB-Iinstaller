@@ -125,7 +125,6 @@ robocopy "$src\python" "$dst\wanding\python" /E /XD tests __pycache__ .pytest_ca
 # 业务数据（按需增删文件名）
 robocopy "$src\data" "$dst\wanding\data" `
   price_library_cleaned_2026_05_15.xlsx `
-  wanding_price_lib.xlsx `
   mapping_table.xlsx `
   wanding_business_knowledge.md `
   ccb-wanding-quotation.md

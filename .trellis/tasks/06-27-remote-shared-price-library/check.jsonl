@@ -1,0 +1,4 @@
+{"file": ".trellis/tasks/06-27-remote-shared-price-library/prd.md", "reason": "Acceptance criteria, delivery split, and Definition of Done"}
+{"file": ".trellis/spec/frontend/coding-rules.md", "reason": "Frontend verification rules for AionUI Price Library page"}
+{"file": ".trellis/spec/backend/build-deploy-verify.md", "reason": "Backend build deploy and smoke requirements"}
+{"file": ".trellis/spec/integration/wanding-packaging-whitelist.md", "reason": "Pack gate: bundled seed xlsx still required in NSIS build"}
