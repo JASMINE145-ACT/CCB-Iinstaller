@@ -62,9 +62,6 @@ case "$agent_type" in
     bash "$SCRIPT_DIR/validators/word-creator-mcp.sh" \
       "$transcript_path" "$session_id" "$last_msg" "$mode"
     ;;
-  word-form-creator)
-    run_office_validator office-word-form.sh '\.docx$'
-    ;;
   ppt-creator)
     run_office_validator office-pptx.sh '\.pptx$'
     ;;
@@ -81,12 +78,6 @@ case "$agent_type" in
   accurate-agent)
     bash "$SCRIPT_DIR/validators/accurate-mcp.sh" \
       "$transcript_path" "$session_id" "$agent_type" "$last_msg" "$mode"
-    ;;
-  cowork)
-    # Optional: forward office files only
-    run_office_validator office-docx.sh '\.docx$' || true
-    run_office_validator office-pptx.sh '\.pptx$' || true
-    run_office_validator office-xlsx.sh '\.xlsx$' || true
     ;;
   *)
     exit 0

@@ -885,13 +885,15 @@ Test-Path "D:\Projects\aionui-src\out\win-unpacked\AionUi.exe"   # 期望 True
 | 14 | route-b | `sync-aionui-ccb-route-b.ps1` | After dist or patch changes | both |
 | 15 | AionUI | `compareCcbVersions` in About/update | Fixes `1.1.3.1` vs `1.1.3` ordering | **NSIS only** |
 | 16 | Manifest | `publish-update-bundle.ps1` | `full_installer` row for 1.1.3 NSIS when ready | ops |
+| 17 | AionUI renderer | `MessageAcpPermission.tsx` + `.css` | Fix overlapping Always/Allow/Reject radios under retro theme (`size='mini'` + global 13×13 `.arco-radio`) | **NSIS only** |
+| 18 | CCB dist | `permissions.ts` | Auto-allow `mcp__excel__*` (quotation post-fill read/verify) alongside quotation/accurate | hot zip #13 dist or NSIS |
 
 #### 12.9.1 Full NSIS vs hot zip **1.1.3.1**
 
 | Track | Version | Contents | Spec anchor |
 |-------|---------|----------|-------------|
-| **Full NSIS** | `1.1.3-dev` / `1.1.3` | #1–#8, #15–#16 + §12.8 #1–#5 | This §12.9 |
-| **Hot zip** | `1.1.3.1` | #9–#12 (+ optional #13 dist) | [`wanding-packaging-whitelist.md`](./wanding-packaging-whitelist.md) §16.6 |
+| **Full NSIS** | `1.1.3-dev` / `1.1.3` | #1–#8, #15–#17 + §12.8 #1–#5 | This §12.9 |
+| **Hot zip** | `1.1.3.1` | #9–#12, optional #13 + #18 dist | [`wanding-packaging-whitelist.md`](./wanding-packaging-whitelist.md) §16.6 |
 
 #### 12.9.2 Known bug — About four-segment version display
 

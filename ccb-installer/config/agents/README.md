@@ -17,8 +17,8 @@ Each agent is stored as a pair:
 | `word-creator` | Word 文档助手 | yes | `office-word` | MCP-only Word creation; delivery gate blocks invalid output |
 | `excel-creator` | Excel 表格助手 | yes | `excel` | MCP-only Excel creation; delivery gate blocks invalid output |
 | `ppt-creator` | PPT 演示助手 | yes | `ppt-master` skill | Skill-only PPT creation; delivery gate blocks invalid output |
-| `word-form-creator` | Word 表单助手 | yes | `officecli-word-form` skill | Skill-only form creation |
-| `cowork` | Cowork | yes | office/ppt helper skills | General coworker; no business MCP |
+
+**Retired (2026-06-27):** `cowork`, `word-form-creator` removed from keep set and Guid cards — use `word-creator` / `ppt-creator` / `excel-creator` instead.
 
 Runtime authority must stay aligned across:
 
@@ -52,7 +52,7 @@ Current `ccb-subagent-gate` policy:
 | Office deliverable agents (`word-*`, `ppt-creator`, `excel-creator`) | hook enabled; `block` |
 | `accurate-agent` | hook enabled; `warn` |
 | `quotation-agent` | hook enabled; MCP check **off**; knowledge Read gate **warn** (`quotation-agent:knowledge`) |
-| `wande-orchestrator`, `cowork` | off/no-op |
+| `wande-orchestrator` | off/no-op |
 
 Do not re-enable quotation gate without a delegated route-b smoke proving `Agent(quotation-agent)` returns to the orchestrator without timeout.
 

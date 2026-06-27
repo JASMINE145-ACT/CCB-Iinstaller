@@ -201,7 +201,7 @@ node eval/run-agent-eval.mjs --run --category quotation
 | **Stop hook stdin hang (orchestrator delegation)** | MCP tool finishes but orchestrator waits **~120s** before showing sub-agent result; **direct Guid card sessions OK** | `subagent-gate.sh` `HOOK_INPUT="$(cat)"` inherits subagent IPC pipe; orchestrator side keeps pipe open → `cat` blocks until hook **120s timeout** | `HOOK_INPUT="$(timeout 8 cat 2>/dev/null \|\| echo '{}')"` in `ccb-subagent-gate/scripts/subagent-gate.sh`; redeploy via `deploy-subagent-gate-skill.ps1` |
 | **Quotation MCP cold start** | First `match_quotation` slow (~90s); warm calls ~4–5s; affects **direct** and delegated paths | Direct MCP test: `test-quotation-mcp-timing.mjs` | `scheduleWanDMcpWarmup()` on session/new — overlay `wanDMcpWarmup.ts` |
 | **query.next timeout < MCP cold start** | Tool card `[Tool use interrupted]` at **~60s** while MCP still loading; warm path OK | `CCB_WANDING_QUERY_NEXT_TIMEOUT_MS` was 60000 in `patches/aionui-acp/acp-agent.js` | Default **120000** ms; env override `CCB_WANDING_QUERY_NEXT_TIMEOUT_MS` (30s–300s). Hot path unchanged — only raises abort ceiling. Sync via `sync-aionui-ccb-patch.ps1` |
-| **ACP permission prompt** | Stuck at permission UI | Native ACP smoke logs `[permission] mcp__quotation__match_quotation` | Auto-allow `mcp__quotation__*` / `mcp__accurate__*` in `permissions.ts` |
+| **ACP permission prompt** | Stuck at permission UI | Native ACP smoke logs `[permission] mcp__quotation__match_quotation` | Auto-allow `mcp__quotation__*` / `mcp__accurate__*` / `mcp__excel__*` in `permissions.ts` (#18); UI overlap fix in `MessageAcpPermission` (#17, NSIS) |
 | **Wrong Python path when env missing** | MCP error in logs | `can't open ... aionui-src\python\main.py` | `settings.json` `mcpServers.quotation.env.CCB_PROJECT_ROOT` → `D:\CCB-Wanding\vendor\wanding` |
 | **settings.json UTF-8 BOM** | Agents disappear / parse fails | `JSON.parse` fails without BOM strip | Strip BOM on read; UTF-8 no-BOM writes |
 
@@ -534,7 +534,8 @@ When `listCcbAgents()` returns empty (CCB not installed), list falls back entire
 
 - Flag: `migration.ccbWandingPrunePresets_v1`
 - Trigger: `pruneBundledAgentsNotInKeepSetWithFlag()` after Guid catalog repair
-- Keep: `CCB_WANDING_KEEP_AGENT_IDS` in `ccbAgentCatalog.ts` — `wande-orchestrator`, `quotation-agent`, `accurate-agent`, `cowork`, `word-creator`, `word-form-creator`, `ppt-creator`, `excel-creator`
+- Keep: `CCB_WANDING_KEEP_AGENT_IDS` in `ccbAgentCatalog.ts` — `wande-orchestrator`, `quotation-agent`, `accurate-agent`, `word-creator`, `ppt-creator`, `excel-creator`
+- **Retired (2026-06-27):** `cowork`, `word-form-creator` removed from keep set + Guid cards; migration `migration.ccbWandingPrunePresets_v2` deletes live sidecars on cold start
 - Delete: other `source: bundled` agents (`unlink` `.md` + `.aionui.json` + orphan `assistants/<id>.json`; `ENOENT` ignored)
 - AionCore seed filter: `seedBuiltinAssistantsToCcbProfiles` skips builtins not in keep set
 
@@ -629,7 +630,7 @@ bun test src/services/acp/__tests__/agentSessionProfile.test.ts
 2. Deploy seed agents: `ccb-installer\scripts\deploy-seed-agents.ps1`
 3. Restart AionUI dev (`start-aionui-dev.ps1`) — migrations `ccbAgentsUnified_v1` then `ccbAgentsGuidCatalog_v1`
 4. Guid: ~21 builtin cards with emoji + Chinese name + description (not only 3 English seed ids)
-5. Guid lists `quotation-agent` / `accurate-agent` shortcut cards + office presets (~7 cards); **not** `wande-orchestrator`
+5. Guid: preset cards — **万鼎报价专家**, **万鼎账务专家**, **Word 文档助手**, **PPT 演示助手**, **Excel 表格助手** (5 cards; `cowork` / `word-form-creator` retired 2026-06-27)
 6. Optional: `wande-orchestrator` card titled **万鼎协作** (🤝) via sidecar `display_name`
 7. Open orchestrator chat → ask pricing question → CCB log: `Agent(subagent_type=quotation-agent)`
 8. Subagent spawn log: `mcp__quotation__*` tool calls (requires `mcpServers` on specialist `.md`)

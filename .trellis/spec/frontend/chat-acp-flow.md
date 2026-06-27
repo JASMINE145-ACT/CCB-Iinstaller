@@ -128,6 +128,8 @@ Same `tool_call_id` as the running event — `MessageAcpToolCall` updates the sa
 
 Renders as: `MessageAcpPermission.tsx` with allow/deny buttons.
 
+**MCP tool permission (2026-06-27):** WanD quotation flow may call `mcp__excel__read_data_from_excel` after fill. Backend `permissions.ts` auto-allows `mcp__quotation__*`, `mcp__accurate__*`, and `mcp__excel__*` without UI. If a prompt still appears, check (1) live `dist` includes #18, (2) UI is not 1.1.2 `app.asar` missing #17 — retro theme + `size='mini'` caused overlapping Always/Allow/Reject radios. Fix: `MessageAcpPermission.css` scoped Arco radio reset; ship via **NSIS 1.1.3** (`internal-update.md` §12.9 #17–#18).
+
 ### 3.5b AskUserQuestion (candidate selection — not Allow/Reject)
 
 ```json

@@ -85,10 +85,11 @@ export function createAcpCanUseTool(
       )
     }
 
-    // ── WanD bundled business MCP (quotation / accurate) — no interactive prompt ──
+    // ── WanD bundled business MCP (quotation / accurate / excel) — no interactive prompt ──
     if (
       tool.name.startsWith('mcp__quotation__') ||
-      tool.name.startsWith('mcp__accurate__')
+      tool.name.startsWith('mcp__accurate__') ||
+      tool.name.startsWith('mcp__excel__')
     ) {
       return {
         behavior: 'allow',

@@ -131,13 +131,14 @@ Legend: **PASS** = matches oracle at last check · **FAIL** = dev diverges · **
 | G-08 | Workspace footer | 「在项目中工作」 | `GuidInputCard` workspace | UNKNOWN | P2 | Visual smoke |
 | G-09 | Profile handoff on send | CCB preset extra staged | Layer 4 wired | PASS | — | `buildCcbPresetConversationExtra` |
 | G-10 | Capabilities catalog load | CCB branch in send path | `loadGuidCapabilitiesCatalog` | PARTIAL | P1 | UI menus need G-04 |
+| G-11 | Guid preset card keep set | 5 office/business cards (no Cowork / 可填表单) | **FIXED 2026-06-27** | **PASS** | — | `CCB_WANDING_KEEP_AGENT_IDS` + prune v2 |
 
 ### Layer 4 — Data / migrations (enablers)
 
 | ID | Check | Oracle expectation | Dev | Status | Priority |
 |----|-------|-------------------|-----|--------|----------|
 | D-01 | `ccbModelService.isAuthorityActive` | true when CCB install present | IPC wired | PASS | — |
-| D-02 | `ccbAgentsService.listAgents` | 8 agents on disk; 7 visible in Guid (`filterGuidCatalogAgents` hides orchestrator) | Depends on `.claude/agents` + prune migration | UNKNOWN | P0 | DevTools: `fetchAssistantsCatalog()` |
+| D-02 | `ccbAgentsService.listAgents` | 6 agents on disk; **5 visible** in Guid (`filterGuidCatalogAgents` hides orchestrator) | Depends on `.claude/agents` + prune migration | UNKNOWN | P0 | DevTools: `fetchAssistantsCatalog()` |
 | D-03 | `CCB_MIGRATION_STEPS` (11 steps) | Runs on cold start | `runBackendMigrations.ts` | PASS | — | Requires full restart |
 | D-04 | Prune migration | Removes non-WanD bundled agents | `migration.ccbWandingPrunePresets_v1` | UNKNOWN | P0 | Once per profile |
 | D-05 | Route-b ACP | CCB-Wanding CLI detected | `sync-aionui-ccb-route-b.ps1` | PASS | — | Dev launcher |

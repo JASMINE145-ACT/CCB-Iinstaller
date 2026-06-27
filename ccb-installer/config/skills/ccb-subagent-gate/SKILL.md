@@ -4,10 +4,10 @@ Runtime delivery gate for WanD keep-set specialist agents. It is invoked through
 
 ## Behavior
 
-- Office agents (`word-creator`, `word-form-creator`, `ppt-creator`, `excel-creator`): hard block (`exit 2`) when produced files fail schema or content checks.
+- Office agents (`word-creator`, `ppt-creator`, `excel-creator`): hard block (`exit 2`) when produced files fail schema or content checks.
 - `accurate-agent`: warn-only in v1. Logs to `.claude/logs/subagent-gate-warn.log`, does not block.
 - `quotation-agent`: MCP evidence check **off**; knowledge Read gate **warn** on `quotation-agent:knowledge` (2026-06-19). PostToolUse `post-match-knowledge-nudge.py` when `candidate_count > 1`.
-- `cowork` / `wande-orchestrator`: off/no-op.
+- `wande-orchestrator`: off/no-op.
 
 ## Agent Guidance
 

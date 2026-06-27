@@ -84,15 +84,6 @@
       "required_mcp": ["excel"],
       "tool_prefixes": ["mcp__excel__"]
     },
-    "word-form-creator": {
-      "required_mcp": [],
-      "skills": ["officecli-word-form"],
-      "optional": true
-    },
-    "cowork": {
-      "required_mcp": [],
-      "optional": true
-    },
     "ppt-creator": {
       "required_mcp": [],
       "skills": ["ppt-master"],

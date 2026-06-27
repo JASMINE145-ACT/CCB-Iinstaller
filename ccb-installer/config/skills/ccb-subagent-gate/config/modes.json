@@ -1,10 +1,8 @@
 {
   "word-creator": "block",
-  "word-form-creator": "block",
   "ppt-creator": "block",
   "excel-creator": "block",
   "quotation-agent": "off",
   "quotation-agent:knowledge": "warn",
-  "accurate-agent": "warn",
-  "cowork": "off"
+  "accurate-agent": "warn"
 }

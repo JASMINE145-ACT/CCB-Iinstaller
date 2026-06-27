@@ -16,13 +16,14 @@
 | `aionui-src` | Dev shell / SSO | Desktop auth, `/tasks`, Mixing brand, `start-dev-full.ps1` — **wired 2026-06-26** |
 | `aionui-src` | Dev Settings Layer 2 | Settings 模型/助手/Agents CCB branches + `runBackendMigrations` prune — **wired 2026-06-26** (uncommitted); task `06-26-aionui-source-level-recovery` |
 | **Fill tool 1.1.3.1** | `python/` + pack gate | `fill_items` / `fill_row_guard` / `inquiry_backfill` in repo; **vendor sync 2026-06-27**; `install-health-manifest.json` + `Test-StagingWanDInstall` pack gate — task `06-25-architecture-business-system-boundaries` |
+| **MCP permission #17–#18** | `aionui-src` + CCB dist | `MessageAcpPermission` radio layout fix (NSIS); `permissions.ts` auto-allow `mcp__excel__*` (dist hot or NSIS) — **2026-06-27** |
 
 ## Scope split — 全量 vs 热更
 
 | 层 | 交付方式 | 规范锚点 | 1.1.3 / 1.1.3.1 内容 |
 |----|----------|----------|----------------------|
-| **全量专属** | NSIS only | `internal-update.md` **§12.9** | workspace sync #1–#14、`compareCcbVersions` #15–#16 |
-| **热更可更** | hot zip 子集 | `wanding-packaging-whitelist.md` **§16.1** | **1.1.3.1**：询价回填、row guard、agent 覆盖 |
+| **全量专属** | NSIS only | `internal-update.md` **§12.9** | workspace sync #1–#14、`compareCcbVersions` #15–#16、`MessageAcpPermission` #17 |
+| **热更可更** | hot zip 子集 | `wanding-packaging-whitelist.md` **§16.1** | **1.1.3.1**：询价回填、row guard、agent 覆盖；**#18** `permissions.ts` excel auto-allow via `dist` |
 
 ## Recommended — 1.1.3 全量打包顺序
 
@@ -34,7 +35,7 @@
 
 ## Acceptance
 
-- [x] `internal-update.md` §12.9 清单 + §12.9.1–12.9.3
+- [x] `internal-update.md` §12.9 清单 + §12.9.1–12.9.3（含 #17–#18 MCP permission）
 - [x] `wanding-packaging-whitelist.md` §16.6
 - [ ] 全量 NSIS 1.1.3 实际构建并发 manifest（ops，非本 spec task）
 
