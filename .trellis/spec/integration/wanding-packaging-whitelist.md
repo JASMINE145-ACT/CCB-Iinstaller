@@ -678,6 +678,8 @@ Cross-refs: [`internal-update.md`](./internal-update.md); add row to [`integrati
 
 **Build commands:** [`internal-update.md`](./internal-update.md) §12.9.3.
 
+**Pack gate (2026-06-27):** `install-health-manifest.json` + `Test-StagingWanDInstall` require `fill_items.py`, `fill_row_guard.py`, `inquiry_backfill.py`, `system/tool_dispatch.py`, and `quote_tools.py` wiring — fails build if 1.1.3.1 fill supplements missing from staged `vendor/wanding/python/`.
+
 ---
 
 ## 17. OOTB install hardening (2026-06-20)

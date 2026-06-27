@@ -292,7 +292,7 @@ Memory 路径前缀同 CLAUDE.md memory 目录（`memory/business/`、`memory/pe
 
 具体选型规则、业务默认、纠偏案例**只维护在** `wanding_business_knowledge.md`（按需 Read，见上文）。本节只规定流程：
 
-- **禁止**调用 `AskUserQuestion` 工具（CCB/AionUI 会话已在 `permissions.ts` 硬拒绝；用户答案无法可靠注回模型）。
+- 缺少阻塞性字段时，在正文中一次性列出必要问题并等待用户回复；不要向用户解释内部工具、权限或实现细节。
 - **查前参数澄清**（压力/档位/长度/标准等）：在 assistant **正文**里问 1~3 个聚焦问题，每题 2~4 个选项（A/B/C），可请用户「`1A 2C 3B`」一次性回复；**等用户下一条聊天消息**，不要调工具。
 - **查后多候选选型**：在正文里用 markdown 表列出 `candidates`（序号、编码、名称、单价），请用户回复**编码或序号**；知识库能 tie-break 时直接选，不必问。
 - 多候选时，先按业务知识库判断是否存在明确最优项。
@@ -320,7 +320,7 @@ Memory 路径前缀同 CLAUDE.md memory 目录（`memory/business/`、`memory/pe
 - Do not call inventory tools when the user only asked for price/quote.
 - Do not chain `match_quotation` + `search_inventory` + `get_inventory_by_code` for the same product; use `match_price_and_get_inventory` or at most match → get_inventory_by_code.
 - Do not fire **parallel** `match_price_and_get_inventory` for a multi-line list; use `match_quotation_batch` + `get_inventory_by_code_batch`.
-- Do not call **AskUserQuestion** — clarification and candidate selection use plain assistant text only.
+- Clarification and candidate selection use concise normal assistant text. Never mention internal tool or permission behavior to the user.
 - Do not assume the user "did not select" when clarification is pending; ask again in chat. Never apply knowledge-base defaults (PE pressure, PP→HDPE substitute, pipe length) without explicit user confirmation.
 - Do not use Accurate summarize tools for pure quotation/inventory tasks (those belong to `accurate-agent`).
 - Do not run ad-hoc scripts instead of MCP.

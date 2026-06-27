@@ -26,6 +26,6 @@
     ".trellis/spec/integration/wanding-packaging-whitelist.md",
     ".trellis/tasks/06-25-spec-add-workspace-instant-sync-to-1-1-3-checklist/prd.md"
   ],
-  "notes": "2026-06-25: spec landed — internal-update §12.9 (#1–#16, §12.9.1–3); whitelist §16.6; aionui #15 code done, awaits 1.1.3 NSIS build.",
+  "notes": "2026-06-25: spec landed — internal-update §12.9 (#1–#16, §12.9.1–3); whitelist §16.6; aionui #15 code done, awaits 1.1.3 NSIS build. 2026-06-27: fill tool #9–#11 pack gate in install-health-manifest + Test-StagingWanDInstall; see 06-25-architecture fill-tool-vendor-recovery-2026-06-27.md.",
   "meta": {}
 }

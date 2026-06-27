@@ -112,6 +112,22 @@ Restore **Mixing 1.1.2 shell parity** in `bun run dev`: org SSO login, sidebar �
 | `bunx tsc --noEmit` | **0 errors** |
 | Runtime smoke | **Pending** — new preset conversation「你可以做什么」应匹配专家 preset（非 WanD 报价 persona） |
 
+## Layer 2 — Oracle correction (Wave 1–2, 2026-06-27)
+
+Earlier Layer 2 doc incorrectly listed `CcbWandingAgentsPanel` as target. Packaged oracle (`asar` `index-DA53d_yj.js`) uses **single Claude Code card** on Settings → Agents; WanD presets render on **Guid** `AssistantSelectionArea`.
+
+Full matrix: [`parity-matrix-1.1.2.md`](./parity-matrix-1.1.2.md)
+
+| Area | `aionui-src` files |
+|------|-------------------|
+| Settings Agents | `LocalAgents.tsx` → `CcbLocalAgents`; `agentSelectionUtils.ts` `findCcbClaudeAgent` |
+| Guid pill bar | `AgentPillBar.tsx` + `filterPillBarAgents` |
+| Guid model | `GuidModelSelector.tsx` + `useCcbModelInfo` |
+| Guid action row | `GuidActionRow.tsx` session CCB menu; `GuidPage.tsx` session props |
+| Preset agent type | `usePresetAssistantResolver.ts` → `resolveCcbPresetAgentType` |
+
+---
+
 ## Reference oracle
 
 Packaged 1.1.2: `D:\CCB-Wanding\ccb-launch-aionui.cmd` or `recover-aionui-new-ui.ps1`.
@@ -122,5 +138,5 @@ Packaged 1.1.2: `D:\CCB-Wanding\ccb-launch-aionui.cmd` or `recover-aionui-new-ui
 - `.trellis/spec/integration/unified-org-sso-rollout.md` — `start-dev-full.ps1`
 - `.trellis/spec/integration/aioncore-work-tasks.md` — shell wiring + routes
 - `.trellis/spec/frontend/file-map.md` — wiring status column
-- `.trellis/spec/frontend/ccb-model-settings-ui.md` — Layer 2 delivery status
+- `.trellis/tasks/06-26-aionui-source-level-recovery/parity-matrix-1.1.2.md` — oracle checklist + Wave 1–2 status
 - `.trellis/spec/integration/agents-unified-model.md` — `runBackendMigrations` CCB chain

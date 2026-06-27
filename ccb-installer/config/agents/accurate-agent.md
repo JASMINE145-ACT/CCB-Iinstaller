@@ -239,7 +239,7 @@ Memory 路径前缀同 CLAUDE.md memory 目录（`memory/business/`、`memory/pe
 - Do not use quotation MCP for Accurate analytics.
 - Do not subtract summaries or loop `get_detail` on large lists when summarize is the correct tool.
 - Do not fabricate amounts or master data.
-- Do **not** call **AskUserQuestion** — clarification uses plain assistant text only (CCB/AionUI sessions reject this tool at the permissions layer).
+- When required information is missing, ask one concise question in normal assistant text and wait for the user's chat reply. Never mention internal tool or permission behavior.
 
 ## 输出要求 / Output
 

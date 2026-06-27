@@ -900,10 +900,11 @@ Test-Path "D:\Projects\aionui-src\out\win-unpacked\AionUi.exe"   # 期望 True
 #### 12.9.3 Recommended full pack order
 
 1. Merge **1.1.3.1** hot-path Python + seed to `main` (`claude-code-best`).
-2. `bun test` / `vitest` in `aionui-src` (workspace + `internalUpdateManifest`).
-3. Build **AionCore 0.1.29+**: `cargo build --release` in `AionCore/`.
-4. Build **AionUI win-unpacked**: `cd aionui-src/packages/desktop && bun run dist:win` (or `build-wanding` without `-SkipAionUiBuild`).
-5. Full pack:
+2. **Pre-pack fill gate:** `install-health-manifest.json` must list `vendor/wanding/python/quotation/fill_items.py`, `fill_row_guard.py`, `inquiry_backfill.py`, `system/tool_dispatch.py`; `build-wanding.ps1` `Test-StagingWanDInstall` asserts `quote_tools.py` wiring. Dev runtime: `sync-dev-wanding-vendor.ps1 -Smoke` (repo → `D:\CCB-Wanding\vendor`, not auto).
+3. `bun test` / `vitest` in `aionui-src` (workspace + `internalUpdateManifest`).
+4. Build **AionCore 0.1.29+**: `cargo build --release` in `AionCore/`.
+5. Build **AionUI win-unpacked**: `cd aionui-src/packages/desktop && bun run dist:win` (or `build-wanding` without `-SkipAionUiBuild`).
+6. Full pack:
 
 ```powershell
 cd D:\Projects\claude-code-best
@@ -911,7 +912,7 @@ cd D:\Projects\claude-code-best
   -AioncorePath D:\Projects\claude-code-best\AionCore\target\release\aioncore.exe
 ```
 
-6. Staging smoke → optional NSIS → `publish-update-bundle.ps1` + VPS manifest.
+7. Staging smoke → optional NSIS → `publish-update-bundle.ps1` + VPS manifest.
 
 **Hot zip only (1.1.3.1):**
 

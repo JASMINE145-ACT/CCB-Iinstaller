@@ -15,6 +15,7 @@
 | `aionui-src` | Org knowledge UI | `/org-knowledge` route + sider entry — **wired 2026-06-26**; i18n `orgKnowledge` module registered **2026-06-26** |
 | `aionui-src` | Dev shell / SSO | Desktop auth, `/tasks`, Mixing brand, `start-dev-full.ps1` — **wired 2026-06-26** |
 | `aionui-src` | Dev Settings Layer 2 | Settings 模型/助手/Agents CCB branches + `runBackendMigrations` prune — **wired 2026-06-26** (uncommitted); task `06-26-aionui-source-level-recovery` |
+| **Fill tool 1.1.3.1** | `python/` + pack gate | `fill_items` / `fill_row_guard` / `inquiry_backfill` in repo; **vendor sync 2026-06-27**; `install-health-manifest.json` + `Test-StagingWanDInstall` pack gate — task `06-25-architecture-business-system-boundaries` |
 
 ## Scope split — 全量 vs 热更
 

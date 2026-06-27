@@ -30,11 +30,24 @@ AionUI must **not** inject MiniMax `thinking` or effort-tier controls — displa
 | Catalog + IPC (`ccbModelSettingsShared`, `ccbModelBridge`) | Present | Present |
 | **Settings → 模型** cards | MiniMax cards | **Wired** — `CcbModelSettingsPanel.tsx` + `ModelModalContent` CCB branch (`useCcbModelInfo` + `enrichCcbModelCatalogEntries`) |
 | Guid model dropdown (`GuidModelSelector`, `ccbAcpModelInfo`) | Works when CCB authority active | Works when `isAuthorityActive` |
-| Settings → 助手 | CCB-filtered presets | **Wired** — `fetchAssistantsCatalog.ts` shared with Guid (`useAssistantList` + `useCustomAgentsLoader`) |
-| Settings → Agents | CCB WanD agents | **Wired** — `CcbWandingAgentsPanel.tsx` when CCB active (replaces upstream CLI grid) |
+| Settings → Agents | Oracle: **single Claude Code** execution engine card | **Wired (2026-06-27)** — `CcbLocalAgents` in `LocalAgents.tsx`; i18n `wandingLocalAgentsDescription` / `wandingLocalAgentsEmpty`. **Not** `CcbWandingAgentsPanel` grid (wrong vs asar). |
+| Settings → 助手 | CCB-filtered presets (read-only) | **Wired** — `fetchAssistantsCatalog.ts` |
+| Guid preset cards | `AssistantSelectionArea` below input | **Data-dependent** — `fetchAssistantsCatalog` + migrations; see task `parity-matrix-1.1.2.md` G-02 |
+| Guid model selector | `GuidModelSelector` + `useCcbModelInfo` | **Wired (2026-06-27)** — MiniMax M3 (Thinking) when variants exist |
+| Guid session skills/MCP menu | CCB read-only session menu | **Wired (2026-06-27)** — `GuidActionRow` + `loadGuidCapabilitiesCatalog` |
 | Preset prune on startup | Packaged behavior | **Wired** — `runBackendMigrations.ts` → `pruneBundledAgentsNotInKeepSetWithFlag` in `CCB_MIGRATION_STEPS` |
 
-**Dev smoke:** Full restart via `ccb-installer/scripts/start-dev-full.ps1` (not Ctrl+R). Task: `06-26-aionui-source-level-recovery` → `dev-parity-wiring-2026-06-26.md` § Layer 2. **Uncommitted** in `aionui-src` working tree as of 2026-06-26.
+**Dev smoke:** Full restart via `ccb-installer/scripts/start-dev-full.ps1` (not Ctrl+R). Task: `06-26-aionui-source-level-recovery` → [`parity-matrix-1.1.2.md`](../../tasks/06-26-aionui-source-level-recovery/parity-matrix-1.1.2.md) + `dev-parity-wiring-2026-06-26.md`. **Uncommitted** in `aionui-src` as of 2026-06-27.
+
+### Information architecture (oracle 1.1.2)
+
+```
+Settings → Agents     = one Claude Code card (execution engine)
+Settings → 助手       = read-only WanD agent catalog
+Guid 首页             = AgentPillBar + AssistantSelectionArea preset cards
+```
+
+Do **not** put WanD preset agent grids on Settings → Agents — that contradicts packaged `index-DA53d_yj.js`.
 
 ---
 

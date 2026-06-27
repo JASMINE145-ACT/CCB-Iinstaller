@@ -63,7 +63,7 @@ Full file list: [`dev-parity-wiring-2026-06-26.md`](./dev-parity-wiring-2026-06-
 |------|---------|
 | **模型** | `CcbModelSettingsPanel` + `ModelModalContent` CCB branch |
 | **助手** | `fetchAssistantsCatalog` shared by Guid + Settings |
-| **Agents** | `CcbWandingAgentsPanel` replaces upstream CLI grid when CCB active |
+| **Agents** | Oracle single Claude Code card (`CcbLocalAgents`); **not** `CcbWandingAgentsPanel` 8-grid — see [`parity-matrix-1.1.2.md`](./parity-matrix-1.1.2.md) |
 | **Migrations** | `runBackendMigrations` → `CCB_MIGRATION_STEPS` (incl. prune) |
 
 ### Dev capabilities parity (Layer 3, 2026-06-27, **uncommitted**)
@@ -141,13 +141,34 @@ Meta-repo templates: `meta-repo/` in claude-code-best; local Mixing at `D:\Proje
 
 ---
 
+## 2026-06-27 Oracle UI Parity Wave 1–2 (asar-aligned wiring)
+
+**Scope:** Align dev UI to packaged 1.1.2 oracle — minimal wiring, not rewrite. **Uncommitted** in `aionui-src`.
+
+| Area | Oracle target | Wiring |
+|------|---------------|--------|
+| Settings → Agents | Single Claude Code card (`index-DA53d_yj.js`) | `LocalAgents.tsx` → `CcbLocalAgents` + `findCcbClaudeAgent` |
+| Guid pill bar | `filterPillBarAgents` (claude only) | `agentSelectionUtils.ts` + `AgentPillBar` `ccbAuthorityActive` |
+| Guid model | MiniMax M3 (Thinking) | `GuidModelSelector` + `useCcbModelInfo` / `ccbAcpModelInfo` |
+| Preset routing | `resolveCcbPresetAgentType` | `usePresetAssistantResolver` |
+| Guid action row | Session skills/MCP menu (CCB) | `GuidActionRow` + `GuidPage` session props |
+| WanD preset cards | Guid `AssistantSelectionArea` | **Open** — catalog/migration (`G-02`); see parity matrix |
+
+**Checklist:** [`.trellis/tasks/06-26-aionui-source-level-recovery/parity-matrix-1.1.2.md`](./parity-matrix-1.1.2.md)
+
+**Verification (2026-06-27):** `tsc` 0 errors; `vitest` 24/24 (incl. `agentSelectionUtils.test.ts`); code-review PASS after i18n + MCP menu fixes.
+
+**Spec updated:** `file-map.md`, `ccb-model-settings-ui.md` (Agents oracle correction).
+
+---
+
 ## 2026-06-27 1.1.2 Agent Alignment 补漏
 
 Scope: align source dev behavior to the 1.1.2 packaged oracle. No broader UI redesign.
 
 | Area | Summary |
 |------|---------|
-| Agent call path | `CcbWandingAgentsPanel` no longer sends every CCB agent as a plain `claude` execution agent. Guid-visible presets now navigate with `custom:<agentId>` so the existing preset assistant/profile handoff runs. Hidden default `wande-orchestrator` remains the base `claude` session path. |
+| Agent call path | ~~`CcbWandingAgentsPanel`~~ **Superseded (2026-06-27):** Settings Agents reverted to oracle single-card; WanD presets belong on **Guid** `AssistantSelectionArea`. `resolveCcbAgentGuidSelectionKey` still used from assistant flows. |
 | Ownership guard | When CCB authority is active, Settings -> Assistants is read-only over the CCB catalog: create, reorder, toggle, edit, duplicate, and delete actions are disabled so source dev does not write WanD agents into legacy AionUI `assistants.*` storage. |
 | Test | Added `tests/unit/renderer/ccbAgentGuidSelection.test.ts` for `quotation-agent -> custom:quotation-agent`, `wande-orchestrator -> claude`, and disabled-agent fallback. |
 | Verification | `D:\Projects\aionui-src\node_modules\.bin\tsc.exe --noEmit -p tsconfig.json` passed. `D:\Projects\aionui-src\node_modules\.bin\vitest.exe run tests/unit/renderer/ccbAgentGuidSelection.test.ts tests/unit/common-assistants/fetchAssistantsCatalog.test.ts` passed: 2 files / 6 tests. |
@@ -158,4 +179,43 @@ Files touched in `D:\Projects\aionui-src`:
 - `packages/desktop/src/renderer/pages/settings/AssistantSettings/index.tsx`
 - `packages/desktop/src/renderer/pages/settings/AssistantSettings/AssistantListPanel.tsx`
 - `tests/unit/renderer/ccbAgentGuidSelection.test.ts`
+
+## 2026-06-27 Runtime Smoke
+
+Passed:
+
+- Installed-slot Layer 2 business E2E passed against `D:\CCB-Wanding`.
+- `直接50` matched real product `8010024812`, unit price `7858`.
+- Inventory returned `198 PCS` available and `278 PCS` warehouse stock.
+- Excel write/readback passed for code, quantity, unit price, row total, and footer total.
+- Bundled `pandas`, `openpyxl`, and `numpy` imports resolved from `python-wanding`.
+
+Route-B gap:
+
+- Repository-path Route-B selected the installer staging tree through
+  `walkUpForInstall()` instead of `D:\CCB-Wanding`, emitted only thought chunks, and
+  timed out without a tool call or final answer.
+- A retry with `CCB_WANDING_HOME=D:\CCB-Wanding` hung after the first timeout.
+  The wrapper inherits stdio and the test kills only its parent, so the Bun ACP child
+  can remain alive.
+- Process inspection also timed out. No broad process kill was used.
+
+Conclusion: quotation, inventory, and Excel business behavior is verified usable.
+Full AionUI Route-B handoff and final UI rendering remain unaccepted.
+
+## 2026-06-27 Agent Clarification Copy Cleanup
+
+- Kept the backend `AskUserQuestion` hard-deny as a runtime safety boundary.
+- Removed `AskUserQuestion`, `permissions.ts`, and hard-deny implementation details
+  from all canonical business agent prompts.
+- Replaced them with user-facing behavior rules: ask only concise blocking questions
+  in normal assistant text, wait for the chat reply, and never expose internal tool
+  or permission behavior.
+- Updated quotation, accurate, cowork, PPT, and orchestrator templates.
+- Forced the canonical templates into the current
+  `%LOCALAPPDATA%\CCB-Wanding\.claude\agents` runtime slot.
+- Verification: source prompt hits = `0`; live prompt hits = `0`.
+- The subagent-gate Bash suite could not start because the local WSL2 disk
+  `D:\WSL\Ubuntu\ext4.vhdx` is missing. This is an environment blocker, not a test
+  assertion failure.
 

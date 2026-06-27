@@ -124,7 +124,9 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | IPC bridge | `packages/desktop/src/process/bridge/ccbModelBridge.ts` |
 | Settings page cards + descriptions | `packages/desktop/src/renderer/components/settings/SettingsModal/contents/CcbModelSettingsPanel.tsx` (CCB branch); `ModelModalContent.tsx` delegates when `useCcbAuthorityActive` |
 | Shared assistant catalog (Guid + Settings) | `packages/desktop/src/common/assistants/fetchAssistantsCatalog.ts` — `ASSISTANTS_LIST_SWR_KEY` |
-| Settings → Agents (CCB) | `packages/desktop/src/renderer/pages/settings/AgentSettings/CcbWandingAgentsPanel.tsx`; `LocalAgents.tsx` wrapper |
+| Settings → Agents (CCB) | Oracle: single Claude Code card — `LocalAgents.tsx` → `CcbLocalAgents`; `findCcbClaudeAgent` in `agentSelectionUtils.ts`. WanD presets on **Guid** `AssistantSelectionArea`, not Settings. See `parity-matrix-1.1.2.md`. |
+| Guid pill bar (CCB) | `filterPillBarAgents` in `agentSelectionUtils.ts`; `AgentPillBar.tsx` `ccbAuthorityActive` |
+| Guid action row (CCB session menu) | `GuidActionRow.tsx` `capabilitiesSource` / `sessionSkillNames` / `sessionMcpServerIds`; `GuidPage.tsx` |
 | CCB startup migrations (incl. prune) | `packages/desktop/src/process/utils/runBackendMigrations.ts` — `CCB_MIGRATION_STEPS` |
 | Description resolve / IPC enrich | `packages/desktop/src/renderer/utils/ccbModelCatalogDisplay.ts` |
 | Guid / conversation model dropdown merge | `packages/desktop/src/common/config/ccbAcpModelInfo.ts` |

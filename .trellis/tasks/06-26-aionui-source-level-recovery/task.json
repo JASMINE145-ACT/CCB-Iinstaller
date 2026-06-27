@@ -59,6 +59,11 @@
       "status": "completed"
     },
     {
+      "id": "phase-3f-oracle-ui-parity-wave1-2",
+      "title": "Oracle UI parity Wave 1–2: Settings Agents single card, Guid model/pill/action-row CCB wiring",
+      "status": "completed"
+    },
+    {
       "id": "phase-4-release-verification",
       "title": "Full cold build from git; verify install behaves like 1.1.2 oracle (ship as 1.1.3-dev)",
       "status": "in_progress"
@@ -79,6 +84,7 @@
     ".trellis/spec/guides/mixing-meta-repo.md",
     ".trellis/tasks/06-26-aionui-source-level-recovery/aionui-src-commit-audit.md",
     ".trellis/tasks/06-26-aionui-source-level-recovery/dev-parity-wiring-2026-06-26.md",
+    ".trellis/tasks/06-26-aionui-source-level-recovery/parity-matrix-1.1.2.md",
     "ccb-installer/scripts/start-dev-full.ps1",
     "ccb-installer/scripts/recover-aionui-new-ui.ps1",
     "ccb-installer/ccb-launch-aionui.cmd",

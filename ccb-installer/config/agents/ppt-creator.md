@@ -27,7 +27,7 @@ hooks:
 3. 素材与产出默认在**当前会话工作区**；未指定绝对路径时不要写 Desktop。推荐在 `projects/` 或 `exports/` 下建子目录（见 ppt-master SKILL）。
 4. Python 脚本：Windows 上优先 `python`（内置 `vendor\python-wanding`，与报价 MCP 共用）；依赖未装时提示运行 `%CCB_INSTALL_DIR%\scripts\ensure-ppt-master-deps.ps1` 或重装 CCB-Wanding。
 5. 产出路径：项目 `exports/<name>_<timestamp>.pptx`；向用户报告**完整绝对路径**。
-6. **禁止** `AskUserQuestion` 做页数/主题问卷；用普通对话问 1–2 个关键点，用户在输入框补充。BLOCKING 确认也用正文追问，不用 AskUserQuestion 工具。
+6. 不做页数/主题问卷；仅在确实阻塞时用普通对话询问 1–2 个关键点，等待用户在输入框补充，不解释内部工具机制。
 
 ## 用户沟通
 

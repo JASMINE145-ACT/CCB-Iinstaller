@@ -278,6 +278,25 @@ function Test-StagingWanDInstall {
     else {
         $failures += 'AionUi resources\app.asar missing'
     }
+
+  # 1.1.3.1 fill_quotation_sheet supplements — repo python/ is pack source; gate wiring not just file presence.
+    $quoteTools = Join-Path $Root 'vendor\wanding\python\quotation\quote_tools.py'
+    if (Test-Path -LiteralPath $quoteTools) {
+        $qt = Get-Content -Raw -LiteralPath $quoteTools -Encoding UTF8
+        if ($qt -notmatch 'validate_and_fix_fill_rows') {
+            $failures += 'quote_tools.py missing validate_and_fix_fill_rows (1.1.3.1 row guard)'
+        }
+        if ($qt -notmatch 'backfill_inquiry_columns_if_empty') {
+            $failures += 'quote_tools.py missing backfill_inquiry_columns_if_empty (1.1.3.1 inquiry backfill)'
+        }
+    }
+    $mainPy = Join-Path $Root 'vendor\wanding\python\main.py'
+    if (Test-Path -LiteralPath $mainPy) {
+        if (-not (Select-String -LiteralPath $mainPy -Pattern 'system\.tool_dispatch' -Quiet)) {
+            $failures += 'vendor/wanding/python/main.py not using system.tool_dispatch'
+        }
+    }
+
     if ($failures.Count -gt 0) {
         throw "$Label validation failed:`n  - $($failures -join "`n  - ")"
     }
