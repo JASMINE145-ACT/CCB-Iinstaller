@@ -50,6 +50,36 @@ Self-built aioncore **v0.1.29+** removed legacy `GET/PUT /api/conversations/:id/
 
 ---
 
+## AionCore Development Model
+
+**Self-built fork is the primary development line for all org-service features.** The bundled binary is a static baseline that never receives feature updates.
+
+| Instance | Path | Role |
+|----------|------|------|
+| **Self-built (primary)** | `AionCore/target/release/aioncore.exe` | All new crate development; deployed to VPS org service |
+| **Bundled baseline** | `AionUi/resources/bundled-aioncore/win32-x64/aioncore.exe` | Static v0.1.27; "no org-server" offline fallback only |
+
+### Rules (all new feature work)
+
+1. New crates go into `D:\Projects\claude-code-best\AionCore\crates\` — never into the bundled binary.
+2. Bundled baseline stays at v0.1.27; it is never rebuilt for feature additions.
+3. Both dev workstation and VPS org server must run self-built binary to use new APIs.
+4. Build command: `scripts/build-aioncore-work-tasks.cmd` (vcvars64 + `cargo build --release`).
+5. Dev launcher: `scripts/start-aionui-dev-work-tasks.ps1` (puts self-built binary first in PATH).
+
+### Migration sequence (append-only; never edit deployed migrations)
+
+| Migration | File | Feature |
+|-----------|------|---------|
+| 013 | `013_work_tasks.sql` | Work tasks |
+| 014 | `014_work_task_roles.sql` | Work task RBAC |
+| 015 | `015_org_knowledge.sql` | Org knowledge |
+| **016+** | `016_price_library.sql` … | Price library (PR1 — next) |
+
+Next migration number: **016**. Add SQL files to `AionCore/crates/aionui-db/migrations/`.
+
+---
+
 ## REST (auth required)
 
 | Method | Path | Notes |

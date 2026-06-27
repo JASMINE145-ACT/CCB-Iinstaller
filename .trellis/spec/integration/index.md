@@ -15,6 +15,7 @@
 | Cross-layer latency / warmup / session id issues | [`aionui-ccb-boundary.md`](./aionui-ccb-boundary.md) § CCB session warmup + § idle agent |
 | CCB assistant profile handoff (preset cards → CCB sessions) | [`aionui-ccb-boundary.md`](./aionui-ccb-boundary.md) § CCB assistant profile handoff |
 | Adding a defensive fix to renderer / chatLib | [`defensive-fix-policy.md`](./defensive-fix-policy.md) — must include `// TODO(defensive)` |
+| **Adding a new AionCore crate** (work-tasks / org-knowledge / price-library / …) | [`aioncore-work-tasks.md`](./aioncore-work-tasks.md) § AionCore Development Model — self-built fork is primary; next migration = 016 |
 | Layer 1 (desktop) only | You do not need this index. Go to [`../frontend/index.md`](../frontend/index.md). |
 
 ## Project strategy (5 lines)
