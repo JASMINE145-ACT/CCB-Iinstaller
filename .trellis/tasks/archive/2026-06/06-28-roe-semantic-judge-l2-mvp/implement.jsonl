@@ -1,0 +1,6 @@
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/scripts/lib/parse_transcript_roe_judge.py", "reason": "Universal judge engine — intent window, output bundle, mock/API judge"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/scripts/validators/generic-roe-judge.sh", "reason": "Stop hook validator — all agents via :roe-judge mode"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/scripts/subagent-gate.sh", "reason": "Routes judge after agent validators; quotation composite modes"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/config/modes.json", "reason": "5 agents :roe-judge warn pilot"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/scripts/lib/fail.sh", "reason": "Source-safe fail_gate — fixes hook premature exit"}
+{"file": "ccb-installer/scripts/smoke-roe-judge-deploy.ps1", "reason": "Post-deploy smoke 12 checks"}

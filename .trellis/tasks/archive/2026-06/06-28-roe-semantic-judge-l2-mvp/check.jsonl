@@ -1,0 +1,4 @@
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/tests/test_roe_judge_gate.py", "reason": "test-agent: 6/6 mock judge cases PASS 2026-06-28"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/tests/test_roe_gate.py", "reason": "regression: 7/7 parent rule ROE PASS"}
+{"file": "ccb-installer/scripts/smoke-roe-judge-deploy.ps1", "reason": "deploy smoke 12/12 PASS on dev machine"}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "§ Gate-J universal judge stub"}

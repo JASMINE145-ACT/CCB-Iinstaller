@@ -1,0 +1,33 @@
+{
+  "id": "roe-semantic-judge-l2-mvp",
+  "name": "roe-semantic-judge-l2-mvp",
+  "title": "ROE in-process self-check Gate-J MVP",
+  "description": "Phase 1: Universal ROE gate on Stop hook — rule-based incomplete detection; exit 2 + reject_prompt inject; main model self-checks on CCB auto-continue. No external LLM/API. Child of 06-27-result-oriented-execution.",
+  "status": "completed",
+  "dev_type": null,
+  "scope": "ccb-subagent-gate roe-judge validator, quotation-agent profile, fixtures, agents-unified-model Gate-J stub — no AionUI renderer in Phase 1",
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-28",
+  "completedAt": "2026-06-28",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "06-27-result-oriented-execution",
+  "relatedFiles": [
+    ".trellis/tasks/06-27-result-oriented-execution/prd.md",
+    ".trellis/spec/integration/agents-unified-model.md",
+    "ccb-installer/config/skills/ccb-subagent-gate/scripts/lib/parse_transcript_roe.py",
+    "ccb-installer/config/skills/ccb-subagent-gate/scripts/validators/quotation-roe.sh",
+    "ccb-installer/config/skills/ccb-subagent-gate/config/modes.json",
+    "ccb-installer/scripts/smoke-roe-deploy.ps1"
+  ],
+  "notes": "2026-06-28: Refactored to in-process self-check — Stop hook rules-only (detect_incomplete_signals); block injects reject_prompt via exit 2; main model self-checks on CCB auto-continue. No external LLM/API. Deployed LOCALAPPDATA. smoke-roe-judge-deploy.ps1 12/12 PASS; test_roe_judge_gate.py 7/7 + test_roe_gate.py 7/7. 2026-06-28: spec updated — integration/agents-unified-model.md § Gate-J: full code-spec (in-process architecture, rules, contracts, tests); integration/index.md + spec/index.md pointers.",
+  "meta": {}
+}
