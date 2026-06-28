@@ -73,6 +73,8 @@ class MockClient {
       for (const item of content) {
         if (item?.type === 'text' && typeof item.text === 'string') this.text += item.text
       }
+    } else if (content?.type === 'text' && typeof content.text === 'string') {
+      this.text += content.text
     }
   }
 
@@ -165,8 +167,14 @@ try {
   const expectedTool = process.env.CCB_TEST_EXPECT_TOOL || ''
   const expectedToolCompleted =
     !expectedTool || mock.completedTools.includes(expectedTool)
+  const forbiddenText = process.env.CCB_TEST_FORBID_TEXT || ''
+  const forbiddenTextAbsent =
+    !forbiddenText || !mock.text.includes(forbiddenText)
   process.exit(
-    result.stopReason === 'end_turn' && chunks > 0 && expectedToolCompleted
+    result.stopReason === 'end_turn' &&
+      chunks > 0 &&
+      expectedToolCompleted &&
+      forbiddenTextAbsent
       ? 0
       : 1,
   )

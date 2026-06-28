@@ -183,6 +183,15 @@ When a CLI auto-detects a mode by probing a remote resource (e.g., checking if `
 
 **Real-world example**: Agent-session update hints fetched npm `latest` metadata with `response.read(4096)` and then parsed it as complete JSON. The `@mindfoldhq/trellis` package metadata exceeded 4 KB, so the JSON was truncated, parse failed silently, and the first session injection showed no update hint. Fix: read the complete response before parsing, and add a regression where `version` is followed by an 8 KB metadata tail.
 
+### Mistake 5: Turning deduplication into a failure event
+
+When duplicate lifecycle events are removed, distinguish “duplicate removed”
+from “operation interrupted.” If deduplication empties a message, drop that
+message; do not synthesize semantic failure text. Preserve interruption repair
+only for genuinely orphaned events. See
+[`../backend/acp-session-flow.md`](../backend/acp-session-flow.md) under
+“Duplicate-only tool-use normalization.”
+
 ---
 
 ## When to Create Flow Documentation

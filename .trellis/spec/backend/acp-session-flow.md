@@ -377,6 +377,70 @@ AionUI must treat CCB manifest as authoritative. Shell-only commands use `source
 
 After changing command exposure: `bun test src/services/acp/__tests__`, `bun run build`, deploy to `D:\CCB-Wanding\dist`, sync route-b, restart aioncore, then open a new AionUI conversation.
 
+## Scenario: Duplicate-only tool-use normalization (2026-06-29)
+
+### 1. Scope / Trigger
+
+`ensureToolResultPairing()` receives a second assistant message containing only
+an ordinary `tool_use` whose id has already been seen. Streaming and final
+message paths can both expose the same completed invocation.
+
+### 2. Signatures
+
+```typescript
+// D:\claude-code-B\src\utils\messages.ts
+export function ensureToolResultPairing(messages: Message[]): Message[]
+```
+
+### 3. Contracts
+
+- Retain the first ordinary `tool_use.id` and pair it normally.
+- Remove later ordinary `tool_use` blocks with the same id.
+- Drop an assistant message emptied only by that deduplication; do not turn it
+  into user-visible failure text.
+- Preserve `[Tool use interrupted]` repair for genuinely unpaired server/MCP
+  tool-use blocks.
+
+### 4. Validation & Error Matrix
+
+| Input condition | Required output |
+|---|---|
+| First ordinary `tool_use` | Retain |
+| Duplicate ordinary `tool_use`, mixed with text | Remove duplicate; retain text |
+| Duplicate ordinary `tool_use` only | Drop entire message |
+| Orphan server/MCP tool-use only | Emit interruption placeholder |
+
+### 5. Good / Base / Bad Cases
+
+- **Good:** completed inventory call plus duplicate-only event produces one
+  call, one result, and the final inventory answer.
+- **Base:** a normal non-duplicate call/result sequence is unchanged.
+- **Bad:** stripping a duplicate and inserting `[Tool use interrupted]` falsely
+  reports failure after a successful MCP result.
+
+### 6. Tests Required
+
+- Unit: `messages.test.ts` assertion
+  `drops duplicate-only tool_use message after a completed result instead of emitting interrupted placeholder`.
+- Integration: repeat Route B with
+  `CCB_TEST_EXPECT_TOOL=mcp__quotation__get_inventory_by_code` and
+  `CCB_TEST_FORBID_TEXT=[Tool use interrupted`; every run must reach `end_turn`.
+
+### 7. Wrong vs Correct
+
+```typescript
+// Wrong: duplicate removal invents a semantic failure.
+if (finalContent.length === 0) {
+  finalContent = [{ type: 'text', text: '[Tool use interrupted]' }]
+}
+
+// Correct: drop a message emptied only by ordinary tool-use deduplication.
+if (finalContent.length === 0 && removedDuplicateToolUse &&
+    !removedOrphanServerToolUse) {
+  continue
+}
+```
+
 ## MCP Manifest for AionUI Settings (2026-06-13)
 
 CCB-Wanding exposes a JSON MCP manifest for the AionUI settings shell (not ACP session wire).
