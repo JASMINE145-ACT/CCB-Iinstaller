@@ -83,6 +83,23 @@ For each boundary:
 
 **Good**: Each layer only knows its neighbors
 
+### Mistake 4: Dropping events based only on message role
+
+In ACP/LLM streams, transport role is not the same as UI ownership.
+QueryEngine tool results are user-role SDK messages even though they complete
+assistant-originated tool calls.
+
+Before skipping a whole role:
+
+- inspect every content-block type carried by that role;
+- pair lifecycle identifiers (`tool_use.id` ↔ `tool_result.tool_use_id`);
+- assert the downstream terminal state (`completed` or `failed`);
+- test the full sequence, not only the initial pending event.
+
+Project regression: dropping all user-role messages in the CCB ACP bridge left
+`match_quotation` permanently pending and surfaced as
+`[Tool use interrupted]`.
+
 ---
 
 ## Checklist for Cross-Layer Features

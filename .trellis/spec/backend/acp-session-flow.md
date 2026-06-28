@@ -302,6 +302,24 @@ Exact JSON shapes vary by SDK version. AionUI maps these in `useAcpMessage.ts` /
 
 When debugging duplicate or missing UI messages, **compare producer logs from `--acp` stdout** with consumer `chatLib.composeMessage` — fix producer first per [`../integration/defensive-fix-policy.md`](../integration/defensive-fix-policy.md).
 
+### Tool result role contract (2026-06-28)
+
+QueryEngine emits a tool invocation as an assistant-role `tool_use`, but emits
+the corresponding `tool_result` / `mcp_tool_result` inside a **user-role SDK
+message**. `forwardSessionUpdates()` must therefore:
+
+1. forward assistant `tool_use` as ACP `tool_call status=pending`;
+2. ignore ordinary user text already owned by the ACP client;
+3. extract user-role `tool_result` / `mcp_tool_result`;
+4. forward it as the matching `tool_call_update status=completed|failed`.
+
+Do not discard the entire user-role SDK message. That creates an orphaned tool
+call; later SDK transcript repair may display `[Tool use interrupted]` even
+though the MCP itself completed successfully.
+
+Regression: `src/services/acp/__tests__/bridge.test.ts` test
+`forwards user tool_result as completed tool_call_update`.
+
 **Live dist verify (2026-06-13):** After deploy, grep `D:\CCB-Wanding\dist\chunk-*.js` for `toolCall.rawInput` / `safeDecodeURIComponent` / `auqm:` before AionUI smoke. See [`build-deploy-verify.md`](./build-deploy-verify.md) §2 post-deploy spot-check.
 
 ---

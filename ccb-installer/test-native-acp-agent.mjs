@@ -6,7 +6,7 @@
  */
 import { spawn } from 'node:child_process'
 import { Readable, Writable } from 'node:stream'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import os from 'node:os'
 import { fileURLToPath } from 'node:url'
@@ -19,6 +19,19 @@ import {
 const install = 'D:\\CCB-Wanding'
 const configDir = join(os.homedir(), 'AppData', 'Local', 'CCB-Wanding', '.claude')
 const settings = JSON.parse(readFileSync(join(configDir, 'settings.json'), 'utf8').replace(/^\uFEFF/, ''))
+const testProfile = process.env.CCB_TEST_PROFILE || ''
+const handoffPath = join(configDir, '.aionui-next-assistant-profile.json')
+
+if (testProfile) {
+  writeFileSync(
+    handoffPath,
+    JSON.stringify({
+      profile_id: testProfile,
+      staged_at: new Date().toISOString(),
+    }),
+    'utf8',
+  )
+}
 
 const bun = existsSync(join(install, 'vendor', 'bun', 'bun.exe'))
   ? join(install, 'vendor', 'bun', 'bun.exe')
@@ -35,10 +48,18 @@ const vendorPath = [
 class MockClient {
   updates = []
   text = ''
+  completedTools = []
 
   async sessionUpdate(params) {
     const update = params.update?.sessionUpdate || 'unknown'
     this.updates.push(update)
+    if (
+      update === 'tool_call_update' &&
+      params.update?.status === 'completed' &&
+      params.update?._meta?.claudeCode?.toolName
+    ) {
+      this.completedTools.push(params.update._meta.claudeCode.toolName)
+    }
     console.log('[update]', update)
     if (process.env.CCB_TEST_DUMP_UPDATES === '1') {
       if (/agent_message_chunk|tool_call|tool_call_update/.test(update)) {
@@ -102,11 +123,12 @@ const stream = ndJsonStream(input, output)
 const mock = new MockClient()
 const conn = new ClientSideConnection(() => mock, stream)
 
+const timeoutMs = Number(process.env.CCB_TEST_TIMEOUT_MS || 90000)
 const timeout = setTimeout(() => {
   console.error('[native-acp] TIMEOUT updates=' + mock.updates.join(','))
   agent.kill('SIGTERM')
   process.exit(1)
-}, 90000)
+}, timeoutMs)
 
 try {
   const init = await conn.initialize({
@@ -125,6 +147,7 @@ try {
     ...(process.env.CCB_TEST_BYPASS === '1' ? { _meta: { permissionMode: 'bypassPermissions' } } : {}),
   })
   console.log('[session]', session.sessionId, session.models?.currentModelId)
+  if (testProfile) console.log('[profile]', testProfile)
 
   const result = await conn.prompt({
     sessionId: session.sessionId,
@@ -134,14 +157,30 @@ try {
   clearTimeout(timeout)
   console.log('[result]', JSON.stringify(result))
   console.log('[updates]', mock.updates.join(','))
+  console.log('[completed_tools]', mock.completedTools.join(','))
   console.log('[assistant_text]', mock.text)
   agent.kill('SIGTERM')
 
   const chunks = mock.updates.filter(u => u === 'agent_message_chunk').length
-  process.exit(result.stopReason === 'end_turn' && chunks > 0 ? 0 : 1)
+  const expectedTool = process.env.CCB_TEST_EXPECT_TOOL || ''
+  const expectedToolCompleted =
+    !expectedTool || mock.completedTools.includes(expectedTool)
+  process.exit(
+    result.stopReason === 'end_turn' && chunks > 0 && expectedToolCompleted
+      ? 0
+      : 1,
+  )
 } catch (e) {
   clearTimeout(timeout)
   console.error('[native-acp] FAIL', e?.stack || e)
   agent.kill('SIGTERM')
   process.exit(1)
+} finally {
+  if (testProfile) {
+    try {
+      unlinkSync(handoffPath)
+    } catch {
+      // The backend normally consumes the one-shot handoff during session/new.
+    }
+  }
 }
