@@ -39,13 +39,12 @@ quotation matching until a failing run shows an MCP error/result.
 
 ## Acceptance criteria
 
-- Every ACP run persists prompt, cancel, tool-use, tool-result, timeout, and
-  process-exit evidence under the CCB-Wanding log directory.
-- A quotation specialist reproduction distinguishes:
-  - MCP completed and result was lost downstream
-  - MCP never returned
-  - session was explicitly cancelled
-  - ACP/CCB child process exited
-  - query timeout fired
+- A failing reproduction proves whether the MCP result exists upstream of the
+  AionUI tool card.
 - Root cause has a failing regression test before the behavior is changed.
-- Fix is verified through the Route B/AionUI integration path.
+- The regression verifies the complete lifecycle:
+  `tool_use pending -> tool_result completed|failed`.
+- The built and deployed fix is verified through Route B with
+  `quotation-agent`, not only through the direct MCP probe.
+- Repeated runs complete `match_quotation` without an orphaned tool call.
+- The cross-layer role/content-block contract is recorded in Trellis specs.
