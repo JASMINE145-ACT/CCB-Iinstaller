@@ -222,6 +222,25 @@ NSIS compresses ~2.66 GB staging to ~888 MB with zlib; the compression phase has
 
 ---
 
+## 5.1 Bootstrap failure: retired agents in `sync-ppt-master-agents.ps1`
+
+**Symptom**: NSIS installer completes file copy but shows:
+> "CCB-Wanding setup completed copying files, but bootstrap returned exit code 1."
+
+**Root cause**: `ccb-installer/scripts/sync-ppt-master-agents.ps1` hardcodes `$ids` with agent IDs. If an agent is **retired** (removed from `staging/seed/agents/`) but still listed in `$ids`, the script throws `"Missing seed: <agent>.md"`. The exception propagates through `Invoke-BootstrapStep` → `$failures += 1` → bootstrap exits 1 → `.bootstrap-ok` never written → launch loop repeats indefinitely.
+
+**Mode=Full always runs `install-ppt-master`**: when `vendor\ppt-master-skill\` exists and `Mode=Full` (always true from NSIS), `run-wanding-bootstrap.ps1` always runs `install-ppt-master.ps1` → `sync-ppt-master-agents.ps1`. There is no "already installed" skip for Mode=Full.
+
+**Cascade on employee machine**: bootstrap fails → employee clicks shortcut → cmd re-runs bootstrap (`.bootstrap-ok` absent) → same failure → cmd blocks AionUI → employee bypasses cmd and launches `AionUi.exe` directly → `CCB_INSTALL_DIR` / `CCB_WANDING_CONFIG_DIR` env vars NOT set → AionCore cannot find CCB backend → `backend_startup_failed` → "AionCore 无法启动" dialog.
+
+**Fix**: when retiring an agent, remove its ID from BOTH:
+1. `sync-ppt-master-agents.ps1` → `$ids`
+2. `patch-subagent-gate-hooks.ps1` → `$targetIds` (non-fatal if forgotten — prints `[miss]`, but keep it clean)
+
+**Fixed in commit**: `4d5f7beb` — removed `cowork` (retired 1.1.3) from both scripts.
+
+---
+
 ## 6. Minimal backend change loop
 
 ```text

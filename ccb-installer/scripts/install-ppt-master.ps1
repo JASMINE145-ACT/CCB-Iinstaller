@@ -39,7 +39,7 @@ if (-not (Test-Path -LiteralPath $seedAgents)) {
     $seedAgents = Join-Path $repoRoot "ccb-installer\config\agents"
 }
 
-Write-Host "[ppt-master] Sync ppt-creator + cowork agent seeds ..."
+Write-Host "[ppt-master] Sync ppt-creator agent seed ..."
 & (Join-Path $PSScriptRoot "sync-ppt-master-agents.ps1") `
     -AgentsDir $agentsDir `
     -SeedDir $seedAgents
