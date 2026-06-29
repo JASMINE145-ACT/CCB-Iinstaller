@@ -887,13 +887,18 @@ Test-Path "D:\Projects\aionui-src\out\win-unpacked\AionUi.exe"   # 期望 True
 | 16 | Manifest | `publish-update-bundle.ps1` | `full_installer` row for 1.1.3 NSIS when ready | ops |
 | 17 | AionUI renderer | `MessageAcpPermission.tsx` + `.css` | Fix overlapping Always/Allow/Reject radios under retro theme (`size='mini'` + global 13×13 `.arco-radio`) | **NSIS only** |
 | 18 | CCB dist | `permissions.ts` | Auto-allow `mcp__excel__*` (quotation post-fill read/verify) alongside quotation/accurate | hot zip #13 dist or NSIS |
+| 19 | Installer gate + seed | `ccb-subagent-gate` ROE + `quotation-agent.md` | **Merged into #22 (2026-06-29):** was `quotation-agent:roe:block` + `quotation-roe.sh`; now `quotation-agent:roe:off`, logic in `parse_transcript_roe_judge.py`. `quotation-agent.md` `hooks.Stop` + ROE SOP unchanged | **hot zip** `seed`+gate (1.1.3.1+) or **NSIS**; dev: `smoke-roe-judge-deploy.ps1` (supersedes `smoke-roe-deploy.ps1` for ROE) | task `06-27-result-oriented-execution` + `06-29-roe-slim-universal` |
+| 20 | Quotation MCP + health | `config.js` + `mcp-health-manifest.json` + `ensure-wanding-settings.ps1` + `inventory_payloads.py` + **`python-spawner.js`** | `CCB_PROJECT_ROOT` fallback; `vendor/wanding/python/main.py`; **`vendor/wanding/.env.accurate`** (UTF-8 **no BOM**, `utf-8-sig` read); spawner **omits empty `AOL_*`**; health validates BOM + dotenv parse + `quotation.env.AOL_*`; `-Probe` `match_quotation` + **`get_inventory_by_code`** | **hot zip** quotation-server + manifest + `ensure-wanding-settings` on install; dev: `test-mcp-health.ps1 -Probe -Session` | task `06-27-quotation-mcp-health` — **AOL BOM closed 2026-06-28** |
+| 21 | AionUI brand (Mixing) | `BrandIcon.tsx` + `Layout.tsx` + `devResourcesPath.ts` + `packages/desktop/resources/app.{ico,png}` | Sidebar header + login use `assets/logos/brand/app.png` (not inline AionUI SVG); dev taskbar/tray/notifications read `packages/desktop/resources/` via `resolveDevResourceFile` (not stale repo-root `resources/`); cold build sync via `build-wanding.ps1` `Sync-AionUiBrandAssets` from `data/ChatGPT Image*.png` | **NSIS only** (renderer + `app.ico` in resources); dev: full process restart after main-process icon path change | **2026-06-28** code-review PASS; `npm run package` exit 0 |
+| 22 | Installer gate (universal ROE) | `ccb-subagent-gate` slim universal | **Single layer:** `generic-roe-judge.sh` + `parse_transcript_roe_judge.py`; `{agent}:roe-judge:block` (5 Stop-hook agents); `quotation-agent:roe:off` (no `quotation-roe.sh`); write-anchor + L2 **success** + REJECT v4 (Already done prior/this turn + Prior attempt + Retry ACTION); `roe-judge-profiles/`; in-process rules → `exit 2` | **hot zip** `seed`+gate (1.1.3.1+) or **NSIS**; dev: `smoke-roe-judge-deploy.ps1` 13/13 + `test_roe_judge_gate.py` 16+ + `test_roe_judge_realistic.py` 8/8 | task `06-29-roe-slim-universal` (supersedes `archive/2026-06/06-28-roe-semantic-judge-l2-mvp`) |
+| 23 | App startup readiness | `ccb-installer/lib/warm-wanding-mcp.mjs` + AionUI `ccbStartupReadiness.ts` + IPC/UI gate | Layer 1 config health (no probe) + Layer 2 stdio warm (quotation+accurate) at app open; Guid send gated until ready; 120s timeout → soft_ready; **init trap:** `isCcbMcpAuthorityActive()` is sync — no `.then()` | **Dev:** `start-dev-full.ps1` syncs warm script to `{install}/lib/`; **NSIS/hot zip:** ship `lib/warm-wanding-mcp.mjs` (open); AionUI package with readiness IPC | task `06-28-app-startup-readiness-gate` — spec [`mcp-health.md`](./mcp-health.md) § App startup readiness gate |
 
 #### 12.9.1 Full NSIS vs hot zip **1.1.3.1**
 
 | Track | Version | Contents | Spec anchor |
 |-------|---------|----------|-------------|
-| **Full NSIS** | `1.1.3-dev` / `1.1.3` | #1–#8, #15–#17 + §12.8 #1–#5 | This §12.9 |
-| **Hot zip** | `1.1.3.1` | #9–#12, optional #13 + #18 dist | [`wanding-packaging-whitelist.md`](./wanding-packaging-whitelist.md) §16.6 |
+| **Full NSIS** | `1.1.3-dev` / `1.1.3` | #1–#8, #15–#17, **#21** + §12.8 #1–#5 | This §12.9 |
+| **Hot zip** | `1.1.3.1` | #9–#12, **#19**, **#20**, **#22**, optional #13 + #18 dist | [`wanding-packaging-whitelist.md`](./wanding-packaging-whitelist.md) §16.6 |
 
 #### 12.9.2 Known bug — About four-segment version display
 
@@ -903,6 +908,9 @@ Test-Path "D:\Projects\aionui-src\out\win-unpacked\AionUi.exe"   # 期望 True
 
 1. Merge **1.1.3.1** hot-path Python + seed to `main` (`claude-code-best`).
 2. **Pre-pack fill gate:** `install-health-manifest.json` must list `vendor/wanding/python/quotation/fill_items.py`, `fill_row_guard.py`, `inquiry_backfill.py`, `system/tool_dispatch.py`; `build-wanding.ps1` `Test-StagingWanDInstall` asserts `quote_tools.py` wiring. Dev runtime: `sync-dev-wanding-vendor.ps1 -Smoke` (repo → `D:\CCB-Wanding\vendor`, not auto).
+2b. **Pre-pack ROE gate (dev):** `.\ccb-installer\scripts\smoke-roe-judge-deploy.ps1` — universal slim ROE (#19+#22 merged); gate + realistic + regression tests.
+2d. **Pre-pack Gate-J (dev):** *(merged into 2b 2026-06-29)* — same `smoke-roe-judge-deploy.ps1`.
+2c. **Pre-pack quotation MCP gate (dev):** `.\ccb-installer\scripts\test-mcp-health.ps1 -Probe -Session` — config 29 items incl. `vendor/wanding/.env.accurate` + `quotation.env.AOL_*`; probe `match_quotation` + `get_inventory_by_code` (#20).
 3. `bun test` / `vitest` in `aionui-src` (workspace + `internalUpdateManifest`).
 4. Build **AionCore 0.1.29+**: `cargo build --release` in `AionCore/`.
 5. Build **AionUI win-unpacked**: `cd aionui-src/packages/desktop && bun run dist:win` (or `build-wanding` without `-SkipAionUiBuild`).

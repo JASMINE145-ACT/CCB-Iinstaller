@@ -241,8 +241,9 @@ Phase 0 requires **same username/password** on local AionUI and org VPS. If dev 
 
 | Channel | Consumer | Source | Notes |
 |---------|----------|--------|-------|
-| **A — Agent Read** | `quotation-agent` on multi-candidate match | Local shadow `wanding_business_knowledge.md` | Path fixed in agent/MCP `selection_context.knowledge_source`; content must match center via shadow |
+| **A — Agent Read** | `quotation-agent` on multi-candidate match | Local shadow `wanding_business_knowledge.md` | Path fixed in agent/MCP `selection_context.knowledge_source`; **Read-only** — do not Edit shadow for fleet updates (2026-06-28) |
 | **B — Python MCP internal** | `admin.org_knowledge_client.load_doc_content` | Org API first, file fallback | Logs `[KNOWLEDGE_SOURCE] Org API` on stderr when token + network OK |
+| **C — Agent append write** | User-confirmed shared rule in chat | MCP `append_business_rule` → PUT center | Requires org token; **append-only**; delete/full edit → `#/org-knowledge` UI |
 
 Agent Read **does not** fetch org HTTP URLs. Phase 0 acceptance = shadow file bytes match center after login.
 
@@ -267,9 +268,12 @@ Sidecar: `{path}.org-meta.json` with `{ slug, version, synced_at }`. **Do not** 
 
 #### Center edit → fleet rollout
 
-1. **Manager/admin (once):** Edit doc in center AionUI「组织知识库」→ save → center `version` increments.
-2. **Each employee:** Re-login AionUI (same username/password as org account) **or** run manual sync PS1.
-3. **Verify per machine:** `.org-meta.json` `version` matches center; optional Agent Read on multi-candidate quote shows updated text.
+1. **Manager/admin (once):** Edit doc in center AionUI「组织知识库」→ save → center `version` increments. **Preferred for delete / test cleanup / full rewrites.**
+2. **Chat append (optional):** User confirms → `append_business_rule` with `confirmed=true` → center version bump → shadow sync on triggers below.
+3. **Each employee:** Re-login AionUI (same username/password as org account) **or** run manual sync PS1 **or** wait for WS/foreground/60s sync.
+4. **Verify per machine:** `.org-meta.json` `version` matches center; optional Agent Read on multi-candidate quote shows updated text.
+
+**Common mistake (2026-06-28):** Agent Edit/Write local shadow md — changes one desktop only; center and other employees unchanged. See [`org-knowledge.md`](./org-knowledge.md) § Common mistakes.
 
 #### Per-employee one-time setup
 

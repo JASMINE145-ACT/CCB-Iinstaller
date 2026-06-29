@@ -384,6 +384,9 @@ D:\Projects\claude-code-best\ccb-installer\config\agents\cowork.aionui.json
 ...\ccb-subagent-gate\scripts\lib\warn.sh
 ...\ccb-subagent-gate\scripts\lib\mode.sh
 ...\ccb-subagent-gate\scripts\lib\parse-transcript.sh
+...\ccb-subagent-gate\scripts\lib\parse_transcript_roe.py
+...\ccb-subagent-gate\scripts\lib\roe-common.sh
+...\ccb-subagent-gate\scripts\validators\quotation-roe.sh
 ...\ccb-subagent-gate\scripts\validators\office-docx.sh
 ...\ccb-subagent-gate\scripts\validators\office-pptx.sh
 ...\ccb-subagent-gate\scripts\validators\office-xlsx.sh
@@ -395,6 +398,19 @@ D:\Projects\claude-code-best\ccb-installer\config\agents\cowork.aionui.json
 ```
 
 **Exclude:** `...\ccb-subagent-gate\tests\**`
+
+### 8.3 Quotation MCP health (#20)
+
+**Source:** `mcp_servers/quotation-server/dist/config.js` + **`python-spawner.js`** + `ccb-installer/config/mcp-health-manifest.json` + `ccb-installer/lib/mcp-stdio-probe.mjs` + `ccb-installer/scripts/ensure-wanding-settings.ps1`  
+**Staging:** `vendor/mcp-servers/quotation-server/dist/` (config + spawner) + **`vendor/wanding/.env.accurate`** (UTF-8 **no BOM**, ensure-wanding-settings)  
+**Verify:** `test-mcp-health.ps1 -Probe -Session` — 29 config (incl. `.env.accurate` BOM/parse); probe `match_quotation` + `get_inventory_by_code`. Guid inventory false-negative: [`mcp-health.md`](./mcp-health.md) § AOL inventory — closed root cause.
+
+### 8.4 App startup MCP warm (#23)
+
+**Source:** `ccb-installer/lib/warm-wanding-mcp.mjs`  
+**Staging:** `{install}/lib/warm-wanding-mcp.mjs` (same path AionUI main reads via `ccbStartupReadiness.ts`)  
+**Dev sync:** `start-dev-full.ps1` copies on every dev launch — not yet in NSIS/hot zip whitelist (open).  
+**Verify:** Guid banner L1→L2; first send no `Failed to fetch`; `bun test ccbStartupReadinessShared.test.ts`. Spec: [`mcp-health.md`](./mcp-health.md) § App startup readiness gate.
 
 ---
 
@@ -493,6 +509,7 @@ vendor\bun\bun.exe
 vendor\python-wanding\python.exe
 vendor\mcp-servers\quotation-server\dist\index.js
 vendor\wanding\data\
+vendor\wanding\python\main.py          (#20 — quotation MCP Python entry; health config + probe)
 vendor\mcp-servers\accurate-mcp\server.py
 vendor\mcp-servers\office-word-mcp\server.py
 vendor\mcp-servers\office-word-mcp\site-packages\
@@ -674,6 +691,10 @@ Cross-refs: [`internal-update.md`](./internal-update.md); add row to [`integrati
 | `dist/**` CCB rebuild (#13) | optional same release | optional |
 | `permissions.ts` excel auto-allow (#18) | ✅ with dist rebuild | ✅ via hot zip `dist` |
 | `MessageAcpPermission` radio layout (#17) | ✅ required | ❌ not in zip |
+| **ROE Stop gate (#19)** — merged into #22 (2026-06-29); `quotation-agent:roe:off` | ✅ cold build (seed+gate) | ✅ via hot zip `seed` |
+| **Quotation MCP Python path + health (#20)** — `config.js` fallback, `mcp-health-manifest.json`, `test-mcp-probe-layer.mjs` `tools/call`, **`vendor/wanding/.env.accurate`** | ✅ NSIS vendor tree | ✅ hot zip `vendor/mcp-servers/quotation-server` + run `ensure-wanding-settings` on target |
+| **Mixing brand icons (#21)** — `BrandIcon.tsx`, sidebar `Layout.tsx`, `devResourcesPath.ts`, `packages/desktop/resources/app.{ico,png}`; `Sync-AionUiBrandAssets` | ✅ required (renderer + taskbar `app.ico`) | ❌ not in zip |
+| **Universal ROE slim (#22, incl. #19)** — `generic-roe-judge.sh`, `parse_transcript_roe_judge.py`, `modes.json` `{agent}:roe-judge:block` + `quotation-agent:roe:off`, REJECT v4 (Already done + Prior attempt), `roe-judge-profiles/`, `test_roe_judge_realistic.py` | ✅ cold build (seed+gate) | ✅ primary via hot zip `seed` |
 | §12.8 NSIS relaunch / Toast / ACP retry / Tool banner (#1–#4) | ✅ if not already on 1.1.2 | partial (`acp-agent.js` in zip if included) |
 
 **Ops note:** After publishing hot `1.1.3.1`, manifest `ccb.version` becomes `1.1.3.1` while employees may still show About AionUI `1.1.2` until full NSIS — expected until #15 ships.

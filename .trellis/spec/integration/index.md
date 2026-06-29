@@ -15,7 +15,14 @@
 | Cross-layer latency / warmup / session id issues | [`aionui-ccb-boundary.md`](./aionui-ccb-boundary.md) § CCB session warmup + § idle agent |
 | CCB assistant profile handoff (preset cards → CCB sessions) | [`aionui-ccb-boundary.md`](./aionui-ccb-boundary.md) § CCB assistant profile handoff |
 | Adding a defensive fix to renderer / chatLib | [`defensive-fix-policy.md`](./defensive-fix-policy.md) — must include `// TODO(defensive)` |
-| **Adding a new AionCore crate** (work-tasks / org-knowledge / price-library / …) | [`aioncore-work-tasks.md`](./aioncore-work-tasks.md) § AionCore Development Model — self-built fork is primary; next migration = 016 |
+| **Adding a new AionCore crate** (work-tasks / org-knowledge / price-library / …) | [`aioncore-work-tasks.md`](./aioncore-work-tasks.md) § AionCore Development Model — self-built fork is primary; next migration = 018 |
+| **Org price library** (API + AionUI read-only MVP) | [`price-library.md`](./price-library.md) — incl. **LKG pollution** vs **expected** org_knowledge 401 / AOL degradations (§ Dev / smoke triage) |
+| **Org knowledge agent write** (append MCP, shadow read-only, **preview UX**) | [`org-knowledge.md`](./org-knowledge.md) § Agent write path + § Preview UX (2026-06-29) + Common mistakes |
+| **VPS org API deploy** (knowledge + price + work-task routes) | [`../../../scripts/org-phase0/vps-org-api-deploy-checklist.md`](../../../scripts/org-phase0/vps-org-api-deploy-checklist.md) |
+| **Subagent delivery gate / ROE / Gate-J** | [`agents-unified-model.md`](./agents-unified-model.md) § Subagent delivery gate, § Universal ROE, § Multi-candidate reply |
+| **Guid / sidebar / Team assistant catalog**（侧栏 emoji + 创建团队 Leader 列表） | [`agents-unified-model.md`](./agents-unified-model.md) § Sidebar avatar fix, § Team / conversation catalog unification (2026-06-29); [`../frontend/file-map.md`](../frontend/file-map.md) §7 |
+| **Quotation 多候选选型回复**（1 推荐 + bullet，禁止默认大表） | [`agents-unified-model.md`](./agents-unified-model.md) § Quotation multi-candidate reply; maint [`../../data/ccb-wanding-quotation.md`](../../data/ccb-wanding-quotation.md) §选型与澄清 |
+| **Quotation 多档查价 / 档位含义**（`get_product_price_tiers` + Read `data.Md`） | [`price-library.md`](./price-library.md) § Multi-tier query + `data.Md` read hook; agent SOP `ccb-installer/config/agents/quotation-agent.md` |
 | Layer 1 (desktop) only | You do not need this index. Go to [`../frontend/index.md`](../frontend/index.md). |
 
 ## Project strategy (5 lines)

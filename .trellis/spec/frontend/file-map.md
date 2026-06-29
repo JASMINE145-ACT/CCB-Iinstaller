@@ -34,6 +34,7 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Theme / color tokens | `uno.config.ts` (monorepo root) + `packages/desktop/src/renderer/theme/` |
 | i18n strings | `packages/desktop/src/renderer/services/i18n/locales/{zh-CN,en-US}/` — CCB model descriptions: flat keys `ccbModelMinimaxM3Description` etc. See [`ccb-model-settings-ui.md`](./ccb-model-settings-ui.md) |
 | Splash / loading screen | `packages/desktop/src/renderer/index.html` + `packages/desktop/src/process/index.ts` |
+| **Mixing brand (sidebar / login / taskbar)** | `renderer/components/layout/BrandIcon.tsx` + `Layout.tsx` (sidebar header); login `pages/login/index.tsx` → `assets/logos/brand/app.png`; main `process/utils/devResourcesPath.ts` + `index.ts` / `tray.ts` / `notificationBridge.ts` (dev `app.ico`); cold sync `ccb-installer/scripts/build-wanding.ps1` `Sync-AionUiBrandAssets` from `data/ChatGPT Image*.png` → `packages/desktop/resources/` + renderer asset — **1.1.3 #21** |
 | Hotkey / shortcut (UI side) | `packages/desktop/src/renderer/hooks/` |
 | Hotkey / shortcut (system side, e.g. global) | `packages/desktop/src/preload/` + `packages/desktop/src/process/bridge/` |
 
@@ -123,7 +124,11 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Read `settings.json` model for IPC | `packages/desktop/src/common/config/ccbModelSettings.ts` (main only) |
 | IPC bridge | `packages/desktop/src/process/bridge/ccbModelBridge.ts` |
 | Settings page cards + descriptions | `packages/desktop/src/renderer/components/settings/SettingsModal/contents/CcbModelSettingsPanel.tsx` (CCB branch); `ModelModalContent.tsx` delegates when `useCcbAuthorityActive` |
-| Shared assistant catalog (Guid + Settings) | `packages/desktop/src/common/assistants/fetchAssistantsCatalog.ts` — `ASSISTANTS_LIST_SWR_KEY` |
+| Shared assistant catalog (Guid + Settings + Team + sidebar) | `packages/desktop/src/common/assistants/fetchAssistantsCatalog.ts` — `ASSISTANTS_LIST_SWR_KEY` |
+| **Sidebar conversation row icon (emoji)** | `renderer/pages/conversation/GroupedHistory/ConversationRow.tsx` → `usePresetAssistantInfo.ts` — **must** use `fetchAssistantsCatalog` (not raw `assistants.list`); CCB fallback `ccbAgentsService.getAgent` |
+| **Team Create / cron / conversation agent picker** | `renderer/pages/conversation/hooks/useConversationAgents.ts` — preset list via **`fetchAssistantsCatalog`** + shared SWR key; consumers: `TeamCreateModal.tsx`, `CreateTaskDialog.tsx` |
+| Sidecar avatars (bundled) | `ccb-installer/config/agents/*.aionui.json` → deploy `deploy-seed-agents.ps1` |
+| CCB preset session extra | `common/utils/ccbPresetConversationExtra.ts` — writes `ccb_agent_id` + `preset_assistant_id` |
 | Settings → Agents (CCB) | Oracle: single Claude Code card — `LocalAgents.tsx` → `CcbLocalAgents`; `findCcbClaudeAgent` in `agentSelectionUtils.ts`. WanD presets on **Guid** `AssistantSelectionArea`, not Settings. See `parity-matrix-1.1.2.md`. |
 | Guid pill bar (CCB) | `filterPillBarAgents` in `agentSelectionUtils.ts`; `AgentPillBar.tsx` `ccbAuthorityActive` |
 | Guid action row (CCB session menu) | `GuidActionRow.tsx` `capabilitiesSource` / `sessionSkillNames` / `sessionMcpServerIds`; `GuidPage.tsx` |
@@ -134,4 +139,4 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Guid agent restore + `aionrs`→`claude` under CCB | `packages/desktop/src/renderer/pages/guid/hooks/useGuidAgentSelection.ts` |
 | `isGeminiMode` gate (`aionrs` only) | `packages/desktop/src/renderer/pages/guid/GuidPage.tsx` — `PROVIDER_BASED_AGENTS` |
 | zh-CN / en-US description strings | `packages/desktop/src/renderer/services/i18n/locales/{zh-CN,en-US}/settings.json` |
-| Unit tests | `tests/unit/common-config/ccbModelSettings.test.ts`, `ccbAcpModelInfo.test.ts`, `tests/unit/renderer/ccbModelCatalogDisplay.test.ts`, `tests/unit/common-assistants/fetchAssistantsCatalog.test.ts` |
+| Unit tests | `tests/unit/common-config/ccbModelSettings.test.ts`, `ccbAcpModelInfo.test.ts`, `tests/unit/renderer/ccbModelCatalogDisplay.test.ts`, `tests/unit/common-assistants/fetchAssistantsCatalog.test.ts`, `tests/unit/renderer/usePresetAssistantInfo.test.ts`, `tests/unit/renderer/useConversationAgents.dom.test.ts` |

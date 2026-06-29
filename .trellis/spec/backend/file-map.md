@@ -45,7 +45,7 @@
 | Want to change | File | Notes |
 |----------------|------|-------|
 | Quotation MCP entry (built) | `mcp_servers/quotation-server/dist/index.js` | Spawned by `settings.json` `mcpServers.quotation` |
-| Quotation config | `mcp_servers/quotation-server/dist/config.js` | `CCB_PROJECT_ROOT`, `DATA_DIR` |
+| Quotation config | `mcp_servers/quotation-server/dist/config.js` | `CCB_PROJECT_ROOT`, `DATA_DIR`; **2026-06-27 (#20):** fallback to bundled `vendor/wanding` when env root lacks `python/main.py` |
 | Match / fill tools | `mcp_servers/quotation-server/dist/tools/` | |
 | Python inventory backend | `python/inventory/` | Stock query logic for quotation MCP |
 | Python quotation logic | `python/quotation/` | Quote assembly, inquiry parsing, flow orchestration |

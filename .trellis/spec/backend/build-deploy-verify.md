@@ -136,6 +136,31 @@ User: 查询 直接50 价格
 
 Task log with captured transcripts: [`../../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md`](../../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md).
 
+### 3.4 MCP + skill health gate (#20 / #19)
+
+```powershell
+cd D:\Projects\claude-code-best
+.\ccb-installer\scripts\test-mcp-health.ps1 -Probe -Session   # 29 config + 4 probe + 5 session
+.\ccb-installer\scripts\smoke-roe-deploy.ps1                 # ROE gate 8/8
+```
+
+Spec: [`../integration/mcp-health.md`](../integration/mcp-health.md) · **AOL inventory closed** · **startup readiness gate** · snapshot [`../../tasks/06-27-quotation-mcp-health/progress-2026-06-28.md`](../../tasks/06-27-quotation-mcp-health/progress-2026-06-28.md).
+
+### 3.4a App startup readiness (dev — task `06-28-app-startup-readiness-gate`)
+
+After `start-dev-full.ps1` or AionUI package with `ccbStartupReadiness.ts`:
+
+1. Log: `[ok] Synced startup MCP warm script`
+2. Guid banner: config check → MCP warm → send enabled
+3. First message must not `Failed to fetch` on clean install
+
+```powershell
+cd D:\Projects\aionui-src
+bun test tests/unit/common-config/ccbStartupReadinessShared.test.ts
+```
+
+Spec: [`../integration/mcp-health.md`](../integration/mcp-health.md) § App startup readiness gate.
+
 ### 3.5 Wanding install E2E
 
 ```powershell

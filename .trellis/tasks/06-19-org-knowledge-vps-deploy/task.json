@@ -19,7 +19,7 @@
     "D:\\Projects\\claude-code-best\\docs\\org-knowledge-deploy.md",
     "d:\\Projects\\claude-code-best\\.trellis\\spec\\integration\\org-knowledge.md"
   ],
-  "notes": "VPS hot-snap-1 Ubuntu 22.04. Seed: 8 md from /opt/aionorg/data (full data dir on server). Runtime hot path remains wanding_business_knowledge only. Admin password from bootstrap — not in git.",
+  "notes": "VPS hot-snap-1 Ubuntu 22.04. Seed: 8 md from /opt/aionorg/data (full data dir on server). Runtime hot path remains wanding_business_knowledge only. Admin password from bootstrap — not in git. 2026-06-27: router rewire redeploy — org-knowledge/work-tasks/price-library smoke 401; deploy extract bug fixed in deploy-org-aioncore-vps.ps1.",
   "meta": {
     "vps": {
       "host": "67.216.206.3",

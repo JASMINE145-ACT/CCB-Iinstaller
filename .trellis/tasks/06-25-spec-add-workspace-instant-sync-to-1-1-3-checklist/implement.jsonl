@@ -4,3 +4,21 @@
 {"file": "ccb-installer/src/services/acp/permissions.ts", "reason": "§12.9 #18 — auto-allow mcp__excel__* alongside quotation/accurate (mirrored claude-code-b-src + claude-code-B)"}
 {"file": "aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/acp/MessageAcpPermission.tsx", "reason": "§12.9 #17 — remove size=mini, scoped radio layout fix"}
 {"file": "aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/acp/MessageAcpPermission.css", "reason": "§12.9 #17 — retro-windows .arco-radio 13×13 override scoped to permission card"}
+{"file": "aionui-src/packages/desktop/src/renderer/pages/guid/utils/fetchGuidAssistantDetail.ts", "reason": "Guid「+」menu — CCB profile/agent detail instead of ipcBridge.assistants.get (bd97fb5)"}
+{"file": "aionui-src/packages/desktop/src/renderer/pages/guid/GuidPage.tsx", "reason": "Guid「+」menu — sessionCcbAgent SWR + fetchGuidAssistantDetail in assistant detail fetchers"}
+{"file": "aionui-src/packages/desktop/src/renderer/pages/guid/GuidActionRow.tsx", "reason": "dev blocker — ternary `: null` fix (Guid white screen after login)"}
+{"file": "aionui-src/packages/desktop/src/process/services/ccb/ccbAgentMigration.ts", "reason": "migration.ccbWandingPrunePresets_v2 — delete cowork/word-form-creator live sidecars"}
+{"file": "ccb-installer/config/agents/cowork.md", "reason": "retired — removed from WanD ship set (b6eb59ef)"}
+{"file": "ccb-installer/config/agents/word-form-creator.md", "reason": "retired — removed from WanD ship set (b6eb59ef)"}
+{"file": "ccb-installer/config/agents/wande-orchestrator.md", "reason": "routing index updated — no cowork/word-form-creator delegation targets"}
+{"file": "aionui-src/packages/desktop/src/renderer/components/layout/BrandIcon.tsx", "reason": "§12.9 #21 — shared Mixing brand mark (app.png); sidebar + login same asset"}
+{"file": "aionui-src/packages/desktop/src/renderer/components/layout/Layout.tsx", "reason": "§12.9 #21 — replace inline AionUI SVG with BrandIcon in sidebar header"}
+{"file": "aionui-src/packages/desktop/src/process/utils/devResourcesPath.ts", "reason": "§12.9 #21 — dev resolveDevResourceFile prefers packages/desktop/resources over stale repo-root resources/"}
+{"file": "aionui-src/packages/desktop/src/index.ts", "reason": "§12.9 #21 — BrowserWindow dev icon via resolveDevResourceFile(app.ico)"}
+{"file": "aionui-src/packages/desktop/src/process/utils/tray.ts", "reason": "§12.9 #21 — tray icon path via resolveDevResourcesDir"}
+{"file": "aionui-src/packages/desktop/src/process/bridge/notificationBridge.ts", "reason": "§12.9 #21 — notification icon path via resolveDevResourcesDir"}
+{"file": ".trellis/spec/integration/internal-update.md", "reason": "§12.9 #21 Mixing brand checklist row + §12.9.1 Full NSIS scope"}
+{"file": ".trellis/spec/integration/wanding-packaging-whitelist.md", "reason": "§16.6 #21 brand icons NSIS-only"}
+{"file": ".trellis/spec/frontend/file-map.md", "reason": "§2 BrandIcon / brand assets / devResourcesPath"}
+{"file": ".trellis/spec/frontend/dev-test-ship.md", "reason": "§1 brand icon dev restart + asset sync note"}
+{"file": ".trellis/spec/guides/wanding-update-runbook.md", "reason": "§5 brand paths — BrandIcon + Sync-AionUiBrandAssets + devResourcesPath"}

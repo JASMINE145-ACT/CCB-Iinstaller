@@ -6,3 +6,15 @@
 {"file": "claude-code-B/src/services/acp/__tests__/mcpToolRepeatGuard.test.ts", "reason": "test-agent: 13/13 PASS (2026-06-27)"}
 {"file": "aionui-src/tests/unit/renderer/askUserQuestionIds.test.ts", "reason": "test-agent: 7/7 PASS — AskUserQuestion path unaffected (2026-06-27)"}
 {"file": "D:\\CCB-Wanding\\dist", "reason": "deploy-claude-code-b-to-wanding.ps1 — live dist includes mcp__excel__ auto-allow (#18)"}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "验收：§538 prune v2 retire cowork/word-form-creator; §633 5 Guid preset cards"}
+{"file": "aionui-src/tests/unit/renderer/guid/fetchGuidAssistantDetail.test.ts", "reason": "test-agent: fetchGuidAssistantDetail CCB profile path (2026-06-27, bd97fb5)"}
+{"file": "aionui-src/tests/unit/renderer/guid/guidCapabilitiesCatalog.test.ts", "reason": "test-agent: resolveCcbMcpAllowlistIds (2026-06-27)"}
+{"file": "ccb-installer/config/agents/", "reason": "验收：6 seed agents only — no cowork.md / word-form-creator.md (b6eb59ef)"}
+{"file": "%LOCALAPPDATA%\\CCB-Wanding\\.claude\\agents", "reason": "local ops: deploy-seed-agents + manual unlink — 6 live agents, 5 Guid cards"}
+{"file": ".trellis/spec/integration/internal-update.md", "reason": "验收：§12.9 #21 Mixing brand icons row + §12.9.1 Full NSIS includes #21"}
+{"file": ".trellis/spec/integration/wanding-packaging-whitelist.md", "reason": "验收：§16.6 #21 brand icons NSIS-only row"}
+{"file": ".trellis/spec/frontend/file-map.md", "reason": "验收：§2 BrandIcon / devResourcesPath file map"}
+{"file": "aionui-src/packages/desktop/src/renderer/components/layout/BrandIcon.tsx", "reason": "§12.9 #21 — sidebar brand uses app.png (2026-06-28, uncommitted)"}
+{"file": "aionui-src/packages/desktop/src/process/utils/devResourcesPath.ts", "reason": "§12.9 #21 — dev icon path prefers packages/desktop/resources (2026-06-28)"}
+{"file": ".trellis/spec/frontend/dev-test-ship.md", "reason": "验收：§1 #21 Mixing brand — BrandIcon / devResourcesPath / restart + Sync-AionUiBrandAssets note (2026-06-28)"}
+{"file": ".trellis/spec/guides/wanding-update-runbook.md", "reason": "验收：§5 #21 brand paths — NSIS vs dev table"}

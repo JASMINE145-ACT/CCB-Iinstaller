@@ -14,18 +14,26 @@
 
 ---
 
-## Quotation MCP tools (verified from `dist/index.js`)
+## Quotation MCP tools (verified from `dist/index.js` — 2026-06-29)
 
 | Tool | Purpose |
 |------|---------|
 | `match_quotation` | Natural-language product → candidates (`keywords`, `customer_level`) |
-| `match_quotation_batch` | Multiple keywords in one call |
-| `search_inventory` | Stock by description (e.g. `三通50`) |
+| `match_quotation_batch` | Multiple keywords in one call (≤50) |
 | `get_inventory_by_code` | Stock by product code |
 | `get_inventory_by_code_batch` | Up to 50 codes |
-| `fill_quotation_sheet` | Write matched lines to Excel |
+| `fill_quotation_sheet` | Write matched lines to Excel | Default: VANTSING blank template, IDR, today; inherit session match — see [`agents-unified-model.md`](../integration/agents-unified-model.md) § Quotation sheet fill defaults |
 | `parse_excel_smart` | Parse uploaded quotation sheet |
-| `ask_clarification` | Multi-match disambiguation (pairs with AionUI `AskUserQuestion`) |
+| `ask_clarification` | Multi-match disambiguation payload (agent uses assistant text, not AskUserQuestion) |
+| `get_product_price_tiers` | All non-zero price tiers for one code (org price library) |
+| `append_business_rule` | Append confirmed rule to org `wanding_business_knowledge` (not local shadow) |
+
+**Not MCP-exposed (agent must not call):**
+
+| Name | Status |
+|------|--------|
+| `match_price_and_get_inventory` | **Retired from agent surface 2026-06-29** — never in `index.js`; L1 routes price+stock via `match_quotation` → `get_inventory_by_code`. Internal Python still used by fill flow. See [`agents-unified-model.md`](../integration/agents-unified-model.md) § Quotation price+stock routing. |
+| `search_inventory` | Not in current `index.js`; maint may reference for legacy — use `match_quotation` → `get_inventory_by_code` until re-registered. |
 
 Model-facing names in session: `mcp__quotation__<tool>` (e.g. `mcp__quotation__match_quotation`).
 
@@ -85,6 +93,7 @@ cd D:\Projects\claude-code-best\ccb-installer\scripts
 
 | Symptom | Likely layer | Fix |
 |---------|--------------|-----|
+| `No such tool available: match_price_and_get_inventory` | L1 / maint prompt drift | Agent prompt recommends unregistered tool — see [`agents-unified-model.md`](../integration/agents-unified-model.md) § Quotation price+stock routing; `deploy-seed-agents.ps1 -ForceMd`; new Guid session |
 | Tool returns wrong candidates | MCP / Python / data xlsx | This doc + `python/inventory` |
 | Tool not in model's tool list | ACP / `$buildMcp` | [`route-b-status.md`](./route-b-status.md), [`source-migration-mcp.md`](./source-migration-mcp.md) |
 | Tool runs but UI doesn't show result | AionUI renderer | [`../frontend/chat-acp-flow.md`](../frontend/chat-acp-flow.md) |

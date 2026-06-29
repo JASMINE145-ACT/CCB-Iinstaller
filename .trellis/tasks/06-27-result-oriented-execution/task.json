@@ -1,0 +1,29 @@
+{
+  "id": "06-27-result-oriented-execution",
+  "name": "06-27-result-oriented-execution",
+  "title": "结果导向执行 ROE Stop Gate 自动续跑",
+  "description": "Platform ROE contract: extend ccb-subagent-gate Stop hook, auto-continue until Done, quotation write path first.",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": "ccb-subagent-gate skill, agent seeds (quotation/orchestrator), eval fixtures, integration spec — no AionUI renderer changes in v1",
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-27",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "06-28-roe-semantic-judge-l2-mvp",
+    "06-29-roe-slim-universal"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "MVP Track A M1-M7 done on dev machine 2026-06-27. Deploy: deploy-subagent-gate-skill.ps1 + deploy-seed-agents.ps1 -ForceMd. Smoke: smoke-roe-deploy.ps1 8/8 PASS. Spec: agents-unified-model.md § ROE. Pending: manual Guid edit-order chat smoke. Child 2026-06-28: 06-28-roe-semantic-judge-l2-mvp (archived). Child 2026-06-29: 06-29-roe-slim-universal — merge dual gate, Already done anti-loop, direction B.",
+  "meta": {}
+}

@@ -26,40 +26,40 @@ node "node_modules\.bun\electron@*\node_modules\electron\install.js"
 
 > **Don't use `bun run webui` for desktop chat UI work.** Webui uses `packages/web-host` — different entry path than `packages/desktop` renderer components (`chatLib.ts`, `hooks.ts`, `MessageThinking.tsx`, `MessageAcpPermission.tsx`, etc.).
 
-### Daily loop
+### Daily loop (canonical only)
 
 ```powershell
-# 1. aioncore must be on PATH (dev mode cannot find bundled resources)
-$env:PATH += ";D:\Projects\claude-code-best\AionUi\resources\bundled-aioncore\win32-x64"
-
-# 2. Start dev
-cd D:\Projects\aionui-src
-bun run dev
-# Equivalent: electron-vite dev --config packages/desktop/electron.vite.config.ts
-# Renderer HMR: http://localhost:5173/ — pure renderer edits usually need no restart
+# Sole supported dev entry — see Rule 0 in dev-sync-playbook.md
+.\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap
 ```
 
-| | `bun run dev` | `bun run dist:win` |
+| Step | What it does |
+|------|----------------|
+| Preflight | org-server.json, route-b slot, bun/python/MCP/agents |
+| Bootstrap | CCB Quick baseline (omit with `-SkipBootstrap`) |
+| route-b sync | ACP patch into dev + Roaming runtime slots |
+| sync-dev-aioncore | `-Build` by default; smoke price-library + **work-tasks** + **org-knowledge** (401 ≠ 404) |
+| SSO env | `env.local` / `sso.env` → org-idp, no bypass |
+| Launch | kill stale electron/aioncore → `bun run dev` |
+
+**Do not use:** bare `bun run dev`, `start-aionui-dev.ps1`, `start-aionui-dev-work-tasks.ps1`, `start-aionui-dev-org-test.ps1` — all retired / redirect to `start-dev-full.ps1` (2026-06-27).
+
+| | `start-dev-full.ps1` | `bun run dev` alone |
 |---|---|---|
-| Use for | UI/renderer iteration | Final deploy to Roaming slot |
-| Hot reload | Yes (renderer) | No — full build ~3–5 min |
-| Data dir | Dev profile (e.g. `~/.aionui-dev`) | `AppData\Roaming\AionUi\` |
-| UI scenario checks | Sufficient during dev | Re-run once before ship |
+| Use for | **All** dev / smoke / parity | ❌ Forbidden |
+| Org SSO | Yes | No (local `/login` 401) |
+| work-tasks API | Yes (synced aioncore) | Stale / missing routes |
+| Hot reload | Yes (renderer HMR) | Yes but wrong backend |
 
-Dev and production exe **data directories differ** — sessions and agent config may not match; that is expected.
+> **2026-06-27:** Guid 助手卡片与 repo keep set 不同步（例：仍显示 Cowork / 可填表单）→ live `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\` 未删退役文件；`deploy-seed-agents` 只复制不删除。见 [`../integration/dev-sync-playbook.md`](../integration/dev-sync-playbook.md) **§4.7**。
 
-### Dev launchers (pick the right script)
+> **2026-06-27:** 主登录成功但侧栏「知识库」仍提示去登录 → org HTTP 必须走 **`orgHttpBridge` / IPC**，不能 renderer 直连 VPS。改 `OrgAuthContext` 或 `ipcBridge.orgKnowledge` 后 **重启 dev**（非纯 HMR 场景）。见 [`../integration/dev-sync-playbook.md`](../integration/dev-sync-playbook.md) **§4.8**。
 
-| Script | SSO / login | CCB bootstrap + route-b | Use when |
-|--------|-------------|-------------------------|----------|
-| `ccb-installer/scripts/start-dev-full.ps1` | **Yes** — loads `scripts/org-phase0/env.local` or `%LOCALAPPDATA%\CCB-Wanding\config\sso.env` (`AIONUI_SSO_MODE=org-idp`, `JWT_SECRET`) | Yes (Quick bootstrap + route-b sync) | **Default for Mixing parity** — org login (`yjc`), sidebar 任务/知识库, user chip |
-| `ccb-installer/scripts/start-aionui-dev.ps1` | **Bypass** (`AIONUI_BYPASS_AUTH=1`) unless overridden | Yes | Fast UI iteration without login; **not** for SSO smoke |
-| `scripts/org-phase0/start-aionui-dev-org-test.ps1` | Org-idp, no bypass | Minimal | Org SSO-only test from org-phase0 scripts |
-| `scripts/start-aionui-dev-work-tasks.ps1` | Bypass + self-built aioncore | Work-tasks API smoke | `/tasks` API needs `AionCore/target/release` on PATH |
-
-> **2026-06-26:** Bare `bun run dev` without SSO env posts login to **local** `POST /login` → 401 with valid org credentials. Always use `start-dev-full.ps1` for employee SSO parity.
+> **2026-06-28:** 侧栏 **价格库** — 只读 **41 列**表；VPS **v2 / 3082** active（full schema）。运维 import/publish 见 [`price-library.md`](../integration/price-library.md)（**CSRF 必填**）与 [`../../scripts/org-phase0/minimal-shared-price-closure.md`](../../scripts/org-phase0/minimal-shared-price-closure.md)。
 
 **When to restart dev:** main process, preload, or native deps changed → Ctrl+C and relaunch via script (not Ctrl+R in Electron). Pure `renderer/` / `common/` saves usually HMR without restart.
+
+> **2026-06-28:** **Mixing 品牌图 (#21)** — 侧栏头须走 `BrandIcon` → `assets/logos/brand/app.png`（非 inline AionUI SVG）；**任务栏/托盘**走 main 进程 `app.ico`（`packages/desktop/resources/`，dev 经 `devResourcesPath.ts`）。换图：`data/ChatGPT Image*.png` → `build-wanding.ps1` 的 `Sync-AionUiBrandAssets`，或手动复制到 `assets/logos/brand/app.png` + `packages/desktop/resources/`。**改 main/preload/图标路径后必须整进程重启**（`start-dev-full.ps1`）；纯 renderer 可 HMR。见 [`file-map.md`](./file-map.md) §2 · [`internal-update.md`](../integration/internal-update.md) §12.9 #21。
 
 ---
 

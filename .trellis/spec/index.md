@@ -89,13 +89,14 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 | [`wanding-mvp-v1.md`](./integration/wanding-mvp-v1.md) | ✅ MVP v1 scope contract |
 | [`wanding-packaging-whitelist.md`](./integration/wanding-packaging-whitelist.md) | ✅ Install dir file whitelist |
 | [`internal-update.md`](./integration/internal-update.md) | ✅ VPS manifest + hot update ops |
-| [`mcp-health.md`](./integration/mcp-health.md) | ✅ MCP health CLI + UI |
+| [`mcp-health.md`](./integration/mcp-health.md) | ✅ MCP health CLI + UI · **§ AOL inventory closed** · **§ App startup readiness gate** (2026-06-28) |
 | [`dev-runtime-layers.md`](./integration/dev-runtime-layers.md) | ✅ Dev layer map (save ≠ deploy) |
 | [`dev-sync-playbook.md`](./integration/dev-sync-playbook.md) | ✅ Dev sync commands + smoke |
-| [`org-knowledge.md`](./integration/org-knowledge.md) | ✅ Org knowledge API / dual JWT |
+| [`price-library.md`](./integration/price-library.md) | ✅ Org price library API + AionUI read-only (v2 / 41 cols) |
+| [`org-knowledge.md`](./integration/org-knowledge.md) | ✅ Org knowledge API / dual JWT / agent append + shadow read-only |
 | [`org-knowledge-phase0-rollout.md`](./integration/org-knowledge-phase0-rollout.md) | ✅ Phase 0 login linkage ops |
 | [`unified-org-sso-rollout.md`](./integration/unified-org-sso-rollout.md) | ✅ Unified org SSO pilot + fleet |
-| [`agents-unified-model.md`](./integration/agents-unified-model.md) | ✅ Agent markdown + sidecar storage |
+| [`agents-unified-model.md`](./integration/agents-unified-model.md) | ✅ Agent markdown + sidecar + subagent gate / ROE / Gate-J · **§ price+stock + image inquiry (2026-06-29)** |
 | [`aioncore-work-tasks.md`](./integration/aioncore-work-tasks.md) | ✅ `/tasks` work-tasks API |
 | [`platform-architecture.md`](./integration/platform-architecture.md) | ✅ Platform index → `docs/` |
 | [`platform-vertical-packages.md`](./integration/platform-vertical-packages.md) | ✅ ADR — vertical packages |
@@ -105,6 +106,12 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 
 | Doc | Role |
 |-----|------|
+| [`../tasks/06-28-app-startup-readiness-gate/prd.md`](../tasks/06-28-app-startup-readiness-gate/prd.md) | **P1 in progress** — app startup readiness gate; spec [`integration/mcp-health.md`](./integration/mcp-health.md) § App startup readiness gate |
+| [`../tasks/06-28-app-startup-readiness-gate/progress-2026-06-28.md`](../tasks/06-28-app-startup-readiness-gate/progress-2026-06-28.md) | MVP L1+L2 implemented; `.then()` init crash fixed (2026-06-28) |
+| [`../tasks/06-27-quotation-mcp-health/progress-2026-06-28.md`](../tasks/06-27-quotation-mcp-health/progress-2026-06-28.md) | MCP health 29/29 + **AOL BOM fix closed** (2026-06-28) |
+| [`../tasks/06-27-quotation-mcp-health/progress-2026-06-27.md`](../tasks/06-27-quotation-mcp-health/progress-2026-06-27.md) | Quotation MCP #20 — python path + probe (2026-06-27) |
+| [`../tasks/06-27-result-oriented-execution/progress-2026-06-27.md`](../tasks/06-27-result-oriented-execution/progress-2026-06-27.md) | ROE Stop gate #19 MVP (2026-06-27) |
+| [`../tasks/archive/2026-06/06-28-roe-semantic-judge-l2-mvp/`](../tasks/archive/2026-06/06-28-roe-semantic-judge-l2-mvp/) | Gate-J in-process self-check MVP (2026-06-28) |
 | [`../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md`](../tasks/archive/2026-06/06-12-route-b-exe-aionui-runtime/aionui-ccb-wanding-acp-mcp-fix.md) | Archived Route B progress / transcripts (2026-06-12) |
 | [`../ccb-installer/AIONUI-BACKEND-STATUS.md`](../ccb-installer/AIONUI-BACKEND-STATUS.md) | Raw status source for route-b-status |
 

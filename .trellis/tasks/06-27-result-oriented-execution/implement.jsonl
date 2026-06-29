@@ -1,0 +1,6 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".trellis/tasks/06-27-result-oriented-execution/prd.md", "reason": "Full ROE requirements, acceptance criteria, PR0-PR4 plan"}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "Delivery gate precedent, Stop hook architecture, quotation gate modes"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/SKILL.md", "reason": "Gate skill entry, modes.json, deploy scripts"}
+{"file": "ccb-installer/config/agents/quotation-agent.md", "reason": "SOP to update: ROE, edit-existing-quotation flow"}
+{"file": "docs/loop-design.md", "reason": "MVP design influence: Goal+Validation, MAX iterations, no agent stacking"}

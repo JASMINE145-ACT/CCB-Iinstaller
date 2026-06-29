@@ -2,7 +2,7 @@
 
 > Human organization tasks (`/tasks` in AionUI). Separate from cron jobs (`/scheduled`) and agent `team_tasks` MCP.
 
-**Status:** Phase 1–3 implemented (2026-06-15). Phase 2: RBAC + dual-view UI. Phase 3: manager query API + optional MCP. Self-built aioncore required — bundled v0.1.27 still lacks `/api/work-tasks`.
+**Status:** Phase 1–3 implemented (2026-06-15). Phase 2: RBAC + dual-view UI. Phase 3: manager query API + optional MCP. Self-built aioncore required — bundled v0.1.27 still lacks `/api/work-tasks`. **2026-06-27:** `aionui-work-tasks` re-merged into `aionui-app` router (local dev + org VPS binary); smoke **401** on `GET /api/work-tasks`. Employee `/tasks` UI still uses **local** aioncore — see [`dev-sync-playbook.md`](./dev-sync-playbook.md) Rule 0.
 
 ---
 
@@ -30,7 +30,7 @@ Self-built aioncore **v0.1.29+** removed legacy `GET/PUT /api/conversations/:id/
 - **404 handling:** pre-warmup (no agent), missing config-options route, or removed legacy route → reads return `{ model_info: null }` / `{ mode: 'default', initialized: false }` without throwing.
 - **Detection cache:** module-level; only caches “route missing” (`Route not found.`) — not “no active agent”.
 - **Source:** `aionui-src/packages/desktop/src/common/adapter/acpConfigOptionsAdapter.ts`
-- **Dev:** use `scripts/start-aionui-dev-work-tasks.ps1` for **chat + /tasks** on the same self-built binary. Bundled dev (`ccb-installer/scripts/start-aionui-dev.ps1`) supports chat via legacy `/model|/mode` only — no `/api/work-tasks`.
+- **Dev:** use **`ccb-installer/scripts/start-dev-full.ps1`** only — syncs self-built aioncore with `/api/work-tasks` + org SSO. Retired: `start-aionui-dev-work-tasks.ps1`.
 - **Verified 2026-06-16:** user acceptance — new CCB「你好」+ `/tasks` CRUD on unified dev smoke **PASS**.
 
 ---
@@ -65,7 +65,7 @@ Self-built aioncore **v0.1.29+** removed legacy `GET/PUT /api/conversations/:id/
 2. Bundled baseline stays at v0.1.27; it is never rebuilt for feature additions.
 3. Both dev workstation and VPS org server must run self-built binary to use new APIs.
 4. Build command: `scripts/build-aioncore-work-tasks.cmd` (vcvars64 + `cargo build --release`).
-5. Dev launcher: `scripts/start-aionui-dev-work-tasks.ps1` (puts self-built binary first in PATH).
+5. Dev launcher: **`ccb-installer/scripts/start-dev-full.ps1`** only (Rule 0 — see [`dev-sync-playbook.md`](./dev-sync-playbook.md) §1). Retired: `start-aionui-dev-work-tasks.ps1` (redirects).
 
 ### Migration sequence (append-only; never edit deployed migrations)
 

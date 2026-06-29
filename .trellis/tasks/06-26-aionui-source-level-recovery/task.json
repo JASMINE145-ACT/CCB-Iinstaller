@@ -102,7 +102,7 @@
     "D:/Projects/aionui-src/packages/desktop/src/renderer/pages/guid/utils/guidCapabilitiesCatalog.ts",
     "D:/Projects/aionui-src/"
   ],
-  "notes": "2026-06-27: Layer 1–4 wired in uncommitted aionui-src (shell, Settings 五页, Guid handoff). Phase 4 = full cold build + runtime smoke; commit aionui-src pending.",
+  "notes": "2026-06-27: Layer 1–4 wired in aionui-src. Org API parity on VPS (3-route 401). Phase 4 = full cold build + runtime smoke; commit AionCore + aionui-src pending.",
   "meta": {
     "baseline_version": "1.1.2",
     "baseline_staging": "ccb-installer/staging",

@@ -342,7 +342,23 @@ Development Flow:
 
 - `/trellis:break-loop` - Analyzes bugs deeply, often reveals spec updates needed
 - `/trellis:update-spec` - Actually makes the updates
-- `/trellis:finish-work` - Reminds you to check if specs need updates
+- `/trellis:finish-work` - Step 2.5 spec sync gate before archive (load this skill there)
+
+---
+
+## Task wrap-up checklist
+
+Use when finishing a task (`/trellis:finish-work` Step 2.5 or Phase 3.3 before commit):
+
+1. **Collect targets** — read `implement.jsonl`, `check.jsonl`, `task.json` → `relatedFiles`, and `prd.md` Delivered / Acceptance for paths under `.trellis/spec/`.
+2. **Decide** — for each target, is there new pattern, contract, pitfall, or decision worth codifying? If yes, update the spec (follow Code-Spec First Rule above). If no, say so explicitly.
+3. **Spec-only tasks** — when the task *is* spec work, sync `prd.md` Delivered / Acceptance checkboxes with what landed in spec files.
+4. **Audit** — append one line to `task.json` → `notes`:
+   - `YYYY-MM-DD: spec updated — <path>: <one-line summary>`, or
+   - `YYYY-MM-DD: spec: no update — <reason>`
+5. **Commit order** — spec edits belong in a work commit (Phase 3.4) *before* `/trellis:finish-work` archive; if you edit spec during Step 2.5, stop and commit spec diff first.
+
+Skipping the checklist without a `spec: no update` note in `task.json` notes is not acceptable for archive.
 
 ---
 

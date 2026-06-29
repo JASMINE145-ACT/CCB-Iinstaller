@@ -30,7 +30,7 @@
     "D:\\Projects\\claude-code-best\\scripts\\start-aionui-dev-work-tasks.ps1",
     "d:\\Projects\\claude-code-best\\.trellis\\spec\\integration\\aioncore-work-tasks.md"
   ],
-  "notes": "Phase 1 single-user. Self-built aioncore v0.1.29 at AionCore/target/release/aioncore.exe. Dev: scripts/start-aionui-dev-work-tasks.ps1. Bundled v0.1.27 still lacks /api/work-tasks.",
+  "notes": "Phase 1 single-user. Self-built aioncore v0.1.29+. Dev: ccb-installer/scripts/start-dev-full.ps1 only (retired start-aionui-dev-work-tasks.ps1). 2026-06-27: aionui-app router re-merge; local + VPS GET /api/work-tasks → 401 smoke. Employee /tasks uses local aioncore.",
   "meta": {
     "blocked_by_resolved": "aioncore open source; self-build path documented and verified on Windows",
     "verification": {

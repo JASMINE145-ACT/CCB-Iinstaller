@@ -193,14 +193,22 @@ http://67.216.206.3/updates/ccb/CCB-Wanding-1.0.X.exe
 
 ---
 
-## 5. AionUI / 品牌改动（Mixing 更名、侧栏图标）
+## 5. AionUI / 品牌改动（Mixing 更名、侧栏 / 任务栏图标）
 
 | 改动 | 热更 zip | 全量 NSIS |
 |------|----------|-----------|
 | `aionui-src` 侧栏名、About、`app.asar` | ❌ | ✅ 必须重建 AionUI |
-| `resources/app.ico`、任务栏图标 | ❌ | ✅ |
+| Sidebar header `BrandIcon.tsx` + `assets/logos/brand/app.png` (#21) | ❌ | ✅ renderer in `app.asar` |
+| `resources/app.ico`、任务栏 / 托盘图标 (#21) | ❌ | ✅ `packages/desktop/resources/` |
+| Dev-only: `devResourcesPath.ts`（勿读 stale 根目录 `resources/`） | N/A | N/A — dev 源码 |
 | `ccb.ico`、快捷方式图标 | ❌ | ✅ `build-wanding.ps1` |
 | 仅 `claude-code-B/dist` 后端逻辑 | ✅ `-Components dist` | 可选 |
+
+**Asset sync（换图）：** `data/ChatGPT Image*.png` → `build-wanding.ps1` **`Sync-AionUiBrandAssets`** copies to:
+- `aionui-src/packages/desktop/src/renderer/assets/logos/brand/app.png`（login + sidebar）
+- `aionui-src/packages/desktop/resources/app.png` + `app.ico`（taskbar / tray / NSIS pack)
+
+**Dev 注意：** `start-dev-full.ps1` **不**跑 brand sync；改图标后重启整进程（非 Ctrl+R）。
 
 ```powershell
 # 全量（品牌 / 图标 / app.asar）

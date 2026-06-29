@@ -42,7 +42,7 @@ Schema reference in source: `D:\claude-code-B\src\utils\settings\types.ts` (`mcp
 | File | Role |
 |------|------|
 | `D:\CCB-Wanding\vendor\wanding\data\ccb-wanding-quotation.md` | Quotation business rules |
-| `D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md` | General Wanding context |
+| `D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md` | **Shadow copy** of center org doc `wanding_business_knowledge` — Agent **Read-only**; synced from VPS via login/WS/UI save ([`org-knowledge.md`](../integration/org-knowledge.md) § Shadow sync). **Do not** treat as fleet write target. |
 | `*.xlsx` in same folder | Price / mapping tables for MCP tools |
 
 Copied / referenced by `ensure-wanding-settings.ps1` and quotation MCP `DATA_DIR`.
@@ -67,7 +67,8 @@ Do not merge Wanding instructions into official `C:\Users\m1774\.claude\CLAUDE.m
 | `CLAUDE_CONFIG_DIR` | route-b launcher | Must point to CCB-Wanding `.claude` |
 | `ANTHROPIC_BASE_URL` | settings `env` | MiniMax endpoint for CCB |
 | `ANTHROPIC_AUTH_TOKEN` | settings `env` | CCB API key |
-| `CCB_PROJECT_ROOT` | quotation MCP config | Repo / data root for tools |
+| `CCB_PROJECT_ROOT` | quotation MCP config (`ensure-wanding-settings.ps1` → `{install}\vendor\wanding`) | Python entry `python/main.py`. Health (#20): path + `-Probe` `match_quotation`. |
+| `AOL_*` (inventory) | `settings.json` → `mcpServers.quotation.env` **and** `{install}/vendor/wanding/.env.accurate` | Accurate Online stock API. Dual path: settings for health; `.env.accurate` fallback when MCP spawn omits empty `AOL_*`. **Write:** UTF-8 **no BOM** only (`WriteAllText`). **Read:** `load_dotenv(..., encoding="utf-8-sig")`. **Spawn:** `python-spawner.js` must **delete** empty `AOL_*` keys (never pass `""`). Health: config checks three keys + `.env.accurate` BOM/parse probe; `-Probe` `get_inventory_by_code`. See [`mcp-health.md`](../integration/mcp-health.md) § AOL inventory — closed root cause. |
 
 **Anti-pattern:** `setx ANTHROPIC_*` at user level — pollutes official Claude sessions.
 
@@ -80,6 +81,8 @@ Do not merge Wanding instructions into official `C:\Users\m1774\.claude\CLAUDE.m
 | New MCP server entry | `settings.json` + spawn script if installer default |
 | MiniMax key / URL | `settings.json` `env` only |
 | Quotation tool data paths | `mcp_servers/quotation-server/dist/config.js` + Wanding `data\` |
+| Quotation MCP health regression | `test-mcp-health.ps1 -Probe -Session` (#20) — must PASS before pack |
+| AOL inventory credentials | `ensure-wanding-settings.ps1` → `.env.accurate` (no BOM) + `mcpServers.quotation.env.AOL_*` + sync `python-spawner.js` | Closed 2026-06-28 — see `mcp-health.md` § AOL inventory |
 | Installer first-run defaults | `ensure-wanding-settings.ps1` + `resources/settings/` |
 
 After settings-only changes: restart ACP child (AionUI new chat or aioncore restart). No `bun run build` unless TypeScript spawn logic changed.
