@@ -302,6 +302,21 @@ Update Trellis specs when implementation lands:
 - Operational backup, restore, rollout, and rollback notes are documented.
 - Trellis specs listed in §Spec and Packaging Updates are amended.
 
+## Delivered — MVP (2026-06-28, task closed)
+
+**Closure doc:** [`mvp-closure-2026-06-28.md`](./mvp-closure-2026-06-28.md)
+
+MVP scope (shared remote read + VPS publish) **done**. Full PRD acceptance above remains **open** for deferred items (admin UI, quotation stale output, fleet E2E, PR0 smoke paths).
+
+| MVP criterion | Status |
+|---------------|--------|
+| Org API + VPS published active (3082 products) | ✅ |
+| Employee read via org JWT (`GET /active`) | ✅ API; UI wired |
+| Quotation org client in repo + vendor sync path | ✅ code; E2E deferred |
+| Ops import/publish (CSRF curl) | ✅ runbook + fleet v1 |
+| Read-only AionUI price library page | ✅ |
+| Trellis `price-library.md` | ✅ |
+
 ## Out of Scope (Temporary)
 
 - Replacing the existing AOL inventory service.

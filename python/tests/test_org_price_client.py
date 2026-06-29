@@ -80,7 +80,7 @@ class TestApiGet(unittest.TestCase):
         mock_resp.read.return_value = json.dumps(response_payload).encode()
 
         with patch("admin.org_price_client._org_server_url", return_value="http://localhost:3000"), \
-             patch("admin.org_price_client._org_session_token", return_value="tok123"), \
+             patch("admin.org_price_client._org_session_token_candidates", return_value=["tok123"]), \
              patch("urllib.request.urlopen", return_value=mock_resp):
             result = _api_get("/api/price-library/active")
 
@@ -95,23 +95,72 @@ class TestApiGet(unittest.TestCase):
 
         self.assertIsNone(result)
 
-    def test_401_triggers_token_refresh_and_retry(self) -> None:
+    def test_401_with_no_tokens_returns_none(self) -> None:
+        from admin.org_price_client import _AuthError, _api_get
+
+        def fake_make_request(path: str, token: str):
+            self.assertEqual(token, "")
+            raise _AuthError("401 Unauthorized")
+
+        with patch("admin.org_price_client._make_request", side_effect=fake_make_request), \
+             patch("admin.org_price_client._org_session_token_candidates", return_value=[]):
+            result = _api_get("/api/price-library/active")
+
+        self.assertIsNone(result)
+
+    def test_401_tries_all_token_candidates_then_fails(self) -> None:
         from admin.org_price_client import _AuthError, _api_get
 
         call_count = {"n": 0}
 
         def fake_make_request(path: str, token: str):
             call_count["n"] += 1
-            # Both calls raise _AuthError (401); second attempt also fails.
             raise _AuthError("401 Unauthorized")
 
         with patch("admin.org_price_client._make_request", side_effect=fake_make_request), \
-             patch("admin.org_price_client._org_session_token", side_effect=["old-token", "new-token"]):
+             patch(
+                 "admin.org_price_client._org_session_token_candidates",
+                 return_value=["stale-prod-token", "fresh-dev-token"],
+             ):
             result = _api_get("/api/price-library/active")
 
-        # Both attempts raised _AuthError → result is None (graceful fallback)
         self.assertIsNone(result)
         self.assertEqual(call_count["n"], 2)
+
+    def test_401_on_first_token_succeeds_on_second(self) -> None:
+        from admin.org_price_client import _AuthError, _api_get
+
+        def fake_make_request(path: str, token: str):
+            if token == "stale-prod-token":
+                raise _AuthError("401 Unauthorized")
+            return {"products": [], "version_id": "v2"}
+
+        with patch("admin.org_price_client._make_request", side_effect=fake_make_request), \
+             patch(
+                 "admin.org_price_client._org_session_token_candidates",
+                 return_value=["stale-prod-token", "fresh-dev-token"],
+             ):
+            result = _api_get("/api/price-library/active")
+
+        self.assertIsNotNone(result)
+        self.assertEqual(result["version_id"], "v2")
+
+    def test_token_candidates_dedupe_identical_files(self) -> None:
+        from admin.org_price_client import _org_session_token_candidates
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root_a = Path(tmpdir) / "AionUi" / "aionui"
+            root_b = Path(tmpdir) / "AionUi-Dev" / "aionui"
+            root_a.mkdir(parents=True)
+            root_b.mkdir(parents=True)
+            (root_a / "org-session.token").write_text("same-jwt", encoding="utf-8")
+            (root_b / "org-session.token").write_text("same-jwt", encoding="utf-8")
+
+            with patch.dict("os.environ", {"APPDATA": tmpdir}, clear=False), \
+                 patch.dict("os.environ", {"ORG_SESSION_TOKEN": "", "ORG_SESSION_TOKEN_FILE": ""}, clear=False):
+                tokens = _org_session_token_candidates()
+
+        self.assertEqual(tokens, ["same-jwt"])
 
 
 class TestLkgSnapshot(unittest.TestCase):
@@ -186,12 +235,13 @@ class TestGetPriceData(unittest.TestCase):
         self._clear_cache()
         from admin.org_price_client import get_price_data
 
+        lkg_products = SAMPLE_PRODUCTS * 30  # 60 rows — above LKG_MIN_PRODUCTS default (50)
         lkg_data = {
             "version_id": "ver-lkg-99",
             "version_number": 3,
             "synced_at": "2026-06-01T00:00:00Z",
             "source": "lkg_snapshot",
-            "products": SAMPLE_PRODUCTS,
+            "products": lkg_products,
         }
 
         with patch("admin.org_price_client._api_get", return_value=None), \
@@ -202,6 +252,34 @@ class TestGetPriceData(unittest.TestCase):
         self.assertTrue(result["stale"])
         self.assertIsNotNone(result["stale_reason"])
         self.assertEqual(result["version_id"], "ver-lkg-99")
+
+    def test_tier2_skips_tiny_lkg_pollution(self) -> None:
+        """Dev/test snapshots with few products must not block bundled seed."""
+        self._clear_cache()
+        from admin.org_price_client import get_price_data
+
+        tiny_lkg = {
+            "version_id": "ver-001",
+            "version_number": 5,
+            "synced_at": "2026-06-27T09:59:50+00:00",
+            "source": "lkg_snapshot",
+            "products": SAMPLE_PRODUCTS,
+        }
+        seed_data = {
+            "version_id": None,
+            "version_number": None,
+            "synced_at": None,
+            "source": "bundled_seed",
+            "products": SAMPLE_PRODUCTS * 30,
+        }
+
+        with patch("admin.org_price_client._api_get", return_value=None), \
+             patch("admin.org_price_client.load_lkg_snapshot", return_value=tiny_lkg), \
+             patch("admin.org_price_client._load_bundled_seed", return_value=seed_data):
+            result = get_price_data(force_refresh=True)
+
+        self.assertEqual(result["source"], "bundled_seed")
+        self.assertTrue(result["stale"])
 
     def test_tier3_bundled_seed_when_api_and_lkg_fail(self) -> None:
         self._clear_cache()

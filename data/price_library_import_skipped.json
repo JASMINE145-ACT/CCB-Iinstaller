@@ -1,0 +1,4726 @@
+{
+  "input": "D:\\Projects\\claude-code-best\\data\\price_library_cleaned_2026_05_15.xlsx",
+  "output": "D:\\Projects\\claude-code-best\\data\\price_library_import_ready.xlsx",
+  "sheet": "price_library",
+  "source_data_rows": 3867,
+  "importable_rows": 3082,
+  "skipped_rows": 33,
+  "mapped_price_b": 544,
+  "mapped_price_c": 2787,
+  "rows_with_existing_abcd": 3286,
+  "deduped_rows": 752,
+  "skipped": [
+    {
+      "source_row": 2257,
+      "material": "CP-APSL-001",
+      "description": "Aluminium Metal Ceiling Shadow line 铝扣板 边条 1*1*2.5cm，厚0.3mm （尺寸会有下差)",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2258,
+      "material": "CP-MLMB-IC1200",
+      "description": "Mineral wool board (inch) 矿棉板（英制） 1200x600mmx15mm 1213X603X14MM （外包装灰色）",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2260,
+      "material": "CP-MLMB-MC1200-01",
+      "description": "Mineral wool board RH 98 矿棉板 98（公制） 1200*600*16 mm 1194*594*16 mm",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2261,
+      "material": "CP-MLMB-MC1200-02",
+      "description": "Mineral wool board RH 99 矿棉板 99（公制） 1200*600*16 Mm RH 99 1194*594*16mm（实厚）RH 99",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2263,
+      "material": "CP-MLMB-IC600",
+      "description": "Mineral wool board(metric) 矿棉板（英制） 600x600mmx15mm 603*603*14 mm",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2264,
+      "material": "CP-MLSP-MC600",
+      "description": "Silicon calcium plate (metric) 硅钙板（公制） 600x600mm 595*595mm",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2265,
+      "material": "CP-MLHK-001",
+      "description": "Hook 38#(Inc screw) 38主吊（含穿心丝)",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2266,
+      "material": "CP-MLSW-001",
+      "description": "screw 穿心丝 与38主吊配套",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2268,
+      "material": "CP-MLMT-3MIC",
+      "description": "Main keel T type(inch) T型主龙骨（英制） 3M 32X24X3050X0.3MM（灰色外包装）",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2269,
+      "material": "CP-MLMT-3MMC",
+      "description": "Main keel T type(metric) T型主龙骨（公制） 3M 32X24X0.3X3000mm（白色外包装）",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2270,
+      "material": "CP-MLVT-0.6MIC",
+      "description": "Vice keel T type(inch) T型副龙骨（英制） 0.6M 26X24X610X0.3MM （灰色外包装）",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2272,
+      "material": "CP-MLMT-3.6MIC",
+      "description": "Main keel T type(inch) T型主龙骨（英制） 3.6M 32X24X3660X0.3MM （灰色外包装）",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2274,
+      "material": "CP-MLVT-1.2MIC",
+      "description": "Vice keel T type(inch) T型副龙骨（英制） 1.2M 26X24X1220X0.3MM（灰色外包装）",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2277,
+      "material": "CP-ACMH-001",
+      "description": "Main hook 50# (include Screw) 50#主吊(含穿心丝） /",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2278,
+      "material": "CP-ACMH-001",
+      "description": "Main hook 50# (include Screw) 50#主吊(含穿心丝） /",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2279,
+      "material": "CP-ACHK-001",
+      "description": "Hook 50# 50#快吊 /",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2280,
+      "material": "CP-ACSH-001",
+      "description": "75# Support hook 75#支撑卡 /",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2281,
+      "material": "CP-ACVH-001",
+      "description": "50# Vice Hook 50#四爪 /",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2282,
+      "material": "CP-ACVH-001",
+      "description": "50# Vice Hook 50#四爪 /",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2283,
+      "material": "CP-ACMK-3M",
+      "description": "50#ceiling main keel 50型吊顶主龙骨 50#，U型，3M/根 厚度：厚度1.2mm",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2284,
+      "material": "CP-ACMK-3.6M",
+      "description": "50#ceiling main keel 50型吊顶主龙骨 50#，U型，3.6M/根 厚度：厚度0.8mm",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2285,
+      "material": "CP-ACSK-001",
+      "description": "50# Suspended ceiling auxiliary keel 50型 吊顶副龙骨 C型，3米/根 厚0.5mm",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2286,
+      "material": "CP-ACCB-001",
+      "description": "Corner Bead 护角条 250*250*0.3 mm Long 3 Meters",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2287,
+      "material": "CP-ACSC-001",
+      "description": "Spring Clip 弹簧夹",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2288,
+      "material": "CP-ACWR-001",
+      "description": "Wire Rod 线材 4*3000",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2289,
+      "material": "CP-DTIN-001",
+      "description": "Internal Angle line 阴角线 20mm*20mm*3m， 材质PVC 单根重量150g",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2290,
+      "material": "CP-DTAL-001",
+      "description": "Angular line 阳角线 20mm*20mm*3m， 材质PVC 单根重量150g",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2291,
+      "material": "CP-PKMK-3.2M",
+      "description": "Partition keel 隔墙龙骨 0.75mm*75mm (3.2M/根 )",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2292,
+      "material": "CP-PKMK-6M",
+      "description": "Partition keel 隔墙龙骨 0.75mm*75mm (6M/根 )",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2293,
+      "material": "CP-PKMS-76",
+      "description": "Metal Stud (Ms) Type 76 金属螺柱 76型 340*760*0.3mm Long 3 Meters",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2294,
+      "material": "CP-PKUR-76",
+      "description": "U Runner Type 76 U 金属螺柱 76型 340*760*0.3mm Long 3 Meters",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2295,
+      "material": "CP-PKMK-3M",
+      "description": "Partition keel 竖向隔墙龙骨 0.75mm*75mm (3M/根 )",
+      "reason": "no quotable price column after fallback mapping"
+    },
+    {
+      "source_row": 2296,
+      "material": "CP-PKTK-6M",
+      "description": "天地龙骨 Tiandi keel U型；型号：75型；6M/根；厚度：国标 0.6mm",
+      "reason": "no quotable price column after fallback mapping"
+    }
+  ],
+  "deduped": [
+    {
+      "source_row": 3235,
+      "material": "8010036428",
+      "kept_source_row": 2365,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3236,
+      "material": "8010036429",
+      "kept_source_row": 2366,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3325,
+      "material": "8010036430",
+      "kept_source_row": 2367,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3326,
+      "material": "8010036431",
+      "kept_source_row": 2368,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3327,
+      "material": "8010036432",
+      "kept_source_row": 2369,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3328,
+      "material": "8010036433",
+      "kept_source_row": 2370,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3329,
+      "material": "8010036434",
+      "kept_source_row": 2371,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3330,
+      "material": "8010036435",
+      "kept_source_row": 2372,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3237,
+      "material": "8010036436",
+      "kept_source_row": 2373,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3238,
+      "material": "8010036437",
+      "kept_source_row": 2374,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3331,
+      "material": "8010036438",
+      "kept_source_row": 2375,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3332,
+      "material": "8010036439",
+      "kept_source_row": 2376,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3333,
+      "material": "8010036440",
+      "kept_source_row": 2377,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3334,
+      "material": "8010036441",
+      "kept_source_row": 2378,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3117,
+      "material": "8010036442",
+      "kept_source_row": 2379,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3118,
+      "material": "8010036443",
+      "kept_source_row": 2380,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3335,
+      "material": "8010036444",
+      "kept_source_row": 2381,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3336,
+      "material": "8010036445",
+      "kept_source_row": 2382,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3239,
+      "material": "8010036446",
+      "kept_source_row": 2383,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3240,
+      "material": "8010036447",
+      "kept_source_row": 2384,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3337,
+      "material": "8010036448",
+      "kept_source_row": 2385,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3338,
+      "material": "8010036449",
+      "kept_source_row": 2386,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3339,
+      "material": "8010036450",
+      "kept_source_row": 2387,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3340,
+      "material": "8010036451",
+      "kept_source_row": 2388,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3119,
+      "material": "8010036452",
+      "kept_source_row": 2389,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3120,
+      "material": "8010036453",
+      "kept_source_row": 2390,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3341,
+      "material": "8010036454",
+      "kept_source_row": 2391,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3342,
+      "material": "8010036455",
+      "kept_source_row": 2392,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3241,
+      "material": "8010036456",
+      "kept_source_row": 2393,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3242,
+      "material": "8010036457",
+      "kept_source_row": 2394,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3343,
+      "material": "8010036458",
+      "kept_source_row": 2395,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3344,
+      "material": "8010036459",
+      "kept_source_row": 2396,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3345,
+      "material": "8010036460",
+      "kept_source_row": 2397,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3346,
+      "material": "8010036461",
+      "kept_source_row": 2398,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3121,
+      "material": "8010036462",
+      "kept_source_row": 2399,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3122,
+      "material": "8010036463",
+      "kept_source_row": 2400,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3347,
+      "material": "8010036464",
+      "kept_source_row": 2401,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3348,
+      "material": "8010036465",
+      "kept_source_row": 2402,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3243,
+      "material": "8010036466",
+      "kept_source_row": 2403,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3244,
+      "material": "8010036467",
+      "kept_source_row": 2404,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3349,
+      "material": "8010036468",
+      "kept_source_row": 2405,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3350,
+      "material": "8010036469",
+      "kept_source_row": 2406,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3351,
+      "material": "8010036470",
+      "kept_source_row": 2407,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3352,
+      "material": "8010036471",
+      "kept_source_row": 2408,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3123,
+      "material": "8010036472",
+      "kept_source_row": 2409,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3124,
+      "material": "8010036473",
+      "kept_source_row": 2410,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3353,
+      "material": "8010036474",
+      "kept_source_row": 2411,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3354,
+      "material": "8010036475",
+      "kept_source_row": 2412,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3245,
+      "material": "8010036476",
+      "kept_source_row": 2413,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3246,
+      "material": "8010036477",
+      "kept_source_row": 2414,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3355,
+      "material": "8010036478",
+      "kept_source_row": 2415,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3356,
+      "material": "8010036479",
+      "kept_source_row": 2416,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3357,
+      "material": "8010036480",
+      "kept_source_row": 2417,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3358,
+      "material": "8010036481",
+      "kept_source_row": 2418,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3125,
+      "material": "8010036482",
+      "kept_source_row": 2419,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3126,
+      "material": "8010036483",
+      "kept_source_row": 2420,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3359,
+      "material": "8010036484",
+      "kept_source_row": 2421,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3360,
+      "material": "8010036485",
+      "kept_source_row": 2422,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3247,
+      "material": "8010036486",
+      "kept_source_row": 2423,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3248,
+      "material": "8010036487",
+      "kept_source_row": 2424,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3361,
+      "material": "8010036488",
+      "kept_source_row": 2425,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3362,
+      "material": "8010036489",
+      "kept_source_row": 2426,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3363,
+      "material": "8010036490",
+      "kept_source_row": 2427,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3364,
+      "material": "8010036491",
+      "kept_source_row": 2428,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3127,
+      "material": "8010036492",
+      "kept_source_row": 2429,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3128,
+      "material": "8010036493",
+      "kept_source_row": 2430,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3365,
+      "material": "8010036494",
+      "kept_source_row": 2431,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3366,
+      "material": "8010036495",
+      "kept_source_row": 2432,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3249,
+      "material": "8010036496",
+      "kept_source_row": 2433,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3250,
+      "material": "8010036497",
+      "kept_source_row": 2434,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3367,
+      "material": "8010036498",
+      "kept_source_row": 2435,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3368,
+      "material": "8010036499",
+      "kept_source_row": 2436,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3369,
+      "material": "8010036500",
+      "kept_source_row": 2437,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3370,
+      "material": "8010036501",
+      "kept_source_row": 2438,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3129,
+      "material": "8010036502",
+      "kept_source_row": 2439,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3130,
+      "material": "8010036503",
+      "kept_source_row": 2440,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3371,
+      "material": "8010036504",
+      "kept_source_row": 2441,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3372,
+      "material": "8010036505",
+      "kept_source_row": 2442,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3251,
+      "material": "8010036506",
+      "kept_source_row": 2443,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3252,
+      "material": "8010036507",
+      "kept_source_row": 2444,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3373,
+      "material": "8010036508",
+      "kept_source_row": 2445,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3374,
+      "material": "8010036509",
+      "kept_source_row": 2446,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3375,
+      "material": "8010036510",
+      "kept_source_row": 2447,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3376,
+      "material": "8010036511",
+      "kept_source_row": 2448,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3253,
+      "material": "8010036512",
+      "kept_source_row": 2449,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3254,
+      "material": "8010036513",
+      "kept_source_row": 2450,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3255,
+      "material": "8010036514",
+      "kept_source_row": 2451,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3256,
+      "material": "8010036515",
+      "kept_source_row": 2452,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3377,
+      "material": "8010036516",
+      "kept_source_row": 2453,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3378,
+      "material": "8010036517",
+      "kept_source_row": 2454,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3379,
+      "material": "8010036518",
+      "kept_source_row": 2455,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3380,
+      "material": "8010036519",
+      "kept_source_row": 2456,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3381,
+      "material": "8010036520",
+      "kept_source_row": 2457,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3382,
+      "material": "8010036521",
+      "kept_source_row": 2458,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3383,
+      "material": "8010036522",
+      "kept_source_row": 2459,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3384,
+      "material": "8010036523",
+      "kept_source_row": 2460,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3385,
+      "material": "8010036524",
+      "kept_source_row": 2461,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3386,
+      "material": "8010036525",
+      "kept_source_row": 2462,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3387,
+      "material": "8010036526",
+      "kept_source_row": 2463,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3388,
+      "material": "8010036527",
+      "kept_source_row": 2464,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3257,
+      "material": "8010036528",
+      "kept_source_row": 2465,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3258,
+      "material": "8010036529",
+      "kept_source_row": 2466,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3259,
+      "material": "8010036530",
+      "kept_source_row": 2467,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3260,
+      "material": "8010036531",
+      "kept_source_row": 2468,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3389,
+      "material": "8010036532",
+      "kept_source_row": 2469,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3390,
+      "material": "8010036533",
+      "kept_source_row": 2470,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3391,
+      "material": "8010036534",
+      "kept_source_row": 2471,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3392,
+      "material": "8010036535",
+      "kept_source_row": 2472,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3393,
+      "material": "8010036536",
+      "kept_source_row": 2473,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3394,
+      "material": "8010036537",
+      "kept_source_row": 2474,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3395,
+      "material": "8010036538",
+      "kept_source_row": 2475,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3396,
+      "material": "8010036539",
+      "kept_source_row": 2476,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3131,
+      "material": "8010036540",
+      "kept_source_row": 2477,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3132,
+      "material": "8010036541",
+      "kept_source_row": 2478,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3133,
+      "material": "8010036542",
+      "kept_source_row": 2479,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3134,
+      "material": "8010036543",
+      "kept_source_row": 2480,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3397,
+      "material": "8010036544",
+      "kept_source_row": 2481,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3398,
+      "material": "8010036545",
+      "kept_source_row": 2482,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3399,
+      "material": "8010036546",
+      "kept_source_row": 2483,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3400,
+      "material": "8010036547",
+      "kept_source_row": 2484,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3261,
+      "material": "8010036548",
+      "kept_source_row": 2485,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3262,
+      "material": "8010036549",
+      "kept_source_row": 2486,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3263,
+      "material": "8010036550",
+      "kept_source_row": 2487,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3264,
+      "material": "8010036551",
+      "kept_source_row": 2488,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3401,
+      "material": "8010036552",
+      "kept_source_row": 2489,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3402,
+      "material": "8010036553",
+      "kept_source_row": 2490,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3403,
+      "material": "8010036554",
+      "kept_source_row": 2491,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3404,
+      "material": "8010036555",
+      "kept_source_row": 2492,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3405,
+      "material": "8010036556",
+      "kept_source_row": 2493,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3406,
+      "material": "8010036557",
+      "kept_source_row": 2494,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3407,
+      "material": "8010036558",
+      "kept_source_row": 2495,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3408,
+      "material": "8010036559",
+      "kept_source_row": 2496,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3135,
+      "material": "8010036560",
+      "kept_source_row": 2497,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3136,
+      "material": "8010036561",
+      "kept_source_row": 2498,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3137,
+      "material": "8010036562",
+      "kept_source_row": 2499,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3138,
+      "material": "8010036563",
+      "kept_source_row": 2500,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3409,
+      "material": "8010036564",
+      "kept_source_row": 2501,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3410,
+      "material": "8010036565",
+      "kept_source_row": 2502,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3411,
+      "material": "8010036566",
+      "kept_source_row": 2503,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3412,
+      "material": "8010036567",
+      "kept_source_row": 2504,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3265,
+      "material": "8010036568",
+      "kept_source_row": 2505,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3266,
+      "material": "8010036569",
+      "kept_source_row": 2506,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3267,
+      "material": "8010036570",
+      "kept_source_row": 2507,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3268,
+      "material": "8010036571",
+      "kept_source_row": 2508,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3413,
+      "material": "8010036572",
+      "kept_source_row": 2509,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3414,
+      "material": "8010036573",
+      "kept_source_row": 2510,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3415,
+      "material": "8010036574",
+      "kept_source_row": 2511,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3416,
+      "material": "8010036575",
+      "kept_source_row": 2512,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3417,
+      "material": "8010036576",
+      "kept_source_row": 2513,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3418,
+      "material": "8010036577",
+      "kept_source_row": 2514,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3419,
+      "material": "8010036578",
+      "kept_source_row": 2515,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3420,
+      "material": "8010036579",
+      "kept_source_row": 2516,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3139,
+      "material": "8010036580",
+      "kept_source_row": 2517,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3140,
+      "material": "8010036581",
+      "kept_source_row": 2518,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3141,
+      "material": "8010036582",
+      "kept_source_row": 2519,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3142,
+      "material": "8010036583",
+      "kept_source_row": 2520,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3421,
+      "material": "8010036584",
+      "kept_source_row": 2521,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3422,
+      "material": "8010036585",
+      "kept_source_row": 2522,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3423,
+      "material": "8010036586",
+      "kept_source_row": 2523,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3424,
+      "material": "8010036587",
+      "kept_source_row": 2524,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3269,
+      "material": "8010036588",
+      "kept_source_row": 2525,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3270,
+      "material": "8010036589",
+      "kept_source_row": 2526,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3271,
+      "material": "8010036590",
+      "kept_source_row": 2527,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3272,
+      "material": "8010036591",
+      "kept_source_row": 2528,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3425,
+      "material": "8010036592",
+      "kept_source_row": 2529,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3426,
+      "material": "8010036593",
+      "kept_source_row": 2530,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3427,
+      "material": "8010036594",
+      "kept_source_row": 2531,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3428,
+      "material": "8010036595",
+      "kept_source_row": 2532,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3429,
+      "material": "8010036596",
+      "kept_source_row": 2533,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3430,
+      "material": "8010036597",
+      "kept_source_row": 2534,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3431,
+      "material": "8010036598",
+      "kept_source_row": 2535,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3432,
+      "material": "8010036599",
+      "kept_source_row": 2536,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3143,
+      "material": "8010036600",
+      "kept_source_row": 2537,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3144,
+      "material": "8010036601",
+      "kept_source_row": 2538,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3145,
+      "material": "8010036602",
+      "kept_source_row": 2539,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3146,
+      "material": "8010036603",
+      "kept_source_row": 2540,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3433,
+      "material": "8010036604",
+      "kept_source_row": 2541,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3434,
+      "material": "8010036605",
+      "kept_source_row": 2542,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3435,
+      "material": "8010036606",
+      "kept_source_row": 2543,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3436,
+      "material": "8010036607",
+      "kept_source_row": 2544,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3273,
+      "material": "8010036608",
+      "kept_source_row": 2545,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3274,
+      "material": "8010036609",
+      "kept_source_row": 2546,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3275,
+      "material": "8010036610",
+      "kept_source_row": 2547,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3276,
+      "material": "8010036611",
+      "kept_source_row": 2548,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3437,
+      "material": "8010036612",
+      "kept_source_row": 2549,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3438,
+      "material": "8010036613",
+      "kept_source_row": 2550,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3439,
+      "material": "8010036614",
+      "kept_source_row": 2551,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3440,
+      "material": "8010036615",
+      "kept_source_row": 2552,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3441,
+      "material": "8010036616",
+      "kept_source_row": 2553,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3442,
+      "material": "8010036617",
+      "kept_source_row": 2554,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3443,
+      "material": "8010036618",
+      "kept_source_row": 2555,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3444,
+      "material": "8010036619",
+      "kept_source_row": 2556,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3147,
+      "material": "8010036620",
+      "kept_source_row": 2557,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3148,
+      "material": "8010036621",
+      "kept_source_row": 2558,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3149,
+      "material": "8010036622",
+      "kept_source_row": 2559,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3150,
+      "material": "8010036623",
+      "kept_source_row": 2560,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3445,
+      "material": "8010036624",
+      "kept_source_row": 2561,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3446,
+      "material": "8010036625",
+      "kept_source_row": 2562,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3447,
+      "material": "8010036626",
+      "kept_source_row": 2563,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3448,
+      "material": "8010036627",
+      "kept_source_row": 2564,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3449,
+      "material": "8010036628",
+      "kept_source_row": 2565,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3450,
+      "material": "8010036629",
+      "kept_source_row": 2566,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3451,
+      "material": "8010036630",
+      "kept_source_row": 2567,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3452,
+      "material": "8010036631",
+      "kept_source_row": 2568,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3453,
+      "material": "8010036632",
+      "kept_source_row": 2569,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3454,
+      "material": "8010036633",
+      "kept_source_row": 2570,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3455,
+      "material": "8010036634",
+      "kept_source_row": 2571,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3456,
+      "material": "8010036635",
+      "kept_source_row": 2572,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3457,
+      "material": "8010036636",
+      "kept_source_row": 2573,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3458,
+      "material": "8010036637",
+      "kept_source_row": 2574,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3459,
+      "material": "8010036638",
+      "kept_source_row": 2575,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3460,
+      "material": "8010036639",
+      "kept_source_row": 2576,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3461,
+      "material": "8010036640",
+      "kept_source_row": 2577,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3462,
+      "material": "8010036641",
+      "kept_source_row": 2578,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3463,
+      "material": "8010036642",
+      "kept_source_row": 2579,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3464,
+      "material": "8010036643",
+      "kept_source_row": 2580,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3151,
+      "material": "8010036644",
+      "kept_source_row": 2581,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3152,
+      "material": "8010036645",
+      "kept_source_row": 2582,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3153,
+      "material": "8010036646",
+      "kept_source_row": 2583,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3154,
+      "material": "8010036647",
+      "kept_source_row": 2584,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3465,
+      "material": "8010036648",
+      "kept_source_row": 2585,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3466,
+      "material": "8010036649",
+      "kept_source_row": 2586,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3467,
+      "material": "8010036650",
+      "kept_source_row": 2587,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3468,
+      "material": "8010036651",
+      "kept_source_row": 2588,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3469,
+      "material": "8010036652",
+      "kept_source_row": 2589,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3470,
+      "material": "8010036653",
+      "kept_source_row": 2590,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3471,
+      "material": "8010036654",
+      "kept_source_row": 2591,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3472,
+      "material": "8010036655",
+      "kept_source_row": 2592,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3473,
+      "material": "8010036656",
+      "kept_source_row": 2593,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3474,
+      "material": "8010036657",
+      "kept_source_row": 2594,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3475,
+      "material": "8010036658",
+      "kept_source_row": 2595,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3476,
+      "material": "8010036659",
+      "kept_source_row": 2596,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3477,
+      "material": "8010036660",
+      "kept_source_row": 2597,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3478,
+      "material": "8010036661",
+      "kept_source_row": 2598,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3479,
+      "material": "8010036662",
+      "kept_source_row": 2599,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3480,
+      "material": "8010036663",
+      "kept_source_row": 2600,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3481,
+      "material": "8010036664",
+      "kept_source_row": 2601,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3482,
+      "material": "8010036665",
+      "kept_source_row": 2602,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3483,
+      "material": "8010036666",
+      "kept_source_row": 2603,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3484,
+      "material": "8010036667",
+      "kept_source_row": 2604,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3485,
+      "material": "8010036668",
+      "kept_source_row": 2605,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3486,
+      "material": "8010036669",
+      "kept_source_row": 2606,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3487,
+      "material": "8010036670",
+      "kept_source_row": 2607,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3488,
+      "material": "8010036671",
+      "kept_source_row": 2608,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3155,
+      "material": "8010036672",
+      "kept_source_row": 2609,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3156,
+      "material": "8010036673",
+      "kept_source_row": 2610,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3157,
+      "material": "8010036674",
+      "kept_source_row": 2611,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3158,
+      "material": "8010036675",
+      "kept_source_row": 2612,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3489,
+      "material": "8010036676",
+      "kept_source_row": 2613,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3490,
+      "material": "8010036677",
+      "kept_source_row": 2614,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3491,
+      "material": "8010036678",
+      "kept_source_row": 2615,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3492,
+      "material": "8010036679",
+      "kept_source_row": 2616,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3493,
+      "material": "8010036680",
+      "kept_source_row": 2617,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3494,
+      "material": "8010036681",
+      "kept_source_row": 2618,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3495,
+      "material": "8010036682",
+      "kept_source_row": 2619,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3496,
+      "material": "8010036683",
+      "kept_source_row": 2620,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3497,
+      "material": "8010036684",
+      "kept_source_row": 2621,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3498,
+      "material": "8010036685",
+      "kept_source_row": 2622,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3499,
+      "material": "8010036686",
+      "kept_source_row": 2623,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3500,
+      "material": "8010036687",
+      "kept_source_row": 2624,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3501,
+      "material": "8010036688",
+      "kept_source_row": 2625,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3502,
+      "material": "8010036689",
+      "kept_source_row": 2626,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3503,
+      "material": "8010036690",
+      "kept_source_row": 2627,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3504,
+      "material": "8010036691",
+      "kept_source_row": 2628,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3505,
+      "material": "8010036692",
+      "kept_source_row": 2629,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3506,
+      "material": "8010036693",
+      "kept_source_row": 2630,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3507,
+      "material": "8010036694",
+      "kept_source_row": 2631,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3508,
+      "material": "8010036695",
+      "kept_source_row": 2632,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3509,
+      "material": "8010036696",
+      "kept_source_row": 2633,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3510,
+      "material": "8010036697",
+      "kept_source_row": 2634,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3511,
+      "material": "8010036698",
+      "kept_source_row": 2635,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3512,
+      "material": "8010036699",
+      "kept_source_row": 2636,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3159,
+      "material": "8010036700",
+      "kept_source_row": 2637,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3160,
+      "material": "8010036701",
+      "kept_source_row": 2638,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3161,
+      "material": "8010036702",
+      "kept_source_row": 2639,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3162,
+      "material": "8010036703",
+      "kept_source_row": 2640,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3513,
+      "material": "8010036704",
+      "kept_source_row": 2641,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3514,
+      "material": "8010036705",
+      "kept_source_row": 2642,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3515,
+      "material": "8010036706",
+      "kept_source_row": 2643,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3516,
+      "material": "8010036707",
+      "kept_source_row": 2644,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3517,
+      "material": "8010036708",
+      "kept_source_row": 2645,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3518,
+      "material": "8010036709",
+      "kept_source_row": 2646,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3519,
+      "material": "8010036710",
+      "kept_source_row": 2647,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3520,
+      "material": "8010036711",
+      "kept_source_row": 2648,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3521,
+      "material": "8010036712",
+      "kept_source_row": 2649,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3522,
+      "material": "8010036713",
+      "kept_source_row": 2650,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3523,
+      "material": "8010036714",
+      "kept_source_row": 2651,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3524,
+      "material": "8010036715",
+      "kept_source_row": 2652,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3525,
+      "material": "8010036716",
+      "kept_source_row": 2653,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3526,
+      "material": "8010036717",
+      "kept_source_row": 2654,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3527,
+      "material": "8010036718",
+      "kept_source_row": 2655,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3528,
+      "material": "8010036719",
+      "kept_source_row": 2656,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3529,
+      "material": "8010036720",
+      "kept_source_row": 2657,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3530,
+      "material": "8010036721",
+      "kept_source_row": 2658,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3531,
+      "material": "8010036722",
+      "kept_source_row": 2659,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3532,
+      "material": "8010036723",
+      "kept_source_row": 2660,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3533,
+      "material": "8010036724",
+      "kept_source_row": 2661,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3534,
+      "material": "8010036725",
+      "kept_source_row": 2662,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3535,
+      "material": "8010036726",
+      "kept_source_row": 2663,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3536,
+      "material": "8010036727",
+      "kept_source_row": 2664,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3163,
+      "material": "8010036728",
+      "kept_source_row": 2665,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3164,
+      "material": "8010036729",
+      "kept_source_row": 2666,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3165,
+      "material": "8010036730",
+      "kept_source_row": 2667,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3166,
+      "material": "8010036731",
+      "kept_source_row": 2668,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3537,
+      "material": "8010036732",
+      "kept_source_row": 2669,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3538,
+      "material": "8010036733",
+      "kept_source_row": 2670,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3539,
+      "material": "8010036734",
+      "kept_source_row": 2671,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3540,
+      "material": "8010036735",
+      "kept_source_row": 2672,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3541,
+      "material": "8010036736",
+      "kept_source_row": 2673,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3542,
+      "material": "8010036737",
+      "kept_source_row": 2674,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3543,
+      "material": "8010036738",
+      "kept_source_row": 2675,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3544,
+      "material": "8010036739",
+      "kept_source_row": 2676,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3545,
+      "material": "8010036740",
+      "kept_source_row": 2677,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3546,
+      "material": "8010036741",
+      "kept_source_row": 2678,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3547,
+      "material": "8010036742",
+      "kept_source_row": 2679,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3548,
+      "material": "8010036743",
+      "kept_source_row": 2680,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3549,
+      "material": "8010036744",
+      "kept_source_row": 2681,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3550,
+      "material": "8010036745",
+      "kept_source_row": 2682,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3551,
+      "material": "8010036746",
+      "kept_source_row": 2683,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3552,
+      "material": "8010036747",
+      "kept_source_row": 2684,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3553,
+      "material": "8010036748",
+      "kept_source_row": 2685,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3554,
+      "material": "8010036749",
+      "kept_source_row": 2686,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3555,
+      "material": "8010036750",
+      "kept_source_row": 2687,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3556,
+      "material": "8010036751",
+      "kept_source_row": 2688,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3557,
+      "material": "8010036752",
+      "kept_source_row": 2689,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3558,
+      "material": "8010036753",
+      "kept_source_row": 2690,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3559,
+      "material": "8010036754",
+      "kept_source_row": 2691,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3560,
+      "material": "8010036755",
+      "kept_source_row": 2692,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3167,
+      "material": "8010036756",
+      "kept_source_row": 2693,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3168,
+      "material": "8010036757",
+      "kept_source_row": 2694,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3169,
+      "material": "8010036758",
+      "kept_source_row": 2695,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3170,
+      "material": "8010036759",
+      "kept_source_row": 2696,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3561,
+      "material": "8010036760",
+      "kept_source_row": 2697,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3562,
+      "material": "8010036761",
+      "kept_source_row": 2698,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3563,
+      "material": "8010036762",
+      "kept_source_row": 2699,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3564,
+      "material": "8010036763",
+      "kept_source_row": 2700,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3565,
+      "material": "8010036764",
+      "kept_source_row": 2701,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3566,
+      "material": "8010036765",
+      "kept_source_row": 2702,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3567,
+      "material": "8010036766",
+      "kept_source_row": 2703,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3568,
+      "material": "8010036767",
+      "kept_source_row": 2704,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3569,
+      "material": "8010036768",
+      "kept_source_row": 2705,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3570,
+      "material": "8010036769",
+      "kept_source_row": 2706,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3571,
+      "material": "8010036770",
+      "kept_source_row": 2707,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3572,
+      "material": "8010036771",
+      "kept_source_row": 2708,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3573,
+      "material": "8010036772",
+      "kept_source_row": 2709,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3574,
+      "material": "8010036773",
+      "kept_source_row": 2710,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3575,
+      "material": "8010036774",
+      "kept_source_row": 2711,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3576,
+      "material": "8010036775",
+      "kept_source_row": 2712,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3577,
+      "material": "8010036776",
+      "kept_source_row": 2713,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3578,
+      "material": "8010036777",
+      "kept_source_row": 2714,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3579,
+      "material": "8010036778",
+      "kept_source_row": 2715,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3580,
+      "material": "8010036779",
+      "kept_source_row": 2716,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3581,
+      "material": "8010036780",
+      "kept_source_row": 2717,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3582,
+      "material": "8010036781",
+      "kept_source_row": 2718,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3583,
+      "material": "8010036782",
+      "kept_source_row": 2719,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3584,
+      "material": "8010036783",
+      "kept_source_row": 2720,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3171,
+      "material": "8010036784",
+      "kept_source_row": 2721,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3172,
+      "material": "8010036785",
+      "kept_source_row": 2722,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3173,
+      "material": "8010036786",
+      "kept_source_row": 2723,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3174,
+      "material": "8010036787",
+      "kept_source_row": 2724,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3585,
+      "material": "8010036788",
+      "kept_source_row": 2725,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3586,
+      "material": "8010036789",
+      "kept_source_row": 2726,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3587,
+      "material": "8010036790",
+      "kept_source_row": 2727,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3588,
+      "material": "8010036791",
+      "kept_source_row": 2728,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3589,
+      "material": "8010036792",
+      "kept_source_row": 2729,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3590,
+      "material": "8010036793",
+      "kept_source_row": 2730,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3591,
+      "material": "8010036794",
+      "kept_source_row": 2731,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3592,
+      "material": "8010036795",
+      "kept_source_row": 2732,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3593,
+      "material": "8010036796",
+      "kept_source_row": 2733,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3594,
+      "material": "8010036797",
+      "kept_source_row": 2734,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3595,
+      "material": "8010036798",
+      "kept_source_row": 2735,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3596,
+      "material": "8010036799",
+      "kept_source_row": 2736,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3597,
+      "material": "8010036800",
+      "kept_source_row": 2737,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3598,
+      "material": "8010036801",
+      "kept_source_row": 2738,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3599,
+      "material": "8010036802",
+      "kept_source_row": 2739,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3600,
+      "material": "8010036803",
+      "kept_source_row": 2740,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3601,
+      "material": "8010036804",
+      "kept_source_row": 2741,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3602,
+      "material": "8010036805",
+      "kept_source_row": 2742,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3603,
+      "material": "8010036806",
+      "kept_source_row": 2743,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3604,
+      "material": "8010036807",
+      "kept_source_row": 2744,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3605,
+      "material": "8010036808",
+      "kept_source_row": 2745,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3606,
+      "material": "8010036809",
+      "kept_source_row": 2746,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3607,
+      "material": "8010036810",
+      "kept_source_row": 2747,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3608,
+      "material": "8010036811",
+      "kept_source_row": 2748,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3175,
+      "material": "8010036812",
+      "kept_source_row": 2749,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3176,
+      "material": "8010036813",
+      "kept_source_row": 2750,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3177,
+      "material": "8010036814",
+      "kept_source_row": 2751,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3178,
+      "material": "8010036815",
+      "kept_source_row": 2752,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3609,
+      "material": "8010036816",
+      "kept_source_row": 2753,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3610,
+      "material": "8010036817",
+      "kept_source_row": 2754,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3611,
+      "material": "8010036818",
+      "kept_source_row": 2755,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3612,
+      "material": "8010036819",
+      "kept_source_row": 2756,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3277,
+      "material": "8010036820",
+      "kept_source_row": 2757,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3278,
+      "material": "8010036821",
+      "kept_source_row": 2758,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3279,
+      "material": "8010036822",
+      "kept_source_row": 2759,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3280,
+      "material": "8010036823",
+      "kept_source_row": 2760,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3613,
+      "material": "8010036824",
+      "kept_source_row": 2761,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3614,
+      "material": "8010036825",
+      "kept_source_row": 2762,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3615,
+      "material": "8010036826",
+      "kept_source_row": 2763,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3616,
+      "material": "8010036827",
+      "kept_source_row": 2764,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3617,
+      "material": "8010036828",
+      "kept_source_row": 2765,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3618,
+      "material": "8010036829",
+      "kept_source_row": 2766,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3619,
+      "material": "8010036830",
+      "kept_source_row": 2767,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3620,
+      "material": "8010036831",
+      "kept_source_row": 2768,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3621,
+      "material": "8010036832",
+      "kept_source_row": 2769,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3622,
+      "material": "8010036833",
+      "kept_source_row": 2770,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3623,
+      "material": "8010036834",
+      "kept_source_row": 2771,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3624,
+      "material": "8010036835",
+      "kept_source_row": 2772,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3625,
+      "material": "8010036836",
+      "kept_source_row": 2773,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3626,
+      "material": "8010036837",
+      "kept_source_row": 2774,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3627,
+      "material": "8010036838",
+      "kept_source_row": 2775,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3628,
+      "material": "8010036839",
+      "kept_source_row": 2776,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3179,
+      "material": "8010036840",
+      "kept_source_row": 2777,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3180,
+      "material": "8010036841",
+      "kept_source_row": 2778,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3181,
+      "material": "8010036842",
+      "kept_source_row": 2779,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3182,
+      "material": "8010036843",
+      "kept_source_row": 2780,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3629,
+      "material": "8010036844",
+      "kept_source_row": 2781,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3630,
+      "material": "8010036845",
+      "kept_source_row": 2782,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3631,
+      "material": "8010036846",
+      "kept_source_row": 2783,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3632,
+      "material": "8010036847",
+      "kept_source_row": 2784,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3281,
+      "material": "8010036848",
+      "kept_source_row": 2785,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3282,
+      "material": "8010036849",
+      "kept_source_row": 2786,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3283,
+      "material": "8010036850",
+      "kept_source_row": 2787,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3284,
+      "material": "8010036851",
+      "kept_source_row": 2788,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3633,
+      "material": "8010036852",
+      "kept_source_row": 2789,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3634,
+      "material": "8010036853",
+      "kept_source_row": 2790,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3635,
+      "material": "8010036854",
+      "kept_source_row": 2791,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3636,
+      "material": "8010036855",
+      "kept_source_row": 2792,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3637,
+      "material": "8010036856",
+      "kept_source_row": 2793,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3638,
+      "material": "8010036857",
+      "kept_source_row": 2794,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3639,
+      "material": "8010036858",
+      "kept_source_row": 2795,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3640,
+      "material": "8010036859",
+      "kept_source_row": 2796,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3641,
+      "material": "8010036860",
+      "kept_source_row": 2797,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3642,
+      "material": "8010036861",
+      "kept_source_row": 2798,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3643,
+      "material": "8010036862",
+      "kept_source_row": 2799,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3644,
+      "material": "8010036863",
+      "kept_source_row": 2800,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3645,
+      "material": "8010036864",
+      "kept_source_row": 2801,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3646,
+      "material": "8010036865",
+      "kept_source_row": 2802,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3647,
+      "material": "8010036866",
+      "kept_source_row": 2803,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3648,
+      "material": "8010036867",
+      "kept_source_row": 2804,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3183,
+      "material": "8010036868",
+      "kept_source_row": 2805,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3184,
+      "material": "8010036869",
+      "kept_source_row": 2806,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3185,
+      "material": "8010036870",
+      "kept_source_row": 2807,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3186,
+      "material": "8010036871",
+      "kept_source_row": 2808,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3649,
+      "material": "8010036872",
+      "kept_source_row": 2809,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3650,
+      "material": "8010036873",
+      "kept_source_row": 2810,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3651,
+      "material": "8010036874",
+      "kept_source_row": 2811,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3652,
+      "material": "8010036875",
+      "kept_source_row": 2812,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3285,
+      "material": "8010036876",
+      "kept_source_row": 2813,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3286,
+      "material": "8010036877",
+      "kept_source_row": 2814,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3287,
+      "material": "8010036878",
+      "kept_source_row": 2815,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3288,
+      "material": "8010036879",
+      "kept_source_row": 2816,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3653,
+      "material": "8010036880",
+      "kept_source_row": 2817,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3654,
+      "material": "8010036881",
+      "kept_source_row": 2818,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3655,
+      "material": "8010036882",
+      "kept_source_row": 2819,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3656,
+      "material": "8010036883",
+      "kept_source_row": 2820,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3657,
+      "material": "8010036884",
+      "kept_source_row": 2821,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3658,
+      "material": "8010036885",
+      "kept_source_row": 2822,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3659,
+      "material": "8010036886",
+      "kept_source_row": 2823,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3660,
+      "material": "8010036887",
+      "kept_source_row": 2824,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3661,
+      "material": "8010036888",
+      "kept_source_row": 2825,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3662,
+      "material": "8010036889",
+      "kept_source_row": 2826,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3663,
+      "material": "8010036890",
+      "kept_source_row": 2827,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3664,
+      "material": "8010036891",
+      "kept_source_row": 2828,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3665,
+      "material": "8010036892",
+      "kept_source_row": 2829,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3666,
+      "material": "8010036893",
+      "kept_source_row": 2830,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3667,
+      "material": "8010036894",
+      "kept_source_row": 2831,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3668,
+      "material": "8010036895",
+      "kept_source_row": 2832,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3187,
+      "material": "8010036896",
+      "kept_source_row": 2833,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3188,
+      "material": "8010036897",
+      "kept_source_row": 2834,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3189,
+      "material": "8010036898",
+      "kept_source_row": 2835,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3190,
+      "material": "8010036899",
+      "kept_source_row": 2836,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3669,
+      "material": "8010036900",
+      "kept_source_row": 2837,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3670,
+      "material": "8010036901",
+      "kept_source_row": 2838,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3671,
+      "material": "8010036902",
+      "kept_source_row": 2839,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3672,
+      "material": "8010036903",
+      "kept_source_row": 2840,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3673,
+      "material": "8010036904",
+      "kept_source_row": 2841,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3674,
+      "material": "8010036905",
+      "kept_source_row": 2842,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3675,
+      "material": "8010036906",
+      "kept_source_row": 2843,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3676,
+      "material": "8010036907",
+      "kept_source_row": 2844,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3677,
+      "material": "8010036908",
+      "kept_source_row": 2845,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3678,
+      "material": "8010036909",
+      "kept_source_row": 2846,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3679,
+      "material": "8010036910",
+      "kept_source_row": 2847,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3680,
+      "material": "8010036911",
+      "kept_source_row": 2848,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3681,
+      "material": "8010036912",
+      "kept_source_row": 2849,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3682,
+      "material": "8010036913",
+      "kept_source_row": 2850,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3683,
+      "material": "8010036914",
+      "kept_source_row": 2851,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3684,
+      "material": "8010036915",
+      "kept_source_row": 2852,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3685,
+      "material": "8010036916",
+      "kept_source_row": 2853,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3686,
+      "material": "8010036917",
+      "kept_source_row": 2854,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3687,
+      "material": "8010036918",
+      "kept_source_row": 2855,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3688,
+      "material": "8010036919",
+      "kept_source_row": 2856,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3689,
+      "material": "8010036920",
+      "kept_source_row": 2857,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3690,
+      "material": "8010036921",
+      "kept_source_row": 2858,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3691,
+      "material": "8010036922",
+      "kept_source_row": 2859,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3692,
+      "material": "8010036923",
+      "kept_source_row": 2860,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3191,
+      "material": "8010036924",
+      "kept_source_row": 2861,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3192,
+      "material": "8010036925",
+      "kept_source_row": 2862,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3193,
+      "material": "8010036926",
+      "kept_source_row": 2863,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3194,
+      "material": "8010036927",
+      "kept_source_row": 2864,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3693,
+      "material": "8010036928",
+      "kept_source_row": 2865,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3694,
+      "material": "8010036929",
+      "kept_source_row": 2866,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3695,
+      "material": "8010036930",
+      "kept_source_row": 2867,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3696,
+      "material": "8010036931",
+      "kept_source_row": 2868,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3289,
+      "material": "8010036932",
+      "kept_source_row": 2869,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3290,
+      "material": "8010036933",
+      "kept_source_row": 2870,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3291,
+      "material": "8010036934",
+      "kept_source_row": 2871,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3292,
+      "material": "8010036935",
+      "kept_source_row": 2872,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3697,
+      "material": "8010036936",
+      "kept_source_row": 2873,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3698,
+      "material": "8010036937",
+      "kept_source_row": 2874,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3699,
+      "material": "8010036938",
+      "kept_source_row": 2875,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3700,
+      "material": "8010036939",
+      "kept_source_row": 2876,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3701,
+      "material": "8010036940",
+      "kept_source_row": 2877,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3702,
+      "material": "8010036941",
+      "kept_source_row": 2878,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3703,
+      "material": "8010036942",
+      "kept_source_row": 2879,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3704,
+      "material": "8010036943",
+      "kept_source_row": 2880,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3705,
+      "material": "8010036944",
+      "kept_source_row": 2881,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3706,
+      "material": "8010036945",
+      "kept_source_row": 2882,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3707,
+      "material": "8010036946",
+      "kept_source_row": 2883,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3708,
+      "material": "8010036947",
+      "kept_source_row": 2884,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3709,
+      "material": "8010036948",
+      "kept_source_row": 2885,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3710,
+      "material": "8010036949",
+      "kept_source_row": 2886,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3711,
+      "material": "8010036950",
+      "kept_source_row": 2887,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3712,
+      "material": "8010036951",
+      "kept_source_row": 2888,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3195,
+      "material": "8010036952",
+      "kept_source_row": 2889,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3196,
+      "material": "8010036953",
+      "kept_source_row": 2890,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3197,
+      "material": "8010036954",
+      "kept_source_row": 2891,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3198,
+      "material": "8010036955",
+      "kept_source_row": 2892,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3713,
+      "material": "8010036956",
+      "kept_source_row": 2893,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3714,
+      "material": "8010036957",
+      "kept_source_row": 2894,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3715,
+      "material": "8010036958",
+      "kept_source_row": 2895,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3716,
+      "material": "8010036959",
+      "kept_source_row": 2896,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3293,
+      "material": "8010036960",
+      "kept_source_row": 2897,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3294,
+      "material": "8010036961",
+      "kept_source_row": 2898,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3295,
+      "material": "8010036962",
+      "kept_source_row": 2899,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3296,
+      "material": "8010036963",
+      "kept_source_row": 2900,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3717,
+      "material": "8010036964",
+      "kept_source_row": 2901,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3718,
+      "material": "8010036965",
+      "kept_source_row": 2902,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3719,
+      "material": "8010036966",
+      "kept_source_row": 2903,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3720,
+      "material": "8010036967",
+      "kept_source_row": 2904,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3721,
+      "material": "8010036968",
+      "kept_source_row": 2905,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3722,
+      "material": "8010036969",
+      "kept_source_row": 2906,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3723,
+      "material": "8010036970",
+      "kept_source_row": 2907,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3724,
+      "material": "8010036971",
+      "kept_source_row": 2908,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3725,
+      "material": "8010036972",
+      "kept_source_row": 2909,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3726,
+      "material": "8010036973",
+      "kept_source_row": 2910,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3727,
+      "material": "8010036974",
+      "kept_source_row": 2911,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3728,
+      "material": "8010036975",
+      "kept_source_row": 2912,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3729,
+      "material": "8010036976",
+      "kept_source_row": 2913,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3730,
+      "material": "8010036977",
+      "kept_source_row": 2914,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3731,
+      "material": "8010036978",
+      "kept_source_row": 2915,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3732,
+      "material": "8010036979",
+      "kept_source_row": 2916,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3199,
+      "material": "8010036980",
+      "kept_source_row": 2917,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3200,
+      "material": "8010036981",
+      "kept_source_row": 2918,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3201,
+      "material": "8010036982",
+      "kept_source_row": 2919,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3202,
+      "material": "8010036983",
+      "kept_source_row": 2920,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3733,
+      "material": "8010036984",
+      "kept_source_row": 2921,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3734,
+      "material": "8010036985",
+      "kept_source_row": 2922,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3735,
+      "material": "8010036986",
+      "kept_source_row": 2923,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3736,
+      "material": "8010036987",
+      "kept_source_row": 2924,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3297,
+      "material": "8010036988",
+      "kept_source_row": 2925,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3298,
+      "material": "8010036989",
+      "kept_source_row": 2926,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3299,
+      "material": "8010036990",
+      "kept_source_row": 2927,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3300,
+      "material": "8010036991",
+      "kept_source_row": 2928,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3737,
+      "material": "8010036992",
+      "kept_source_row": 2929,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3738,
+      "material": "8010036993",
+      "kept_source_row": 2930,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3739,
+      "material": "8010036994",
+      "kept_source_row": 2931,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3740,
+      "material": "8010036995",
+      "kept_source_row": 2932,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3741,
+      "material": "8010036996",
+      "kept_source_row": 2933,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3742,
+      "material": "8010036997",
+      "kept_source_row": 2934,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3743,
+      "material": "8010036998",
+      "kept_source_row": 2935,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3744,
+      "material": "8010036999",
+      "kept_source_row": 2936,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3745,
+      "material": "8010037000",
+      "kept_source_row": 2937,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3746,
+      "material": "8010037001",
+      "kept_source_row": 2938,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3747,
+      "material": "8010037002",
+      "kept_source_row": 2939,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3748,
+      "material": "8010037003",
+      "kept_source_row": 2940,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3749,
+      "material": "8010037004",
+      "kept_source_row": 2941,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3750,
+      "material": "8010037005",
+      "kept_source_row": 2942,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3751,
+      "material": "8010037006",
+      "kept_source_row": 2943,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3752,
+      "material": "8010037007",
+      "kept_source_row": 2944,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3203,
+      "material": "8010037008",
+      "kept_source_row": 2945,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3204,
+      "material": "8010037009",
+      "kept_source_row": 2946,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3205,
+      "material": "8010037010",
+      "kept_source_row": 2947,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3206,
+      "material": "8010037011",
+      "kept_source_row": 2948,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3753,
+      "material": "8010037012",
+      "kept_source_row": 2949,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3754,
+      "material": "8010037013",
+      "kept_source_row": 2950,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3755,
+      "material": "8010037014",
+      "kept_source_row": 2951,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3756,
+      "material": "8010037015",
+      "kept_source_row": 2952,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3301,
+      "material": "8010037016",
+      "kept_source_row": 2953,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3302,
+      "material": "8010037017",
+      "kept_source_row": 2954,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3303,
+      "material": "8010037018",
+      "kept_source_row": 2955,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3304,
+      "material": "8010037019",
+      "kept_source_row": 2956,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3757,
+      "material": "8010037020",
+      "kept_source_row": 2957,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3758,
+      "material": "8010037021",
+      "kept_source_row": 2958,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3759,
+      "material": "8010037022",
+      "kept_source_row": 2959,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3760,
+      "material": "8010037023",
+      "kept_source_row": 2960,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3761,
+      "material": "8010037024",
+      "kept_source_row": 2961,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3762,
+      "material": "8010037025",
+      "kept_source_row": 2962,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3763,
+      "material": "8010037026",
+      "kept_source_row": 2963,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3764,
+      "material": "8010037027",
+      "kept_source_row": 2964,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3765,
+      "material": "8010037028",
+      "kept_source_row": 2965,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3766,
+      "material": "8010037029",
+      "kept_source_row": 2966,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3767,
+      "material": "8010037030",
+      "kept_source_row": 2967,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3768,
+      "material": "8010037031",
+      "kept_source_row": 2968,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3769,
+      "material": "8010037032",
+      "kept_source_row": 2969,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3770,
+      "material": "8010037033",
+      "kept_source_row": 2970,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3771,
+      "material": "8010037034",
+      "kept_source_row": 2971,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3772,
+      "material": "8010037035",
+      "kept_source_row": 2972,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3207,
+      "material": "8010037036",
+      "kept_source_row": 2973,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3208,
+      "material": "8010037037",
+      "kept_source_row": 2974,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3209,
+      "material": "8010037038",
+      "kept_source_row": 2975,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3210,
+      "material": "8010037039",
+      "kept_source_row": 2976,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3773,
+      "material": "8010037040",
+      "kept_source_row": 2977,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3774,
+      "material": "8010037041",
+      "kept_source_row": 2978,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3775,
+      "material": "8010037042",
+      "kept_source_row": 2979,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3776,
+      "material": "8010037043",
+      "kept_source_row": 2980,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3305,
+      "material": "8010037044",
+      "kept_source_row": 2981,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3306,
+      "material": "8010037045",
+      "kept_source_row": 2982,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3307,
+      "material": "8010037046",
+      "kept_source_row": 2983,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3308,
+      "material": "8010037047",
+      "kept_source_row": 2984,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3777,
+      "material": "8010037048",
+      "kept_source_row": 2985,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3778,
+      "material": "8010037049",
+      "kept_source_row": 2986,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3779,
+      "material": "8010037050",
+      "kept_source_row": 2987,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3780,
+      "material": "8010037051",
+      "kept_source_row": 2988,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3781,
+      "material": "8010037052",
+      "kept_source_row": 2989,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3782,
+      "material": "8010037053",
+      "kept_source_row": 2990,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3783,
+      "material": "8010037054",
+      "kept_source_row": 2991,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3784,
+      "material": "8010037055",
+      "kept_source_row": 2992,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3785,
+      "material": "8010037056",
+      "kept_source_row": 2993,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3786,
+      "material": "8010037057",
+      "kept_source_row": 2994,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3787,
+      "material": "8010037058",
+      "kept_source_row": 2995,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3788,
+      "material": "8010037059",
+      "kept_source_row": 2996,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3211,
+      "material": "8010037060",
+      "kept_source_row": 2997,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3212,
+      "material": "8010037061",
+      "kept_source_row": 2998,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3213,
+      "material": "8010037062",
+      "kept_source_row": 2999,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3214,
+      "material": "8010037063",
+      "kept_source_row": 3000,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3789,
+      "material": "8010037064",
+      "kept_source_row": 3001,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3790,
+      "material": "8010037065",
+      "kept_source_row": 3002,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3791,
+      "material": "8010037066",
+      "kept_source_row": 3003,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3792,
+      "material": "8010037067",
+      "kept_source_row": 3004,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3309,
+      "material": "8010037068",
+      "kept_source_row": 3005,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3310,
+      "material": "8010037069",
+      "kept_source_row": 3006,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3311,
+      "material": "8010037070",
+      "kept_source_row": 3007,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3312,
+      "material": "8010037071",
+      "kept_source_row": 3008,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3793,
+      "material": "8010037072",
+      "kept_source_row": 3009,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3794,
+      "material": "8010037073",
+      "kept_source_row": 3010,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3795,
+      "material": "8010037074",
+      "kept_source_row": 3011,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3796,
+      "material": "8010037075",
+      "kept_source_row": 3012,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3797,
+      "material": "8010037076",
+      "kept_source_row": 3013,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3798,
+      "material": "8010037077",
+      "kept_source_row": 3014,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3799,
+      "material": "8010037078",
+      "kept_source_row": 3015,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3800,
+      "material": "8010037079",
+      "kept_source_row": 3016,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3801,
+      "material": "8010037080",
+      "kept_source_row": 3017,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3802,
+      "material": "8010037081",
+      "kept_source_row": 3018,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3803,
+      "material": "8010037082",
+      "kept_source_row": 3019,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3804,
+      "material": "8010037083",
+      "kept_source_row": 3020,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3215,
+      "material": "8010037084",
+      "kept_source_row": 3021,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3216,
+      "material": "8010037085",
+      "kept_source_row": 3022,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3217,
+      "material": "8010037086",
+      "kept_source_row": 3023,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3218,
+      "material": "8010037087",
+      "kept_source_row": 3024,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3805,
+      "material": "8010037088",
+      "kept_source_row": 3025,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3806,
+      "material": "8010037089",
+      "kept_source_row": 3026,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3807,
+      "material": "8010037090",
+      "kept_source_row": 3027,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3808,
+      "material": "8010037091",
+      "kept_source_row": 3028,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3313,
+      "material": "8010037092",
+      "kept_source_row": 3029,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3314,
+      "material": "8010037093",
+      "kept_source_row": 3030,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3315,
+      "material": "8010037094",
+      "kept_source_row": 3031,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3316,
+      "material": "8010037095",
+      "kept_source_row": 3032,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3809,
+      "material": "8010037096",
+      "kept_source_row": 3033,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3810,
+      "material": "8010037097",
+      "kept_source_row": 3034,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3811,
+      "material": "8010037098",
+      "kept_source_row": 3035,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3812,
+      "material": "8010037099",
+      "kept_source_row": 3036,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3317,
+      "material": "8010037117",
+      "kept_source_row": 3037,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3318,
+      "material": "8010037118",
+      "kept_source_row": 3038,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3319,
+      "material": "8010037119",
+      "kept_source_row": 3039,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3813,
+      "material": "8010037120",
+      "kept_source_row": 3040,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3814,
+      "material": "8010037121",
+      "kept_source_row": 3041,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3815,
+      "material": "8010037122",
+      "kept_source_row": 3042,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3816,
+      "material": "8010037123",
+      "kept_source_row": 3043,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3817,
+      "material": "8010037124",
+      "kept_source_row": 3044,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3818,
+      "material": "8010037125",
+      "kept_source_row": 3045,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3819,
+      "material": "8010037126",
+      "kept_source_row": 3046,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3820,
+      "material": "8010037127",
+      "kept_source_row": 3047,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3821,
+      "material": "8010037128",
+      "kept_source_row": 3048,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3822,
+      "material": "8010037129",
+      "kept_source_row": 3049,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3823,
+      "material": "8010037130",
+      "kept_source_row": 3050,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3824,
+      "material": "8010037131",
+      "kept_source_row": 3051,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3219,
+      "material": "8010037132",
+      "kept_source_row": 3052,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3220,
+      "material": "8010037133",
+      "kept_source_row": 3053,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3221,
+      "material": "8010037134",
+      "kept_source_row": 3054,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3222,
+      "material": "8010037135",
+      "kept_source_row": 3055,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3825,
+      "material": "8010037136",
+      "kept_source_row": 3056,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3826,
+      "material": "8010037137",
+      "kept_source_row": 3057,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3827,
+      "material": "8010037138",
+      "kept_source_row": 3058,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3828,
+      "material": "8010037139",
+      "kept_source_row": 3059,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3320,
+      "material": "8010037140",
+      "kept_source_row": 3060,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3321,
+      "material": "8010037141",
+      "kept_source_row": 3061,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3322,
+      "material": "8010037142",
+      "kept_source_row": 3062,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3323,
+      "material": "8010037143",
+      "kept_source_row": 3063,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3829,
+      "material": "8010037144",
+      "kept_source_row": 3064,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3830,
+      "material": "8010037145",
+      "kept_source_row": 3065,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3831,
+      "material": "8010037146",
+      "kept_source_row": 3066,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3832,
+      "material": "8010037147",
+      "kept_source_row": 3067,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3833,
+      "material": "8010037163",
+      "kept_source_row": 3068,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3834,
+      "material": "8010037164",
+      "kept_source_row": 3069,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3835,
+      "material": "8010037165",
+      "kept_source_row": 3070,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3836,
+      "material": "8010037166",
+      "kept_source_row": 3071,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3837,
+      "material": "8010037167",
+      "kept_source_row": 3072,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3838,
+      "material": "8010037168",
+      "kept_source_row": 3073,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3839,
+      "material": "8010037169",
+      "kept_source_row": 3074,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3840,
+      "material": "8010037170",
+      "kept_source_row": 3075,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3223,
+      "material": "8010037171",
+      "kept_source_row": 3076,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3224,
+      "material": "8010037172",
+      "kept_source_row": 3077,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3225,
+      "material": "8010037173",
+      "kept_source_row": 3078,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3226,
+      "material": "8010037174",
+      "kept_source_row": 3079,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3841,
+      "material": "8010037175",
+      "kept_source_row": 3080,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3842,
+      "material": "8010037176",
+      "kept_source_row": 3081,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3843,
+      "material": "8010037177",
+      "kept_source_row": 3082,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3844,
+      "material": "8010037178",
+      "kept_source_row": 3083,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3324,
+      "material": "8010037179",
+      "kept_source_row": 3084,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3845,
+      "material": "8010037100",
+      "kept_source_row": 3085,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3846,
+      "material": "8010037101",
+      "kept_source_row": 3086,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3847,
+      "material": "8010037102",
+      "kept_source_row": 3087,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3848,
+      "material": "8010037103",
+      "kept_source_row": 3088,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3849,
+      "material": "8010037104",
+      "kept_source_row": 3089,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3227,
+      "material": "8010037105",
+      "kept_source_row": 3090,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3228,
+      "material": "8010037106",
+      "kept_source_row": 3091,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3229,
+      "material": "8010037107",
+      "kept_source_row": 3092,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3230,
+      "material": "8010037108",
+      "kept_source_row": 3093,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3850,
+      "material": "8010037109",
+      "kept_source_row": 3094,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3851,
+      "material": "8010037110",
+      "kept_source_row": 3095,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3852,
+      "material": "8010037111",
+      "kept_source_row": 3096,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3853,
+      "material": "8010037112",
+      "kept_source_row": 3097,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3854,
+      "material": "8010037113",
+      "kept_source_row": 3098,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3855,
+      "material": "8010037114",
+      "kept_source_row": 3099,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3856,
+      "material": "8010037115",
+      "kept_source_row": 3100,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3857,
+      "material": "8010037116",
+      "kept_source_row": 3101,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3858,
+      "material": "8010037148",
+      "kept_source_row": 3102,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3859,
+      "material": "8010037149",
+      "kept_source_row": 3103,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3860,
+      "material": "8010037150",
+      "kept_source_row": 3104,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3861,
+      "material": "8010037151",
+      "kept_source_row": 3105,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3862,
+      "material": "8010037152",
+      "kept_source_row": 3106,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3863,
+      "material": "8010037153",
+      "kept_source_row": 3107,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3864,
+      "material": "8010037154",
+      "kept_source_row": 3108,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3865,
+      "material": "8010037155",
+      "kept_source_row": 3109,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3231,
+      "material": "8010037156",
+      "kept_source_row": 3110,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3232,
+      "material": "8010037157",
+      "kept_source_row": 3111,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3233,
+      "material": "8010037158",
+      "kept_source_row": 3112,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3234,
+      "material": "8010037159",
+      "kept_source_row": 3113,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3866,
+      "material": "8010037160",
+      "kept_source_row": 3114,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3867,
+      "material": "8010037161",
+      "kept_source_row": 3115,
+      "reason": "is_preferred_price"
+    },
+    {
+      "source_row": 3868,
+      "material": "8010037162",
+      "kept_source_row": 3116,
+      "reason": "is_preferred_price"
+    }
+  ]
+}

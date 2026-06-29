@@ -23,6 +23,10 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+# Full published library is ~3000 products; tiny LKG dirs are dev/test pollution
+# that would otherwise block the bundled seed fallback (~3082 rows).
+LKG_MIN_PRODUCTS = max(1, int(os.environ.get("LKG_MIN_PRODUCTS", "50")))
+
 # Module-level in-memory price cache.
 # Structure: {"version_id": str, "products": [...], "source": str, ...}
 _price_cache: dict[str, Any] = {}
@@ -56,26 +60,42 @@ def _org_server_url() -> str:
     return ""
 
 
-def _org_session_token() -> str:
+def _org_session_token_candidates() -> list[str]:
+    """Return unique org JWT strings to try, in priority order.
+
+    Dev machines often have both %APPDATA%/AionUi and AionUi-Dev token files.
+    The first file on disk may be an expired Prod install token while the active
+    dev session wrote a fresh token under AionUi-Dev. Try each candidate until
+    GET /active returns 200 (see _api_get). Packaged installs typically have one
+    valid file — behaviour unchanged.
+    """
     direct = (os.environ.get("ORG_SESSION_TOKEN") or "").strip()
     if direct:
-        return direct
+        return [direct]
 
-    candidates: list[Path] = []
+    paths: list[Path] = []
     token_file = (os.environ.get("ORG_SESSION_TOKEN_FILE") or "").strip()
     if token_file:
-        candidates.append(Path(token_file))
+        paths.append(Path(token_file))
     for root in _appdata_roots():
-        candidates.append(root / "aionui" / "org-session.token")
+        paths.append(root / "aionui" / "org-session.token")
 
-    for path in candidates:
+    tokens: list[str] = []
+    seen: set[str] = set()
+    for path in paths:
         try:
             token = path.read_text(encoding="utf-8").strip()
-            if token:
-                return token
         except OSError:
             continue
-    return ""
+        if token and token not in seen:
+            seen.add(token)
+            tokens.append(token)
+    return tokens
+
+
+def _org_session_token() -> str:
+    candidates = _org_session_token_candidates()
+    return candidates[0] if candidates else ""
 
 
 # ---------------------------------------------------------------------------
@@ -228,21 +248,36 @@ def _make_request(path: str, token: str) -> dict[str, Any] | None:
 
 
 def _api_get(path: str) -> dict[str, Any] | None:
-    """GET with one 401-retry using fresh token from file."""
-    token = _org_session_token()
-    try:
-        return _make_request(path, token)
-    except _AuthError:
-        # Re-read token file once and retry.
-        token2 = _org_session_token()
-        if token2 and token2 != token:
-            try:
-                return _make_request(path, token2)
-            except _AuthError:
-                logger.warning("org_price_client: 401 after token refresh, falling back")
-                return None
-        logger.warning("org_price_client: 401 and no fresh token available")
-        return None
+    """GET /active (or other org path) trying each org-session.token candidate on 401."""
+    tokens = _org_session_token_candidates()
+    if not tokens:
+        try:
+            return _make_request(path, "")
+        except _AuthError:
+            logger.warning("org_price_client: 401 with no session token, falling back")
+            return None
+
+    saw_auth_error = False
+    for index, token in enumerate(tokens):
+        try:
+            result = _make_request(path, token)
+            if index > 0 and result is not None:
+                logger.info(
+                    "org_price_client: org API OK using token candidate %d/%d",
+                    index + 1,
+                    len(tokens),
+                )
+            return result
+        except _AuthError:
+            saw_auth_error = True
+            continue
+
+    if saw_auth_error:
+        logger.warning(
+            "org_price_client: 401 for all %d org session token candidate(s), falling back",
+            len(tokens),
+        )
+    return None
 
 
 def get_active_version_meta() -> dict[str, Any] | None:
@@ -417,6 +452,17 @@ def get_price_data(*, force_refresh: bool = False) -> dict[str, Any]:
 
     # --- Tier 2: LKG snapshot ---
     lkg = load_lkg_snapshot()
+    if lkg and lkg.get("products"):
+        lkg_count = len(lkg["products"])
+        if lkg_count < LKG_MIN_PRODUCTS:
+            logger.warning(
+                "org_price_client: ignoring LKG snapshot version_id=%s products=%d "
+                "(<%d); falling back to bundled seed",
+                lkg.get("version_id"),
+                lkg_count,
+                LKG_MIN_PRODUCTS,
+            )
+            lkg = None
     if lkg and lkg.get("products"):
         result = {
             "products": lkg["products"],

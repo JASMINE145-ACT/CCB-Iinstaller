@@ -40,8 +40,12 @@ if (-not (Test-Path $BootstrapSh)) {
 }
 
 $SeedFile = Join-Path $RepoRoot 'data\wanding_business_knowledge.md'
+$PriceSeed = Join-Path $RepoRoot 'data\price_library_cleaned_2026_05_15.xlsx'
 if (-not (Test-Path $SeedFile)) {
   Write-Error "Seed file not found: $SeedFile"
+}
+if (-not (Test-Path $PriceSeed)) {
+  Write-Warning "Price library seed xlsx not found (optional for org knowledge MVP): $PriceSeed"
 }
 
 New-Item -ItemType Directory -Force -Path $TmpDir | Out-Null
@@ -88,14 +92,12 @@ if (-not $MvpSeedOnly) {
 if ($ExtractOnRemote) {
   Write-Host ''
   Write-Host 'Extracting on VPS...' -ForegroundColor Cyan
-  Invoke-Ssh @(
-    "set -e",
-    "cd $RemoteRoot",
-    "rm -rf AionCore",
-    "mkdir -p AionCore",
-    "tar -xzf aioncore-upload.tgz -C AionCore",
-    "chmod +x $RemoteRoot/bootstrap.sh"
-  )
+  # Single remote shell line — multiple ssh args run as one `set ...` invocation without `&&`.
+  $extractCmd = "set -e && cd $RemoteRoot && rm -rf AionCore && mkdir -p AionCore && tar -xzf aioncore-upload.tgz -C AionCore && chmod +x $RemoteRoot/bootstrap.sh"
+  Invoke-Ssh @($extractCmd)
+  Write-Host '  Verifying org-knowledge router wiring on VPS...' -ForegroundColor Cyan
+  Invoke-Ssh @("grep -q org_knowledge_routes $RemoteRoot/AionCore/crates/aionui-app/src/router/routes.rs")
+  Write-Host '  OK: routes.rs contains org_knowledge_routes' -ForegroundColor Green
 }
 
 Write-Host ''
@@ -109,4 +111,9 @@ Write-Host "  $RemoteRoot/bootstrap.sh" -ForegroundColor Yellow
 Write-Host ''
 Write-Host 'Employee org-server.json:' -ForegroundColor Green
 Write-Host '  { "url": "http://67.216.206.3:13401" }' -ForegroundColor Yellow
+Write-Host ''
+Write-Host 'Price library VPS notes:' -ForegroundColor Green
+Write-Host '  - Upload includes data/price_library_cleaned_2026_05_15.xlsx (bootstrap seed on VPS)' -ForegroundColor Yellow
+Write-Host '  - After bootstrap: set PRICE_ADMIN_USERNAMES in /etc/aionorg/env, systemctl restart aionorg' -ForegroundColor Yellow
+Write-Host '  - Initial import: see scripts/org-phase0/vps-price-library-runbook.md' -ForegroundColor Yellow
 Write-Host ''

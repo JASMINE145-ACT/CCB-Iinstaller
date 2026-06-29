@@ -81,6 +81,12 @@ PY
 fi
 
 echo "==> [5/6] Install systemd unit"
+mkdir -p /etc/aionorg
+cat > /etc/aionorg/env << 'ENVEOF'
+# Price-library write access (comma-separated org usernames).
+PRICE_ADMIN_USERNAMES=admin
+ENVEOF
+
 cat > /etc/systemd/system/aionorg.service << EOF
 [Unit]
 Description=AionOrg knowledge center (aioncore)
@@ -88,6 +94,7 @@ After=network.target
 
 [Service]
 Type=simple
+EnvironmentFile=-/etc/aionorg/env
 Environment=AIONUI_ORG_KNOWLEDGE_SEED_DIR=${ROOT}/data
 WorkingDirectory=${ROOT}
 ExecStart=${BIN} --host 0.0.0.0 --port 13401 --data-dir ${ROOT}/data-org --cors-any
@@ -109,6 +116,14 @@ curl -s http://127.0.0.1:13401/api/auth/status
 echo ""
 systemctl --no-pager status aionorg | head -15
 
+echo ""
+echo "Price library (after admin login):"
+echo "  GET  /api/price-library/active"
+echo "  GET  /api/price-library/audit"
+echo "  POST /api/price-library/import/preview  (multipart file, price_admin)"
+echo "  POST /api/price-library/import/apply    (multipart file, price_admin)"
+echo "  POST /api/price-library/draft/publish   (price_admin)"
+echo "  PRICE_ADMIN_USERNAMES in /etc/aionorg/env (default: admin)"
 echo ""
 echo "DONE. Employee org-server.json:"
 echo '  { "url": "http://67.216.206.3:13401" }'

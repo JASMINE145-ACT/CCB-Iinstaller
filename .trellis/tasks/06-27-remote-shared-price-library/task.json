@@ -1,26 +1,68 @@
 {
   "id": "remote-shared-price-library",
-  "name": "remote-shared-price-library",
+  "name": "06-27-remote-shared-price-library",
   "title": "远端共享价格库与 AionUI 价格管理",
-  "description": "",
-  "status": "in_progress",
-  "dev_type": null,
-  "scope": "Existing org service + AionCore price domain, quotation runtime versioned snapshot, AionUI sidebar price management, Excel migration/import/export",
-  "package": null,
-  "priority": "P2",
+  "description": "Full canonical schema (41 cols): MVP v1 routing + v2 fleet data on VPS. Read-only AionUI, org_price_client, CSRF runbooks. Admin UI / quotation E2E deferred.",
+  "status": "completed",
+  "dev_type": "implementation",
+  "scope": "org-price-library-full-schema",
+  "package": "aioncore+aionui+python+ops",
+  "priority": "P1",
   "creator": "JASMINE145-ACT",
   "assignee": "JASMINE145-ACT",
   "createdAt": "2026-06-27",
-  "completedAt": null,
+  "completedAt": "2026-06-28",
   "branch": null,
   "base_branch": "main",
   "worktree_path": null,
   "commit": null,
   "pr_url": null,
-  "subtasks": [],
+  "subtasks": [
+    "017 migration — full product columns",
+    "AionCore excel import/export all fields",
+    "API DTOs + service SQL",
+    "AionUI full-column table",
+    "VPS re-import publish v2"
+  ],
   "children": [],
   "parent": null,
-  "relatedFiles": [],
-  "notes": "",
-  "meta": {}
+  "relatedFiles": [
+    ".trellis/spec/integration/price-library.md",
+    "data/data.Md",
+    ".trellis/tasks/06-27-remote-shared-price-library/full-schema-2026-06-28.md",
+    "AionCore/crates/aionui-db/migrations/017_price_library_full_schema.sql",
+    "AionCore/crates/aionui-price-library",
+    "scripts/org-phase0/vps-price-library-v2-handoff.md"
+  ],
+  "notes": "2026-06-28: Completed — VPS v2 verified (3082 products, RUCIKA product_type/factory_inc_tax/price_b/d). MVP v1 2026-06-28; full schema v2 same day.",
+  "meta": {
+    "mvp_closure": "2026-06-28",
+    "full_schema_closure": "2026-06-28",
+    "vps_verification_v2": {
+      "active_version": 2,
+      "product_count": 3082,
+      "host": "67.216.206.3:13401",
+      "publish_reason": "full schema v2",
+      "sample_rucika": {
+        "material_prefix": "10012005",
+        "product_type": "RUCIKA JIS",
+        "factory_inc_tax": 63008,
+        "price_b": 66757,
+        "price_d": 70929
+      },
+      "verified_at": "2026-06-28"
+    },
+    "vps_verification_v1": {
+      "active_version": 1,
+      "product_count": 3082,
+      "note": "superseded by v2"
+    },
+    "deferred": [
+      "Employee E2E #/price-library UI sign-off (41 cols with live v2 data)",
+      "Quotation org_api E2E + stale metadata in output",
+      "AionUI price_admin draft/edit/publish UI",
+      "PR0 legacy wanding_price_lib smoke removal",
+      "git commit AionCore + aionui-src wiring"
+    ]
+  }
 }

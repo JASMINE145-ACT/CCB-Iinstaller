@@ -17,7 +17,7 @@ _env_path = Path(__file__).resolve().parents[2] / ".env.accurate"
 if _env_path.exists():
     try:
         from dotenv import load_dotenv
-        load_dotenv(_env_path, override=True)
+        load_dotenv(_env_path, override=True, encoding="utf-8-sig")
     except Exception:
         pass
 
