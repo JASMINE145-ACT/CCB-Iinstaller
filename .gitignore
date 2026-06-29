@@ -63,3 +63,8 @@ python/test_*_report.json
 # ASAR audit extract (rebuild from staging)
 .trellis/tasks/*/asar-1.1.2-extract/
 .trellis/tasks/*/asar-1.1.2-list.txt
+.trellis/tasks/*/oracle-extract/
+.trellis/tasks/*/oracle-full-extract/
+
+# Local ROE gate pytest log fixtures (not repo artifacts)
+ccb-installer/config/skills/ccb-subagent-gate/tests/fixtures/.roe-*/

@@ -99,3 +99,37 @@ sync-aionui-ccb-route-b.ps1 缺少 AppData\Roaming\AionUi exe runtime 路径，�
 ### Next Steps
 
 - None - task complete
+
+
+## Session 3: 打包 CCB-Wanding 1.1.3 全量 NSIS 安装包
+
+**Date**: 2026-06-29
+**Task**: 打包 CCB-Wanding 1.1.3 全量 NSIS 安装包
+**Branch**: `main`
+
+### Summary
+
+完成 1.1.3 安装包打包（847 MB）。修复 build-wanding.ps1 staging 校验哨兵：isInternalUpdateEnabled 被 Vite tree-shaken（仅 export 未 import），改为 parseInternalManifest（由 ccbUpdateBridge.ts 实际引用）。记录 NSIS 打包流程、skip 参数组合、以及沙箱后台进程被 kill 的注意事项到 build-deploy-verify.md。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `e491e7dc` | (see git log) |
+| `fc86dcaf` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
