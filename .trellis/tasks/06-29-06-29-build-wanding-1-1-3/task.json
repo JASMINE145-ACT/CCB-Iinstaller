@@ -21,6 +21,6 @@
   "children": [],
   "parent": null,
   "relatedFiles": [],
-  "notes": "",
+  "notes": "2026-06-29: spec updated — backend/build-deploy-verify.md: NSIS full-package build section + parseInternalManifest sentinel gotcha",
   "meta": {}
 }

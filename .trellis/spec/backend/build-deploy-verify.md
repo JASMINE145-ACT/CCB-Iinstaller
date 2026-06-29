@@ -185,7 +185,44 @@ cd D:\Projects\claude-code-best\ccb-installer\scripts
 
 ---
 
-## 5. Minimal backend change loop
+## 5. NSIS full-package build (`build-wanding.ps1`)
+
+```powershell
+cd D:\Projects\claude-code-best
+.\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.X
+# Output: ccb-installer\CCB-Wanding-1.1.X.exe (~800–900 MB, zlib, ~3–5 min NSIS pass)
+```
+
+Skip flags (use together to preserve pip site-packages already in staging):
+
+```powershell
+.\build-wanding.ps1 -Version 1.1.X -SkipBuild -SkipAionUiBuild -SkipPipMcp -SkipStagingClear
+```
+
+`-SkipPipMcp + -SkipStagingClear` together → `Invoke-RobocopyCopy` (not Mirror) for `vendor/mcp-servers`, preserving existing `site-packages/`.
+
+### Staging validation gate — `Test-StagingWanDInstall`
+
+Before NSIS runs, `build-wanding.ps1` calls `Test-StagingWanDInstall` which checks that `AionUi\resources\app.asar` contains a known string from the VPS internal-update code path.
+
+> **Gotcha (2026-06-29):** The sentinel was previously `isInternalUpdateEnabled`, but that function is **exported-only in `internalUpdateManifest.ts` and never imported anywhere** → Vite tree-shakes it out of the compiled bundle. The correct sentinel is `parseInternalManifest`, which is imported by `ccbUpdateBridge.ts` and preserved in `app.asar`.
+
+If you change this sentinel, verify the new symbol is actually imported (not just exported) by checking `out/main/index.js`:
+
+```powershell
+Select-String -Path D:\Projects\aionui-src\out\main\index.js -Pattern 'parseInternalManifest' -List
+# Must have at least one hit; zero hits means tree-shaken → pick a different sentinel
+```
+
+Failure message: `AionUi app.asar lacks VPS internal update code — rebuild aionui-src (no -SkipAionUiBuild)`.
+
+### NSIS process note
+
+NSIS compresses ~2.66 GB staging to ~888 MB with zlib; the compression phase has **no stdout output** for several minutes. If running via Claude Code background process, it will be killed during this silent window. **Run NSIS-triggering commands in a foreground terminal** (or use `!` prefix in Claude Code prompt).
+
+---
+
+## 6. Minimal backend change loop
 
 ```text
 1. Edit D:\claude-code-B\src\...   (or mcp_servers / settings — see file-map.md)
