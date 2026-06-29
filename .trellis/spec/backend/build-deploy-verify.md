@@ -241,6 +241,42 @@ NSIS compresses ~2.66 GB staging to ~888 MB with zlib; the compression phase has
 
 ---
 
+## 5.2 AionCore version mismatch: staging stale binary causes DB migration crash
+
+**Symptom**: After installing 1.1.3, AionUI shows "AionCore 无法启动" on machines that previously ran AionUI Dev or a newer AionCore build. AionCore log:
+```
+Migration failed: migration 12 was previously applied but is missing in the resolved migrations
+BOOTSTRAP_DATA_INIT_FAILED stage=database.migration
+```
+
+**Root cause**: The staging `bundled-aioncore/win32-x64/aioncore.exe` comes from the AionUI electron-builder output captured at build time. When `-SkipAionUiBuild` is used (incremental repack), the staging binary stays at its original date — e.g. `0.1.28 @ 06/11`. If an employee's machine previously ran AionCore `0.1.29+` (written via AionUI Dev or `sync-dev-aioncore`), their `aionui-backend.db` already contains migrations 12–15. Downgrading to `0.1.28` (which only knows migrations up to 11) → crash on startup.
+
+**Rule: always verify staging AionCore version before NSIS**:
+
+```powershell
+$stac = "D:\Projects\claude-code-best\ccb-installer\staging\AionUi\resources\bundled-aioncore\win32-x64\aioncore.exe"
+& $stac --version   # must match AionCore\target\release\aioncore.exe --version
+```
+
+If stale, inject the self-built binary before running NSIS:
+
+```powershell
+Copy-Item "D:\Projects\claude-code-best\AionCore\target\release\aioncore.exe" $stac -Force
+```
+
+Or use the `-AioncorePath` flag on `build-wanding.ps1` to inject automatically:
+
+```powershell
+.\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.X `
+  -AioncorePath D:\Projects\claude-code-best\AionCore\target\release\aioncore.exe
+```
+
+**Two-version invariant**: `staging bundled aioncore.exe` version **must equal** `AionCore\target\release\aioncore.exe` version before NSIS runs. A mismatch means the package downgrades AionCore on employee machines → DB migration forward-incompatibility → crash.
+
+**Fixed in 1.1.3 repack (2026-06-29 20:27)**: injected `0.1.29` into staging before NSIS; EXE grew from 847.4 MB → 850.1 MB.
+
+---
+
 ## 6. Minimal backend change loop
 
 ```text
