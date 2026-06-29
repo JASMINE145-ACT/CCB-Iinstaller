@@ -1,0 +1,4 @@
+{"file":"ccb-installer/scripts/start-aionui-dev.ps1","reason":"现有 bypass dev 启动脚本；新脚本参照结构，去掉 AIONUI_BYPASS_AUTH=1，加 pre-flight"}
+{"file":"ccb-installer/scripts/ensure-wanding-settings.ps1","reason":"了解 org-server.json 写入逻辑和 vendor 路径常量（$bunExe/$pythonExe/$quotationServer）"}
+{"file":"ccb-installer/scripts/run-wanding-bootstrap.ps1","reason":"bootstrap 编排脚本；新脚本调用其 Quick 模式"}
+{"file":".trellis/tasks/06-26-dev-parity-align-dev-launcher-to-1-1-2-installed-state-completeness-test-script/prd.md","reason":"完整需求：7项pre-flight清单、登录模式、脚本头 checklist 注释格式"}

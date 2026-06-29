@@ -1,14 +1,17 @@
-# start-dev-full.ps1 — AionUI dev launcher with full 1.1.2 parity (org SSO login)
+# start-dev-full.ps1 — CANONICAL AionUI dev launcher (sole supported entry)
 #
-# Purpose : Complete-parity dev launcher. Runs pre-flight checks, bootstraps CCB,
-#           then starts `bun run dev` WITHOUT AIONUI_BYPASS_AUTH so the org SSO
-#           login page appears exactly as in the 1.1.2 installed runtime.
+# Rule 0: All dev / smoke / parity testing MUST use this script only.
+#         Do NOT use bare `bun run dev`, start-aionui-dev.ps1, work-tasks launcher,
+#         or org-phase0 org-test launcher — those redirect here or exit with error.
 #
-# Compare with start-aionui-dev.ps1 (keeps AIONUI_BYPASS_AUTH=1 for quick UI work).
+# Purpose : Mixing 1.1.2 parity — org SSO login, self-built aioncore (work-tasks +
+#           org-knowledge + price-library routes), route-b sync, CCB bootstrap.
 #
 # Usage:
 #   .\ccb-installer\scripts\start-dev-full.ps1
+#   .\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap
 #   .\ccb-installer\scripts\start-dev-full.ps1 -InstallDir D:\CCB-Wanding -Clean
+#   .\ccb-installer\scripts\start-dev-full.ps1 -BuildAioncore:$false   # skip cargo when no Rust changes
 #
 # ─────────────────────────────────────────────────────────────────────────────
 # COMPLETENESS CHECKLIST (manual verification after launch)
@@ -26,7 +29,8 @@ param(
     [string]$InstallDir   = 'D:\CCB-Wanding',
     [string]$AionUiSrc    = 'D:\Projects\aionui-src',
     [switch]$Clean,
-    [switch]$SkipBootstrap
+    [switch]$SkipBootstrap,
+    [bool]$BuildAioncore  = $true
 )
 
 $ErrorActionPreference = 'Stop'
@@ -122,6 +126,22 @@ if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
     throw "sync-aionui-ccb-route-b failed (exit $LASTEXITCODE)"
 }
 
+$warmLibSrc = Join-Path $repoRoot 'ccb-installer\lib\warm-wanding-mcp.mjs'
+$warmLibDstDir = Join-Path $InstallDir 'lib'
+if (Test-Path -LiteralPath $warmLibSrc) {
+    New-Item -ItemType Directory -Force -Path $warmLibDstDir | Out-Null
+    Copy-Item -Force $warmLibSrc (Join-Path $warmLibDstDir 'warm-wanding-mcp.mjs')
+    Write-Host "[ok] Synced startup MCP warm script -> $warmLibDstDir" -ForegroundColor Green
+}
+
+Write-Host 'Injecting self-built aioncore into bundled slot (dev resolver prefers bundled)...' -ForegroundColor Cyan
+$syncArgs = @{ InstallDir = $InstallDir; RepoRoot = $repoRoot }
+if ($BuildAioncore) { $syncArgs.Build = $true }
+& (Join-Path $repoRoot 'ccb-installer\scripts\sync-dev-aioncore.ps1') @syncArgs
+if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+    throw "sync-dev-aioncore failed (exit $LASTEXITCODE)"
+}
+
 # ── Unified org SSO (must match packaged ccb-launch-aionui.cmd + VPS JWT) ───
 
 $envLocal = Join-Path $repoRoot 'scripts\org-phase0\env.local'
@@ -140,7 +160,7 @@ Remove-Item Env:AIONUI_BYPASS_AUTH -ErrorAction SilentlyContinue
 
 # ── Start dev ────────────────────────────────────────────────────────────────
 
-$selfBuiltCore = 'D:\Projects\claude-code-best\AionCore\target\release'
+$selfBuiltCore = Join-Path $repoRoot 'AionCore\target\release'
 $bundledCore   = Join-Path $InstallDir 'AionUi\resources\bundled-aioncore\win32-x64'
 $env:PATH = "$selfBuiltCore;$bundledCore;$env:PATH"
 
@@ -171,7 +191,7 @@ Write-Host ''
 Write-Host 'Starting AionUI dev (full parity — org SSO login)...' -ForegroundColor Cyan
 Write-Host "  CCB baseline : $InstallDir" -ForegroundColor DarkGray
 Write-Host "  CCB config   : $configDir" -ForegroundColor DarkGray
-Write-Host "  aioncore     : $bundledCore" -ForegroundColor DarkGray
+Write-Host "  aioncore     : $(Join-Path $bundledCore 'aioncore.exe') (synced from repo build)" -ForegroundColor DarkGray
 Write-Host "  renderer     : http://localhost:5173/" -ForegroundColor DarkGray
 Write-Host "  Auth mode    : org SSO ($($env:AIONUI_SSO_MODE))" -ForegroundColor DarkGray
 Write-Host "  Org server   : $($env:ORG_SERVER_URL)" -ForegroundColor DarkGray

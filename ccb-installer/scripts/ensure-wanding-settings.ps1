@@ -379,6 +379,12 @@ $excel = [pscustomobject]@{
     description = "ExcelMcp Server v1.8.67 for Microsoft Excel automation. Requires Windows and Microsoft Excel 2016+."
 }
 
+# Bundled Accurate Online credentials — quotation inventory + accurate MCP.
+$aolAccessToken = "aat.NTA.eyJ2IjoxLCJ1Ijo2MDAzNTUsImQiOjMwMDYwMCwiYWkiOjYzMjUyLCJhayI6ImI2Y2JmOTUwLWViNDItNGEyYS1hNjkyLTA2YmY3NDhmZjJmMCIsImFuIjoiRGV2IGZvciBkYXRhIHdlYiIsImFwIjoiYTUxNTJjYzMtM2E4Mi00ODg1LWIxYjgtYjQ3NzViZTNkNmQ1IiwidCI6MTc2ODc3MzQ4ODQwMH0.hm4ysdDzSqDX6umEqbR2okCJQHjuX7Mke1iC8y/0Z/TnbVTdp51WKp1TU0f6AIoXHY1N/hUjYSncweXGpYRpzcZ36JwQuz1yMfl1HPBMwK5AfPoZmxuKUd7gxBAyI3zWFvmFYoF5vLNjXsNLLaWVQfM6LIxwEC7wjIQHVIF1vA9jyRDIJfN1//YHtsDEDIBzsIK1B6dyXuM=.Dpew9QjvKyN531ejkyiaLLDaBxGgKPDw2rMB2mfJGKg"
+$aolDatabaseId = "iris"
+$aolSignatureSecret = "aru0mBgxVKLzuQydryQ9qUyQTuR4CNVeliCyx7znbxaDDuYVPXAhhSUYyZr7F59I"
+$aolApiBaseUrl = "https://account.accurate.id"
+
 $quotation = [pscustomobject]@{
     command     = $bunExe
     args        = @($quotationServer)
@@ -402,13 +408,10 @@ $quotation = [pscustomobject]@{
         ENABLE_WANDING_VECTOR = "0"
         INVENTORY_ENABLE_RESOLVER_VECTOR = "0"
         USE_RESOLVER_FALLBACK = "0"
-        # Accurate Online inventory API credentials (inventory lookup). Bundled
-        # so stock lookups work on a fresh machine with no external setup. Rotate:
-        # update these values and re-run this script (or rebuild the installer).
-        AOL_ACCESS_TOKEN = "aat.NTA.eyJ2IjoxLCJ1Ijo2MDAzNTUsImQiOjMwMDYwMCwiYWkiOjYzMjUyLCJhayI6ImI2Y2JmOTUwLWViNDItNGEyYS1hNjkyLTA2YmY3NDhmZjJmMCIsImFuIjoiRGV2IGZvciBkYXRhIHdlYiIsImFwIjoiYTUxNTJjYzMtM2E4Mi00ODg1LWIxYjgtYjQ3NzViZTNkNmQ1IiwidCI6MTc2ODc3MzQ4ODQwMH0.hm4ysdDzSqDX6umEqbR2okCJQHjuX7Mke1iC8y/0Z/TnbVTdp51WKp1TU0f6AIoXHY1N/hUjYSncweXGpYRpzcZ36JwQuz1yMfl1HPBMwK5AfPoZmxuKUd7gxBAyI3zWFvmFYoF5vLNjXsNLLaWVQfM6LIxwEC7wjIQHVIF1vA9jyRDIJfN1//YHtsDEDIBzsIK1B6dyXuM=.Dpew9QjvKyN531ejkyiaLLDaBxGgKPDw2rMB2mfJGKg"
-        AOL_DATABASE_ID = "iris"
-        AOL_SIGNATURE_SECRET = "aru0mBgxVKLzuQydryQ9qUyQTuR4CNVeliCyx7znbxaDDuYVPXAhhSUYyZr7F59I"
-        AOL_API_BASE_URL = "https://account.accurate.id"
+        AOL_ACCESS_TOKEN = $aolAccessToken
+        AOL_DATABASE_ID = $aolDatabaseId
+        AOL_SIGNATURE_SECRET = $aolSignatureSecret
+        AOL_API_BASE_URL = $aolApiBaseUrl
     }
     description = "Wanding quotation + inventory MCP: match quotation items, fill quotation sheets, query live stock by code or description, and use bundled Wanding business knowledge."
 }
@@ -420,10 +423,10 @@ $accurate = [pscustomobject]@{
         PYTHONNOUSERSITE     = "1"
         PYTHONUTF8           = "1"
         PYTHONIOENCODING     = "utf-8"
-        AOL_ACCESS_TOKEN     = "aat.NTA.eyJ2IjoxLCJ1Ijo2MDAzNTUsImQiOjMwMDYwMCwiYWkiOjYzMjUyLCJhayI6ImI2Y2JmOTUwLWViNDItNGEyYS1hNjkyLTA2YmY3NDhmZjJmMCIsImFuIjoiRGV2IGZvciBkYXRhIHdlYiIsImFwIjoiYTUxNTJjYzMtM2E4Mi00ODg1LWIxYjgtYjQ3NzViZTNkNmQ1IiwidCI6MTc2ODc3MzQ4ODQwMH0.hm4ysdDzSqDX6umEqbR2okCJQHjuX7Mke1iC8y/0Z/TnbVTdp51WKp1TU0f6AIoXHY1N/hUjYSncweXGpYRpzcZ36JwQuz1yMfl1HPBMwK5AfPoZmxuKUd7gxBAyI3zWFvmFYoF5vLNjXsNLLaWVQfM6LIxwEC7wjIQHVIF1vA9jyRDIJfN1//YHtsDEDIBzsIK1B6dyXuM=.Dpew9QjvKyN531ejkyiaLLDaBxGgKPDw2rMB2mfJGKg"
-        AOL_SIGNATURE_SECRET = "aru0mBgxVKLzuQydryQ9qUyQTuR4CNVeliCyx7znbxaDDuYVPXAhhSUYyZr7F59I"
-        AOL_DATABASE_ID      = "iris"
-        AOL_BASE_URL         = "https://account.accurate.id"
+        AOL_ACCESS_TOKEN     = $aolAccessToken
+        AOL_SIGNATURE_SECRET = $aolSignatureSecret
+        AOL_DATABASE_ID      = $aolDatabaseId
+        AOL_BASE_URL         = $aolApiBaseUrl
     }
     description = "Accurate Online read-only MCP: search records, fetch lists, batch details, and summarize business amounts with verified filters."
 }
@@ -461,6 +464,18 @@ Set-JsonProperty -Object $settings.mcpServers -Name "quotation" -Value $quotatio
 Set-JsonProperty -Object $settings.mcpServers -Name "accurate" -Value $accurate
 Set-JsonProperty -Object $settings.mcpServers -Name "office-word" -Value $officeWord
 Set-JsonProperty -Object $settings.mcpServers -Name "excel" -Value $excelFile
+
+# Python main.py loads vendor/wanding/.env.accurate (override=True) when MCP env omits AOL_*.
+$envAccuratePath = Join-Path $wandingRoot ".env.accurate"
+$envAccurateBody = @(
+    "AOL_ACCESS_TOKEN=$aolAccessToken"
+    "AOL_DATABASE_ID=$aolDatabaseId"
+    "AOL_SIGNATURE_SECRET=$aolSignatureSecret"
+    "AOL_API_BASE_URL=$aolApiBaseUrl"
+) -join "`n"
+# UTF-8 without BOM — BOM breaks python-dotenv key names (\ufeffAOL_ACCESS_TOKEN).
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllText($envAccuratePath, $envAccurateBody, $utf8NoBom)
 
 if (-not $settings.PSObject.Properties["theme"] -or $settings.theme -eq "light") {
     Set-JsonProperty -Object $settings -Name "theme" -Value "dark"

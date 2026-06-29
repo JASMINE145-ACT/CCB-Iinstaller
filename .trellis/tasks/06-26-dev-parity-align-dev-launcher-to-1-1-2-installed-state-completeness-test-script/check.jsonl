@@ -1,0 +1,2 @@
+{"file":".trellis/tasks/06-26-dev-parity-align-dev-launcher-to-1-1-2-installed-state-completeness-test-script/prd.md","reason":"Acceptance Criteria：pre-flight 任一失败报错退出；无 BYPASS_AUTH；显示 org SSO 登录页"}
+{"file":"ccb-installer/scripts/start-aionui-dev.ps1","reason":"确认新脚本未意外修改旧 bypass 模式脚本"}

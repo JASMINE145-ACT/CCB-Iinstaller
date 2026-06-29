@@ -219,7 +219,7 @@ bash /path/to/vps-create-employee.sh
 | 现象 | 原因 | 处理 |
 |------|------|------|
 | `KeyError: 'token'` / `TOKEN len=0` | admin 密码错；或 JSON 里密码被 shell 解析（`<>`、`#` 等） | 用**单引号**包 password；勿复制 `<YOUR_PASSWORD>` 尖括号 |
-| `CSRF_INVALID` on `POST /api/users` | `TOKEN` 未设置或为占位字符串 | 重做 §2；确认 `Authorization: Bearer ${TOKEN}` |
+| `CSRF_INVALID` on `POST /api/users` | POST 缺 CSRF cookie + `x-csrf-token`（不仅 Bearer） | 见 [`price-library.md`](../../.trellis/spec/integration/price-library.md) § VPS CSRF；price import 同模式 |
 | `403 Only managers can create users` | admin 在 DB 里仍是 `employee` | Phase 0 spec §3.3 提升为 manager 后重登 |
 | `already exists` | 用户名已存在 | `GET /api/users` 确认；改密需另走改密流程 |
 | 员工 exe 登录弹回 / 本地 401 | `JWT_SECRET` 不一致或 1.0.6 空 secret | 见 `unified-org-sso-rollout.md` § Pack |

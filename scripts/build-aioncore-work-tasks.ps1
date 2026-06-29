@@ -15,4 +15,4 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 $bin = Join-Path $AionCore 'target\release\aioncore.exe'
 Write-Host "Built: $bin"
-Write-Host "Dev: .\scripts\start-aionui-dev-work-tasks.ps1"
+Write-Host "Dev: .\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap"
