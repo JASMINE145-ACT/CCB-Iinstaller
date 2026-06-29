@@ -1,0 +1,27 @@
+{
+  "id": "price-tiers-data-md-read-hook",
+  "name": "06-28-price-tiers-data-md-read-hook",
+  "title": "Quotation agent — Read data.Md hook on get_product_price_tiers",
+  "description": "When agent calls get_product_price_tiers, must Read vendor data.Md (like business knowledge hook) to explain per-source tier semantics; remove misleading static tier_guide_summary LESSO defaults.",
+  "status": "completed",
+  "dev_type": "implementation",
+  "scope": "quotation-agent-prompt",
+  "package": "ccb-installer+python+mcp",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-28",
+  "completedAt": "2026-06-28",
+  "relatedFiles": [
+    "ccb-installer/config/agents/quotation-agent.md",
+    "python/quotation/price_tiers.py",
+    "mcp_servers/quotation-server/dist/index.js",
+    "data/data.Md",
+    ".trellis/spec/integration/agents-unified-model.md",
+    ".trellis/spec/integration/price-library.md"
+  ],
+  "meta": {
+    "parent": "06-28-product-price-tiers-tool",
+    "gap": "Static tier_guide_summary wrongly maps 青山→price_d for all products; data.Md §来源映射 is per-source"
+  }
+}

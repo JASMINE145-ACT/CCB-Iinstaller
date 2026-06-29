@@ -1,0 +1,24 @@
+{
+  "id": "product-price-tiers-tool",
+  "name": "06-28-product-price-tiers-tool",
+  "title": "Quotation MCP — list all price tiers per product",
+  "description": "When employee asks price tier types or all prices for a product: expose get_product_price_tiers (org API v2 full fields) with embedded tier labels from data.Md contract; no mandatory data.Md Read.",
+  "status": "completed",
+  "dev_type": "implementation",
+  "scope": "quotation-mcp-price-tiers",
+  "package": "python+mcp+ccb-installer",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-28",
+  "completedAt": "2026-06-28",
+  "relatedFiles": [
+    "data/data.Md",
+    "python/quotation/price_tiers.py",
+    "mcp_servers/quotation-server/dist/index.js",
+    "ccb-installer/config/agents/quotation-agent.md"
+  ],
+  "meta": {
+    "gap": "match_quotation returns single unit_price; get_profit_by_price not in quotation MCP and requires price input; data.Md marked maintenance-only in agent"
+  }
+}

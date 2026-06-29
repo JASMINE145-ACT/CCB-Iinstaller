@@ -1,0 +1,43 @@
+{
+  "id": "price-tiers-synthesis-and-seed-fallback",
+  "name": "06-29-price-tiers-synthesis-and-seed-fallback",
+  "title": "Price tiers — agent synthesis after tool + bundled_seed full-tier fallback",
+  "description": "Fix get_product_price_tiers E2E: agent must synthesize tier table after successful tool (not「没有内容」); when price_source is bundled_seed/LKG sparse dict, fall back to full xlsx tiers; PostToolUse nudge + L1 prompt.",
+  "status": "completed",
+  "dev_type": "implementation",
+  "scope": "quotation-mcp-price-tiers",
+  "package": "python+mcp+ccb-installer",
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-29",
+  "completedAt": "2026-06-29",
+  "relatedFiles": [
+    "python/quotation/price_tiers.py",
+    "python/admin/org_price_client.py",
+    "python/tests/test_price_tiers.py",
+    "ccb-installer/config/agents/quotation-agent.md",
+    "ccb-installer/config/skills/ccb-subagent-gate/scripts/post-match-knowledge-nudge.py",
+    "ccb-installer/config/skills/ccb-subagent-gate/scripts/post-price-tiers-nudge.py",
+    "ccb-installer/config/skills/ccb-subagent-gate/tests/test_knowledge_read_gate.py",
+    "mcp_servers/quotation-server/dist/index.js",
+    ".trellis/spec/integration/price-library.md",
+    ".trellis/spec/integration/agents-unified-model.md"
+  ],
+  "meta": {
+    "parent": [
+      "06-28-product-price-tiers-tool",
+      "06-28-price-tiers-data-md-read-hook"
+    ],
+    "related": "06-28-quotation-tool-interrupted-repeat",
+    "repro_code": "8020020755",
+    "repro_symptom": "tool Output valid JSON then assistant says 你最后一条消息没有内容",
+    "repro_price_source": "bundled_seed",
+    "repro_tier_count": 1,
+    "closure": {
+      "B1": "org_price_client multi-token JWT probe",
+      "A": "post-price-tiers-nudge + quotation-agent L1",
+      "B2": "bundled_seed local_xlsx tier supplement"
+    }
+  }
+}
