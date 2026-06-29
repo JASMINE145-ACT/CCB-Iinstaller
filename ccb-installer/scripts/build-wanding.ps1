@@ -271,7 +271,7 @@ function Test-StagingWanDInstall {
     $appAsar = Join-Path $Root 'AionUi\resources\app.asar'
     if (Test-Path -LiteralPath $appAsar) {
         $asarText = [System.Text.Encoding]::UTF8.GetString([System.IO.File]::ReadAllBytes($appAsar))
-        if (-not $asarText.Contains('isInternalUpdateEnabled')) {
+        if (-not $asarText.Contains('parseInternalManifest')) {
             $failures += 'AionUi app.asar lacks VPS internal update code — rebuild aionui-src (no -SkipAionUiBuild)'
         }
     }
