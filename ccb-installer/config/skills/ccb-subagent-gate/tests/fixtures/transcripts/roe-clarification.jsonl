@@ -1,0 +1,2 @@
+{"type":"user","message":{"content":[{"type":"text","text":"请帮我改报价单"}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"请确认 A 改价 / B 追加 / C 删除，请回复你的选择。"}]}}

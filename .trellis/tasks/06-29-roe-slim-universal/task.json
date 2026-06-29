@@ -1,0 +1,53 @@
+{
+  "id": "roe-slim-universal",
+  "name": "06-29-roe-slim-universal",
+  "title": "ROE slim universal — merge quotation-roe + Gate-J (direction B)",
+  "description": "One end_turn gate: merge quotation-roe into generic-roe-judge + profiles; write-anchor window; REJECT v4 (Already done + Prior attempt); N/K warn-only; retire dual-layer Stop hooks.",
+  "status": "completed",
+  "dev_type": null,
+  "scope": "ccb-subagent-gate parse_transcript_roe_judge.py, subagent-gate.sh, modes.json, roe-judge-profiles, tests (gate + realistic + roe_gate), smoke-roe-judge-deploy.ps1, agents-unified-model.md, internal-update.md §12.9 #19/#22 — no AionUI/CCB dist",
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-29",
+  "completedAt": "2026-06-29",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "06-27-result-oriented-execution",
+  "relatedFiles": [
+    ".trellis/spec/integration/agents-unified-model.md",
+    ".trellis/spec/integration/internal-update.md",
+    ".trellis/spec/integration/wanding-packaging-whitelist.md",
+    ".trellis/tasks/06-29-roe-slim-universal/prd.md",
+    ".trellis/tasks/06-29-roe-slim-universal/delivery-status-2026-06-29.md",
+    "ccb-installer/config/skills/ccb-subagent-gate/scripts/subagent-gate.sh",
+    "ccb-installer/config/skills/ccb-subagent-gate/scripts/lib/parse_transcript_roe_judge.py",
+    "ccb-installer/config/skills/ccb-subagent-gate/scripts/validators/generic-roe-judge.sh",
+    "ccb-installer/config/skills/ccb-subagent-gate/config/modes.json",
+    "ccb-installer/config/skills/ccb-subagent-gate/config/roe-judge-profiles/",
+    "ccb-installer/config/skills/ccb-subagent-gate/tests/test_roe_judge_gate.py",
+    "ccb-installer/config/skills/ccb-subagent-gate/tests/test_roe_judge_realistic.py",
+    "ccb-installer/config/skills/ccb-subagent-gate/tests/test_roe_gate.py",
+    "ccb-installer/scripts/smoke-roe-judge-deploy.ps1"
+  ],
+  "notes": "2026-06-29: Merged quotation-roe (#19) + Gate-J (#22) into single generic-roe-judge. Fixes live「查+填」recheck loop. Follow-ups same day: cross-turn Already done (prior turns vs this turn); PRIOR ATTEMPT with error message; L2 success heuristic (JSON error field); tool_use_id pairing; test_roe_judge_realistic.py (8 scenarios). quotation-agent:roe off; quotation-roe.sh not called.",
+  "meta": {
+    "checklist_items": ["#19 merged into #22", "#22 slim 2026-06-29"],
+    "verification": {
+      "test_roe_judge_gate": "16 cases + n5 escalation PASS",
+      "test_roe_judge_realistic": "8/8 PASS",
+      "test_roe_gate": "7/7 PASS",
+      "smoke_roe_judge_deploy": "13/13 PASS"
+    },
+    "supersedes": [
+      "06-27-result-oriented-execution dual-layer quotation-roe path",
+      "archive/2026-06/06-28-roe-semantic-judge-l2-mvp Gate-J-only layer"
+    ]
+  }
+}

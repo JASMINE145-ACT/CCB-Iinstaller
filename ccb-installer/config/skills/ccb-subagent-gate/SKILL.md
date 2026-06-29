@@ -6,8 +6,10 @@ Runtime delivery gate for WanD keep-set specialist agents. It is invoked through
 
 - Office agents (`word-creator`, `ppt-creator`, `excel-creator`): hard block (`exit 2`) when produced files fail schema or content checks.
 - `accurate-agent`: warn-only in v1. Logs to `.claude/logs/subagent-gate-warn.log`, does not block.
-- `quotation-agent`: MCP evidence check **off**; knowledge Read gate **warn** on `quotation-agent:knowledge` (2026-06-19). PostToolUse `post-match-knowledge-nudge.py` when `candidate_count > 1`.
-- `wande-orchestrator`: off/no-op.
+- `quotation-agent`: MCP evidence check **off**; knowledge Read gate **warn** on `quotation-agent:knowledge` (2026-06-19). PostToolUse `post-match-knowledge-nudge.py` when `candidate_count > 1`; `post-price-tiers-nudge.py` when `get_product_price_tiers` returns tiers (2026-06-29).
+- `quotation-agent:roe`: **block** (2026-06-27 MVP) — Result-Oriented Execution Stop validator (`quotation-roe.sh`). Blocks text-only promises / write-intent without L2 tool success in intent window. Log: `.claude/logs/subagent-gate-roe.log`.
+- **Universal `:roe-judge`** (2026-06-28) — In-process ROE self-check gate (`generic-roe-judge.sh` + `parse_transcript_roe_judge.py`). Stop hook runs **rule-based** incomplete detection; on block → `exit 2` + structured REJECT injected into **same CCB session** (`stop_hook_blocking` auto-continue). The **main in-process model** performs semantic self-check on the next turn — no external LLM/API call from the hook. Runs after agent-specific validators for any agent with `{agent}:roe-judge` in `modes.json`. Log: `.claude/logs/subagent-gate-roe-judge.log`. All Stop-hook agents: `:roe-judge: block`.
+- `wande-orchestrator`: off/no-op (no Stop hook in seed).
 
 ## Agent Guidance
 

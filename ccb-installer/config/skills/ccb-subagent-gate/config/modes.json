@@ -4,5 +4,11 @@
   "excel-creator": "block",
   "quotation-agent": "off",
   "quotation-agent:knowledge": "warn",
-  "accurate-agent": "warn"
+  "quotation-agent:roe": "off",
+  "accurate-agent": "warn",
+  "word-creator:roe-judge": "block",
+  "ppt-creator:roe-judge": "block",
+  "excel-creator:roe-judge": "block",
+  "quotation-agent:roe-judge": "block",
+  "accurate-agent:roe-judge": "block"
 }

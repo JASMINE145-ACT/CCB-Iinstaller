@@ -1,0 +1,8 @@
+{
+  "l2_tool_markers": [
+    "fill_quotation_sheet",
+    "edit_excel",
+    "mcp__excel__write"
+  ],
+  "execute_tools_hint": "Call fill_quotation_sheet or edit_excel with file_path and the requested rows/changes. Do not describe — execute."
+}

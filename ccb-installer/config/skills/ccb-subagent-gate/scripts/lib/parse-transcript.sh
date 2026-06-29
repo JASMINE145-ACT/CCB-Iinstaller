@@ -47,6 +47,32 @@ has_successful_mcp_call() {
   return 1
 }
 
+# Window-scoped L2 write success — delegates to parse_transcript_roe.py evaluate (full 6-step).
+has_l2_write_success_in_window() {
+  local transcript_path="${1:-}"
+  if [[ ! -f "$transcript_path" ]]; then
+    return 1
+  fi
+  local py=""
+  if command -v python3 >/dev/null 2>&1; then
+    py="python3"
+  elif command -v python >/dev/null 2>&1; then
+    py="python"
+  fi
+  if [[ -z "$py" ]]; then
+    return 1
+  fi
+  local script_dir
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  local result
+  result="$("$py" "$script_dir/parse_transcript_roe.py" evaluate \
+    "$transcript_path" "window-check" "" "${SUBAGENT_GATE_LOG_DIR:-/tmp}" 2>/dev/null || true)"
+  if echo "$result" | grep -q '"has_l2"[[:space:]]*:[[:space:]]*true'; then
+    return 0
+  fi
+  return 1
+}
+
 message_claims_business_output() {
   local agent_type="${1:-}"
   local msg="${2:-}"

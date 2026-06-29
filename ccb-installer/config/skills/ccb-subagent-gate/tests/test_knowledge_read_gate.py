@@ -69,7 +69,11 @@ class TestPostMatchNudge(unittest.TestCase):
         }
         output = json.loads(self._run_nudge(hook_input, fresh_session=True))
         self.assertIn("additionalContext", output["hookSpecificOutput"])
-        self.assertIn("Read 一次", output["hookSpecificOutput"]["additionalContext"])
+        ctx = output["hookSpecificOutput"]["additionalContext"]
+        self.assertIn("Read 一次", ctx)
+        self.assertIn("推荐价", ctx)
+        self.assertIn("按 1A 格式", ctx)
+        self.assertIn("8020020755", ctx)
 
     def test_dedupes_within_window(self) -> None:
         hook_input = {
@@ -81,6 +85,63 @@ class TestPostMatchNudge(unittest.TestCase):
         second = self._run_nudge(hook_input)
         self.assertGreater(len(first), 0)
         self.assertEqual(second, "")
+
+
+class TestPostPriceTiersNudge(unittest.TestCase):
+    _dedupe_tmp: str | None = None
+
+    def _run_nudge(self, hook_input: dict[str, object], *, fresh_session: bool = False) -> str:
+        if fresh_session or self._dedupe_tmp is None:
+            self._dedupe_tmp = tempfile.mkdtemp()
+        env = os.environ.copy()
+        env["SUBAGENT_GATE_LOG_DIR"] = self._dedupe_tmp
+        proc = subprocess.run(
+            [sys.executable, str(SCRIPTS / "post-price-tiers-nudge.py")],
+            input=json.dumps(hook_input),
+            text=True,
+            capture_output=True,
+            env=env,
+            check=False,
+        )
+        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+        return proc.stdout.strip()
+
+    def test_emits_context_for_successful_tiers(self) -> None:
+        hook_input = {
+            "session_id": "sess-tiers-1",
+            "tool_name": "mcp__quotation__get_product_price_tiers",
+            "tool_response": {
+                "code": "8020020755",
+                "tier_count": 3,
+                "tiers": [{"field": "price_b", "price": 1519}],
+                "data_md_path": r"D:\CCB-Wanding\vendor\wanding\data\data.Md",
+                "price_source": "bundled_seed",
+                "price_stale": True,
+            },
+        }
+        output = json.loads(self._run_nudge(hook_input, fresh_session=True))
+        ctx = output["hookSpecificOutput"]["additionalContext"]
+        self.assertIn("markdown", ctx)
+        self.assertIn("没有内容", ctx)
+        self.assertIn("8020020755", ctx)
+
+    def test_skips_when_no_tiers(self) -> None:
+        hook_input = {
+            "session_id": "sess-tiers-empty",
+            "tool_name": "mcp__quotation__get_product_price_tiers",
+            "tool_response": {"found": False, "tier_count": 0, "tiers": []},
+        }
+        output = self._run_nudge(hook_input, fresh_session=True)
+        self.assertEqual(output, "")
+
+    def test_skips_wrong_tool(self) -> None:
+        hook_input = {
+            "session_id": "sess-tiers-wrong",
+            "tool_name": "mcp__quotation__match_quotation",
+            "tool_response": {"tier_count": 2},
+        }
+        output = self._run_nudge(hook_input, fresh_session=True)
+        self.assertEqual(output, "")
 
 
 class TestTranscriptKnowledgeGate(unittest.TestCase):

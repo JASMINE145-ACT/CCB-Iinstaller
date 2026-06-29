@@ -16,9 +16,9 @@ if (-not $SourceDir) {
     if ($InstallDir) {
         $SourceDir = Join-Path $InstallDir "seed\skills\ccb-subagent-gate"
     }
-    if (-not (Test-Path -LiteralPath $SourceDir)) {
-        $SourceDir = Join-Path $repoRoot "ccb-installer\config\skills\ccb-subagent-gate"
-    }
+}
+if (-not $SourceDir -or -not (Test-Path -LiteralPath $SourceDir)) {
+    $SourceDir = Join-Path $repoRoot "ccb-installer\config\skills\ccb-subagent-gate"
 }
 
 if (-not $SkillsDir) {

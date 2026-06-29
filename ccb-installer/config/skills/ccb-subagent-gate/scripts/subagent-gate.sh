@@ -39,9 +39,6 @@ if [[ -z "$agent_type" ]] || [[ "$agent_type" == "null" ]]; then
 fi
 
 mode="$(resolve_gate_mode "$agent_type")"
-if [[ "$mode" == "off" ]]; then
-  exit 0
-fi
 
 run_office_validator() {
   local validator_name="$1"
@@ -57,6 +54,7 @@ run_office_validator() {
   done <<<"$PARSED_OFFICE_FILES"
 }
 
+run_agent_validators() {
 case "$agent_type" in
   word-creator)
     bash "$SCRIPT_DIR/validators/word-creator-mcp.sh" \
@@ -80,8 +78,23 @@ case "$agent_type" in
       "$transcript_path" "$session_id" "$agent_type" "$last_msg" "$mode"
     ;;
   *)
-    exit 0
+    if [[ "$mode" != "off" ]]; then
+      :
+    fi
     ;;
 esac
+}
+
+# quotation-agent uses composite sub-modes (base mode may be "off")
+if [[ "$mode" != "off" ]] || [[ "$agent_type" == "quotation-agent" ]]; then
+  run_agent_validators
+fi
+
+# Universal ROE in-process self-check (all agents — mode via {agent_type}:roe-judge)
+roe_judge_mode="$(resolve_gate_mode "${agent_type}:roe-judge")"
+if [[ "$roe_judge_mode" != "off" ]]; then
+  bash "$SCRIPT_DIR/validators/generic-roe-judge.sh" \
+    "$transcript_path" "$session_id" "$agent_type" "$last_msg" "$roe_judge_mode"
+fi
 
 exit 0

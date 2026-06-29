@@ -150,6 +150,27 @@ echo "=== Guid direct Stop event ==="
 hook_json quotation-agent "$FIXTURES/transcripts/quotation-with-mcp.jsonl" "quotation complete" Stop >"$SUBAGENT_GATE_LOG_DIR/payload.json"
 assert_exit 0 "Stop event uses transcript_path" run_gate "$SUBAGENT_GATE_LOG_DIR/payload.json"
 
+echo "=== quotation ROE (MVP) ==="
+rm -f "$SUBAGENT_GATE_LOG_DIR/subagent-gate-roe.log" "$SUBAGENT_GATE_LOG_DIR/subagent-gate-roe-counts.json"
+
+hook_json quotation-agent "$FIXTURES/transcripts/roe-edit-promise-no-write.jsonl" "收到，马上更新报价单行价格并删除B款。" Stop >"$SUBAGENT_GATE_LOG_DIR/roe-edit.json"
+assert_exit 2 "ROE edit promise without write tool blocks" run_gate "$SUBAGENT_GATE_LOG_DIR/roe-edit.json"
+
+hook_json quotation-agent "$FIXTURES/transcripts/roe-empty-promise.jsonl" "收到，将继续 update 报价单行价格。" Stop >"$SUBAGENT_GATE_LOG_DIR/roe-empty.json"
+assert_exit 2 "ROE empty promise blocks" run_gate "$SUBAGENT_GATE_LOG_DIR/roe-empty.json"
+
+hook_json quotation-agent "$FIXTURES/transcripts/roe-price-lookup-only.jsonl" "三通50 B档推荐价 4869" Stop >"$SUBAGENT_GATE_LOG_DIR/roe-lookup.json"
+assert_exit 0 "ROE price lookup passes" run_gate "$SUBAGENT_GATE_LOG_DIR/roe-lookup.json"
+
+hook_json quotation-agent "$FIXTURES/transcripts/roe-clarification.jsonl" "请确认 A 改价 / B 追加 / C 删除" Stop >"$SUBAGENT_GATE_LOG_DIR/roe-clarify.json"
+assert_exit 0 "ROE clarification passes" run_gate "$SUBAGENT_GATE_LOG_DIR/roe-clarify.json"
+
+hook_json quotation-agent "$FIXTURES/transcripts/roe-tool-failed.jsonl" "已尝试更新第9行价格。" Stop >"$SUBAGENT_GATE_LOG_DIR/roe-failed.json"
+assert_exit 2 "ROE tool failed still blocks" run_gate "$SUBAGENT_GATE_LOG_DIR/roe-failed.json"
+
+hook_json quotation-agent "$FIXTURES/transcripts/roe-prior-l2-current-promise.jsonl" "收到，马上删 B 款。" Stop >"$SUBAGENT_GATE_LOG_DIR/roe-window.json"
+assert_exit 2 "ROE ignores prior-turn L2 outside intent window" run_gate "$SUBAGENT_GATE_LOG_DIR/roe-window.json"
+
 echo "=== path parse regression ==="
 source "$SCRIPTS/lib/parse-transcript.sh"
 parse_transcript_paths "$FIXTURES/transcripts/word-creator-good-docx.jsonl" '\.docx$'

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skip_readonly_patterns": [
+    "查询",
+    "查价",
+    "询价",
+    "多少",
+    "什么价",
+    "查一下",
+    "推荐价",
+    "库存多少",
+    "有没有货"
+  ],
+  "rubric_extra": "",
+  "judge_fail_bias": true,
+  "max_blocks": 5,
+  "l2_tool_markers": [
+    "fill_quotation_sheet",
+    "edit_excel",
+    "mcp__excel__write"
+  ],
+  "execute_tools_hint": "Call the required MCP or write tool for this agent. Do not describe — execute."
+}

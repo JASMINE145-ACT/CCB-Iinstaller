@@ -1,0 +1,2 @@
+{"type":"user","message":{"content":[{"type":"text","text":"请把第9行价格改成500，删掉B款"}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"收到，马上更新报价单行价格并删除B款。"}]}}
