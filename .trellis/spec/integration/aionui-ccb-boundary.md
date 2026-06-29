@@ -172,7 +172,7 @@ When user selects a Guid **preset assistant card** (Word/Excel 等) under CCB au
 | Step | Owner | Mechanism |
 |------|-------|-----------|
 | Create conversation | AionUI renderer | `buildCcbPresetConversationExtra` → `preset_context` (profile `claude_md`) + `ccb_assistant_profile_id` |
-| Before `/warmup` | AionUI renderer → main IPC | `stageNextSessionProfile` writes `.aionui-next-assistant-profile.json` under CCB config dir (60s TTL) |
+| Before `/warmup` | AionUI renderer → main IPC | `stageCcbAssistantProfileFromConversation` → `stageNextSessionProfile` writes `.aionui-next-assistant-profile.json` under CCB config dir (**300s TTL**, one-shot) |
 | `session/new` | CCB `agent.ts` | `consumeNextAssistantProfileId()` then `getAssistantProfile`; fallback `resolvePresetContextFromMeta` → `userContextOverride` replaces default CLAUDE.md |
 | MCP/skills filter | CCB | `filterMcpConfigsForAssistantProfile` / `filterCommandsForAssistantProfile` when profile loads |
 
@@ -181,3 +181,27 @@ When user selects a Guid **preset assistant card** (Word/Excel 等) under CCB au
 **Smoke:** New preset conversation only (existing sessions keep old context). Ask「你可以做什么」— must match preset (e.g. Word Creator), not WanD quotation persona.
 
 **Deploy chain:** AionUI dev restart + CCB `bun run build` → `deploy-claude-code-b-to-wanding.ps1` → **new** preset conversation for profile/MCP changes.
+
+### Specialist resume profile drift (2026-06-29)
+
+**Symptom:** Reopen **万鼎报价专家** / **万鼎账务专家** after idle → model calls `mcp__quotation__*` / `mcp__accurate__*` → CCB guard: `wande-orchestrator 不得直接调用业务 MCP` (guard is correct; session profile wrong).
+
+**Root cause chain:**
+
+| Step | Failure |
+|------|---------|
+| Warmup staging | `stageCcbAssistantProfileFromConversation` only read `ccb_assistant_profile_id` / `preset_assistant_id` — missed `ccb_agent_id` and `acp_meta` aliases → fell back to default `wande-orchestrator` |
+| Idle rehydrate | `tryRehydrateStaleSession` copied stale in-memory `appliedProfileId` into bootstrap `_meta.ccbAgentId` |
+| Profile resolution | `resolveSessionProfileIdForCreate` prefers `_meta` **before** disk handoff → polluted meta beat fresh staged profile |
+
+**Fixes (shipped in source):**
+
+| Layer | Change |
+|-------|--------|
+| AionUI `ccbPresetConversationExtra.ts` | `resolveCcbProfileIdFromConversationExtra` — all extra + `acp_meta` aliases; `inferCcbSpecialistProfileFromConversation` from recent `acp_tool_call` history when extra empty (legacy sessions) |
+| AionUI + CCB handoff | TTL **60s → 300s** (`ccbAssistantProfileSession.ts`, `assistantProfiles.ts`) |
+| CCB `agent.ts` | `tryRehydrateStaleSession`: bootstrap `_meta: undefined` — do not copy wrong-session `appliedProfileId` |
+
+**Smoke:** Preset quotation session → idle ~6min → reopen → inventory by code → CCB log `agent session profile applied: quotation-agent` (not `wande-orchestrator`).
+
+**Permanent gap:** Shipped aioncore still does not forward `acp_meta` into `session/new`; disk handoff + warmup staging remain the production path. Task: `06-29-specialist-session-resume-profile-drift`.

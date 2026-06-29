@@ -58,6 +58,76 @@ Shell-owned metadata not carried in frontmatter:
 
 CCB runtime reads the md file; AionUI reads md + sidecar and projects into `Assistant` / `AssistantDetail` via `ccbAgentCatalog.ts`.
 
+**Avatar conventions (2026-06-29):** Each Guid card uses a **unique** sidecar `avatar` emoji. Bundled defaults: `quotation-agent` 💰, `accurate-agent` 📊, `excel-creator` 📈, `ppt-creator` 📽️, `word-creator` 📝. Any UI that lists preset assistants under CCB authority must load catalog via **`fetchAssistantsCatalog`** (`ASSISTANTS_LIST_SWR_KEY` = `assistants.list`), **not** raw backend `/api/assistants` — CCB authority stores agents on disk only. Consumers: `usePresetAssistantInfo` (sidebar), **`useConversationAgents`** (Team Create / cron / conversation agent picker). Resolve id from `ccb_agent_id` / `preset_assistant_id`; fallback `ccbAgentsService.getAgent`.
+
+### Sidebar avatar fix (2026-06-29)
+
+**Symptom:** Left sider「对话」list shows the same orange Claude star for every CCB Guid session; Guid preset cards show correct emoji (💰 📊 📽️ …).
+
+**Root cause (two bugs):**
+
+| # | Bug | Effect |
+|---|-----|--------|
+| 1 | `ppt-creator.aionui.json` shared `avatar: 📊` with `accurate-agent` | PPT card looked like 账务 on Guid picker |
+| 2 | `usePresetAssistantInfo` used `useSWR('assistants')` → backend `/api/assistants` | Under CCB authority, avatars live in `ccbAgentsService` / `*.aionui.json` only → lookup miss → `getAgentLogo('claude')` fallback |
+
+**Shipped (aionui-src + ccb-installer seed):**
+
+| File | Change |
+|------|--------|
+| `ccb-installer/config/agents/ppt-creator.aionui.json` | `avatar` → **📽️** |
+| `renderer/hooks/agent/usePresetAssistantInfo.ts` | `resolvePresetId` reads `ccb_agent_id` / `acp_meta`; catalog via **`fetchAssistantsCatalog`**; fallback **`ccbAgentsService.getAgent`** |
+| `common/utils/ccbPresetConversationExtra.ts` | New sessions also set top-level `preset_assistant_id` |
+| Tests | `tests/unit/renderer/usePresetAssistantInfo.test.ts`, `ccbPresetConversationExtra.test.ts` — **PASS** |
+
+**Deploy / verify:**
+
+```powershell
+# Sidecar emoji (PPT 📽️)
+cd D:\Projects\claude-code-best
+.\ccb-installer\scripts\deploy-seed-agents.ps1
+
+# Renderer (sidebar icons) — canonical dev only
+.\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap -BuildAioncore:$false
+```
+
+1. Guid cards: five distinct emoji (PPT ≠ 账务).
+2. Sidebar: open **万鼎报价专家** → new chat → row icon **💰** (not Claude star).
+3. Repeat for 账务 **📊**, PPT **📽️**, Excel **📈**, Word **📝**.
+4. Old sessions with `ccb_agent_id` in DB should pick up emoji after renderer reload (no re-login).
+
+### Team / conversation catalog unification (2026-06-29)
+
+**Symptom:**「创建团队」Leader 列表仍显示上游 AionUI 内置助手（Morph PPT、Dashboard Creator、HUMAN 3.0 Coach…），而非万鼎 CCB 助手（万鼎报价专家 💰、PPT 演示助手 📽️ …）。
+
+**Root cause:** `useConversationAgents` 使用独立 SWR key `assistants.presets` + `ipcBridge.assistants.list` → `/api/assistants`，绕过了 CCB disk catalog。侧边栏已在 `usePresetAssistantInfo` 修过；Team / 定时任务 / 对话 agent 选择器仍走旧路径。
+
+**Shipped (aionui-src):**
+
+| File | Change |
+|------|--------|
+| `renderer/pages/conversation/hooks/useConversationAgents.ts` | Preset 源改为 **`fetchAssistantsCatalog`** + 共享 **`ASSISTANTS_LIST_SWR_KEY`**；`enabled !== false` 在 **return** 侧过滤（不污染共享 SWR cache）；`refresh()` 同时 invalidate CLI + preset |
+| Tests | `tests/unit/renderer/useConversationAgents.dom.test.ts` — **PASS** |
+
+**Consumers fixed by this hook:**
+
+| UI | Path |
+|----|------|
+| Team Create → Leader picker | `TeamCreateModal.tsx` |
+| Cron → Create task | `CreateTaskDialog.tsx` |
+| Conversation layout / agent status | `ChatLayout`, `MessageAgentStatus` |
+
+**Deploy / verify:**
+
+```powershell
+cd D:\Projects\claude-code-best
+.\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap -BuildAioncore:$false
+```
+
+1. 打开「创建团队」→ Leader 列表应出现 **万鼎报价专家**、**PPT 演示助手** 等 CCB 助手（emoji 正确），**不应**再出现 Morph PPT / Dashboard Creator。
+2. CLI 引擎（Claude Code 等）仍保留在列表顶部。
+3. 与 Guid 卡片、侧边栏 emoji 一致。
+
 ---
 
 ## Four-layer configuration model
@@ -70,7 +140,7 @@ WanD and office agents use **five logical layers** (L0–L4). Do not mix persona
 | **L1 Persona** | `agents/<id>.md` body | CCB `customSystemPrompt` | Agent identity; orchestrator adds delegation index; **specialists** declare「直接调 MCP，勿委派」 |
 | **L2 Runtime** | `agents/<id>.aionui.json` | AionUI shell | `display_name`, `avatar`, `guid_primary`, `delegatable`, `recommended_prompts`; **no** runtime `claude_md` |
 | **L3 MCP** | md frontmatter `mcpServers` | CCB session + `Agent()` spawn | Primary MCP source (2026-06-17); sidecar `mcp_allowlist` is mirror/fallback |
-| **L4 Business SOP** | `vendor/wanding/data/*.md` | Specialist runtime | Canonical handbooks; quotation/accurate workflow SOP **inlined in L1** (2026-06-16e); `wanding_business_knowledge.md` still **Read on demand** |
+| **L4 Business SOP** | `vendor/wanding/data/*.md` | Specialist runtime | Canonical handbooks; quotation/accurate workflow SOP **inlined in L1** (2026-06-16e); `wanding_business_knowledge.md` = **center authority via org API**, local file = **shadow Read-only** (2026-06-28) |
 
 ### Data handbook ↔ agent matrix
 
@@ -79,9 +149,9 @@ Base path: `D:\CCB-Wanding\vendor\wanding\data\` (install `vendor\wanding\data\`
 | Agent | Handbooks | Notes |
 |-------|-----------|-------|
 | `wande-orchestrator` | *(none)* | Must **not** Read business SOP; delegates via `Agent()` |
-| `quotation-agent` | `wanding_business_knowledge.md` (on demand via `selection_context.knowledge_source`; **not** inlined in MCP JSON); `ccb-wanding-quotation.md` = **maint source** (inlined in L1) | Guid card = **direct fast quotation MCP session**; match default **10** candidates/line; frontmatter MCP = `quotation` + `excel` (excel = post-fill supplement only) |
+| `quotation-agent` | `wanding_business_knowledge.md` shadow **Read on demand**; `data.Md` **Read on demand** for `get_product_price_tiers`; `ccb-wanding-quotation.md` = **maint** — L1 slim seed + **Read §价格口径映射 on demand** (2026-06-28); org knowledge append via MCP | Guid card = direct quotation MCP; **multi-candidate = 1 推荐 + bullet**; MCP = `quotation` + `excel` |
 | `accurate-agent` | `ccb-wanding-accurate.md` = **maint source** (inlined in L1) | Guid card = **direct** accurate MCP session; `mcpServers: [accurate]` for `Agent()` spawn only |
-| Maintenance / debug | `data.Md` | Data contract only; not routine agent runtime |
+| Maintenance / debug | `data.Md` maint in repo `data/` + vendor shadow | Routine **single-tier** `match_quotation` does not Read; **multi-tier** `get_product_price_tiers` requires Read |
 | Ops docs (not agent SOP) | `ccb-wanding-pricing-system.md`, `ccb-wanding-update-server.md` | Developer / release docs |
 
 ### Memory on-demand design (2026-06-17)
@@ -90,8 +160,10 @@ Base path: `D:\CCB-Wanding\vendor\wanding\data\` (install `vendor\wanding\data\`
 
 | Agent | 触发条件 | 读取文件 |
 |-------|---------|---------|
+| `quotation-agent` | 多候选选型 / 品类语义 / 用户纠偏 | `vendor/wanding/data/wanding_business_knowledge.md` (shadow) |
+| `quotation-agent` | 调用 `get_product_price_tiers`（多档一览 / 档位含义） | `vendor/wanding/data/data.Md` — 用 `product_type` 对照 §来源映射 |
 | `quotation-agent` | 客户名/等级偏好 | `memory/business/customers.md` |
-| `quotation-agent` | 多候选/过往纠偏 | `memory/business/products.md` |
+| `quotation-agent` | 多候选/过往纠偏（会话 memory） | `memory/business/products.md` |
 | `quotation-agent` | 折扣/含税口径 | `memory/business/pricing.md` |
 | `accurate-agent` | 特定客户/供应商历史约定 | `memory/business/customers.md` |
 | `accurate-agent` | 含税/利润率规则 | `memory/business/pricing.md` |
@@ -199,10 +271,13 @@ node eval/run-agent-eval.mjs --run --category quotation
 | Cause | Symptom pattern | Evidence | Mitigation |
 |-------|-----------------|----------|------------|
 | **Stop hook stdin hang (orchestrator delegation)** | MCP tool finishes but orchestrator waits **~120s** before showing sub-agent result; **direct Guid card sessions OK** | `subagent-gate.sh` `HOOK_INPUT="$(cat)"` inherits subagent IPC pipe; orchestrator side keeps pipe open → `cat` blocks until hook **120s timeout** | `HOOK_INPUT="$(timeout 8 cat 2>/dev/null \|\| echo '{}')"` in `ccb-subagent-gate/scripts/subagent-gate.sh`; redeploy via `deploy-subagent-gate-skill.ps1` |
-| **Quotation MCP cold start** | First `match_quotation` slow (~90s); warm calls ~4–5s; affects **direct** and delegated paths | Direct MCP test: `test-quotation-mcp-timing.mjs` | `scheduleWanDMcpWarmup()` on session/new — overlay `wanDMcpWarmup.ts` |
+| **Quotation MCP cold start** | First `match_quotation` slow (~90s); warm calls ~4–5s | Direct MCP test: `test-quotation-mcp-timing.mjs` | **App open:** `warm-wanding-mcp.mjs` + `ccbStartupReadiness.ts` (task `06-28-app-startup-readiness-gate`). **Session:** `scheduleWanDMcpWarmup()` on session/new — `wanDMcpWarmup.ts` (still runs; app warm reduces first-send pain) |
+| **First Guid send Failed to fetch** | `AIONUI_INTERNAL_ERROR` / `127.0.0.1:port` on first message | Send raced MCP warmup before app gate | Startup readiness gate: Guid send disabled until L2 ready; `useAcpInitialMessage` awaits `ensureStartupReadiness`. See [`mcp-health.md`](./mcp-health.md) § App startup readiness gate |
 | **query.next timeout < MCP cold start** | Tool card `[Tool use interrupted]` at **~60s** while MCP still loading; warm path OK | `CCB_WANDING_QUERY_NEXT_TIMEOUT_MS` was 60000 in `patches/aionui-acp/acp-agent.js` | Default **120000** ms; env override `CCB_WANDING_QUERY_NEXT_TIMEOUT_MS` (30s–300s). Hot path unchanged — only raises abort ceiling. Sync via `sync-aionui-ccb-patch.ps1` |
+| **query.next timeout drain-stuck orphan (2026-06-29)** | After timeout → `query.interrupt()` drain does not observe idle within MAX_DRAIN iterations → silent retry runs on busy subprocess → duplicate prompt execution → 错乱 | CCB CLI process ignores interrupt or is slow to respond; `done \|\| !m` was not tracked as clean-drain signal | `drainObservedClean` flag in `patches/aionui-acp/acp-agent.js` drain loop; silent retry gated on `drainObservedClean === true`; drain-stuck path logs `drain-stuck: no retry` and throws immediately — no duplicate execution |
 | **ACP permission prompt** | Stuck at permission UI | Native ACP smoke logs `[permission] mcp__quotation__match_quotation` | Auto-allow `mcp__quotation__*` / `mcp__accurate__*` / `mcp__excel__*` in `permissions.ts` (#18); UI overlap fix in `MessageAcpPermission` (#17, NSIS) |
-| **Wrong Python path when env missing** | MCP error in logs | `can't open ... aionui-src\python\main.py` | `settings.json` `mcpServers.quotation.env.CCB_PROJECT_ROOT` → `D:\CCB-Wanding\vendor\wanding` |
+| **Wrong Python path when env missing** | MCP error in logs | `can't open ... claude-temp-*\python\main.py` | `config.js` fallback (#20); `ensure-wanding-settings.ps1` |
+| **Inventory AOL false-negative (closed 2026-06-28)** | Guid 库存「AOL 未配置 / 暂不可查」但 health PASS | `inventory_unavailable` while `quotation.env.AOL_*` set | **Not missing credentials** — (1) `.env.accurate` UTF-8 BOM → `\ufeffAOL_ACCESS_TOKEN`; (2) `python-spawner.js` passed empty `AOL_*` overriding dotenv. Fix: `ensure-wanding-settings.ps1` + sync spawner/main/client; health now checks BOM+parse; **new Guid session**. Canonical: [`mcp-health.md`](./mcp-health.md) § AOL inventory — closed root cause |
 | **settings.json UTF-8 BOM** | Agents disappear / parse fails | `JSON.parse` fails without BOM strip | Strip BOM on read; UTF-8 no-BOM writes |
 
 **Orchestrator delegation hang (fixed 2026-06-17):** subagent `Stop` hook → `subagent-gate.sh` → `cat` on stdin inherited from subagent IPC (orchestrator pipe still open) → hook blocks until CCB kills it at 120s → only then does orchestrator receive the delegated result. Direct specialist cards use ACP stdin that closes normally, so the same hook exits immediately.
@@ -269,7 +344,8 @@ Handbook section title in L1: **业务知识库（按需 Read，不要预读）*
 | Condition | Log / symptom | Fix |
 |-----------|---------------|-----|
 | Profile bound | `[ACP] agent session profile applied: accurate-agent` | OK |
-| Wrong profile | `... applied: wande-orchestrator` on specialist card chat | New conversation; check handoff race / old session |
+| Wrong profile | `... applied: wande-orchestrator` on specialist card chat | Deploy 2026-06-29 resume fix; reopen after idle — check warmup staging + rehydrate meta; else new conversation |
+| Resume after idle | `wande-orchestrator 不得直接调用业务 MCP` on `mcp__quotation__*` | Profile drift on reopen — see § Specialist session resume (2026-06-29) |
 | Profile id set, files missing | `[ACP] session profile 'accurate-agent' not found` + placeholder userContext | Run `deploy-seed-agents.ps1`; patch live `.md` |
 | Global bleed | Model quotes L0 orchestrator routing | Deploy P1b CCB; verify L1 body has specialist identity (not sidecar `claude_md`) |
 | Delegation debate | Model considers `Agent(accurate-agent)` while already in accurate session | Deploy CCB with `isSpecialistDirectSession` → `agents: []` |
@@ -280,11 +356,30 @@ Handbook section title in L1: **业务知识库（按需 Read，不要预读）*
 - **Base:** Default Guid send (no card) → orchestrator → `Agent(accurate-agent)` for accounting questions
 - **Bad:** Specialist card session → model reads L0 index → debates orchestrator rules while accurate MCP is in tool list
 
+### Specialist session resume (2026-06-29)
+
+When a **specialist Guid card** conversation is reopened after idle (aioncore `IdleTimeout` kills CLI), the new ACP session must re-bind the same specialist profile — not default `wande-orchestrator`.
+
+| Mechanism | Owner | Behavior |
+|-----------|-------|----------|
+| Extra resolve | AionUI `resolveCcbProfileIdFromConversationExtra` | Reads `ccb_assistant_profile_id`, `preset_assistant_id`, `ccb_agent_id`, and `acp_meta` aliases on `conversation.extra` |
+| History inference | AionUI `inferCcbSpecialistProfileFromConversation` | When extra empty (legacy sessions): scan recent `acp_tool_call` — `mcp__quotation__*` → `quotation-agent`, `mcp__accurate__*` → `accurate-agent` |
+| Pre-warmup stage | `stageCcbAssistantProfileFromConversation` in `warmupConversation.ts` | Resolve + stage to `.aionui-next-assistant-profile.json` before `/warmup` |
+| Rehydrate guard | CCB `tryRehydrateStaleSession` | Do **not** pass stale `appliedProfileId` as `_meta.ccbAgentId` — lets fresh handoff win at `session/new` |
+| Handoff TTL | AionUI + CCB | **300s** (`MAX_PENDING_PROFILE_AGE_MS`) |
+
+**Symptom when broken:** User resumes 万鼎报价专家 → `get_inventory_by_code_batch` → `wande-orchestrator 不得直接调用业务 MCP` (`evaluateOrchestratorToolGuard` in `agentSessionProfile.ts`).
+
+**Workaround until deployed:** Start a **new** conversation from the Guid preset card; do not continue a session that already drifted.
+
+Task: `06-29-specialist-session-resume-profile-drift`.
+
 ### Tests
 
 | File | Assertion |
 |------|-----------|
 | `agentSessionProfile.test.ts` | `isSpecialistDirectSession`, `resolveSessionUserContextOverride` (sidecar + missing profile) |
+| `ccbPresetConversationExtra.test.ts` | Extra alias resolve + history inference for specialist resume |
 | `agent.test.ts` | Profile `userContextOverride`; missing profile blocks global CLAUDE |
 
 Deploy: `bun run build` → `deploy-claude-code-b-to-wanding.ps1` → `deploy-seed-agents.ps1` → **patch live `.md` if skipped** → restart AionUI → **new** specialist conversation.
@@ -316,17 +411,297 @@ Subagents (and historically Guid direct sessions without hooks) skip delivery QA
 | `word-creator`, `word-form-creator`, `ppt-creator`, `excel-creator` | `block` | `exit 2` → query continues with blocking error (`word-creator` uses `word-creator-mcp.sh` — office-word MCP evidence, not officecli PAGE gate) |
 | `quotation-agent` | `off` | MCP evidence validator disabled (2026-06-18 false REJECT) |
 | `quotation-agent:knowledge` | `warn` (2026-06-19) | multi-candidate match without Read → `.claude/logs/subagent-gate-warn.log`, `exit 0` |
+| `quotation-agent:roe` | `off` (2026-06-29) | Merged into universal `:roe-judge` — see § Universal ROE below |
+| `{agent}:roe-judge` (all Stop-hook agents) | `block` (2026-06-28; slim 2026-06-29) | Universal end_turn gate — write-anchor + L2; `exit 2` + REJECT → auto-continue |
 | `accurate-agent` | `warn` | log to `.claude/logs/subagent-gate-warn.log`, `exit 0` |
 | `wande-orchestrator`, `cowork` | `off` / no-op | — |
 
-PostToolUse `post-match-knowledge-nudge.py` runs on `mcp__quotation__match_quotation|match_quotation_batch` when `candidate_count > 1`; session dedupe ~45s so parallel matches get one nudge. Upgrade `quotation-agent:knowledge` to `block` only after warn false-positive review. Do **not** re-enable legacy `quotation-agent` MCP-only gate without delegated route-b smoke.
+PostToolUse `post-match-knowledge-nudge.py` runs on `mcp__quotation__match_quotation|match_quotation_batch` when `candidate_count > 1`; `post-price-tiers-nudge.py` on `mcp__quotation__get_product_price_tiers` when `tier_count > 0` — session dedupe ~45s. Upgrade `quotation-agent:knowledge` to `block` only after warn false-positive review. Do **not** re-enable legacy `quotation-agent` MCP-only gate without delegated route-b smoke.
+
+### Quotation multi-candidate reply (2026-06-29)
+
+**Problem:** `candidate_count > 1` 时 agent 把 `candidates` 整表倒灌 +「请回复 1A/2B/3C/4D」，与用户要求的 **agent 选定 1 条 + 简要列其他** 冲突。2026-06-29 前 `quotation-agent.md` L1 曾漂移为「默认 markdown 表请用户选编码/序号」，与 maint spec 和 PostToolUse nudge 不一致；已回对齐。
+
+**Normative flow @ 查价（只读）：**
+
+```
+match_quotation (candidate_count > 1)
+  → 等本轮所有 match 返回
+  → Read 一次 wanding_business_knowledge.md（selection_context.knowledge_source）
+  → 每个 keyword：1 条推荐价 + ≤4 bullet「其他可能」
+  → 禁止默认大表 + 请选序号/A/B/C/D
+```
+
+| Layer | Artifact | Role |
+|-------|----------|------|
+| Maint SOP | `data/ccb-wanding-quotation.md` §选型与澄清 | 1 推荐 + bullet；禁止 7 行大表 + 请选序号 |
+| L1 seed | `ccb-installer/config/agents/quotation-agent.md` §选型与澄清 | 必须与 maint 一致；`deploy-seed-agents.ps1 -ForceMd` |
+| PostToolUse | `post-match-knowledge-nudge.py` | 注入 additionalContext：Read 一次 → 1 推荐 + bullet；禁止整表倒灌 |
+| PostToolUse | `post-price-tiers-nudge.py` | `get_product_price_tiers` 成功 → Read data.Md + markdown 全档表；禁止「没有内容」 |
+| Stop warn | `quotation-knowledge-read.sh` (`:knowledge` warn) | 多候选却未 Read 知识库 → warn log |
+| Selection rules | `wanding_business_knowledge.md` | 语义 tie-break；§9 才必须向用户澄清 |
+| Memory | `memory/business/products.md` | 过往纠偏优先于默认选型 |
+
+### Quotation sheet fill defaults (2026-06-28)
+
+**Problem:** After `match_quotation` in the same session, agent asks a 4-question checklist (customer level, template, line items, currency) before `fill_quotation_sheet` — redundant and blocks ROE.
+
+**Contract:** Once prices are matched and shown in the reply table, user says「生成/填写报价单」→ **immediate** `fill_quotation_sheet` with session-inherited `fill_items` (`require_exact_codes=true`). **Do not re-ask:**
+
+| Field | Default |
+|-------|---------|
+| `customer_level` / `unit_price` | From prior match in session |
+| Template | Built-in **VANTSING** blank (`default_blank_template()` — no `template_path`) |
+| Line items | All rows already matched in session unless user adds more |
+| `qty` | User value, else `1` |
+| Date / currency | Tool default today; **IDR** (WanD standard sheet) |
+
+**Still clarify only when:** no prior match + no item list; unresolved multi-candidate; user explicitly requests custom template path or non-default tier.
+
+| Layer | Artifact |
+|-------|----------|
+| L1 seed | `quotation-agent.md` §生成报价单 — 默认值 |
+| Maint | `data/ccb-wanding-quotation.md` §生成报价单 — 默认值 |
+| Tool | `fill_quotation_sheet` — `quotation_date` optional; VANTSING layout in `python/quotation/layout.py` |
+
+Deploy: `deploy-seed-agents.ps1 -ForceMd` + `deploy-subagent-gate-skill.ps1` + `sync-dev-wanding-vendor.ps1` → **new Guid session**.
+
+**Price tiers deploy (2026-06-29):** `quotation-agent.md` frontmatter must include PostToolUse for `post-match-knowledge-nudge.py` and `post-price-tiers-nudge.py`. Verify:
+
+```powershell
+Get-Content "$env:LOCALAPPDATA\CCB-Wanding\.claude\agents\quotation-agent.md" -Encoding UTF8 -TotalCount 20
+Test-Path "$env:LOCALAPPDATA\CCB-Wanding\.claude\skills\ccb-subagent-gate\scripts\post-price-tiers-nudge.py"
+```
+
+
+**L1 slim refactor (2026-06-28):** `quotation-agent.md` reduced ~451→~180 lines — one tool decision table, on-demand Read triggers, fill defaults, ROE, multi-candidate shape; full price mapping table lives in `data/ccb-wanding-quotation.md` §价格口径映射 (Read on demand).
+
+**Reply shape (good):**
+
+```text
+推荐：8020020755  直通(管箍) PVC-U排水 dn50  B档 ¥… — 无额外说明时排水为默认口径
+
+其他可能：
+• 8010071381  PPR 冷热水绿色 dn50
+• 8010024812  AW 给水日标 DN50
+• 8010072480  PVC-U 直接管 DN50
+```
+
+**Forbidden (unless user asks for full list or §9 mandates clarify):**
+
+- 4+ 行候选 markdown 表 +「请确认 A/B/C/D」
+- 未 Read 知识库即写「根据知识库」「按业务常规」
+- `AskUserQuestion`（CCB 硬拒绝；用 assistant 正文澄清）
+
+**When user must choose:** 仅 (1) 用户明确要求看全部候选，(2) 知识库 §9 必须澄清（替代品/全面冲突），(3) **查前**缺阻塞参数（压力/档位等）— 查前用 A/B/C 选项，与查后多候选选型不同。
+
+**Deploy verify:**
+
+```powershell
+.\ccb-installer\scripts\deploy-seed-agents.ps1 -ForceMd
+# New Guid session required for L1 reload
+# Manual: 「查询直接50价格」→ 1 推荐 + bullet，无 A/B/C/D 大表
+```
+
+Task note: `quotation-agent` L1 realign 2026-06-29 (no separate Trellis task; pairs with knowledge-read gate 2026-06-19).
+
+### Quotation price+stock routing — `match_price_and_get_inventory` not MCP-exposed (2026-06-29)
+
+**Problem:** L1 / maint SOP recommended `mcp__quotation__match_price_and_get_inventory` for single-item「价+库存」. The tool was **never registered** in `mcp_servers/quotation-server/dist/index.js` → agent hit `Error: No such tool available` while following prompt.
+
+**Normative agent routes @ 查价+库存:**
+
+| User intent | MCP path (same turn unless noted) | Forbidden |
+|-------------|-----------------------------------|-----------|
+| Price only | `match_quotation` (or `match_quotation_batch`) | Any inventory tool |
+| **Single** price + stock | `match_quotation` → 选型 → `get_inventory_by_code` | `match_price_and_get_inventory`; 3+ tool chains |
+| **Multi** price + stock (≥2 lines) | `match_quotation_batch` (≤10/batch) → 每行选型 → **`get_inventory_by_code_batch` once** | Per-row `get_inventory_by_code`; invented MCP names |
+
+**MCP surface (source of truth):** `ListTools` in `quotation-server/dist/index.js` — `match_quotation`, `match_quotation_batch`, `get_inventory_by_code`, `get_inventory_by_code_batch`, `fill_quotation_sheet`, `parse_excel_smart`, `ask_clarification`, `get_product_price_tiers`, `append_business_rule`. **Not exposed:** `match_price_and_get_inventory`, `search_inventory` (maint may mention the latter for legacy; do not call from agent until re-registered).
+
+**Internal Python only (do not document as agent MCP):** `inventory.services.match_and_inventory.match_price_and_get_inventory` — still used by `flow_orchestrator` / `fill_quotation_sheet` extract→match→fill. Re-exposing to agents requires: register in `index.js`, rebuild dist, sync vendor, update L1 + eval + this section.
+
+| Layer | Artifact | Role |
+|-------|----------|------|
+| L1 seed | `ccb-installer/config/agents/quotation-agent.md` §工具决策表 + §硬禁止 | Route price+stock via two-step path; forbid dead tool by name |
+| Maint SOP | `data/ccb-wanding-quotation.md` §工具次数 / §库存查询规则 | Same routing; JSON examples use match → inventory |
+| Orchestrator | `wande-orchestrator.md` §How to delegate | Example: `match_quotation` → `get_inventory_by_code` |
+| Eval | `eval/agent_eval_cases.jsonl` | `price-and-stock-single`, `price-and-stock-ambiguous`, `session-open-price-and-stock` expect match + inventory; **forbid** `match_price_and_get_inventory` |
+| MCP registry | `mcp_servers/quotation-server/dist/index.js` | Authoritative tool list for prompt authors |
+
+**Deploy verify:**
+
+```powershell
+.\ccb-installer\scripts\deploy-seed-agents.ps1 -ForceMd
+.\ccb-installer\scripts\sync-dev-wanding-vendor.ps1 -RepoRoot D:\Projects\claude-code-best
+# New Guid session — manual: 「直接50价格和库存一起查」→ match_quotation + get_inventory_by_code; NO match_price_and_get_inventory
+```
+
+**Wrong vs correct:**
+
+| Wrong | Correct |
+|-------|---------|
+| L1 recommends MCP tool not in `ListTools` | L1 routing table ⊆ registered tools (+ explicit「不存在」for retired names) |
+| Agent calls `match_price_and_get_inventory` on price+stock | `match_quotation` then `get_inventory_by_code` with selected `code` |
+
+### Quotation image / screenshot inquiry — Route-B prompt conversion (2026-06-29)
+
+**Problem:** User attaches price-list screenshot +「查询价格」; agent replies「无法直接在图片中读取商品信息」despite MiniMax M3 vision. Route-B ACP advertised `promptCapabilities.image: true` but `agent.prompt()` called `promptToQueryInput()` → **text-only string** to `QueryEngine.submitMessage()` → model never received pixels.
+
+**Normative flow @ 截图询价:**
+
+```
+User attaches image (+ optional text)
+  → ACP prompt[] includes type: image (base64 data + mimeType)
+  → promptToSubmitInput() → string | Anthropic content blocks
+  → match_quotation / batch per extracted lines
+  → 禁止拒读整图；OCR 不确定只澄清 1 行
+```
+
+| Layer | Artifact | Role |
+|-------|----------|------|
+| ACP overlay | `ccb-installer/src/services/acp/promptConversion.ts` | `promptToSubmitInput`, `isEmptyPromptSubmitInput`; `promptToQueryInput` deprecated (drops images) |
+| ACP agent | `ccb-installer/src/services/acp/agent.ts` `prompt()` | `submitMessage(promptToSubmitInput(...))` |
+| Tests | `src/services/acp/__tests__/promptConversion.test.ts` | base64 image blocks; image-only not empty |
+| L1 seed | `ccb-installer/config/agents/quotation-agent.md` §图片/截图询价 | Forbid「无法读取图片」; OCR → match |
+| Backend spec | [`../backend/acp-session-flow.md`](../backend/acp-session-flow.md) § Image prompts + § Capability parity audit | Route-B vs legacy patch paths |
+| Eval scenario | `eval/scenarios/quotation-ppr-image-sheet-20260619.md` S4 | 图片/文字 5 行 PPR — regression anchor |
+
+**Deploy verify:**
+
+```powershell
+.\ccb-installer\scripts\sync-claude-code-b-mcp-prefetch.ps1 -Build -Deploy
+.\ccb-installer\scripts\deploy-seed-agents.ps1 -ForceMd
+# New Guid session — attach screenshot +「查询价格」→ match_quotation; NO「无法读取图片」
+```
+
+**Wrong vs correct:**
+
+| Wrong | Correct |
+|-------|---------|
+| `promptToQueryInput` on inbound ACP prompt | `promptToSubmitInput` when `promptCapabilities.image: true` |
+| L1 says user must paste text because image unreadable | Read image → extract lines → `match_quotation` |
+| Old session after dist deploy | **New Guid session** reloads Route-B dist + agent seed |
+
+**Related gaps (not fixed 2026-06-29):** see [`acp-session-flow.md`](../backend/acp-session-flow.md) § Capability parity audit — resource blob drops (both paths).
+
+**Parity follow-up (2026-06-29):** HTTP image `uri` + `embeddedContext` `<context ref>` wrapper aligned with `acp-agent.js` `promptToClaude` in `promptConversion.ts`; tests in `promptConversion.test.ts`.
+
+### Universal ROE end_turn gate (2026-06-29 slim — merges quotation-roe + Gate-J)
+
+**Scope:** All WanD agents with `hooks.Stop` → `subagent-gate.sh` → `generic-roe-judge.sh` when `{agent}:roe-judge` is `warn` or `block`. **Single layer** — `quotation-agent:roe` / `quotation-roe.sh` retired (`off`, not called). **No external LLM/API** from Stop hook.
+
+**Architecture:**
+
+```
+Any Stop-hook agent end_turn
+  → subagent-gate.sh (agent-specific validators only — no quotation-roe)
+  → generic-roe-judge.sh
+  → parse_transcript_roe_judge.py evaluate
+  → exit 0 pass | exit 10 → fail.sh exit 2 REJECT (reject_prompt)
+```
+
+**Judgment tree (normative @ end_turn):**
+
+```
+extract_write_anchor_window (most recent write-intent user msg → end; exclude REJECT-injected user lines)
+  ├─ clarification(last_assistant) → PASS
+  ├─ NOT has_write_intent(anchor) → PASS (readonly / out of scope)
+  ├─ has_l2_write_success(window, profile l2_tool_markers) → PASS
+  ├─ judge_block_count ≥ max_blocks → PASS (escalate)
+  └─ else BLOCK write_no_l2 + Already done + Prior attempt + ACTION
+```
+
+**Parse precision (normative):**
+
+| Rule | Scope | Behavior |
+|------|-------|----------|
+| L2 pass | write-anchor window | Tool name matches `l2_tool_markers` **and** success (`is_error` false; JSON without `error` field) |
+| Already done | **full transcript** | `prior turns` (before anchor) + `this turn` (anchor → end, includes multi-continue) |
+| Prior attempt | write-anchor window | Latest **failed** L2 → error message in REJECT; ACTION = Retry with fix |
+
+**Write-anchor window:** Semi-persistent — survives auto-continue rounds until a new real user message with write intent. **Not** last-user-only (old Gate-J bug). Hook `REJECT:` / `[ROE-GATE` user lines excluded from anchor scan.
+
+**L2 Done (window-scoped):** profile `l2_tool_markers` — quotation: `fill_quotation_sheet` | `edit_excel` | `mcp__excel__write*` with **successful** tool result. Read tools (`match_quotation`, `search_inventory`) do **not** satisfy L2. Called-but-failed L2 → block + Prior attempt.
+
+**N/K table coverage:** `nk_warn` log only — never blocks.
+
+**`reject_prompt` shape (v4):**
+
+```
+[ROE-GATE n/max] Incomplete — do not end_turn. Resume now.
+
+GAPS (rule-detected):
+- 写意图未完成：本轮无成功 L2 写工具；最近 L2 尝试失败：fill_quotation_sheet — file_path is required
+
+User request:
+填到桌面
+
+Already done (prior turns — do NOT repeat):
+  - mcp__quotation__match_quotation
+
+Already done (this turn — do NOT repeat):
+  - mcp__quotation__search_inventory
+
+Prior attempt (failed — fix and retry):
+  - fill_quotation_sheet -> FAILED: file_path is required
+
+ACTION:
+- Retry fill_quotation_sheet with corrected parameters. Prior failure: file_path is required
+```
+
+**Two-turn example:** Turn 1「查价」→ pass (`no_roe_scope`); Turn 2「填表」→ L2 checked only in Turn 2 window; block lists Turn 1 lookup under **prior turns**; failed fill under **Prior attempt**.
+
+**Agents (`config/modes.json`):** all `{agent}:roe-judge` → **`block`**. `quotation-agent:roe` → **`off`**.
+
+**Contracts:** Python exit `0` pass | `10` block | `20` escalate; counts `.claude/logs/subagent-gate-roe-judge-counts.json`; log `subagent-gate-roe-judge.log`.
+
+**Good / base / bad:**
+
+| Case | Expected |
+|------|----------|
+| Good | User「删 B 款」→ `edit_excel` success in window → pass |
+| Base | User「查三通50价格」→ `match_quotation` only → pass (`no_roe_scope`) |
+| Bad | User「查+填完整报价单」→ lookup tools only → block + Already done + fill ACTION |
+| Bad | User「改第9行」→ assistant promise, no L2 → block |
+| Bad | `fill_quotation_sheet` called but `is_error:true` or JSON `error` → block + Prior attempt |
+| Bad | Two-turn「查价」then「填表」fill fails → prior turns lookup + Prior attempt error |
+| Bad | Prior turn fill OK + new「删 B 款」+ promise only → block (new anchor window) |
+
+**Tests:**
+
+| File | Cases |
+|------|-------|
+| `test_roe_judge_gate.py` | 16 + n5 escalation |
+| `test_roe_judge_realistic.py` | 8 real-world (two-turn, continue accumulate, L2 fail/retry) |
+| `test_roe_gate.py` | 7 regression via judge |
+| `smoke-roe-judge-deploy.ps1` | 13 deploy + all test suites |
+
+**Deploy:**
+
+```powershell
+.\ccb-installer\scripts\deploy-subagent-gate-skill.ps1
+.\ccb-installer\scripts\smoke-roe-judge-deploy.ps1
+```
+
+Task: `.trellis/tasks/06-29-roe-slim-universal/` (supersedes archived `06-27-result-oriented-execution` dual-layer + `06-28-roe-semantic-judge-l2-mvp`).
+
+### Legacy notes (pre-2026-06-29 — superseded)
+
+<details>
+<summary>quotation-roe (06-27) and Gate-J (06-28) — archived behavior</summary>
+
+Previously: dual Stop hooks — `quotation-roe.sh` (L2 window) + `generic-roe-judge.sh` (N/K, promise heuristics, last-user window). Merged 2026-06-29 after live「查+填」recheck loop (lookup tools repeated because REJECT lacked Already done).
+
+</details>
 
 ### Deploy
 
 ```powershell
 .\ccb-installer\scripts\deploy-subagent-gate-skill.ps1
-.\ccb-installer\scripts\deploy-seed-agents.ps1
-.\ccb-installer\scripts\patch-subagent-gate-hooks.ps1   # live office agents without repo seeds
+.\ccb-installer\scripts\deploy-seed-agents.ps1 -ForceMd
+.\ccb-installer\scripts\patch-subagent-gate-hooks.ps1   # office agents without hooks in seed; quotation-agent hooks in seed since 2026-06-27
+.\ccb-installer\scripts\smoke-roe-deploy.ps1            # ROE post-deploy smoke
 cd D:\claude-code-B; bun run build
 .\ccb-installer\scripts\deploy-claude-code-b-to-wanding.ps1
 ```
@@ -339,14 +714,27 @@ cd D:\claude-code-B; bun run build
 | Empty docx | Guid Word card | Hook blocks after `createSession` registration |
 | Price claim, no MCP | quotation (either path) | MCP gate `off`; knowledge gate may warn if multi-match without Read |
 | Multi-match, no Read, claims price | quotation Guid direct | Warn log line from `quotation-knowledge-read.sh` |
-| Multi-match + Read + 1-pick reply | quotation | Pass |
-| Valid MCP quotation | either path | Pass |
+| Multi-match + Read + 1-pick reply | quotation | Pass — 1 推荐价 + ≤4 bullet「其他可能」 |
+| Multi-match + full candidate table + A/B/C/D ask | quotation Guid direct | **Wrong** — violates § Multi-candidate reply (2026-06-29) |
+| Screenshot +「查询价格」→「无法读取图片」 | quotation Guid Route-B (pre-2026-06-29 dist) | **Wrong** — § Quotation image inquiry; need `promptToSubmitInput` + new session |
+| Screenshot + match_quotation | quotation Guid Route-B (post-fix) | Pass — vision + §图片/截图询价 |
+| ROE write intent, no L2 | Guid quotation direct | `exit 2` → auto-continue (`:roe-judge`) |
+| ROE pure price lookup | Guid quotation direct | Pass (`no_roe_scope`) |
+| ROE clarification A/B/C | Guid quotation direct | Pass (`clarification`) |
+| ROE lookup+fill, read tools only | Guid quotation direct | `exit 2` + Already done + fill ACTION |
+| ROE two-turn 查价 then 填表 | Guid quotation direct | Turn2 block + prior turns Already done |
+| ROE fill failed (L2 error) | Guid quotation direct | `exit 2` + Prior attempt + Retry ACTION |
 
 ### Tests
 
 | File | Assertion |
 |------|-----------|
-| `ccb-subagent-gate/tests/run-tests.sh` | Office block + quotation knowledge warn + Stop vs SubagentStop |
+| `ccb-subagent-gate/tests/run-tests.sh` | Office block + quotation knowledge warn + Stop vs SubagentStop + ROE |
+| `ccb-subagent-gate/tests/test_roe_gate.py` | Universal ROE regression via judge (7 cases) |
+| `ccb-subagent-gate/tests/test_roe_judge_gate.py` | Write-anchor, L2 success, Already done, Prior attempt (16+) |
+| `ccb-subagent-gate/tests/test_roe_judge_realistic.py` | Two-turn, multi-continue, L2 fail/retry (8) |
+| `ccb-installer/scripts/smoke-roe-judge-deploy.ps1` | Post-deploy + all ROE judge test suites (13) |
+| `ccb-installer/scripts/smoke-roe-deploy.ps1` | Post-deploy live skill + agent hook smoke |
 | `ccb-subagent-gate/tests/test_knowledge_read_gate.py` | PostToolUse nudge + transcript parser |
 | `sessionGateHooks.test.ts` | `shouldRegisterSessionGateHooks`, profile lookup |
 
@@ -475,6 +863,8 @@ Payload shape:
 - **Write path (unified):** `stageNextSessionAgent()` in `ccbAgentSession.ts`
 - **IPC:** `ccbAgentsService.stageNextSessionAgent` (primary) and `ccbAssistantProfilesService.stageNextSessionProfile` (legacy wrapper — also calls `stageNextSessionAgent`)
 - **Read path:** CCB `claude-code-B` consumes the file at session/new and clears after apply
+- **TTL:** **300s** from `staged_at` (was 60s until 2026-06-29 — idle reopen could exceed old window)
+- **Write trigger:** `warmupConversation` calls `stageCcbAssistantProfileFromConversation` (extra resolve + history inference fallback)
 
 Constant: `CCB_NEXT_ASSISTANT_PROFILE_FILE` in `ccbAssistantProfileSession.ts` (shared filename).
 
@@ -536,6 +926,7 @@ When `listCcbAgents()` returns empty (CCB not installed), list falls back entire
 - Trigger: `pruneBundledAgentsNotInKeepSetWithFlag()` after Guid catalog repair
 - Keep: `CCB_WANDING_KEEP_AGENT_IDS` in `ccbAgentCatalog.ts` — `wande-orchestrator`, `quotation-agent`, `accurate-agent`, `word-creator`, `ppt-creator`, `excel-creator`
 - **Retired (2026-06-27):** `cowork`, `word-form-creator` removed from keep set + Guid cards; migration `migration.ccbWandingPrunePresets_v2` deletes live sidecars on cold start
+- **Dev sync:** `deploy-seed-agents` does **not** delete retired files from live profile — run manual cleanup per [`dev-sync-playbook.md`](./dev-sync-playbook.md) **§4.7**
 - Delete: other `source: bundled` agents (`unlink` `.md` + `.aionui.json` + orphan `assistants/<id>.json`; `ENOENT` ignored)
 - AionCore seed filter: `seedBuiltinAssistantsToCcbProfiles` skips builtins not in keep set
 

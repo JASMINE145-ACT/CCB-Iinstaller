@@ -107,7 +107,7 @@ See `config-layer.md` for the full settings.json layout.
 |-------|-------------|
 | AionUI | `ccbAssistantProfileMigration.ts` seeds builtin profiles on startup → `%LOCALAPPDATA%\CCB-Wanding\.claude\assistants\*.json` (21 profiles created) |
 | AionUI | `ccbPresetConversationExtra.ts` — profile `claude_md` → `preset_context` + `ccb_assistant_profile_id` on create (Layer 3 workaround until aioncore passthrough) |
-| AionUI | `ccbAssistantProfileSession.ts` + `warmupConversation.ts` — writes `.aionui-next-assistant-profile.json` before `/warmup` (60s TTL, one-shot) |
+| AionUI | `ccbAssistantProfileSession.ts` + `warmupConversation.ts` — writes `.aionui-next-assistant-profile.json` before `/warmup` (**300s TTL**, one-shot; resume staging via `stageCcbAssistantProfileFromConversation` since 2026-06-29) |
 | CCB | `assistantProfiles.ts` — profile schema, loader, MCP/skill allowlist filter, `consumeNextAssistantProfileId()` (file handoff), `resolveAssistantProfileIdFromMeta()` (multi-shape meta) |
 | CCB | `agent.ts` — profile-owned `userContextOverride` replaces default WanD CLAUDE.md for preset sessions |
 | AionUI | Phase 2 strict authority: `ccbPresetConversationExtra` sends profile id only (no `preset_context`/`preset_rules`); `ccbConfigMigrationShared.ts` strips prompt fields |

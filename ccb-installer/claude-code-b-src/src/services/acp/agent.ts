@@ -114,7 +114,10 @@ import {
   computeSessionFingerprint,
   sanitizeTitle,
 } from './utils.js'
-import { promptToQueryInput } from './promptConversion.js'
+import {
+  isEmptyPromptSubmitInput,
+  promptToSubmitInput,
+} from './promptConversion.js'
 import { listSessionsImpl } from '../../utils/listSessionsImpl.js'
 import { resolveSessionFilePath } from '../../utils/sessionStoragePortable.js'
 import { getMainLoopModel } from '../../utils/model/model.js'
@@ -315,11 +318,10 @@ export class AcpAgent implements Agent {
 
     await this.teardownSession(activeSessionId)
 
-    const bootstrap = activeSession.sessionCreateParams ?? {
-      mcpServers: [],
-      _meta: activeSession.appliedProfileId
-        ? { ccbAgentId: activeSession.appliedProfileId }
-        : undefined,
+    // Wrong-session appliedProfileId in _meta overrides fresh handoff from AionUI warmup.
+    const bootstrap = {
+      mcpServers: activeSession.sessionCreateParams?.mcpServers ?? [],
+      _meta: undefined,
     }
 
     await this.getOrCreateSession({
@@ -497,9 +499,9 @@ export class AcpAgent implements Agent {
       await this.resolveSessionRequestForPrompt(params.sessionId)
 
     // Extract text/image content from the prompt
-    const promptInput = promptToQueryInput(params.prompt)
+    const promptInput = promptToSubmitInput(params.prompt)
 
-    if (!promptInput.trim()) {
+    if (isEmptyPromptSubmitInput(promptInput)) {
       return { stopReason: 'end_turn' }
     }
 

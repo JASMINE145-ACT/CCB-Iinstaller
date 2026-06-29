@@ -203,7 +203,29 @@ Log markers: `auto_apply_preferred_model_confirmed` / `ensure_preferred_model st
 
 Files: CCB `agent.ts`; AionUI `warmupConversation.ts`, `AcpSendBox.tsx`, `acpRuntimeGuard.ts`, `ipcBridge.ts`.
 
+**2026-06-29 (idle resume profile drift):** After idle kill + reopen, specialist Guid sessions could bind `wande-orchestrator` instead of `quotation-agent` / `accurate-agent` → orchestrator MCP guard blocks business tools.
 
+| Layer | Mitigation |
+|-------|------------|
+| **AionUI warmup** | `stageCcbAssistantProfileFromConversation` before `/warmup` — full extra alias resolve + `acp_tool_call` history inference when extra empty |
+| **CCB rehydrate** | `tryRehydrateStaleSession`: do not inject stale `appliedProfileId` into bootstrap `_meta` (meta wins over disk handoff at `resolveSessionProfileIdForCreate`) |
+| **Handoff TTL** | 60s → **300s** on both AionUI writer and CCB `consumeNextAssistantProfileId` |
+
+Log marker (success): `[ACP] agent session profile applied: quotation-agent`. Failure: same line with `wande-orchestrator` on a specialist card chat.
+
+Spec: [`../integration/agents-unified-model.md`](../integration/agents-unified-model.md) § Specialist session resume; task `06-29-specialist-session-resume-profile-drift`.
+
+**2026-06-29 (query.next drain-stuck orphan):** When `query.next(120000)` times out, the ACP slot calls `query.interrupt()` and drains stale events. If the CCB CLI subprocess does not return to idle within MAX_DRAIN iterations (process stuck), the previous code silently retried on the still-busy process → duplicate prompt execution → first-conversation 错乱.
+
+| Layer | Mitigation |
+|-------|------------|
+| **ACP slot drain gate** | `drainObservedClean` flag in `patches/aionui-acp/acp-agent.js`: set to `true` only when drain loop sees `done \|\| !m` (stream ended) or `session_state_changed: idle`; silent retry is gated on `drainObservedClean === true` |
+| **Drain-stuck path** | Logs `drain-stuck: no retry, orphan cleanup pending` and throws `首条响应超时` immediately — no second prompt sent to busy subprocess |
+| **Session preserved** | Session is NOT deleted on drain failure; next AionUI `warmupConversation(force:true)` recreates it cleanly |
+
+Log markers: `prompt timeout retry attempt=1 sessionId=…` (clean drain, retry proceeds) / `prompt timeout drain-stuck: no retry` (stuck process, immediate error).
+
+Task: `06-29-acp-prompt-orphan-cleanup-on-query-next-timeout`.
 
 #### 3. Contracts
 
@@ -265,8 +287,27 @@ const models = shouldExposeMiniMaxM3Variants()
 |--------|----------------|
 | `agent.ts` | Sessions, engine wiring, ACP method handlers |
 | `permissions.ts` | Map engine permission checks to ACP permission requests |
-| `promptConversion.ts` | ACP prompt parts ↔ internal message format |
+| `promptConversion.ts` | ACP prompt parts → `QueryEngine.submitMessage` input (text string or Anthropic image blocks) |
 | `bridge.ts` | Shared ACP ↔ engine helpers |
+
+**Image prompts (2026-06-29):** ACP advertises `promptCapabilities.image: true`, but Route-B previously used `promptToQueryInput()` (text-only) → MiniMax M3 never received pixels → agent replied「无法读取图片」. Fix: `promptToSubmitInput()` — no images → plain string; with `type: image` chunks → Anthropic blocks (base64 **or** http `uri` → url source). **Parity follow-up (same day):** `resource.text` + uri → `[@name](uri)` + `<context ref="uri">` (matches `acp-agent.js` `promptToClaude`). `agent.prompt()` calls `submitMessage(promptToSubmitInput(...))`. Overlay: `ccb-installer/src/services/acp/promptConversion.ts`; deploy via `sync-claude-code-b-mcp-prefetch.ps1 -Build -Deploy`. Quotation L1: `quotation-agent.md` §图片/截图询价.
+
+### Capability parity audit (2026-06-29)
+
+Pattern: **advertise capability → inbound conversion must preserve payload**. Audit after image fix:
+
+| Area | Route-B (`agent.ts` + `promptConversion.ts`) | Legacy patch (`patches/aionui-acp/acp-agent.js` `promptToClaude`) | Risk |
+|------|-----------------------------------------------|---------------------------------------------------------------------|------|
+| **Image base64** | ✅ `promptToSubmitInput` → Anthropic blocks | ✅ `chunk.data` → base64 source | Fixed 2026-06-29 on Route-B |
+| **Image HTTP URL** | ✅ `uri` http → `{ source: { type: 'url' } }` (2026-06-29 parity) | ✅ `chunk.uri` http → url source | Fixed Route-B |
+| **embeddedContext** | ✅ `resource.text` + uri → link + `<context ref>` (2026-06-29 parity) | ✅ same wrapper | Fixed Route-B |
+| **Resource blob** | ❌ Ignored (no `resource.blob`) | ❌ Comment: ignore blob | Binary attachments silently dropped on both paths |
+| **Audio** | N/A (not advertised) | ❌ Ignored in switch default | OK — no false capability |
+| **Outbound image URL** | `bridge.ts` converts model URL images → `[image: url]` text to UI | Same class of degradation | Display-only; not inbound |
+| **Deprecated API** | `promptToQueryInput` still exported; **only** `agent.prompt` + tests reference | N/A | Grep before reuse; prefer `promptToSubmitInput` |
+| **Dual ACP entry** | Guid Route-B → `D:\CCB-Wanding\dist` chunk | Non–Route-B builds may still load `acp-agent.js` | Image fix applies to Route-B; patch path was already OK |
+
+**When adding ACP capabilities:** add conversion in `promptConversion.ts`, unit test in `promptConversion.test.ts`, sync via `sync-claude-code-b-mcp-prefetch.ps1`, compare with `acp-agent.js` `promptToClaude` for parity.
 
 Tests: `src/services/acp/__tests__/`.
 

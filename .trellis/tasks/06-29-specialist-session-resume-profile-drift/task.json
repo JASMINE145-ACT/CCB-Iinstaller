@@ -1,0 +1,61 @@
+{
+  "id": "specialist-session-resume-profile-drift",
+  "name": "06-29-specialist-session-resume-profile-drift",
+  "title": "Specialist session resume — preserve quotation-agent profile after idle/reopen",
+  "description": "Fix profile drift on resume: reopening 万鼎报价专家 conversation after idle binds wande-orchestrator instead of quotation-agent → orchestrator guard blocks mcp__quotation__* (e.g. get_inventory_by_code_batch). P0: warmup stages profile from conversation.extra; CCB meta/rehydrate; optional aioncore passthrough.",
+  "status": "in_progress",
+  "dev_type": "implementation",
+  "scope": "aionui warmup + CCB session profile resume",
+  "package": "integration",
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-29",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "ccb-installer/src/services/acp/agent.ts",
+    "ccb-installer/src/services/acp/agentSessionProfile.ts",
+    "ccb-installer/claude-code-b-src/src/services/acp/agent.ts",
+    "ccb-installer/claude-code-b-src/src/services/acp/agentSessionProfile.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/conversation/utils/warmupConversation.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/conversation/platforms/acp/AcpSendBox.tsx",
+    "aionui-src/packages/desktop/src/renderer/pages/guid/utils/ccbPresetConversationExtra.ts",
+    "aionui-src/packages/desktop/src/process/bridge/ccbAgentSession.ts",
+    ".trellis/spec/integration/aionui-ccb-boundary.md",
+    ".trellis/spec/integration/agents-unified-model.md",
+    ".trellis/spec/backend/acp-session-flow.md",
+    ".trellis/spec/frontend/chat-acp-flow.md"
+  ],
+  "notes": "User repro 2026-06-29: resumed quotation conversation → get_inventory_by_code_batch blocked with wande-orchestrator 不得直接调用业务 MCP. Guard is correct; session profile wrong on resume.",
+  "meta": {
+    "trigger_incident": "Resume quotation Guid chat after idle → mcp__quotation__get_inventory_by_code_batch blocked by orchestrator guard",
+    "repro_codes": [
+      "8020020751",
+      "8020020755"
+    ],
+    "repro_tool": "mcp__quotation__get_inventory_by_code_batch",
+    "expected_profile": "quotation-agent",
+    "actual_profile": "wande-orchestrator",
+    "guard_message": "wande-orchestrator 不得直接调用业务 MCP。请使用 Agent 工具委派 quotation-agent 或 accurate-agent。",
+    "phases": [
+      "A-diagnose",
+      "B-aionui-warmup",
+      "C-ccb-meta-rehydrate",
+      "D-aioncore-passthrough",
+      "E-spec-deploy"
+    ],
+    "phase_E_spec_recorded": "2026-06-29",
+    "related_tasks": [
+      "06-26-aionui-source-level-recovery",
+      "06-28-app-startup-readiness-gate"
+    ]
+  }
+}

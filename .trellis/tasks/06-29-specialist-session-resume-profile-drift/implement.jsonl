@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/integration/aionui-ccb-boundary.md", "reason": "Layer 3 gap — acp_meta / profile handoff on session/new; resume must not lose ccb_assistant_profile_id"}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "Specialist direct session contract; warmup fallback to wande-orchestrator; session handoff file TTL"}
+{"file": ".trellis/spec/backend/acp-session-flow.md", "reason": "Idle timeout, stale session id, getOrCreateSession / resumeSession behavior"}
+{"file": ".trellis/spec/frontend/chat-acp-flow.md", "reason": "warmupConversation force:true before send; idle resume hardening"}
