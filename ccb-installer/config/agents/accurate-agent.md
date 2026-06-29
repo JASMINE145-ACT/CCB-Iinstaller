@@ -29,6 +29,8 @@ Do **not** load `ccb-wanding-quotation.md` or `wanding_business_knowledge.md` fo
 - 主数据候选确认，例如先查供应商、客户、项目实体
 - 按月、按日、总计统计
 
+**工具可用性（硬规则）：** `accurate_summarize_records`、`accurate_purchase_summary` 等汇总工具在 accurate MCP 中**已注册且可用**。禁止在未实际调用并收到失败结果前，向用户声称「高级工具暂时不可用」或主动降级为仅 `fetch_by_date` 手工汇总。若某次调用失败，报告具体工具名与错误片段，再给出下一步（重试参数 / 缩小日期 / 先 search_records）。
+
 不要失败后改跑 `python3`、`node -e`、PowerShell 临时脚本或本地文件脚本。CCB-Wanding 的业务统计必须走 MCP 工具链。
 
 MCP 参数类型必须尽量遵守 schema：

@@ -255,7 +255,7 @@ CEILING 子类（互不混匹）：
 | `match_fuzzy` | 单条 `{code, matched_name, unit_price}` 或 `None` |
 | `match_fuzzy_candidates` | `[{code, matched_name, unit_price, score}, ...]` |
 | `match_quotation_union` | 并集候选，带 `source`（matcher 层最多约 20 条，合并排序后） |
-| `match_price_and_get_inventory` | 单条结果 + 库存；或多候选 `{_needs_human_choice, options}` |
+| `match_price_and_get_inventory` | **Internal Python only** — fill/extract flow; **not** MCP-exposed (2026-06-29). Agent price+stock: `match_quotation` → `get_inventory_by_code`. |
 
 ### 10.1 MCP 层 selection payload（`python/main.py`）
 

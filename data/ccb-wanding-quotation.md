@@ -1,11 +1,11 @@
 # CCB-Wanding Quotation Rules
 
-> **加载要求（2026-06-16 起）**：本文件仍是报价/库存/填单 SOP 的**维护源**；运行时已内联到 `agents/quotation-agent.md` 正文，agent **不要**每轮 Read 本文件。修改本文件后须手动同步 agent 正文。
+> **加载要求（2026-06-28 瘦身）**：本文件是**维护源 + 参考文档**（完整 §价格口径映射、历史细节）。运行时 L1 已精简为 `agents/quotation-agent.md`（决策表 + 触发器 + 硬禁止）；agent **不要**每轮 Read 全文，非 A–E 常见映射时 **Read §价格口径映射**。改 L1 后 `deploy-seed-agents.ps1 -ForceMd`；改本文件后 sync 到 `vendor/wanding/data/`。
 >
 > **与 `wanding_business_knowledge.md` 的分工**：
-> - **本文件**：调哪个 MCP、参数怎么写、价格档位映射、库存/填单流程、回复表格格式。
-> - **业务知识库**：多候选怎么选、品类/冷热/系列默认、用户纠偏、拿不准怎么问。
-> - 多候选选型：**先 match → 多候选时 Read 一次业务知识库 → 再回复**（PostToolUse/Stop hook 强制；见「报价匹配规则」）。
+> - **L1 `quotation-agent.md`**：工具决策表、按需 Read 触发、出单默认值、ROE、多候选回复形态。
+> - **本文件**：完整价格口径映射表、Path 参考、回复表格模板。
+> - **业务知识库**：多候选怎么选、品类默认、纠偏、§9 澄清场景。
 
 ## 报价匹配入口
 
@@ -137,9 +137,9 @@ data/wanding_business_knowledge.md
 
 | 用户意图 | 唯一允许的工具路径 | 禁止 |
 |----------|------------------|------|
-| **仅查价 / 询价 / 报价**（未提库存、有没有货） | **只** `mcp__quotation__match_quotation`（或 batch） | `search_inventory`、`get_inventory_by_code`、`match_price_and_get_inventory` |
-| **单品同时要价格 + 库存** | **优先** `mcp__quotation__match_price_and_get_inventory` **一次**；唯一匹配时直接返回价+库存；多候选时选型后 **再** `get_inventory_by_code` | 禁止再调 `search_inventory`；禁止 3 工具链 |
-| **多品同时要价格 + 库存**（清单/截图/表格 ≥2 行） | `mcp__quotation__match_quotation_batch`（≤10/批，`remaining_keywords` 续批）→ 每行选型 → **`mcp__quotation__get_inventory_by_code_batch` 一次** | **禁止** N 路并行 `match_price_and_get_inventory`；禁止对每行单独 `get_inventory_by_code` |
+| **仅查价 / 询价 / 报价**（未提库存、有没有货） | **只** `mcp__quotation__match_quotation`（或 batch） | `search_inventory`、`get_inventory_by_code` |
+| **单品同时要价格 + 库存** | `mcp__quotation__match_quotation` → 选型 → **`mcp__quotation__get_inventory_by_code`**（两步，同轮） | `match_price_and_get_inventory`（**MCP 未注册**）；`search_inventory` |
+| **多品同时要价格 + 库存**（清单/截图/表格 ≥2 行） | `mcp__quotation__match_quotation_batch`（≤10/批，`remaining_keywords` 续批）→ 每行选型 → **`mcp__quotation__get_inventory_by_code_batch` 一次** | 对每行单独 `get_inventory_by_code`；调用不存在的 MCP 工具 |
 | **仅查库存**（给了物料编码） | `get_inventory_by_code` | 除非只有描述无编码，否则不要 `match_quotation` |
 | **仅查库存**（只有中文描述、未问价） | `search_inventory` **或** `match_quotation` → `get_inventory_by_code` | 不要 `search_inventory` 后再 `get_inventory_by_code` 重复搜 |
 
@@ -149,8 +149,8 @@ data/wanding_business_knowledge.md
 
 查库存、有没有货、库存数量：
 - 如果用户给出明确物料编码，直接用编码查库存。
-- **单品**同时要价+库存：**优先** `match_price_and_get_inventory` 或 `match_quotation` → `get_inventory_by_code`（两步）。
-- **多品**同时要价+库存：**不要**并行多次 `match_price_and_get_inventory`；用 `match_quotation_batch` 查价选型后，**一次** `get_inventory_by_code_batch` 补库存。
+- **单品**同时要价+库存：`match_quotation` → 选型 → `get_inventory_by_code`（两步，同轮）。
+- **多品**同时要价+库存：用 `match_quotation_batch` 查价选型后，**一次** `get_inventory_by_code_batch` 补库存。
 - **不要**在已有 `match_quotation` / batch 结果后再调 `search_inventory`（重复搜索，浪费一轮）。
 - 不要凭报价库或历史知识推断库存，库存必须来自实时库存工具。
 
@@ -170,7 +170,7 @@ data/wanding_business_knowledge.md
 }
 ```
 
-按描述查库存（**仅**用户只问库存、不问价时；若要价+库存用 `match_price_and_get_inventory`；工具 `mcp__quotation__search_inventory`）：
+按描述查库存（**仅**用户只问库存、不问价时；若要价+库存用 `match_quotation` → `get_inventory_by_code`；工具 `mcp__quotation__search_inventory`）：
 
 ```json
 {
@@ -178,17 +178,17 @@ data/wanding_business_knowledge.md
 }
 ```
 
-价格 + 库存合一（**推荐**，一次 MCP 调用；工具 `mcp__quotation__match_price_and_get_inventory`）：
+价格 + 库存（**单品**，两步 MCP；`match_price_and_get_inventory` 已下线，勿调用）：
 
 ```json
-{
-  "keywords": "直接50",
-  "customer_level": "B"
-}
+// 1) match_quotation
+{ "keywords": "直接50", "customer_level": "B" }
+// 2) get_inventory_by_code（用 match 选定的 code）
+{ "code": "8020020755" }
 ```
 
 中文描述查价+库存（**不要三步都走**）：
-1. **单品**：`match_price_and_get_inventory` 一次返回编码、单价、库存；或 `match_quotation` → `get_inventory_by_code`。
+1. **单品**：`match_quotation` → 选型 → `get_inventory_by_code`。
 2. **多品（≥2 行）**：`match_quotation_batch`（每行 `keywords` = 名称+规格，≤10/批）→ 每行选型 → `get_inventory_by_code_batch` **一次**。
 3. 回复时同时说明匹配到的产品、编码、单价和库存数量。
 
@@ -196,7 +196,25 @@ data/wanding_business_knowledge.md
 
 ## 报价单填写规则
 
-当用户说“填写报价单”“生成报价单”“做报价单”“放到桌面”等，直接使用工具 `mcp__quotation__fill_quotation_sheet`：
+> **Spec anchor (2026-06-28):** [`.trellis/spec/integration/agents-unified-model.md`](../.trellis/spec/integration/agents-unified-model.md) § Quotation sheet fill defaults. L1 seed: `ccb-installer/config/agents/quotation-agent.md` §生成报价单 — 默认值（须与下文一致）。
+
+当用户说“填写报价单”“生成报价单”“做报价单”“放到桌面”等，直接使用工具 `mcp__quotation__fill_quotation_sheet`。
+
+### 生成报价单 — 默认值（禁止重复澄清）
+
+同会话**已查价并回复表格**后用户要出单：**禁止**再问客户等级、VANTSING 模板、明细清单、报价日期、币种。立即用已 match 的 `code` / `unit_price` / `customer_level` 调 `fill_quotation_sheet`（`fill_items` + `require_exact_codes=true`）。
+
+| 参数 | 默认 |
+|------|------|
+| 客户等级 / 单价 | 继承本会话 match 结果 |
+| 模板 | 内置万鼎标准 VANTSING（不传 `template_path`） |
+| 明细 | 本会话已查价行 = 本张报价单全部行 |
+| 数量 | 未给则 qty=1 |
+| 日期 / 币种 | 当天；印尼盾 IDR（不传 `quotation_date`） |
+
+仍须澄清：从未 match 且无清单；§9 强制澄清（全面冲突/仅替代品无默认）；用户明确要自定义模板或非默认档。
+
+**Path B — 冷启动（无 prior match，用户直接给 keywords 清单）：**
 
 ```json
 {
@@ -207,33 +225,35 @@ data/wanding_business_knowledge.md
 }
 ```
 
+**Path C — 查价后出单（默认，同会话已 match）：** 见上文 `fill_items` + `require_exact_codes=true` 示例。
+
 `items` 可接受字段：
 - 产品描述：`keywords`、`name`、`product_name`、`description`、`quote_name`
 - 数量：`quantity`、`qty`、`count`
 - 可选匹配字段：`code`、`item_code`、`sku`、`product_code`、`unit_price`、`price`、`spec`、`specification`、`unit`、`brand`
 
 默认行为：
-- 没有 `template_path` 时，使用内置空白标准报价单模板。
+- 没有 `template_path` 时，使用内置空白**万鼎标准 VANTSING**报价单模板（`空白标准报价单.xlsx`，bundled 于 `vendor/wanding/data/` 或 `data/`）。
 - 没有 `output_path` 时，保存到**当前会话工作区**（AionUI 侧边栏「临时空间」），文件名 `Wanding-Quotation_<时间戳>.xlsx`。
+- **`Wanding-Quotation_*.xlsx` 仅是输出命名，不是 `file_path`。** 查价后出单（Path C）只传 `fill_items` + `require_exact_codes=true`，**禁止**预造 workspace 路径当输入（会 `FILE_NOT_FOUND` / 「提取询价项失败」）。
 - 某个产品无法匹配时，仍生成报价单，并在对应行标记未匹配，不阻塞整个报价单。
-- 没有数量时先问一次；用户要求快速草稿时可用数量 `1` 并说明可调整。
+- 同会话已查价后生成报价单：见 §生成报价单 — 默认值；qty 默认 1，不要重复问数量/等级/模板/币种。
+- 用户从未给数量且会话内也无 prior match 时，可问一次数量；用户要求快速草稿时可用数量 `1` 并说明可调整。
 
 ## 选型与澄清
+
+> **Spec anchor (2026-06-29):** [`.trellis/spec/integration/agents-unified-model.md`](../.trellis/spec/integration/agents-unified-model.md) § Quotation multi-candidate reply. L1 seed: `ccb-installer/config/agents/quotation-agent.md` §选型与澄清（须与下文一致）。
 
 具体选型规则、业务默认、纠偏案例**只维护在** `wanding_business_knowledge.md`。**本节只规定流程，不重复规则正文。**
 
 执行要求：
-- **禁止**调用 `AskUserQuestion`（CCB/AionUI 已硬拒绝；澄清一律用 assistant 正文 + 用户下一条消息）。
-- **查前参数澄清**：正文里 A/B/C 选项，可请用户 `1A 2C` 一次性回复。
-- **查后多候选**：**先 match → 再 Read 知识库 → 再回复**。主回复 **1 条推荐价** + 「其他可能」简短 bullet（≤4 条）；**禁止**默认 7 行候选大表 + 「请选序号」。仅用户明确要求看全部候选或知识库 §9 必须澄清时，才列精简表并请回复编码/序号。
-- 多候选时，先按业务知识库判断是否存在明确最优项。
-- 若 `candidates_truncated: true` 或用户对某条匹配不满意，对该 `keywords` 单独再调 `match_quotation`（`show_candidates: true`），不要整批重跑 batch。
-- 如果候选全部与用户描述冲突，回复未匹配，不要强行选择弱匹配。
-- 如果只有替代品、降级规格或相邻规格，需要用户确认后再用于报价单。
-- 如果用户纠正了选型结果，将可复用的纠正沉淀到业务知识库或 memory，而不是改写本文件。
-- **禁止**擅自套用知识库默认。
-
-拿不准时必须问用户，不要硬选。需要澄清的典型场景与提问格式见 `wanding_business_knowledge.md` §9。
+- **禁止** `AskUserQuestion`；澄清用 assistant 正文 + 用户下一条。
+- **查前**（match 前缺压力/档位等）：A/B/C 选项，可 `1A 2C`。
+- **查后多候选**：**先 match → Read 知识库 → 同条回复先给 1 推荐价 + ≤4 bullet「其他可能」**；**禁止**「用途 A/B/C / 按 1A 格式 / 请选序号」阻塞；「直接50」默认推荐 PVC-U 排水 8020020755。
+- 仅 §9 强制澄清或用户要看全部候选时才请用户选编码。
+- `candidates_truncated` → 单独 `match_quotation` + `show_candidates:true`。
+- 替代品：**出单写死编码前**确认；查价回复仍先给推荐 + bullet。
+- 用户纠正 → memory / org 知识库。
 
 ## 回复表格
 

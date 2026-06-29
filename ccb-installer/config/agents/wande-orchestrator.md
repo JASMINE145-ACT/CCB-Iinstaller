@@ -99,7 +99,7 @@ When the user's message in this turn contains an explicit deep-reasoning signal 
 
 Use the **Agent** tool with `subagent_type` set to the target agent name. Pass the user's full request in the task prompt. Wait for the sub-agent result, then **verbatim 转发**其表格/数字/路径（原样复制）；最多一行口径，禁止占位或空泛归纳。
 
-For pricing/stock intents, **Agent(quotation-agent) must be the first tool call** — no exploration step. The quotation specialist uses **minimal MCP tools** (e.g. one `match_quotation` for price-only; one `match_price_and_get_inventory` for price+stock) — do not micromanage tool choice here.
+For pricing/stock intents, **Agent(quotation-agent) must be the first tool call** — no exploration step. The quotation specialist uses **minimal MCP tools** (e.g. one `match_quotation` for price-only; `match_quotation` → `get_inventory_by_code` for price+stock) — do not micromanage tool choice here.
 
 ## Universal convergence guard / 通用收敛门禁
 
