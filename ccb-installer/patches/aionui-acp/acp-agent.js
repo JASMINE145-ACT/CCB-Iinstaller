@@ -640,7 +640,14 @@ export class ClaudeAcpAgent {
     }
     async loadSession(params) {
         const result = await this.getOrCreateSession(params);
-        await this.replaySessionHistory(params.sessionId);
+        const suppressReplay = params._meta?.aionui?.suppressSessionReplay === true ||
+            params._meta?.claudeCode?.options?.suppressSessionReplay === true;
+        if (!suppressReplay) {
+            await this.replaySessionHistory(params.sessionId);
+        }
+        else {
+            appendCcbWandingSdkLog(`loadSession replay suppressed sessionId=${params.sessionId}`);
+        }
         // Send available commands after replay so it doesn't interleave with history
         setTimeout(() => {
             this.sendAvailableCommandsUpdate(params.sessionId);
@@ -1223,7 +1230,14 @@ export class ClaudeAcpAgent {
                     continue retry_prompt;
                 }
                 if (!drainObservedClean) {
-                    appendCcbWandingSdkLog(`prompt timeout drain-stuck: no retry, orphan cleanup pending sessionId=${params.sessionId}`);
+                    appendCcbWandingSdkLog(`prompt timeout drain-stuck: no retry, tearing down dirty sessionId=${params.sessionId}`);
+                    try {
+                        await this.teardownSession(params.sessionId);
+                        appendCcbWandingSdkLog(`prompt timeout dirty session discarded sessionId=${params.sessionId}`);
+                    }
+                    catch (teardownErr) {
+                        this.logger.error(`Session ${params.sessionId}: failed to tear down dirty session after drain-stuck:`, teardownErr);
+                    }
                 }
                 throw RequestError.internalError(undefined, "CCB-Wanding 首条响应超时，请检查模型、反代 endpoint、MCP 配置。");
             }

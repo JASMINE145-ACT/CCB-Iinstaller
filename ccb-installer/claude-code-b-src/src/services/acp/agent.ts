@@ -118,6 +118,7 @@ import {
   isEmptyPromptSubmitInput,
   promptToSubmitInput,
 } from './promptConversion.js'
+import { trimMessagesToCompleteTurnBoundary } from './sessionTranscript.js'
 import { listSessionsImpl } from '../../utils/listSessionsImpl.js'
 import { resolveSessionFilePath } from '../../utils/sessionStoragePortable.js'
 import { getMainLoopModel } from '../../utils/model/model.js'
@@ -1144,7 +1145,13 @@ export class AcpAgent implements Agent {
       try {
         const log = await getLastSessionLog(params.sessionId as UUID)
         if (log && log.messages.length > 0) {
-          initialMessages = deserializeMessages(log.messages)
+          const diskMessages = deserializeMessages(log.messages)
+          initialMessages = trimMessagesToCompleteTurnBoundary(diskMessages)
+          if (initialMessages.length !== diskMessages.length) {
+            console.warn(
+              `[ACP] trimmed incomplete transcript tail sessionId=${params.sessionId} kept=${initialMessages.length} dropped=${diskMessages.length - initialMessages.length}`,
+            )
+          }
         }
       } catch (err) {
         console.error('[ACP] Failed to load session history:', err)
@@ -1204,7 +1211,13 @@ export class AcpAgent implements Agent {
     try {
       const log = await getLastSessionLog(params.sessionId as UUID)
       if (!log || log.messages.length === 0) return
-      const messages = deserializeMessages(log.messages)
+      const diskMessages = deserializeMessages(log.messages)
+      const messages = trimMessagesToCompleteTurnBoundary(diskMessages)
+      if (messages.length !== diskMessages.length) {
+        console.warn(
+          `[ACP] trimmed incomplete replay tail sessionId=${params.sessionId} kept=${messages.length} dropped=${diskMessages.length - messages.length}`,
+        )
+      }
       if (messages.length === 0) return
 
       const session = this.sessions.get(params.sessionId)

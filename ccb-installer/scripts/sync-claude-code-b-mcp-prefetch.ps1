@@ -19,7 +19,7 @@ if (-not (Test-Path $ClaudeCodeBRoot)) {
 }
 
 $DestAcp = Join-Path $ClaudeCodeBRoot "src\services\acp"
-foreach ($file in @("agent.ts", "agentSessionProfile.ts", "mcpSessionPrefetch.ts", "mcpToolRepeatGuard.ts", "wanDEnvBootstrap.ts", "wanDMcpWarmup.ts", "permissions.ts", "workspacePointer.ts", "promptConversion.ts")) {
+foreach ($file in @("agent.ts", "agentSessionProfile.ts", "mcpSessionPrefetch.ts", "mcpToolRepeatGuard.ts", "wanDEnvBootstrap.ts", "wanDMcpWarmup.ts", "permissions.ts", "workspacePointer.ts", "promptConversion.ts", "sessionTranscript.ts")) {
   $src = Join-Path $Overlay $file
   if (-not (Test-Path $src)) { Write-Error "Missing overlay file: $src" }
   Copy-Item $src (Join-Path $DestAcp $file) -Force
@@ -58,11 +58,19 @@ if (Test-Path $profileTestSrc) {
   Write-Host "Copied agentSessionProfile.test.ts"
 }
 
+$transcriptTestSrc = Join-Path $Overlay "__tests__\sessionTranscript.test.ts"
+$transcriptTestDest = Join-Path $DestAcp "__tests__\sessionTranscript.test.ts"
+if (Test-Path $transcriptTestSrc) {
+  New-Item -ItemType Directory -Force -Path (Split-Path $transcriptTestDest -Parent) | Out-Null
+  Copy-Item $transcriptTestSrc $transcriptTestDest -Force
+  Write-Host "Copied sessionTranscript.test.ts"
+}
+
 if ($Build) {
   Push-Location $ClaudeCodeBRoot
   try {
     if ($env:BUN_JSC_forceRAMSize -lt 3500000000) { $env:BUN_JSC_forceRAMSize = "3500000000" }
-    bun test src/services/acp/__tests__/mcpSessionPrefetch.test.ts src/services/acp/__tests__/mcpToolRepeatGuard.test.ts src/services/acp/__tests__/agentSessionProfile.test.ts src/services/acp/__tests__/promptConversion.test.ts
+    bun test src/services/acp/__tests__/mcpSessionPrefetch.test.ts src/services/acp/__tests__/mcpToolRepeatGuard.test.ts src/services/acp/__tests__/agentSessionProfile.test.ts src/services/acp/__tests__/promptConversion.test.ts src/services/acp/__tests__/sessionTranscript.test.ts
     bun run build
   } finally {
     Pop-Location
