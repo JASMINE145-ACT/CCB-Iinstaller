@@ -121,7 +121,7 @@ function ccbWandingNativeSpawnEnv(settingsEnv) {
         CLICOLOR_FORCE: "1",
         FORCE_COLOR: "3",
         COLORTERM: "truecolor",
-        ENABLE_SEARCH_EXTRA_TOOLS: process.env.ENABLE_SEARCH_EXTRA_TOOLS ?? "auto:100",
+        ENABLE_SEARCH_EXTRA_TOOLS: process.env.ENABLE_SEARCH_EXTRA_TOOLS ?? "false",
         CLAUDE_CODE_ENABLE_TELEMETRY: "0",
         NODE_TLS_REJECT_UNAUTHORIZED: "0",
         CCB_WANDING_ACP_INCLUDE_QUOTATION: "1",
@@ -1186,16 +1186,23 @@ export class ClaudeAcpAgent {
             // A failed turn typically leaves a trailing `session_state_changed: idle`
             // (and possibly more) in the query iterator. If we don't drain it here,
             // the next prompt's first `query.next()` consumes that stale idle and
-            // short-circuits to end_turn with zero usage
+            // short-circuits to end_turn with zero usage.
             // Bounded so a misbehaving SDK can't hang the next prompt indefinitely.
+            // drainObservedClean: true only when the process confirmed it returned to idle
+            // (stream ended OR explicit idle status). A false value means the subprocess
+            // is still busy — retrying on a busy process causes duplicate prompt execution.
+            let drainObservedClean = false;
             try {
                 await session.query.interrupt();
                 const MAX_DRAIN = 100;
                 for (let i = 0; i < MAX_DRAIN; i++) {
                     const { value: m, done } = await queryNextWithTimeout(session.query, params.sessionId, 5000);
-                    if (done || !m)
+                    if (done || !m) {
+                        drainObservedClean = true;
                         break;
+                    }
                     if (m.type === "system" && m.subtype === "session_state_changed" && m.state === "idle") {
+                        drainObservedClean = true;
                         break;
                     }
                     if (i === MAX_DRAIN - 1) {
@@ -1207,12 +1214,16 @@ export class ClaudeAcpAgent {
                 this.logger.error(`Session ${params.sessionId}: failed to drain query after prompt error:`, drainErr);
             }
             if (isTimeout) {
-                // Silent retry once: re-enter the prompt loop without surfacing the timeout to the user
-                if (!session.cancelled && session.promptRetryCount < 1) {
+                // Silent retry once — only when drain confirmed the process returned to idle.
+                // Skipping retry on drain-stuck prevents duplicate prompt execution (错乱).
+                if (!session.cancelled && session.promptRetryCount < 1 && drainObservedClean) {
                     session.promptRetryCount++;
                     appendCcbWandingSdkLog(`prompt timeout retry attempt=${session.promptRetryCount} sessionId=${params.sessionId}`);
                     errored = false; // prevent finally from cancelling pending messages
                     continue retry_prompt;
+                }
+                if (!drainObservedClean) {
+                    appendCcbWandingSdkLog(`prompt timeout drain-stuck: no retry, orphan cleanup pending sessionId=${params.sessionId}`);
                 }
                 throw RequestError.internalError(undefined, "CCB-Wanding 首条响应超时，请检查模型、反代 endpoint、MCP 配置。");
             }

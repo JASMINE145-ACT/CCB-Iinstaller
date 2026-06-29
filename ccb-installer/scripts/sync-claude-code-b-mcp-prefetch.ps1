@@ -19,11 +19,19 @@ if (-not (Test-Path $ClaudeCodeBRoot)) {
 }
 
 $DestAcp = Join-Path $ClaudeCodeBRoot "src\services\acp"
-foreach ($file in @("agent.ts", "agentSessionProfile.ts", "mcpSessionPrefetch.ts", "mcpToolRepeatGuard.ts", "wanDEnvBootstrap.ts", "wanDMcpWarmup.ts", "permissions.ts", "workspacePointer.ts")) {
+foreach ($file in @("agent.ts", "agentSessionProfile.ts", "mcpSessionPrefetch.ts", "mcpToolRepeatGuard.ts", "wanDEnvBootstrap.ts", "wanDMcpWarmup.ts", "permissions.ts", "workspacePointer.ts", "promptConversion.ts")) {
   $src = Join-Path $Overlay $file
   if (-not (Test-Path $src)) { Write-Error "Missing overlay file: $src" }
   Copy-Item $src (Join-Path $DestAcp $file) -Force
   Write-Host "Copied $file -> $DestAcp"
+}
+
+$testSrc = Join-Path $Overlay "__tests__\promptConversion.test.ts"
+$testDest = Join-Path $DestAcp "__tests__\promptConversion.test.ts"
+if (Test-Path $testSrc) {
+  New-Item -ItemType Directory -Force -Path (Split-Path $testDest -Parent) | Out-Null
+  Copy-Item $testSrc $testDest -Force
+  Write-Host "Copied promptConversion.test.ts"
 }
 
 $testSrc = Join-Path $Overlay "__tests__\mcpSessionPrefetch.test.ts"
@@ -54,7 +62,7 @@ if ($Build) {
   Push-Location $ClaudeCodeBRoot
   try {
     if ($env:BUN_JSC_forceRAMSize -lt 3500000000) { $env:BUN_JSC_forceRAMSize = "3500000000" }
-    bun test src/services/acp/__tests__/mcpSessionPrefetch.test.ts src/services/acp/__tests__/mcpToolRepeatGuard.test.ts src/services/acp/__tests__/agentSessionProfile.test.ts
+    bun test src/services/acp/__tests__/mcpSessionPrefetch.test.ts src/services/acp/__tests__/mcpToolRepeatGuard.test.ts src/services/acp/__tests__/agentSessionProfile.test.ts src/services/acp/__tests__/promptConversion.test.ts
     bun run build
   } finally {
     Pop-Location
@@ -62,7 +70,7 @@ if ($Build) {
 }
 
 if ($Deploy) {
-  & (Join-Path $RepoRoot "ccb-installer\scripts\deploy-claude-code-b-to-wanding.ps1") -Backup
+  & (Join-Path $RepoRoot "ccb-installer\scripts\deploy-claude-code-b-to-wanding.ps1")
 }
 
 Write-Host "Done. Restart AionUI dev and smoke: new Guid chat -> check /warmup latency_ms and F12 [warmupConversation] ready."
