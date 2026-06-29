@@ -22,7 +22,14 @@ const WARMUP_CALL: Record<string, WarmupCall> = {
   },
   accurate: {
     toolName: 'accurate_summarize_records',
-    arguments: { keywords: 'purchase', page_size: 1, max_pages: 1 },
+    arguments: {
+      table_name: 'purchase-invoice',
+      start_date: '01/01/2026',
+      end_date: '31/01/2026',
+      group_by: 'month',
+      page_size: 10,
+      max_pages: 1,
+    },
   },
   // Office MCPs are warmed with tools/list only. That starts the Python server
   // and imports dependencies without creating throwaway documents.

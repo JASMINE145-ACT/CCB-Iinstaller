@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/integration/mcp-health.md", "reason": "MCP health layers, warmup note, AOL closed section; extend with startup readiness gate"}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "Quotation MCP cold start row; scheduleWanDMcpWarmup today at session/new"}
+{"file": ".trellis/spec/integration/internal-update.md", "reason": "Ship checklist row pattern for new startup gate"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "AionUI renderer entry for Guid + readiness UI"}
+{"file": ".trellis/tasks/06-27-quotation-mcp-health/progress-2026-06-28.md", "reason": "Prerequisite MCP health + AOL BOM fix baseline"}

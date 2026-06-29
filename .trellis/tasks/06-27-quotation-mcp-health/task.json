@@ -1,0 +1,36 @@
+{
+  "id": "06-27-quotation-mcp-health",
+  "name": "06-27-quotation-mcp-health",
+  "title": "Quotation MCP Python 路径 + MCP Health 深度探测 (#20)",
+  "description": "Fix quotation MCP python/main.py path; harden health probe (match_quotation + get_inventory_by_code); bundle vendor/wanding/.env.accurate for AOL inventory.",
+  "status": "completed",
+  "dev_type": null,
+  "scope": "mcp_servers/quotation-server/dist/config.js, ccb-installer mcp-health manifest + probe scripts, aionui-src ccbMcpHealth* mirror, trellis spec #20",
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-27",
+  "completedAt": "2026-06-28",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "mcp_servers/quotation-server/dist/config.js",
+    "ccb-installer/config/mcp-health-manifest.json",
+    "ccb-installer/lib/mcp-stdio-probe.mjs",
+    "ccb-installer/scripts/test-mcp-health.ps1",
+    "ccb-installer/scripts/test-mcp-probe-layer.mjs",
+    "aionui-src/packages/desktop/src/common/config/ccbMcpHealth.ts",
+    "aionui-src/packages/desktop/src/common/config/ccbMcpHealthManifest.ts"
+    "ccb-installer/scripts/ensure-wanding-settings.ps1",
+    "python/inventory/services/inventory_payloads.py"
+  ],
+  "notes": "2026-06-27: config 24/24, probe match_quotation, session 5/5. 2026-06-28: +.env.accurate, AOL health, inventory probe — config 29/29, probe match+inventory, smoke-roe 8/8. Snapshot: progress-2026-06-28.md. Spec: mcp-health.md, internal-update §12.9 #20, whitelist §8.3.",
+  "meta": {}
+}

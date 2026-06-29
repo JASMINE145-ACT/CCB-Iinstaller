@@ -17,6 +17,9 @@ const configDir =
   process.env.CLAUDE_CONFIG_DIR ||
   join(os.homedir(), 'AppData', 'Local', 'CCB-Wanding', '.claude')
 
+const serverFilterArg = process.argv.find((arg) => arg.startsWith('--server='))
+const serverFilter = serverFilterArg ? serverFilterArg.slice('--server='.length) : null
+
 if (!install) {
   console.error('[mcp-probe] FAIL: CCB_INSTALL_DIR not set')
   process.exit(2)
@@ -31,6 +34,9 @@ const mcpServers = settings.mcpServers ?? {}
 const results = []
 
 for (const [name, spec] of Object.entries(manifest.mcp_servers)) {
+  if (serverFilter && name !== serverFilter) {
+    continue
+  }
   if (spec.kind === 'http') {
     console.log(`[mcp-probe] SKIP ${name} (http/lazy optional)`)
     continue
@@ -61,12 +67,17 @@ for (const [name, spec] of Object.entries(manifest.mcp_servers)) {
     {
       timeoutMs: spec.probe_timeout_ms ?? 45000,
       minTools: 1,
+      probeToolCalls: [
+        ...(spec.probe_tool_call ? [spec.probe_tool_call] : []),
+        ...(spec.probe_inventory_call ? [spec.probe_inventory_call] : []),
+      ],
     },
   )
 
   if (result.ok) {
+    const toolNote = result.probe_tool ? ` tool_call=${result.probe_tool}` : ''
     console.log(
-      `[mcp-probe] PASS ${name} tools=${result.tool_count} ${result.duration_ms}ms sample=${result.sample_tools?.join(',')}`,
+      `[mcp-probe] PASS ${name} tools=${result.tool_count} ${result.duration_ms}ms sample=${result.sample_tools?.join(',')}${toolNote}`,
     )
   } else {
     console.error(

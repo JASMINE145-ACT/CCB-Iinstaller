@@ -27,6 +27,7 @@ import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date, datetime
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import requests
@@ -39,13 +40,39 @@ except ImportError:
     print("Error: mcp package not found. Install with: pip install mcp", file=sys.stderr)
     sys.exit(1)
 
-try:
-    from dotenv import load_dotenv, find_dotenv
-    # Walk up from this file's location to find .env
-    _env_path = find_dotenv(usecwd=True) or find_dotenv()
-    load_dotenv(_env_path, override=False)
-except ImportError:
-    pass
+_AOL_ENV_KEYS = (
+    "AOL_ACCESS_TOKEN",
+    "AOL_SIGNATURE_SECRET",
+    "AOL_DATABASE_ID",
+    "AOL_BASE_URL",
+    "AOL_API_BASE_URL",
+)
+
+
+def _sanitize_aol_env() -> None:
+    """Empty strings from parent spawn block dotenv override=False — drop them first."""
+    for key in _AOL_ENV_KEYS:
+        if not str(os.getenv(key, "")).strip():
+            os.environ.pop(key, None)
+
+
+def _load_bundled_aol_env() -> None:
+    """Load {install}/vendor/wanding/.env.accurate — same contract as python/main.py."""
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        return
+    bundled = Path(__file__).resolve().parents[2] / "wanding" / ".env.accurate"
+    if bundled.is_file():
+        load_dotenv(bundled, override=True, encoding="utf-8-sig")
+    if not str(os.getenv("AOL_ACCESS_TOKEN", "")).strip():
+        repo_env = Path(__file__).resolve().parents[4] / ".env.accurate"
+        if repo_env.is_file():
+            load_dotenv(repo_env, override=True, encoding="utf-8-sig")
+
+
+_sanitize_aol_env()
+_load_bundled_aol_env()
 
 logging.basicConfig(level=logging.WARNING, stream=sys.stderr)
 logger = logging.getLogger("accurate_mcp")

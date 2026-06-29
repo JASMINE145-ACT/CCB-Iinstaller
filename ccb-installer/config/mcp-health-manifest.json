@@ -9,10 +9,30 @@
         "vendor/bun/bun.exe",
         "vendor/mcp-servers/quotation-server/dist/index.js",
         "vendor/python-wanding/python.exe",
-        "vendor/wanding/data"
+        "vendor/wanding/data",
+        "vendor/wanding/python/main.py",
+        "vendor/wanding/.env.accurate"
       ],
       "tool_prefix": "mcp__quotation__",
-      "probe_timeout_ms": 90000
+      "probe_timeout_ms": 90000,
+      "probe_tool_call": {
+        "tool": "match_quotation",
+        "arguments": {
+          "keywords": "pipe",
+          "showAllCandidates": true
+        }
+      },
+      "probe_inventory_call": {
+        "tool": "get_inventory_by_code",
+        "arguments": {
+          "code": "HEALTH-PROBE"
+        },
+        "reject_patterns": [
+          "inventory_unavailable",
+          "not configured",
+          "AOL_ACCESS_TOKEN"
+        ]
+      }
     },
     "accurate": {
       "kind": "stdio",
@@ -22,7 +42,25 @@
         "vendor/mcp-servers/accurate-mcp/server.py"
       ],
       "tool_prefix": "mcp__accurate__",
-      "probe_timeout_ms": 60000
+      "probe_timeout_ms": 120000,
+      "probe_tool_call": {
+        "tool": "accurate_summarize_records",
+        "arguments": {
+          "table_name": "purchase-invoice",
+          "start_date": "01/01/2026",
+          "end_date": "31/01/2026",
+          "group_by": "month",
+          "page_size": 10,
+          "max_pages": 1
+        },
+        "reject_patterns": [
+          "AOL_ACCESS_TOKEN 未设置",
+          "AOL_SIGNATURE_SECRET 未设置",
+          "AOL_DATABASE_ID 未设置",
+          "[参数错误]",
+          "[API 错误]"
+        ]
+      }
     },
     "office-word": {
       "kind": "stdio",

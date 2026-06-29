@@ -1,0 +1,42 @@
+{
+  "id": "06-28-app-startup-readiness-gate",
+  "name": "06-28-app-startup-readiness-gate",
+  "title": "App startup readiness gate — MCP/config warm before first conversation",
+  "description": "Move config validation and MCP cold start from first Guid message to app open; Guid readiness UI + send gate; reuse wanDMcpWarmup at startup.",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": "aionui-src Guid/readiness UI + ccbMcpHealth startup pipeline; ccb-installer wanDMcpWarmup trigger; trellis mcp-health + agents-unified-model",
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-28",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "ccb-installer/src/services/acp/wanDMcpWarmup.ts",
+    "ccb-installer/claude-code-b-src/src/services/acp/wanDMcpWarmup.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/conversation/utils/warmupConversation.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/conversation/platforms/acp/useAcpInitialMessage.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/conversation/platforms/acp/AcpSendBox.tsx",
+    "aionui-src/packages/desktop/src/renderer/pages/guid/utils/guidCapabilitiesCatalog.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/settings/ToolsSettings/CcbMcpHealthPanel.tsx",
+    "aionui-src/packages/desktop/src/common/config/ccbMcpHealth.ts",
+    "aionui-src/packages/desktop/src/process/bridge/ccbMcpBridge.ts",
+    "ccb-installer/scripts/test-mcp-health.ps1",
+    ".trellis/spec/integration/mcp-health.md",
+    ".trellis/spec/integration/agents-unified-model.md"
+  ],
+  "notes": "Triggered by 2026-06-28 Failed to fetch on first Guid send during MCP cold start. Layer 1+2 MVP; Layer 3 anchor session deferred.",
+  "meta": {
+    "trigger_incident": "Failed to fetch 127.0.0.1:53121 + WanD MCP warmup 120s at session/new",
+    "prerequisite_task": "06-27-quotation-mcp-health"
+  }
+}

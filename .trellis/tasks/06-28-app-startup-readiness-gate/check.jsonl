@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/integration/mcp-health.md", "reason": "Verify startup gate documented in symptom table and verification checklist"}
+{"file": "ccb-installer/scripts/test-mcp-health.ps1", "reason": "Regression gate must still PASS after startup pipeline changes"}

@@ -127,6 +127,81 @@ function Test-ConfigLayer {
         }
     }
 
+    $expectedWandingRoot = Join-Path $Install "vendor\wanding"
+    $expectedMainPy = Join-Path $expectedWandingRoot "python\main.py"
+    $quotationEntry = $mcpServers.PSObject.Properties["quotation"]
+    if ($quotationEntry) {
+        $qEnv = $quotationEntry.Value.env
+        $ccbRoot = if ($qEnv -and $qEnv.CCB_PROJECT_ROOT) { [string]$qEnv.CCB_PROJECT_ROOT } else { "" }
+        if (-not $ccbRoot) {
+            $checks.Add([pscustomobject]@{
+                layer  = "config"
+                id     = "quotation.env.CCB_PROJECT_ROOT"
+                ok     = $false
+                detail = "missing in settings.json mcpServers.quotation.env"
+            })
+        }
+        else {
+            $mainPy = Join-Path $ccbRoot "python\main.py"
+            $mainOk = Test-Path -LiteralPath $mainPy
+            $checks.Add([pscustomobject]@{
+                layer  = "config"
+                id     = "quotation.env.CCB_PROJECT_ROOT"
+                ok     = $mainOk
+                detail = $(if ($mainOk) { "python/main.py exists under $ccbRoot" } else { "python/main.py missing under $ccbRoot (expected $expectedMainPy)" })
+            })
+            foreach ($aolKey in @("AOL_ACCESS_TOKEN", "AOL_SIGNATURE_SECRET", "AOL_DATABASE_ID")) {
+                $aolVal = if ($qEnv -and $qEnv.$aolKey) { [string]$qEnv.$aolKey } else { "" }
+                $checks.Add([pscustomobject]@{
+                    layer  = "config"
+                    id     = "quotation.env.$aolKey"
+                    ok     = [bool]$aolVal
+                    detail = $(if ($aolVal) { "set" } else { "missing in settings.json mcpServers.quotation.env" })
+                })
+            }
+        }
+    }
+
+    $envAccuratePath = Join-Path $Install "vendor\wanding\.env.accurate"
+    $envAccurateOk = Test-Path -LiteralPath $envAccuratePath
+    $envAccurateDetail = if (-not $envAccurateOk) {
+        "missing: $envAccuratePath — run ensure-wanding-settings.ps1"
+    } else {
+        "exists (AOL fallback for python/main.py)"
+    }
+    $envAccurateParseOk = $false
+    if ($envAccurateOk) {
+        $bytes = [System.IO.File]::ReadAllBytes($envAccuratePath)
+        $hasBom = ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF)
+        if ($hasBom) {
+            $envAccurateDetail = "UTF-8 BOM present — python-dotenv reads key as \ufeffAOL_ACCESS_TOKEN; re-run ensure-wanding-settings.ps1"
+        }
+        else {
+            $pythonExe = Join-Path $Install "vendor\python-wanding\python.exe"
+            if (Test-Path -LiteralPath $pythonExe) {
+                $pyOut = & $pythonExe -c "from dotenv import dotenv_values; v=dotenv_values(r'$envAccuratePath'); print(len(v.get('AOL_ACCESS_TOKEN') or ''))" 2>&1
+                $tokenLen = 0
+                if ($pyOut -match '^\d+$') { $tokenLen = [int]$pyOut }
+                $envAccurateParseOk = ($tokenLen -gt 100)
+                if (-not $envAccurateParseOk) {
+                    $envAccurateDetail = "exists but AOL_ACCESS_TOKEN not parsed (len=$tokenLen)"
+                }
+                else {
+                    $envAccurateDetail = "exists; AOL_ACCESS_TOKEN parsed (len=$tokenLen)"
+                }
+            }
+            else {
+                $envAccurateParseOk = -not $hasBom
+            }
+        }
+    }
+    $checks.Add([pscustomobject]@{
+        layer  = "files"
+        id     = "quotation/vendor/wanding/.env.accurate"
+        ok     = ($envAccurateOk -and $envAccurateParseOk)
+        detail = $envAccurateDetail
+    })
+
     foreach ($name in $Manifest.mcp_servers.PSObject.Properties.Name) {
         $spec = $Manifest.mcp_servers.$name
         if (-not $spec.required_paths) { continue }
