@@ -77,6 +77,11 @@ def dispatch(tool: str, params: dict[str, Any]) -> Any:
 
         return handle_ask_clarification(params)
 
+    if tool == "get_product_price_tiers":
+        from quotation.price_tiers_dispatch import handle_get_product_price_tiers
+
+        return handle_get_product_price_tiers(params)
+
     raise ValueError(f"Unknown tool: {tool}")
 
 

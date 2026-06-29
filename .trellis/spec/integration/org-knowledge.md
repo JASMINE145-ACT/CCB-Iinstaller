@@ -2,7 +2,7 @@
 
 > Shared Markdown knowledge for CCB-Wanding (~10 staff). **Center** org aioncore holds docs; employee desktop keeps **local** aioncore for chat and `/tasks`.
 
-**Status:** Implemented 2026-06-11; **VPS production 2026-06-19** (`67.216.206.3:13401`, `aionorg.service`). **Phase 0 login linkage** shipped 2026-06-19 — see **[`org-knowledge-phase0-rollout.md`](./org-knowledge-phase0-rollout.md)**. **Unified org SSO** shipped + **pilot verified 2026-06-22** — see **[`unified-org-sso-rollout.md`](./unified-org-sso-rollout.md)** (`verify-sso-jit.ps1` PASS).
+**Status:** Implemented 2026-06-11; **VPS production 2026-06-19** (`67.216.206.3:13401`, `aionorg.service`). **Router rewire + VPS smoke 2026-06-27** — org `/api/org-knowledge` returns **401** without JWT (was 404 when crate existed but `aionui-app` router omitted merge). **Phase 0 login linkage** shipped 2026-06-19 — see **[`org-knowledge-phase0-rollout.md`](./org-knowledge-phase0-rollout.md)**. **Unified org SSO** shipped + **pilot verified 2026-06-22** — see **[`unified-org-sso-rollout.md`](./unified-org-sso-rollout.md)** (`verify-sso-jit.ps1` PASS). **Agent write path MCP wired 2026-06-28** — `append_business_rule` in `quotation-server/dist/index.js`; shadow md **read-only** for agents (task [`06-28-org-knowledge-agent-write-path`](../../tasks/06-28-org-knowledge-agent-write-path/)). Deploy: [`scripts/org-phase0/vps-org-api-deploy-checklist.md`](../../../scripts/org-phase0/vps-org-api-deploy-checklist.md).
 
 ---
 
@@ -46,6 +46,9 @@ flowchart LR
 | Base URL | `getBaseUrl()` → `__backendPort` | `getOrgBaseUrl()` → `__orgServerUrl` |
 | Token key | `aionui-session-token` | `aionui-org-session-token` |
 | HTTP module | `httpBridge.ts` | `orgHttpBridge.ts` (must **not** import `getSessionToken`) |
+| Electron dev renderer → org VPS | **Must not** use renderer `fetch()` cross-origin (`localhost:5173` → VPS) | Use **`orgRawFetch` / `orgHttpRequest`** → main-process **`org-http-request` IPC** (2026-06-27) |
+| Org auth verify | `OrgAuthContext` → `GET {ORG}/api/auth/user` via `orgRawFetch` | Same JWT as unified login; do not clear token on network/CORS errors |
+| Org knowledge REST | `ipcBridge.orgKnowledge.*` → **`orgHttpGet/Put/Post`** → org VPS | **Not** local `httpGet` to `__backendPort` |
 | Python token file | — | `%APPDATA%/AionUi/aionui/org-session.token` (dev: `AionUi-Dev/aionui/…`) |
 | Org URL config | — | env `ORG_SERVER_URL` or `%APPDATA%/AionUi/org-server.json` |
 
@@ -53,7 +56,7 @@ Independent login/logout in Phase 0; 401 on one domain clears only that domain's
 
 **Phase 0 (2026-06-19):** After local login success, AionUI silently org-logins when `org-server.json` is configured (`orgAuthLogin.ts`). Employee org account on VPS must use **same username/password** as local login. Superseded by unified SSO when `sso.env` is configured.
 
-**Agent write path (2026-06-19):** Quotation MCP exposes `append_business_rule` for confirmed chat-driven updates to shared `wanding_business_knowledge`. The tool reads center version, appends a dated rule block, and PUTs with `expected_version`; quotation-agent must ask for user confirmation before calling with `confirmed=true`.
+**Agent write path (2026-06-19; MCP wired 2026-06-28):** Quotation MCP exposes `append_business_rule` for confirmed chat-driven updates to shared `wanding_business_knowledge`. The tool reads center version, appends a dated rule block, and PUTs with `expected_version`; quotation-agent must ask for user confirmation before calling with `confirmed=true`. **Agents must not Edit/Write the local shadow md** — shadow is read-only; delete/full edit → `#/org-knowledge` UI.
 
 ---
 
@@ -91,14 +94,30 @@ WS event: `org-knowledge.updated` `{ slug, version }`.
 | File | Role |
 |------|------|
 | `python/admin/org_knowledge_client.py` | `load_doc_content()` API → file fallback |
+| `python/admin/org_http_csrf.py` | VPS double-submit CSRF bootstrap (`GET /api/auth/status` → `aionui-csrf-token` + `x-csrf-token` on PUT) |
 | `python/main.py` | Selection context knowledge |
 | `python/inventory/services/llm_selector.py` | Tier 0 org API before Neon/file |
 | `python/inventory/services/wanding_fuzzy_matcher.py` | Field-matching rules from org API |
+| `python/admin/org_knowledge_dispatch.py` | `append_business_rule` confirmation + write dispatch |
+| `mcp_servers/quotation-server/dist/index.js` | **ListTools** must expose `append_business_rule` (wired 2026-06-28) |
 | `mcp_servers/quotation-server/dist/python-spawner.js` | Passes `ORG_SERVER_URL`, `ORG_SESSION_TOKEN_FILE` |
 
 Env (MCP): `ORG_SERVER_URL`, `ORG_SESSION_TOKEN_FILE` (default `%APPDATA%/AionUi/aionui/org-session.token`; Python also reads `org-server.json`).
 
-### Quotation MCP write tool
+### Dev / smoke: 401 is expected (not a quotation bug)
+
+| Context | Behavior |
+|---------|----------|
+| No org JWT / expired token / dev not logged in | `GET /api/org-knowledge/*` → **401** — smoke **PASS** (auth enforced) |
+| Python `_api_get` | Catches HTTPError → logs warning → `None` (no MCP crash) |
+| `load_doc_content()` | Org API first → **`fallback_path` local shadow md** when API unavailable |
+| Quotation **price match** | Uses `org_price_client` / bundled seed — **independent** of org knowledge API |
+
+401 means **center knowledge was not fetched** (may be stale vs VPS). It does **not** mean HDPE match is broken. For center-latest content + agent `append_business_rule`: dev login AionUI (Phase 0 linkage or unified SSO) so `%APPDATA%/AionUi/aionui/org-session.token` is valid.
+
+Cross-ref triage table: [`price-library.md`](./price-library.md) § Dev / smoke: expected degradations vs real bugs.
+
+---
 
 | Tool | Role |
 |------|------|
@@ -108,8 +127,34 @@ Contract:
 
 - Without `confirmed=true`, returns `requires_confirmation: true` and does **not** write.
 - With `confirmed=true`, requires org URL + org token and writes through `PUT /api/org-knowledge/{slug}`.
+- **Mutating writes (2026-06-29):** Python client must send VPS **CSRF** per [`price-library.md`](./price-library.md) § VPS CSRF contract — `GET /api/auth/status` seeds `aionui-csrf-token` cookie; `PUT` sends `Authorization: Bearer` + `x-csrf-token`. Bearer alone → **403 `CSRF_INVALID`**.
 - Uses optimistic concurrency (`expected_version`); conflicts must be retried by re-reading center content, not force-overwritten.
-- Used only when user explicitly asks to add/save a shared business rule. Routine quotation matching still uses `match_quotation` + local shadow Read.
+- Used only when user explicitly asks to add/save a shared business rule. Routine quotation matching still uses `match_quotation` + local shadow **Read** (never shadow Write).
+- **Delete / full-doc edit:** not available via agent tool — use `#/org-knowledge` editor (PUT center); shadow resyncs on login/save/WS/interval.
+
+### Preview UX — agent must not stop after `confirmed=false` (2026-06-29)
+
+**Symptom:** Agent calls `append_business_rule` with `confirmed=false`, tool returns `requires_confirmation: true` + `rule_text`, then the chat **ends with no visible preview** — user sees only「先 confirmed=false 让你预览」and thinks the session「戛然而止」.
+
+**Root cause:** MCP confirmation gate is intentional (wait for user「确认」before `confirmed=true`), but L1 lacked a post-tool synthesis rule like `get_product_price_tiers` has for price tables.
+
+**Normative agent behavior after preview tool:**
+
+| Step | Agent |
+|------|-------|
+| 1 | `append_business_rule` with `confirmed=false` |
+| 2 | **Same turn** — assistant text: full markdown of `rule_text` +「将写入组织知识库，是否确认？」 |
+| 3 | User replies「确认」/「同意」 |
+| 4 | `append_business_rule` with `confirmed=true` (needs org token) |
+
+**Shipped:** `ccb-installer/config/agents/quotation-agent.md` § `append_business_rule` 预览后（硬约束）+ §回复形态 + §硬禁止.
+
+**Deploy verify:**
+
+```powershell
+.\ccb-installer\scripts\deploy-seed-agents.ps1 -ForceMd
+# New quotation-agent Guid session → trigger append preview → must see full rule markdown + confirm question
+```
 
 ---
 
@@ -138,6 +183,22 @@ For slug `wanding_business_knowledge`, employee desktops keep the local Agent Re
 
 This preserves the stable Agent Read path while making center edits propagate to online employees without requiring re-login.
 
+**Shadow is read-only for agents (2026-06-28):** `quotation-agent` may **Read** the shadow path only. **Do not** Edit/Write/Bash the shadow file for shared updates — that changes one machine only and may be overwritten on the next sync. Append shared rules via MCP `append_business_rule`; delete or full-doc edit via `#/org-knowledge` UI.
+
+---
+
+## Common mistakes
+
+| Wrong | Correct |
+|-------|---------|
+| Agent Edit/Write `vendor/.../wanding_business_knowledge.md` for fleet update | `#/org-knowledge` Save (delete/full edit) or MCP `append_business_rule` (append only) |
+| Python has `append_business_rule` in `tool_dispatch` → assume MCP exposes it | Verify `mcp_servers/quotation-server/dist/index.js` ListTools + live `vendor/mcp-servers/.../index.js` after `sync-dev-wanding-vendor.ps1` |
+| Changed `ccb-installer/config/agents/quotation-agent.md` only | Also `deploy-seed-agents.ps1 -ForceMd` — default deploy skips existing user `.md` |
+| `#/org-knowledge` shows new content → assume quotation agent already has it | Shadow sync on login/WS/interval; **new MCP conversation** after vendor sync |
+| `append_business_rule` for delete/test cleanup | Tool is **append-only**; use UI PUT for removals |
+| `append_business_rule` → **403 CSRF_INVALID** | Re-login does **not** fix — MCP PUT needs CSRF bootstrap (`org_http_csrf.py`); sync `python/` → vendor after fix |
+| Re-login to fix `append_business_rule` 403 | 403 = missing CSRF on PUT, not expired JWT (GET would still work); deploy `org_knowledge_client` + `org_http_csrf.py` |
+
 ---
 
 ## Deploy checklist
@@ -147,6 +208,9 @@ This preserves the stable Agent Read path while making center edits propagate to
 3. **Windows center / dev:** `scripts/start-org-aioncore.ps1` (`0.0.0.0:13401 --cors-any`).
 4. Employee: `org-server.json` → `http://<center-ip>:13401`; create matching org user on VPS; **one local login** (Phase 0 linkage writes org token — separate org UI login optional).
 5. CORS smoke: `fetch(ORG_SERVER_URL + '/api/org-knowledge', { headers: { Authorization: 'Bearer ' + orgToken }, credentials: 'omit' })` → 200.
+6. **Dev agent write path:** after repo changes to MCP or `quotation-agent.md` → `sync-dev-wanding-vendor.ps1` + `deploy-seed-agents.ps1 -ForceMd` → restart dev + **new quotation conversation**.
+
+**Electron dev (Mixing, `localhost:5173`):** Browser CORS blocks renderer `fetch` to org VPS unless VPS runs `--cors-any`. **Do not rely on CORS in dev** — AionUI routes org login, org auth verify, and org knowledge REST through main-process IPC (`orgHttpProxy.ts`, channel `org-http-request`). Symptom: main login OK but `#/org-knowledge` shows「请从主登录页登录」→ `OrgAuthContext` still used renderer `fetch` (fixed 2026-06-27). See [`dev-sync-playbook.md`](./dev-sync-playbook.md) §4.8.
 
 **Phase 0 step-by-step (VPS + desktop, verified):** [`org-knowledge-phase0-rollout.md`](./org-knowledge-phase0-rollout.md).
 
@@ -170,9 +234,23 @@ cargo test -p aionui-auth sso -- --test-threads=1
 
 cd D:\Projects\claude-code-best\python
 python -m unittest admin.test_org_knowledge_client
+python -m unittest tests.test_quotation_mcp_tool_registry
 
 cd D:\Projects\aionui-src
 bun test tests/unit/common-auth/orgAuthLogin.test.ts tests/unit/common-adapter/orgHttpBridge.test.ts
 ```
 
+| Check | Command | Pass |
+|-------|---------|------|
+| MCP registry | `python -m unittest tests.test_quotation_mcp_tool_registry` | `append_business_rule` in repo + vendor `index.js` |
+| Org knowledge CSRF | `python -m unittest admin.test_org_http_csrf admin.test_org_knowledge_client` | bootstrap + PUT header |
+| Append dispatch | `tests.test_dispatch_error_codes` (append tests) | `requires_confirmation` without `confirmed=true` |
+| Live vendor | grep `append_business_rule` in `D:\CCB-Wanding\vendor\mcp-servers\quotation-server\dist\index.js` | present after `sync-dev-wanding-vendor.ps1` |
+
 Cross-reference: org login RBAC in [`aioncore-work-tasks.md`](./aioncore-work-tasks.md) § Desktop HTTP fetch.
+
+**Recorded:** 2026-06-28 — MCP `append_business_rule` wired; agent shadow read-only; task [`06-28-org-knowledge-agent-write-path`](../../tasks/06-28-org-knowledge-agent-write-path/closure-2026-06-28.md).
+
+**Recorded:** 2026-06-29 — MCP `append_business_rule` PUT CSRF fix (`org_http_csrf.py` + `org_knowledge_client._api_json`); aligns with `price-library.md` § VPS CSRF contract.
+
+**Recorded:** 2026-06-29 — L1 hard constraint: after `confirmed=false` preview, quotation-agent must same-turn markdown-show `rule_text` + ask confirm (fixes empty-reply「戛然而止」); see § Preview UX.

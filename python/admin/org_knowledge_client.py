@@ -1,6 +1,7 @@
 """HTTP client for organization knowledge docs (center aioncore)."""
 from __future__ import annotations
 
+import http.cookiejar
 import json
 import logging
 import os
@@ -10,6 +11,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote
+
+from admin.org_http_csrf import ORG_CSRF_HEADER_NAME, ORG_CSRF_STATUS_PATH, bootstrap_org_csrf, build_cookie_opener
 
 logger = logging.getLogger(__name__)
 
@@ -105,18 +108,27 @@ def _api_json(method: str, path: str, payload: dict[str, Any]) -> dict[str, Any]
     if not token:
         raise RuntimeError("ORG_SESSION_TOKEN or ORG_SESSION_TOKEN_FILE is not configured")
 
+    jar = http.cookiejar.CookieJar()
+    opener = build_cookie_opener(jar)
+    try:
+        csrf_token = bootstrap_org_csrf(base, jar, opener_factory=lambda _: opener)
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, RuntimeError) as e:
+        raise RuntimeError(f"org knowledge API CSRF bootstrap GET {ORG_CSRF_STATUS_PATH} failed: {e}") from e
+
+    headers = {
+        "Accept": "application/json",
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        ORG_CSRF_HEADER_NAME: csrf_token,
+    }
     req = urllib.request.Request(
         f"{base}{path}",
         data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
-        headers={
-            "Accept": "application/json",
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json",
-        },
+        headers=headers,
         method=method,
     )
     try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
+        with opener.open(req, timeout=20) as resp:
             data = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
         raw = e.read().decode("utf-8", errors="replace")

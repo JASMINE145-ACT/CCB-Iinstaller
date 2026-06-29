@@ -1,19 +1,55 @@
 import { existsSync } from "fs";
-import { resolve } from "path";
-function findProjectRoot() {
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+const __dirname = dirname(fileURLToPath(import.meta.url));
+function hasPythonMain(root) {
+    return existsSync(resolve(root, "python", "main.py"));
+}
+function resolveBundledWandingRoot() {
+    const distDir = __dirname;
+    const candidates = [];
+    if (process.env.CCB_INSTALL_DIR) {
+        candidates.push(resolve(process.env.CCB_INSTALL_DIR, "vendor", "wanding"));
+    }
+    // vendor/mcp-servers/quotation-server/dist -> vendor/wanding
+    candidates.push(resolve(distDir, "..", "..", "..", "wanding"));
+    // dev repo: mcp_servers/quotation-server/dist -> repo root (python/main.py)
+    candidates.push(resolve(distDir, "..", "..", "..", ".."));
+    for (const candidate of candidates) {
+        if (hasPythonMain(candidate)) {
+            return resolve(candidate);
+        }
+    }
+    return null;
+}
+function findProjectRootFromCwd() {
     const marker = "CLAUDE.md";
     let dir = process.cwd();
     while (dir !== resolve(dir, "..")) {
-        if (existsSync(resolve(dir, marker))) {
+        if (existsSync(resolve(dir, marker)) && hasPythonMain(dir)) {
             return dir;
         }
         dir = resolve(dir, "..");
     }
     return process.cwd();
 }
-const PROJECT_ROOT = process.env.CCB_PROJECT_ROOT
-    ? resolve(process.env.CCB_PROJECT_ROOT)
-    : findProjectRoot();
+function resolveProjectRoot() {
+    const envRoot = process.env.CCB_PROJECT_ROOT
+        ? resolve(process.env.CCB_PROJECT_ROOT)
+        : null;
+    if (envRoot && hasPythonMain(envRoot)) {
+        return envRoot;
+    }
+    const bundled = resolveBundledWandingRoot();
+    if (bundled) {
+        return bundled;
+    }
+    if (envRoot) {
+        return envRoot;
+    }
+    return findProjectRootFromCwd();
+}
+const PROJECT_ROOT = resolveProjectRoot();
 const DATA_DIR = process.env.DATA_DIR
     ? resolve(process.env.DATA_DIR)
     : resolve(PROJECT_ROOT, "data");

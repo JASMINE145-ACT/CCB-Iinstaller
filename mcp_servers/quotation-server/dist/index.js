@@ -106,6 +106,33 @@ server.setRequestHandler(ListToolsRequestSchema, () => ({
                 },
             },
         },
+        {
+            name: "get_product_price_tiers",
+            description: "List all non-zero price tiers for one product code from org price library (factory/A/B/C/D/E/LOCAL/RUCIKA/PE etc.). Use when user asks what price types exist, compares tiers, or questions tier meaning. Agent MUST Read vendor data.Md (same turn) before explaining labels — per-source semantics differ (RUCIKA price_d ≠ 青山). Returns tiers[] + product_type + data_md_path.",
+            inputSchema: {
+                type: "object",
+                properties: {
+                    code: { type: "string", description: "Material / product code (aliases: material_code, product_code)." },
+                    price_library_path: { type: "string", description: "Optional local xlsx override; omit to use org API." },
+                },
+                required: ["code"],
+            },
+        },
+        {
+            name: "append_business_rule",
+            description: "Append a confirmed business rule to the shared organization knowledge doc (center VPS wanding_business_knowledge). Without confirmed=true returns requires_confirmation only. Do NOT edit the local shadow md file for shared updates.",
+            inputSchema: {
+                type: "object",
+                properties: {
+                    rule_text: { type: "string", description: "Rule text to append (aliases: rule, content, text)." },
+                    confirmed: { type: "boolean", description: "Must be true after user confirms the shared update." },
+                    section: { type: "string", description: "Optional markdown section heading (default: 业务规则补充)." },
+                    reason: { type: "string", description: "Optional note stored with the rule block." },
+                    slug: { type: "string", description: "Org knowledge slug (default: wanding_business_knowledge)." },
+                },
+                required: ["rule_text"],
+            },
+        },
     ],
 }));
 function asRecord(value) {

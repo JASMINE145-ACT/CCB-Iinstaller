@@ -12,9 +12,7 @@ function parseLastJsonLine(stdout) {
 export async function callPythonTool(tool, params) {
     return new Promise((resolveResult) => {
         const pythonCmd = process.env.PYTHON_EXECUTABLE ?? (process.platform === "win32" ? "python" : "python3");
-        const proc = spawn(pythonCmd, [config.pythonEntry], {
-            cwd: config.projectRoot,
-            env: {
+        const spawnEnv = {
                 ...process.env,
                 PYTHONIOENCODING: process.env.PYTHONIOENCODING ?? "utf-8",
                 PYTHONUTF8: process.env.PYTHONUTF8 ?? "1",
@@ -26,11 +24,20 @@ export async function callPythonTool(tool, params) {
                 PRICE_LIBRARY_PATH: process.env.PRICE_LIBRARY_PATH ?? config.wandingPriceLib,
                 MAPPING_TABLE_PATH: process.env.MAPPING_TABLE_PATH ?? config.mappingTable,
                 WANDING_BUSINESS_KNOWLEDGE_PATH: process.env.WANDING_BUSINESS_KNOWLEDGE_PATH ?? config.businessKnowledge,
-                AOL_ACCESS_TOKEN: process.env.AOL_ACCESS_TOKEN ?? "",
-                AOL_DATABASE_ID: process.env.AOL_DATABASE_ID ?? "",
-                AOL_SIGNATURE_SECRET: process.env.AOL_SIGNATURE_SECRET ?? "",
                 AOL_API_BASE_URL: process.env.AOL_API_BASE_URL ?? "https://account.accurate.id",
-            },
+            };
+        for (const key of ["AOL_ACCESS_TOKEN", "AOL_DATABASE_ID", "AOL_SIGNATURE_SECRET"]) {
+            const value = process.env[key]?.trim();
+            if (value) {
+                spawnEnv[key] = value;
+            }
+            else {
+                delete spawnEnv[key];
+            }
+        }
+        const proc = spawn(pythonCmd, [config.pythonEntry], {
+            cwd: config.projectRoot,
+            env: spawnEnv,
             stdio: ["pipe", "pipe", "pipe"],
         });
         let stdout = "";

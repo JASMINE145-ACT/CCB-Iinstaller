@@ -1,0 +1,39 @@
+{
+  "id": "org-knowledge-agent-write-path",
+  "name": "06-28-org-knowledge-agent-write-path",
+  "title": "Org knowledge agent write path — MCP + prompt fix",
+  "description": "Close gap: append_business_rule in Python but missing from quotation MCP ListTools; quotation-agent only knew local shadow Read path. Register MCP tool, forbid shadow Edit/Write, document #/org-knowledge for delete/full edit.",
+  "status": "completed",
+  "dev_type": "implementation",
+  "scope": "org-knowledge-agent-write",
+  "package": "python+mcp+ccb-installer",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-28",
+  "completedAt": "2026-06-28",
+  "branch": null,
+  "base_branch": "main",
+  "relatedFiles": [
+    ".trellis/spec/integration/org-knowledge.md",
+    "mcp_servers/quotation-server/dist/index.js",
+    "ccb-installer/config/agents/quotation-agent.md",
+    "python/admin/org_knowledge_client.py",
+    "python/admin/org_knowledge_dispatch.py"
+  ],
+  "notes": "2026-06-28: Completed — MCP append_business_rule wired; quotation-agent shadow read-only; vendor sync + deploy-seed-agents -ForceMd applied.",
+  "meta": {
+    "symptom": "Agent deleted test1 from local shadow; remote unchanged; shadow may resync",
+    "fixes": [
+      "Register append_business_rule in quotation-server MCP",
+      "quotation-agent: shadow read-only; append via MCP; delete via #/org-knowledge",
+      "Registry unittest + spec update"
+    ],
+    "verification": {
+      "code_review": "PASS",
+      "unittest": "4/4 test_quotation_mcp_tool_registry + append dispatch",
+      "vendor_sync": "sync-dev-wanding-vendor.ps1 index.js",
+      "agent_deploy": "deploy-seed-agents.ps1 -ForceMd quotation-agent.md"
+    }
+  }
+}

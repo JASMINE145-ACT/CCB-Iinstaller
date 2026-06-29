@@ -101,6 +101,16 @@ $checks = @(
         Label = "price_library_cleaned"
         Repo  = Join-Path $RepoRoot "data\price_library_cleaned_2026_05_15.xlsx"
         Live  = Join-Path $dataDst "price_library_cleaned_2026_05_15.xlsx"
+    },
+    @{
+        Label = "org_knowledge_client.py"
+        Repo  = Join-Path $RepoRoot "python\admin\org_knowledge_client.py"
+        Live  = Join-Path $pyDst "admin\org_knowledge_client.py"
+    },
+    @{
+        Label = "org_http_csrf.py"
+        Repo  = Join-Path $RepoRoot "python\admin\org_http_csrf.py"
+        Live  = Join-Path $pyDst "admin\org_http_csrf.py"
     }
 )
 foreach ($c in $checks) {

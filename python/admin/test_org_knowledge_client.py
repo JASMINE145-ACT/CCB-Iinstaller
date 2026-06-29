@@ -55,6 +55,95 @@ class OrgKnowledgeClientTests(unittest.TestCase):
         self.assertEqual(doc1["content"], "from api")
         self.assertEqual(doc2["content"], "from api")
 
+    def test_api_json_put_bootstraps_csrf_and_sends_header(self) -> None:
+        calls: list[tuple[str, dict[str, str]]] = []
+
+        class FakeResp:
+            def __init__(self, body: dict):
+                self._body = json.dumps(body).encode("utf-8")
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self):
+                return self._body
+
+        class FakeOpener:
+            def open(self, req, timeout=20):
+                headers = {k.lower(): v for k, v in req.header_items()}
+                calls.append((req.get_method(), headers))
+                if req.get_method() == "PUT":
+                    return FakeResp({"data": {"version": 3, "content": "updated"}})
+                return FakeResp({})
+
+        with mock.patch.dict(
+            os.environ,
+            {"ORG_SERVER_URL": "http://127.0.0.1:13401", "ORG_SESSION_TOKEN": "jwt"},
+            clear=True,
+        ):
+            with mock.patch.object(okc, "bootstrap_org_csrf", return_value="csrf-xyz") as mock_bootstrap:
+                with mock.patch.object(okc, "build_cookie_opener", return_value=FakeOpener()):  # type: ignore[arg-type]
+                    result = okc.update_doc(
+                        "wanding_business_knowledge",
+                        title="t",
+                        content="body",
+                        expected_version=2,
+                    )
+        mock_bootstrap.assert_called_once_with(
+            "http://127.0.0.1:13401",
+            mock.ANY,
+            opener_factory=mock.ANY,
+        )
+        self.assertEqual(result["version"], 3)
+        self.assertEqual(len(calls), 1)
+        method, headers = calls[0]
+        self.assertEqual(method, "PUT")
+        self.assertEqual(headers.get("authorization"), "Bearer jwt")
+        self.assertEqual(headers.get("x-csrf-token"), "csrf-xyz")
+
+    def test_append_business_rule_put_path_uses_update_doc(self) -> None:
+        put_payload = json.dumps({"data": {"version": 5, "content": "updated", "title": "Wanding"}}).encode("utf-8")
+
+        class FakeResp:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self):
+                return put_payload
+
+        class FakeOpener:
+            def open(self, req, timeout=20):
+                return FakeResp()
+
+        with mock.patch.dict(
+            os.environ,
+            {"ORG_SERVER_URL": "http://127.0.0.1:13401", "ORG_SESSION_TOKEN": "jwt"},
+            clear=True,
+        ):
+            with mock.patch.object(
+                okc,
+                "get_doc",
+                return_value={
+                    "slug": "wanding_business_knowledge",
+                    "content": "# base\n",
+                    "version": 4,
+                    "title": "Wanding",
+                    "source": "org-api",
+                },
+            ):
+                with mock.patch.object(okc, "bootstrap_org_csrf", return_value="csrf-xyz") as mock_bootstrap:
+                    with mock.patch.object(okc, "build_cookie_opener", return_value=FakeOpener()):  # type: ignore[arg-type]
+                        result = okc.append_business_rule("默认 A 系列白管", reason="test")
+        mock_bootstrap.assert_called_once()
+        self.assertEqual(result["previous_version"], 4)
+        self.assertEqual(result["version"], 5)
+
 
 if __name__ == "__main__":
     unittest.main()
