@@ -18,7 +18,7 @@
 | VPS smoke | `source env.local && bash scripts/org-phase0/vps-smoke.sh` |
 | VPS create employee | Upload `env.local` → VPS `/root/org-phase0.env`, then `source /root/org-phase0.env && bash vps-create-employee.sh` |
 | Windows verify | `.\scripts\org-phase0\verify-desktop.ps1 -Dev` |
-| Dev login test (no bypass) | `.\scripts\org-phase0\start-aionui-dev-org-test.ps1` |
+| Dev login test (no bypass) | `.\ccb-installer\scripts\start-dev-full.ps1`（`org-phase0/start-aionui-dev-org-test.ps1` 已退役 → redirect） |
 | Fresh VPS | `scripts/deploy-org-aioncore-vps.ps1` + `scripts/vps-org-aioncore-bootstrap.sh` (now promotes admin→manager after seed) |
 
 **Secrets storage:** Admin/employee passwords live **only** in gitignored files — **never** in this spec or any tracked doc.
@@ -306,11 +306,11 @@ See also: `docs/org-knowledge-deploy.md` §12; `openspec/changes/unified-org-sso
 | **Route** | `#/org-knowledge` → `OrgKnowledgePage` (list, editor, history, revert) |
 | **Quick check** | DevTools: `window.__orgServerUrl` should match center URL |
 
-**Verified:** Employee dev machine — user confirmed entry visible after kill-all + `start-aionui-dev-org-test.ps1`.
+**Verified:** Employee dev machine — user confirmed entry visible after kill-all + canonical dev launcher (`start-dev-full.ps1`; legacy `start-aionui-dev-org-test.ps1` redirects).
 
 **Edit flow:** Open entry → select slug → edit markdown → Save (`PUT` with `expected_version`) → center DB updates; other desktops need re-login shadow sync (§4.4).
 
-**Launcher:** `scripts/org-phase0/start-aionui-dev-org-test.ps1` ensures dev `org-server.json` exists and unsets bypass.
+**Launcher:** `ccb-installer/scripts/start-dev-full.ps1` (org SSO + bootstrap + route-b). Legacy `scripts/org-phase0/start-aionui-dev-org-test.ps1` → redirect only.
 
 ---
 
@@ -328,7 +328,7 @@ See also: `docs/org-knowledge-deploy.md` §12; `openspec/changes/unified-org-sso
 | Org menu hidden | Sider collapsed | Look for book icon below「工作任务」; expand sider for「组织知识库」text |
 | Org menu hidden | Old Electron build without org-knowledge UI | Use current `aionui-src` dev or rebuild installer |
 | Linkage never runs | `AIONUI_BYPASS_AUTH=1` | Turn off bypass for test |
-| Linkage never runs | `org-server.json` **UTF-8 BOM** → preload parse 失败 | 重写为 UTF-8 **无 BOM**；用 `start-aionui-dev-org-test.ps1` 创建 |
+| Linkage never runs | `org-server.json` **UTF-8 BOM** → preload parse 失败 | 重写为 UTF-8 **无 BOM**；用 `start-dev-full.ps1` preflight 创建 |
 | UI「正在处理中」+ 空白聊天 | WS 丢失 `turn.completed`；后端已 finish | Ctrl+R 临时恢复；**fix:** runtime reconcile（`conversationRuntimeReconcile.ts`） |
 | 看不到旧报价会话 | 登录从 `system_default_user` 换成 `yjc` | 预期：用户隔离；旧数据仍在 DB 旧 user_id 下 |
 | 本地无 yjc 用户 | 仅 bypass 时 seed 了 admin | 在本机 `%APPDATA%\AionUi-Dev\aionui\aionui-backend.db` 建 yjc 或管理端创建 |

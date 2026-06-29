@@ -332,6 +332,57 @@ Rules:
 - `warmupConversation(conversation_id)` is the single renderer-side warmup coordination point. Reuse its promise instead of starting parallel initialization.
 - Guid initial-message send must wait on `warmupConversation()` first. If page auto-warmup is already in flight, this reuses the same promise and avoids racing `session/new`.
 - **Subsequent user sends** (not Guid initial): `AcpSendBox` calls `warmupConversation(conversation_id, { force: true })` before `POST .../messages` so idle-killed agents do not reuse a stale `acp_session_id`. Do **not** add `{ force: true }` to `useAcpInitialMessage` — that races page auto-warmup.
+
+### Post-idle replay backflow guard (2026-06-29, task `06-19-quotation-behavior-backflow`)
+
+Warmup/resume can push **historical** assistant chunks over WS (`replaySessionHistory` / `loadSession`). Without filtering, `composeMessage` merges them into the current bubble (greeting + prior table + new reply).
+
+| Piece | Path |
+|---|---|
+| Wake window state | `runtime/postIdleWakeWindow.ts` |
+| Stale stream filter | `runtime/staleTurnStreamFilter.ts` |
+| Consumer | `platforms/acp/useAcpMessage.ts` — drop at `handleResponseMessage` entry |
+| Send path producer | `AcpSendBox.tsx` — `beginPostIdleWakeWindow` → `acceptPostIdleWakeTurn` |
+| Mount warmup guard | `useAcpMessage.ts` — `beginPostIdleWakeWindow` before auto-warmup; `scheduleWarmupReplayGuardEnd(8s)` |
+| Merge guard | `Messages/hooks.ts` — refuse text merge when `turn_id` differs |
+| `turn_id` on messages | `chatLib.ts#transformMessage` via `attachStreamTurnId` |
+
+Lifecycle on send:
+
+```text
+beginPostIdleWakeWindow()     → drop turn-scoped WS (pre-accept)
+warmupConversation(force)     → replay may arrive; still dropped
+sendMessage → turn_id
+acceptPostIdleWakeTurn(id)    → accept matching turn_id; allow missing turn_id live chunks
+finish / error                → clearPostIdleWakeWindow()
+```
+
+Log marker: `[useAcpMessage] dropped stale turn stream message`.
+
+SDK optional: `loadSession` skips client replay when `_meta.aionui.suppressSessionReplay === true` (`ccb-installer/patches/aionui-acp/acp-agent.js`). Renderer filter remains primary until aioncore wires meta.
+
+#### Deploy record (2026-06-29, local dev slot)
+
+| Layer | Source | Live target | Verified |
+|---|---|---|---|
+| Renderer filter | `aionui-src` (`staleTurnStreamFilter`, `useAcpMessage`, `hooks.ts`, `chatLib.ts`) | Vite HMR `localhost:5173` | unit tests 14/14; **restart dev** after structural import |
+| CCB transcript trim | `D:\claude-code-B\src\services\acp\sessionTranscript.ts` | `D:\CCB-Wanding\dist\chunk-*.js` | `trimMessagesToCompleteTurnBoundary` in dist chunk |
+| acp-agent patch | `ccb-installer/patches/aionui-acp/acp-agent.js` | bundled + `%APPDATA%\AionUi{,-Dev}\...\acp-agent.js` | markers + hash `A0F72FAF87061BEE` |
+
+Deploy commands (see [`../integration/dev-sync-playbook.md`](../integration/dev-sync-playbook.md) §4.1.1):
+
+```powershell
+cd D:\claude-code-B; bun run build
+.\ccb-installer\scripts\deploy-claude-code-b-to-wanding.ps1
+# force acp-agent (sync alone may keep stale bundled copy)
+# ... §4.1.1 block ...
+Get-Process aioncore,aionui-web -ErrorAction SilentlyContinue | Stop-Process -Force
+.\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap
+```
+
+Operator smoke (**new conversation**): `你好` → `查询直接50报价` → `很好` — third bubble must not concatenate greeting + prior table.
+
+**Verified (2026-06-30):** Operator dev smoke — user report fix likely holds after full dev restart. Fleet ship still requires full NSIS repack (§ Deploy record above).
 - **Specialist profile on resume (2026-06-29):** Every `warmupConversation` (including `{ force: true }`) calls `stageCcbAssistantProfileFromConversation` first. That resolves profile id from `conversation.extra` (`ccb_assistant_profile_id`, `preset_assistant_id`, `ccb_agent_id`, `acp_meta` aliases) and, when empty, infers from recent `acp_tool_call` history (`mcp__quotation__*` → `quotation-agent`). Stages to `.aionui-next-assistant-profile.json` (300s TTL) before `/warmup`. Without this, idle reopen of 万鼎报价专家 drifts to `wande-orchestrator` and CCB blocks business MCP. See [`../integration/agents-unified-model.md`](../integration/agents-unified-model.md) § Specialist session resume.
 - Slash commands are secondary readiness. The page can render while warmup is `preparing`; commands may arrive later through HTTP fetch / `available_commands_update`.
 - For CCB-Wanding, first-message latency is expected to include ACP process spawn, `initialize`, `session/new`, mode/config reconciliation, and command manifest update unless prewarmed.

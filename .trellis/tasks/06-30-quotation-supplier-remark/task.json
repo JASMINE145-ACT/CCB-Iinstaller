@@ -1,0 +1,47 @@
+{
+  "id": "quotation-supplier-remark",
+  "name": "06-30-quotation-supplier-remark",
+  "title": "报价单备注 O 列 — 第三方供应商映射",
+  "description": "出单时若物料编码在固定供应商映射表中有第三方采购供应商（如 HENG XIN），自动写入 VANTSING 报价单 O 列（Catatan/备注）；无映射留空。不含 Accurate 实时查、不按客户维度。",
+  "status": "pending",
+  "dev_type": "implementation",
+  "scope": "python quotation fill + mapping data + quotation-agent SOP",
+  "package": "integration",
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-30",
+  "completedAt": null,
+  "relatedFiles": [
+    "data/supplier_product_mapping.xlsx",
+    "python/quotation/layout.py",
+    "python/quotation/quote_tools.py",
+    "python/quotation/fill_enrich.py",
+    "python/quotation/supplier_mapping.py",
+    "ccb-installer/config/agents/quotation-agent.md",
+    ".trellis/spec/integration/agents-unified-model.md"
+  ],
+  "notes": "业务来源：企微对话 —「有的客户要的产品是供应商里面的，就在备注加上供应商名字」。样例：采购订单明细.xlsx（供应商+物料编码）。价格库无供应商字段。",
+  "meta": {
+    "decisions": {
+      "data_source": "fixed_table_like_po_detail",
+      "remark_scope": "third_party_suppliers_only",
+      "no_mapping": "leave_blank",
+      "remark_column": "VANTSING O / Catatan / 备注 col 15",
+      "out_of_scope": [
+        "accurate_live_vendor_lookup",
+        "per_customer_mapping",
+        "price_library_schema_change"
+      ]
+    },
+    "sample_files": [
+      "c:/Users/m1774/Documents/WXWork/.../采购订单明细.xlsx",
+      "data/price_library_cleaned_2026_05_15.xlsx"
+    ],
+    "phases": [
+      "P0-fill-remark-col",
+      "P1-supplier-mapping-lookup",
+      "P2-agent-sop-and-deploy"
+    ]
+  }
+}

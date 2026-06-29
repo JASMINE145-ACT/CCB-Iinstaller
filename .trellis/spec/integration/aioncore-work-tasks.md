@@ -44,7 +44,7 @@ Self-built aioncore **v0.1.29+** removed legacy `GET/PUT /api/conversations/:id/
 | Rust crate | `crates/aionui-work-tasks/` (mirrors `aionui-cron`) |
 | DB migration | `013_work_tasks.sql`, `014_work_task_roles.sql` |
 | Build script | `scripts/build-aioncore-work-tasks.cmd` (vcvars + cargo) · `scripts/build-aioncore-work-tasks.ps1` |
-| Dev start script | `scripts/start-aionui-dev-work-tasks.ps1` |
+| Dev start script | ~~`scripts/start-aionui-dev-work-tasks.ps1`~~ → **`start-dev-full.ps1`** |
 | Bundled baseline | `AionUi/resources/bundled-aioncore/win32-x64/aioncore.exe` v0.1.27 — **no** work-tasks API |
 | Minimum version (local) | **v0.1.29** self-built (`AionCore/target/release/aioncore.exe`, verified 2026-06-15) |
 
@@ -177,7 +177,7 @@ Temporary desktop dev escape hatch while org-login E2E is deferred:
 
 | Layer | When env set | Behavior |
 |-------|----------------|----------|
-| `scripts/start-aionui-dev-work-tasks.ps1` | sets `AIONUI_BYPASS_AUTH=1` | Passed to Electron + spawned `aioncore` |
+| ~~`scripts/start-aionui-dev-work-tasks.ps1`~~ (retired) | historically set `AIONUI_BYPASS_AUTH=1` | Use `start-dev-full.ps1` |
 | `aionui-auth` `auth_middleware` | `local && auth_bypass_enabled()` | Injects `system_default_user` / `manager` |
 | `build_ws_state` | same | WS token validator accepts all |
 | Preload `__bypassAuth` | mirrors env | Renderer reads bypass flag |
@@ -337,7 +337,7 @@ Reuse same helpers as conversation Preview / Workspace (`renderer/utils/file/dow
 D:\Projects\claude-code-best\scripts\build-aioncore-work-tasks.cmd
 
 # Dev — self-built aioncore FIRST, bundled second (managed-resources)
-D:\Projects\claude-code-best\scripts\start-aionui-dev-work-tasks.ps1
+D:\Projects\claude-code-best\ccb-installer\scripts\start-dev-full.ps1
 ```
 
 Manual PATH override:
@@ -384,7 +384,7 @@ scripts\build-aioncore-work-tasks.cmd                   # release build (~4–5 
 
 ### Multi-user smoke (Phase 2–3)
 
-1. Build aioncore; start `scripts/start-aionui-dev-work-tasks.ps1`
+1. Build aioncore; start `ccb-installer/scripts/start-dev-full.ps1`
 2. User A = `manager`, User B = `employee` (migration bootstrap or `PUT /api/users/:id/work-task-role`)
 3. A creates task assigned to B → B sidebar badge + `pending_accept`
 4. B accepts → completes → A sees in **我分配的** and query overview

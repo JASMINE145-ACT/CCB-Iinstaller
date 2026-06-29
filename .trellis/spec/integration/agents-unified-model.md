@@ -1019,7 +1019,7 @@ bun test src/services/acp/__tests__/agentSessionProfile.test.ts
 
 1. Deploy backend: `deploy-claude-code-b-to-wanding.ps1 -Backup`
 2. Deploy seed agents: `ccb-installer\scripts\deploy-seed-agents.ps1`
-3. Restart AionUI dev (`start-aionui-dev.ps1`) — migrations `ccbAgentsUnified_v1` then `ccbAgentsGuidCatalog_v1`
+3. Restart AionUI dev (`start-dev-full.ps1`) — migrations `ccbAgentsUnified_v1` then `ccbAgentsGuidCatalog_v1`
 4. Guid: ~21 builtin cards with emoji + Chinese name + description (not only 3 English seed ids)
 5. Guid: preset cards — **万鼎报价专家**, **万鼎账务专家**, **Word 文档助手**, **PPT 演示助手**, **Excel 表格助手** (5 cards; `cowork` / `word-form-creator` retired 2026-06-27)
 6. Optional: `wande-orchestrator` card titled **万鼎协作** (🤝) via sidecar `display_name`

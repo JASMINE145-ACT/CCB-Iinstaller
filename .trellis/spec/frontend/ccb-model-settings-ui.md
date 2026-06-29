@@ -176,7 +176,7 @@ cd D:\Projects\aionui-src
 
 ### Manual smoke
 
-1. Full dev restart (no Ctrl+R): `ccb-installer/scripts/start-aionui-dev.ps1 -Clean`
+1. Full dev restart (no Ctrl+R): `ccb-installer/scripts/start-dev-full.ps1 -Clean`
 2. **设置 → 模型** — two independent cards with Chinese descriptions under each title
 3. **Guid** — placeholder must **not** start with `aionrs,`; model dropdown shows **MiniMax M3** / **MiniMax M3 (Thinking)** (not「暂无可用模型」)
 4. Conversation model dropdown — still **MiniMax M3** / **MiniMax M3 (Thinking)** only (no effort tiers)
@@ -246,7 +246,7 @@ MiniMax M3 / MiniMax M3 (Thinking)
 | Settings → 模型 | Two MiniMax cards with descriptions |
 | Guid model dropdown | MiniMax M3 / MiniMax M3 (Thinking) |
 
-**Manual check:** Full restart `ccb-installer/scripts/start-aionui-dev.ps1 -Clean` (no Ctrl+R).
+**Manual check:** Full restart `ccb-installer/scripts/start-dev-full.ps1 -Clean` (no Ctrl+R).
 
 Also listed in [`dev-test-ship.md`](./dev-test-ship.md) symptom table.
 

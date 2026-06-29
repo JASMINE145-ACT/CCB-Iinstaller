@@ -36,7 +36,7 @@ AionUI 是纯展示层；CCB-Wanding 是后端（MCP、报价、业务知识）�
 
 | 方式 | 速度 | 操作 |
 |------|------|------|
-| **dev 模式（改 UI）** | 保存即刷新 | `ccb-installer/scripts/start-aionui-dev.ps1` 或 `cd aionui-src; bun run dev` |
+| **dev 模式（改 UI）** | 保存即刷新 | `ccb-installer/scripts/start-dev-full.ps1`（`-SkipBootstrap` 日常；`-Clean` 清缓存） |
 | **bundled Mixing UI（员工同款）** | 无需 build | `D:\CCB-Wanding\ccb-launch-aionui.cmd` 或 `recover-aionui-new-ui.ps1` |
 | **打安装包** | 数十分钟 | `build-wanding.ps1 -Version <x.y.z>` — 见 [`guides/mixing-meta-repo.md`](./guides/mixing-meta-repo.md) |
 
@@ -48,7 +48,7 @@ AionUI 是纯展示层；CCB-Wanding 是后端（MCP、报价、业务知识）�
 
 | 需求 | 状态 |
 |------|------|
-| 前端改代码 + 热更新 | ✅ `aionui-src` + dev / `start-aionui-dev.ps1` |
+| 前端改代码 + 热更新 | ✅ `aionui-src` + `start-dev-full.ps1` |
 | 后端改代码 + rebuild | ✅ `claude-code-B` → `deploy-claude-code-b-to-wanding.ps1` |
 | MCP 源码注册（`$buildMcp`） | ✅ 已完成 2026-06-12 — [`backend/source-migration-mcp.md`](./backend/source-migration-mcp.md) |
 | 业务层（MCP / 价库 / python） | ✅ `ccb-installer/`、`python/`、`data/` |

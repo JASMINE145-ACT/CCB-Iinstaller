@@ -85,9 +85,10 @@ AionUI renderer (aionui-src, HMR)
 
 | 你改的路径 / 内容 | 仅 save 是否够 | 必须额外步骤 | 验证方式 |
 |-------------------|----------------|--------------|----------|
-| `aionui-src/packages/desktop/src/renderer/**` | ✅ HMR 通常够 | 结构性 import / main / preload → **全量重启**；怀疑缓存 → `start-aionui-dev.ps1 -Clean` | 改 UI 文案立即可见 |
+| `aionui-src/packages/desktop/src/renderer/**` | ✅ HMR 通常够 | 结构性 import / main / preload → **全量重启**；怀疑缓存 → `start-dev-full.ps1 -Clean` | 改 UI 文案立即可见 |
 | `aionui-src/.../process/**`（main/preload） | ❌ | Ctrl+C → 重启 dev | — |
 | `ccb-installer/patches/aionui-ccb-route-b/index.js` | ❌ | `sync-aionui-ccb-route-b.ps1` + 杀 aioncore | hash 与 patch 一致（§5） |
+| `ccb-installer/patches/aionui-acp/acp-agent.js` | ❌ | **见 §4.1.1** — bundled 已有 marker 时 sync 不会从 repo 拉新；需 **force copy** | live 含 `loadSession replay suppressed`（§5.1） |
 | `D:\claude-code-B\src/**` 或 `ccb-installer/claude-code-b-src` | ❌ | `bun run build` → `deploy-claude-code-b-to-wanding.ps1` → route-b sync | `D:\CCB-Wanding\dist\cli.js` mtime |
 | `python/inventory/**`, `python/quotation/**`, `python/admin/org_*.py` | ❌ | `sync-dev-wanding-vendor.ps1`（§4.3） | live `admin/org_http_csrf.py` hash = repo |
 | `data/*.xlsx`, `data/wanding_business_knowledge.md` | ❌ | robocopy → `CCB-Wanding\vendor\wanding\data`（§4.2） | MCP 查价命中新编码 |
@@ -120,6 +121,23 @@ AionUI renderer (aionui-src, HMR)
 ```powershell
 Get-Process electron,aioncore -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep -Seconds 2
+```
+
+### 4.1.1 `acp-agent.js` 强制同步（2026-06-29）
+
+`sync-aionui-ccb-route-b.ps1` 在 bundled `acp-agent.js` 已含 `CCB_WANDING_QUERY_NEXT_TIMEOUT_DEFAULT_MS` 时，**以 bundled 为 source**，不会自动应用 repo `patches/aionui-acp/acp-agent.js` 的新增 marker。改 WanD acp-agent patch 后必须 force copy：
+
+```powershell
+$repoPatch = "D:\Projects\claude-code-best\ccb-installer\patches\aionui-acp\acp-agent.js"
+$distRel = "managed-resources\acp\claude-agent-acp\0.39.0\win32-x64\node_modules\@agentclientprotocol\claude-agent-acp\dist\acp-agent.js"
+$pkgRel  = "runtime\managed-tools\acp\claude-agent-acp\0.39.0\win32-x64\node_modules\@agentclientprotocol\claude-agent-acp\dist\acp-agent.js"
+@(
+  "D:\CCB-Wanding\AionUi\resources\bundled-aioncore\win32-x64\$distRel",
+  "$env:APPDATA\AionUi\aionui\$pkgRel",
+  "$env:APPDATA\AionUi-Dev\aionui\$pkgRel"
+) | ForEach-Object { if (Test-Path (Split-Path $_ -Parent)) { Copy-Item $repoPatch $_ -Force } }
+.\ccb-installer\scripts\sync-aionui-ccb-route-b.ps1 -InstallDir D:\CCB-Wanding
+Get-Process aioncore,aionui-web -ErrorAction SilentlyContinue | Stop-Process -Force
 ```
 
 ### 4.2 CCB 后端 + route-b
@@ -179,9 +197,9 @@ D:\Projects\claude-code-best\scripts\build-aioncore-work-tasks.cmd
 ### 4.5 重启 dev
 
 ```powershell
-D:\Projects\claude-code-best\ccb-installer\scripts\start-aionui-dev.ps1 -Clean
+D:\Projects\claude-code-best\ccb-installer\scripts\start-dev-full.ps1 -Clean
 # 或 work-tasks 专用：
-# D:\Projects\claude-code-best\scripts\start-aionui-dev-work-tasks.ps1
+# D:\Projects\claude-code-best\ccb-installer\scripts\start-dev-full.ps1
 ```
 
 ### 4.6 一键「全层对齐」（日常推荐）
@@ -195,7 +213,7 @@ cd D:\Projects\claude-code-best
 # 若 route-b / CCB dist 有改动再加：
 # .\ccb-installer\scripts\deploy-claude-code-b-to-wanding.ps1 -Backup
 # .\ccb-installer\scripts\sync-aionui-ccb-route-b.ps1 -RestartAionUiWeb
-.\ccb-installer\scripts\start-aionui-dev.ps1 -Clean
+.\ccb-installer\scripts\start-dev-full.ps1 -Clean
 ```
 
 ### 4.7 Agent keep-set 退役 / Guid 卡片对齐（2026-06-27）
@@ -274,6 +292,15 @@ $live  = "$env:APPDATA\AionUi-Dev\aionui\runtime\managed-tools\acp\claude-agent-
 "live:  $((Get-FileHash $live).Hash.Substring(0,16))  $(Get-Item $live).LastWriteTime"
 # 两者 hash 前缀应一致
 
+# acp-agent patch（06-19 backflow fix markers）
+$repoAgent = "D:\Projects\claude-code-best\ccb-installer\patches\aionui-acp\acp-agent.js"
+$liveAgent = "$env:APPDATA\AionUi-Dev\aionui\runtime\managed-tools\acp\claude-agent-acp\0.39.0\win32-x64\node_modules\@agentclientprotocol\claude-agent-acp\dist\acp-agent.js"
+"acp-agent repo/live hash: $((Get-FileHash $repoAgent).Hash.Substring(0,16)) / $((Get-FileHash $liveAgent).Hash.Substring(0,16))"
+Select-String -LiteralPath $liveAgent -Pattern 'loadSession replay suppressed','tearing down dirty' -Quiet
+
+# CCB transcript trim（在 chunk 内，非 cli.js 字面量）
+Select-String -Path D:\CCB-Wanding\dist\chunk-*.js -Pattern 'trimMessagesToCompleteTurnBoundary' -Quiet | Select-Object -First 1
+
 # Python 是否落后
 "repo:  $((Get-Item D:\Projects\claude-code-best\python\inventory\services\inventory_agent_tools.py).LastWriteTime)"
 "live:  $((Get-Item D:\CCB-Wanding\vendor\wanding\python\inventory\services\inventory_agent_tools.py).LastWriteTime)"
@@ -289,6 +316,7 @@ Test-Path D:\CCB-Wanding\vendor\wanding\data\price_library_cleaned_2026_05_15.xl
 | 1 | Guid → 万鼎报价专家 → **新会话** | 无旧会话 PE 询价内容 |
 | 2 | `HDPE 0.6MPa dn125 6M` | 命中 `8010036693`（python+data 已 sync） |
 | 3 | idle 5min 后再发一条 | 无旧 assistant 块 replay（renderer fix + 新 turn） |
+| 3b | **新会话** `你好` → `查询直接50报价` → `很好` | 第三条**仅**新回复；无 greeting+旧表拼接（task `06-19`） |
 | 4 | `/` 菜单 | 除 shell 外有 CCB 命令（warmup 完成后再试） |
 
 ### 5.3 日志关键字
@@ -307,12 +335,12 @@ Test-Path D:\CCB-Wanding\vendor\wanding\data\price_library_cleaned_2026_05_15.xl
 | Repo（编辑） | Live（运行时读取） |
 |--------------|-------------------|
 | `D:\Projects\aionui-src\` | dev：Vite HMR；ship：`dist:win` → Roaming |
-| `ccb-installer/patches/aionui-ccb-route-b/index.js` | 5 个 sync 目标（见 `route-b-sync.md` §2） |
+| `ccb-installer/patches/aionui-ccb-route-b/index.js` | **3** 个 canonical sync 目标（见 [`route-b-sync.md`](./route-b-sync.md) §2；legacy acp-agent-only 另见 §2b） |
 | `D:\claude-code-B\dist\` | `D:\CCB-Wanding\dist\` |
 | `python/` | `D:\CCB-Wanding\vendor\wanding\python\` |
 | `data/*.xlsx`, `data/*.md`（业务） | `D:\CCB-Wanding\vendor\wanding\data\` |
 | `mcp_servers/quotation-server/dist/` | `D:\CCB-Wanding\vendor\mcp-servers\quotation-server\dist\` |
-| `AionCore/target/release/aioncore.exe` | dev PATH（`start-aionui-dev.ps1` 前置） |
+| `AionCore/target/release/aioncore.exe` | dev PATH（`start-dev-full.ps1` 前置） |
 | `ccb-installer/config/agents/` | `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\` |
 
 **MCP settings 引用（只读确认）：**
@@ -348,7 +376,7 @@ Test-Path D:\CCB-Wanding\vendor\wanding\data\price_library_cleaned_2026_05_15.xl
 | 环境 | 数据目录 | 更新方式 |
 |------|----------|----------|
 | `bun run dev` | `%APPDATA%\AionUi-Dev\` | 本节 playbook |
-| Roaming exe | `%APPDATA%\AionUi\` | `dist:win` + 覆盖安装槽；route-b target #4 |
+| Roaming exe | `%APPDATA%\AionUi\` | `dist:win` + 覆盖安装槽；route-b target **#2**（[`route-b-sync.md`](./route-b-sync.md) §2） |
 | NSIS 安装版 | `$INSTALL` under Program Files | [`wanding-packaging-whitelist.md`](./wanding-packaging-whitelist.md) staging |
 
 dev 验证通过后再 `bun run dist:win`；不要每次 UI 小改都打包。
@@ -382,3 +410,5 @@ dev 验证通过后再 `bun run dist:win`；不要每次 UI 小改都打包。
 **Recorded:** 2026-06-29 — **ACP prompt parity（HTTP 图 + embeddedContext）：** `promptConversion.ts` 对齐 `acp-agent.js` — `image.uri` http → url source；`resource.text` + uri → `[@name](uri)` + `<context ref>`。测试 `promptConversion.test.ts`（14 cases overlay / 31 claude-code-B gate）。部署：`sync-claude-code-b-mcp-prefetch.ps1 -Build` + `deploy-claude-code-b-to-wanding.ps1`（无 `-Backup` 若磁盘满）+ **新 Guid 会话**。
 
 **Recorded:** 2026-06-29 — **Org knowledge MCP CSRF：** `append_business_rule` PUT 需 VPS double-submit（`GET /api/auth/status` → `aionui-csrf-token` + `x-csrf-token`）；见 [`org-knowledge.md`](./org-knowledge.md) § Mutating writes。部署：`sync-dev-wanding-vendor.ps1` → **重启 dev** + **新会话**（MCP 子进程不热加载 vendor python）。
+
+**Recorded:** 2026-06-29 — **Post-idle replay backflow（task `06-19`）：** 三层 fix 已部署本机 dev 槽。**Frontend**（`aionui-src` HMR）：`staleTurnStreamFilter` + `postIdleWakeWindow` + `turn_id` merge guard — 重启 `start-dev-full.ps1 -SkipBootstrap` 加载。**CCB dist：** `cd D:\claude-code-B; bun run build` → `deploy-claude-code-b-to-wanding.ps1`（`trimMessagesToCompleteTurnBoundary` in `chunk-*.js`）。**acp-agent patch：** §4.1.1 force copy → 3 目标；marker `loadSession replay suppressed` / `tearing down dirty`；hash `A0F72FAF87061BEE`（repo=live 2026-06-30）。杀 `aioncore`。**Smoke：** §5.2 #3b 新会话三连发；DevTools `[useAcpMessage] dropped stale turn stream message`。Spec：[`../frontend/chat-acp-flow.md`](../frontend/chat-acp-flow.md) § Post-idle replay backflow guard。**Operator (2026-06-30)：** 用户 dev 验证「可能真的修好了」；**发货须全量 NSIS**（含 aionui-src），见 [`wanding-first-ship.md`](./wanding-first-ship.md) §5.2 + [`guides/wanding-build-path-decision.md`](../guides/wanding-build-path-decision.md)。

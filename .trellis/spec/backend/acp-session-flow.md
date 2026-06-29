@@ -220,10 +220,10 @@ Spec: [`../integration/agents-unified-model.md`](../integration/agents-unified-m
 | Layer | Mitigation |
 |-------|------------|
 | **ACP slot drain gate** | `drainObservedClean` flag in `patches/aionui-acp/acp-agent.js`: set to `true` only when drain loop sees `done \|\| !m` (stream ended) or `session_state_changed: idle`; silent retry is gated on `drainObservedClean === true` |
-| **Drain-stuck path** | Logs `drain-stuck: no retry, orphan cleanup pending` and throws `首条响应超时` immediately — no second prompt sent to busy subprocess |
-| **Session preserved** | Session is NOT deleted on drain failure; next AionUI `warmupConversation(force:true)` recreates it cleanly |
+| **Drain-stuck path** | Logs `drain-stuck: no retry, tearing down dirty session`, discards the dirty ACP slot session, then throws `首条响应超时` — no second prompt sent to busy subprocess |
+| **Resume tail guard** | `agent.ts` trims restored/replayed transcript to the last assistant `end_turn` before feeding QueryEngine, so unfinished killed-turn tails are not continued before the next user query |
 
-Log markers: `prompt timeout retry attempt=1 sessionId=…` (clean drain, retry proceeds) / `prompt timeout drain-stuck: no retry` (stuck process, immediate error).
+Log markers: `prompt timeout retry attempt=1 sessionId=…` (clean drain, retry proceeds) / `prompt timeout dirty session discarded` (stuck process, session removed) / `[ACP] trimmed incomplete transcript tail` (resume dropped unfinished tail).
 
 Task: `06-29-acp-prompt-orphan-cleanup-on-query-next-timeout`.
 

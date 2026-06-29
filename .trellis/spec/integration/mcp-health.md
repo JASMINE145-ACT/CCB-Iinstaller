@@ -466,7 +466,7 @@ Task: [`progress-2026-06-28.md`](../../tasks/06-28-app-startup-readiness-gate/pr
 ```powershell
 cd D:\Projects\aionui-src
 bun test tests/unit/common-config/ccbMcpHealth.test.ts
-# Dev: start-aionui-dev.ps1 → Settings → 工具 → health panel auto quick-check
+# Dev: start-dev-full.ps1 → Settings → 工具 → health panel auto quick-check
 ```
 
 ---

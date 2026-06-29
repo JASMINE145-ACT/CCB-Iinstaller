@@ -1,0 +1,24 @@
+{
+  "id": "sider-org-database-group",
+  "name": "06-30-sider-org-database-group",
+  "title": "侧栏「数据库」折叠分组 — 知识库 + 价格库",
+  "description": "将侧栏平级的「知识库」「价格库」合并为可折叠父级「数据库」；展开后显示两个子入口。折叠侧栏时用单图标 + 下拉菜单。路由与页面不变。",
+  "status": "completed",
+  "dev_type": "implementation",
+  "scope": "aionui-src sidebar IA",
+  "package": "frontend",
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-30",
+  "completedAt": null,
+  "relatedFiles": [
+    "aionui-src/packages/desktop/src/renderer/components/layout/Sider/index.tsx",
+    "aionui-src/packages/desktop/src/renderer/components/layout/Sider/SiderOrgDatabaseSection.tsx",
+    "aionui-src/packages/desktop/src/renderer/components/layout/Sider/SiderNav/SiderOrgKnowledgeEntry.tsx",
+    "aionui-src/packages/desktop/src/renderer/components/layout/Sider/SiderNav/SiderPriceLibraryEntry.tsx",
+    "aionui-src/packages/desktop/src/renderer/services/i18n/locales/zh-CN/orgDatabase.json",
+    "aionui-src/packages/desktop/src/renderer/services/i18n/locales/en-US/orgDatabase.json",
+    ".trellis/spec/frontend/file-map.md"
+  ]
+}

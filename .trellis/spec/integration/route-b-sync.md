@@ -1,6 +1,6 @@
 # route-b Sync
 
-> Read this when changing `ccb-installer/patches/aionui-ccb-route-b/index.js` or after rebuilding `D:\CCB-Wanding\dist\`. The sync script writes the route-b patch to **four locations** — skipping any one causes mixed-state bugs.
+> Read this when changing `ccb-installer/patches/aionui-ccb-route-b/index.js` or after rebuilding `D:\CCB-Wanding\dist\`. The canonical sync script writes route-b **`index.js` + `acp-agent.js`** to **three locations** — skipping any one causes mixed-state bugs. (Legacy web-only paths: §2b.)
 
 **Related:** Rebuilding CCB-Wanding from source → [`../backend/build-deploy-verify.md`](../backend/build-deploy-verify.md) (`deploy-claude-code-b-to-wanding.ps1`). Live MCP status → [`../backend/route-b-status.md`](../backend/route-b-status.md).
 
@@ -20,16 +20,34 @@ cd D:\Projects\claude-code-best
 
 ---
 
-## 2. The four sync targets
+## 2. The three sync targets (canonical — `sync-aionui-ccb-route-b.ps1`)
 
-| # | Label | Path (verified 2026-06-12, version `0.39.0`) |
+Source of truth: `ccb-installer/scripts/sync-aionui-ccb-route-b.ps1` `$targets` array (verified 2026-06-30).
+
+| # | Label | Path (version `0.39.0` in script) |
 |---|-------|------|
-| 1 | repo AionUi bundle | `D:\Projects\claude-code-best\AionUi\resources\bundled-aioncore\win32-x64\managed-resources\acp\claude-agent-acp\0.39.0\win32-x64\node_modules\@agentclientprotocol\claude-agent-acp\dist\index.js` |
-| 2 | AionUI Web runtime cache | `%USERPROFILE%\.aionui-web\runtime\managed-tools\acp\claude-agent-acp\0.39.0\win32-x64\node_modules\@agentclientprotocol\claude-agent-acp\dist\index.js` |
-| 3 | AionUI Web install (D:) | `D:\aionui-web\aionui-web\bundled-aioncore\win32-x64\managed-resources\acp\claude-agent-acp\0.39.0\win32-x64\node_modules\@agentclientprotocol\claude-agent-acp\dist\index.js` |
-| 4 | AionUi exe runtime (AppData\Roaming) | `%APPDATA%\AionUi\aionui\runtime\managed-tools\acp\claude-agent-acp\0.39.0\win32-x64\node_modules\@agentclientprotocol\claude-agent-acp\dist\index.js` |
+| 1 | **installed AionUi bundle** | `{InstallDir}\AionUi\resources\bundled-aioncore\win32-x64\managed-resources\acp\claude-agent-acp\0.39.0\win32-x64\node_modules\@agentclientprotocol\claude-agent-acp\dist\` |
+| 2 | **AionUi exe runtime (AppData\Roaming)** | `%APPDATA%\AionUi\aionui\runtime\managed-tools\acp\claude-agent-acp\0.39.0\win32-x64\node_modules\@agentclientprotocol\claude-agent-acp\dist\` |
+| 3 | **AionUi-Dev electron dev runtime** | `%APPDATA%\AionUi-Dev\aionui\runtime\managed-tools\acp\claude-agent-acp\0.39.0\win32-x64\node_modules\@agentclientprotocol\claude-agent-acp\dist\` |
 
-> ⚠️ **Mutable paths.** The version, the install prefix (`D:\aionui-web\`), and the bundle layout all change with new AionUI / aioncore / CCB-Wanding releases. Always re-verify paths before assuming.
+- **`InstallDir`** defaults to `ccb-installer\` parent when omitted; **dev/smoke use `-InstallDir D:\CCB-Wanding`** (or your live install root).
+- Each target receives **both** `index.js` (route-b) and `acp-agent.js` (WanD patch).
+- Target 2 (`%APPDATA%\AionUi`) may be **created** if missing (`CreateMissing = $true`); targets 1 and 3 require existing dirs.
+
+> ⚠️ **Mutable paths.** The `0.39.0` segment and bundled layout change with AionUI / aioncore releases. Re-verify via `rg "relativeDist\s*=" ccb-installer\scripts\sync-aionui-ccb-route-b.ps1`.
+
+### 2b. Legacy — `sync-aionui-ccb-patch.ps1` (acp-agent.js only)
+
+**Do not use for route-b `index.js`.** This script syncs **only** `acp-agent.js` to up to four paths (skips missing dirs):
+
+| Label | Path |
+|-------|------|
+| repo AionUi bundle | `{repoRoot}\AionUi\resources\bundled-aioncore\win32-x64\…\dist\` |
+| AionUI Web runtime cache | `%USERPROFILE%\.aionui-web\runtime\managed-tools\acp\…\dist\` |
+| AionUi exe runtime | `%APPDATA%\AionUi\aionui\runtime\managed-tools\acp\…\dist\` |
+| AionUi-Dev dev runtime | `%APPDATA%\AionUi-Dev\aionui\runtime\managed-tools\acp\…\dist\` |
+
+For WanD desktop dev + bundled Mixing install, prefer **`sync-aionui-ccb-route-b.ps1`** (§1). Use `sync-aionui-ccb-patch.ps1` only when you need legacy **web** cache paths or acp-agent-only hotfix without touching route-b index.
 
 ### How to find the current version when in doubt
 
@@ -53,7 +71,8 @@ ls $env:APPDATA\AionUi\aionui\runtime\managed-tools\acp\claude-agent-acp\
 | I changed route-b, dev still shows old behavior | Forgot to run `sync-aionui-ccb-route-b.ps1` | Run §1 |
 | Dev mode shows "Claude Code" not "CCB-Wanding" | The `index.js` at the active ACP slot is not route-b-patched | Run §1, then restart aioncore |
 | I see MCP tools but quotation/accurate missing | CCB-Wanding rebuild not synced, or MCP env stale | Rebuild `D:\CCB-Wanding\dist\` then run §1 |
-| Two windows appear, one is vanilla Claude Code | Mixed sync state — some locations patched, others not | Run §1 to all 4 targets; verify version `0.39.0` (or current) |
+| Two windows appear, one is vanilla Claude Code | Mixed sync state — some locations patched, others not | Run §1 to all **3** targets; verify version `0.39.0` (or current) |
+| Dev Electron still vanilla; bundled exe OK | `%APPDATA%\AionUi-Dev\…` not synced | Run §1; confirm target 3; restart via `start-dev-full.ps1` |
 
 ---
 

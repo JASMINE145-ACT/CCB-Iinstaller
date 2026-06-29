@@ -68,7 +68,7 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
-默认 dev 启动：`ccb-installer/scripts/start-aionui-dev.ps1` 把 **`AionCore\target\release` 放在 PATH 最前**，其次才是 bundled aioncore。
+默认 dev 启动：**`ccb-installer/scripts/start-dev-full.ps1`**（bootstrap + route-b + aioncore 注入 + org SSO）；把 **`AionCore\target\release` 放在 PATH 最前**，其次才是 bundled aioncore。废弃：`start-aionui-dev.ps1`（仅 redirect）。
 
 ---
 
@@ -79,7 +79,7 @@
 | 改什么 | 机制 | 额外注意 |
 |--------|------|----------|
 | `aionui-src/.../renderer/**` | **Vite HMR** | `main` / `preload` 要整进程重启 |
-| 聊天文案、组件样式、AskUserQuestion UI | 通常自动刷新 | 怀疑缓存 → `start-aionui-dev.ps1 -Clean` |
+| 聊天文案、组件样式、AskUserQuestion UI | 通常自动刷新 | 怀疑缓存 → `start-dev-full.ps1 -Clean` |
 | `.trellis/spec/**`、纯文档 | **不影响运行时** | 给人 / Agent 读 |
 
 ### 🟡 B 类 — 要同步（copy），不一定要 compile
@@ -148,7 +148,7 @@
 | 命令 | 产出 | dev 是否用到 |
 |------|------|--------------|
 | `cargo test -p aionui-ai-agent …` | `target\debug\` 下测试二进制 | ❌ 不更新 dev 用的 aioncore |
-| `build-aioncore-work-tasks.cmd` | `target\release\aioncore.exe` | ✅ `start-aionui-dev.ps1` PATH 优先读这个 |
+| `build-aioncore-work-tasks.cmd` | `target\release\aioncore.exe` | ✅ `start-dev-full.ps1` PATH 优先读这个 |
 
 Windows 上跑 test/build 前若 dev 开着，`aioncore.exe` 可能锁文件 → 先停 `electron` / `aioncore`（playbook §4.1）。
 
@@ -185,7 +185,7 @@ cd D:\Projects\claude-code-best
 **动了 AionCore / CCB / route-b，或要清缓存重启：**
 
 ```powershell
-.\ccb-installer\scripts\start-aionui-dev.ps1 -Clean
+.\ccb-installer\scripts\start-dev-full.ps1 -Clean
 ```
 
 全层对齐顺序：[`dev-sync-playbook.md`](./dev-sync-playbook.md) §4.6。

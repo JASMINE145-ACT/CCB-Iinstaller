@@ -94,6 +94,9 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Status tag | `…/components/WorkTaskStatusTag.tsx` |
 | SWR hooks (scope, members, query, pending badge) | `…/useWorkTasks.ts` |
 | Sidebar entry + pending badge | `packages/desktop/src/renderer/components/layout/Sider/SiderNav/SiderWorkTasksEntry.tsx` |
+| Sidebar org data entries (知识库 + 价格库) | `Sider/index.tsx` — flat peers after 「任务」; same row style as `SiderScheduledEntry` / `SiderWorkTasksEntry` (`h-34px`, icon + text); gated by `isOrgServerConfigured()` |
+| Org knowledge sidebar entry | `SiderNav/SiderOrgKnowledgeEntry.tsx` → `#/org-knowledge` |
+| Price library sidebar entry | `SiderNav/SiderPriceLibraryEntry.tsx` → `#/price-library` |
 | **Wiring status (2026-06-26)** | Routes + sider entry + `AuthContext` desktop SSO **wired** (uncommitted). API needs self-built aioncore (`/api/work-tasks` 404 on bundled 0.1.27). |
 | Auth user `work_task_role` + session token | `packages/desktop/src/common/auth/authSession.ts`, `packages/desktop/src/renderer/hooks/context/AuthContext.tsx` |
 | HTTP credentials policy | `packages/desktop/src/common/adapter/httpBridge.ts` — `backendFetchCredentials()` (`omit` desktop, `include` WebUI) |

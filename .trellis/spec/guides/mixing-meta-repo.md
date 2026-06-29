@@ -68,8 +68,8 @@ Update this table when you bump submodules and re-tag.
 D:\CCB-Wanding\ccb-launch-aionui.cmd
 ```
 
-| Expect | Bundled (`ccb-launch`) | Dev (`start-dev-full.ps1`) | Dev (`start-aionui-dev.ps1`) |
-|--------|------------------------|----------------------------|------------------------------|
+| Expect | Bundled (`ccb-launch`) | Dev (`start-dev-full.ps1`) | ~~Dev (`start-aionui-dev.ps1`)~~ retired |
+|--------|------------------------|----------------------------|----------------------------------------|
 | Window title | **Mixing** | **Mixing** (wired 2026-06-26) | Often **AionUi** |
 | Login | Org SSO (`yjc` etc.) | Org SSO (`env.local`) | `AIONUI_BYPASS_AUTH=1` |
 | Sidebar | 任务 / 知识库 | Wired (uncommitted source) | Partial without full wiring |

@@ -1,0 +1,84 @@
+{
+  "id": "full-system-review",
+  "name": "06-30-full-system-review",
+  "title": "全项目系统审查 — 分模块 spec↔代码审计 + 改进路线",
+  "description": "按 Trellis 三层 + Business + Ship/Ops 分五步做 system-reviewer 式审计；Step 1 Integration 已完成（7.5/10）；后续 Backend / Frontend / Business Python / Ship 待审；并跟踪 Integration 层 P0/P1 修复项。",
+  "status": "in_progress",
+  "dev_type": "research",
+  "scope": "cross-layer",
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-30",
+  "completedAt": null,
+  "subtasks": [
+    {
+      "id": "step-01-integration",
+      "title": "Step 1 — Integration 层审查（route-b / dev / ship 胶水）",
+      "status": "completed"
+    },
+    {
+      "id": "step-02-backend",
+      "title": "Step 2 — Backend 层审查（CCB-Wanding / ACP / MCP / claude-code-B）",
+      "status": "pending"
+    },
+    {
+      "id": "step-03-frontend",
+      "title": "Step 3 — Frontend 层审查（AionUI desktop / IPC / chat / Guid）",
+      "status": "pending"
+    },
+    {
+      "id": "step-04-business",
+      "title": "Step 4 — Business 层审查（python/ + mcp_servers/ + data/）",
+      "status": "pending"
+    },
+    {
+      "id": "step-05-ship-ops",
+      "title": "Step 5 — Ship/Ops 审查（build-wanding / 更新 / Phase 4 冷构建）",
+      "status": "pending"
+    },
+    {
+      "id": "integration-fix-docs",
+      "title": "Integration 修复 Phase 1 — route-b-sync 文档对齐 + dev 入口 doc sweep",
+      "status": "completed"
+    },
+    {
+      "id": "integration-fix-vendor-gate",
+      "title": "Integration 修复 Phase 2 — start-dev-full vendor sync / hash preflight",
+      "status": "pending"
+    },
+    {
+      "id": "integration-fix-verify-installer",
+      "title": "Integration 修复 Phase 3 — verify-installer 默认路径 + integration-smoke.ps1",
+      "status": "pending"
+    },
+    {
+      "id": "cross-layer-roadmap",
+      "title": "汇总五步结论 → spec/index 成熟度表 + 优先级 backlog",
+      "status": "pending"
+    }
+  ],
+  "relatedFiles": [
+    ".trellis/tasks/06-30-full-system-review/prd.md",
+    ".trellis/tasks/06-30-full-system-review/review-plan.md",
+    ".trellis/tasks/06-30-full-system-review/delivery-phase-01-integration-docs.md",
+    ".trellis/tasks/06-30-full-system-review/reviews/step-01-integration.md",
+    ".trellis/spec/index.md",
+    ".trellis/spec/outline.md",
+    ".trellis/spec/integration/index.md",
+    ".trellis/spec/backend/index.md",
+    ".trellis/spec/frontend/index.md",
+    "ccb-installer/scripts/start-dev-full.ps1",
+    "ccb-installer/scripts/sync-aionui-ccb-route-b.ps1",
+    "ccb-installer/scripts/sync-dev-wanding-vendor.ps1",
+    "ccb-installer/scripts/build-wanding.ps1",
+    "ccb-installer/scripts/test-mcp-health.ps1",
+    ".trellis/tasks/06-26-aionui-source-level-recovery/status.md",
+    ".trellis/spec/integration/route-b-sync.md",
+    ".trellis/spec/outline.md",
+    ".trellis/spec/integration/dev-runtime-layers.md",
+    ".trellis/spec/frontend/dev-test-ship.md"
+  ],
+  "notes": "Step 1 完成 2026-06-30（7.5/10）。Integration Phase 1 doc 对齐完成 2026-06-30 — delivery-phase-01-integration-docs.md。待办：Step 2 Backend；Phase 2 vendor sync；Phase 4 冷 ship。"
+}

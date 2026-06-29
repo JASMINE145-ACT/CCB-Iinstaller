@@ -1,4 +1,4 @@
-{"file": ".trellis/spec/backend/index.md", "reason": "Verify backend/MCP changes stay in the correct layer."}
-{"file": ".trellis/spec/backend/mcp-business.md", "reason": "Verify quotation-agent behavior remains consistent with MCP contracts."}
-{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "Verify eval additions match the regression harness contract."}
-{"file": "eval/scenarios/quotation-ppr-image-sheet-20260619.md", "reason": "Verify golden scenario behavior is preserved."}
+{"file": "D:/Projects/aionui-src/packages/desktop/src/renderer/pages/conversation/platforms/acp/useAcpMessage.ts", "reason": "Verify stale turn-scoped WS dropped during wake window; accepted only after acceptPostIdleWakeTurn"}
+{"file": "D:/Projects/aionui-src/tests/unit/renderer/useAcpMessage.dom.test.ts", "reason": "Stale-replay regression tests pass"}
+{"file": "D:/Projects/aionui-src/tests/unit/conversation/runtime/postIdleWakeWindow.test.ts", "reason": "Wake window state machine still passes"}
+{"file": ".trellis/spec/frontend/chat-acp-flow.md", "reason": "§ post-idle wake window matches implementation"}

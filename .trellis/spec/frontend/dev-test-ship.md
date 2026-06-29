@@ -106,7 +106,7 @@ node "node_modules\.bun\electron@*\node_modules\electron\install.js"
 | Dev mode shows "Claude Code" not "CCB-Wanding" | The `index.js` at the active ACP slot is not route-b-patched | Run `../integration/route-b-sync.md` sync, then restart aioncore |
 | I see MCP tools but quotation/accurate missing | CCB-Wanding rebuild not synced, or MCP env stale | Rebuild `D:\CCB-Wanding\dist\` then run sync |
 | `mcp__quotation__*` Tool not found in AionUI (shell/officecli fallback) | AionUI injects `guide_mcp`; backend must **merge** settings MCP + params (not either/or). Stale aioncore or old session | Deploy `agent.ts` fix → sync route-b → kill all aioncore → **new conversation**. See [`../backend/acp-session-flow.md`](../backend/acp-session-flow.md) |
-| Two windows appear, one is vanilla Claude Code | Mixed sync state — some locations patched, others not | Sync all 4 targets; verify version |
+| Two windows appear, one is vanilla Claude Code | Mixed sync state — some locations patched, others not | Run `sync-aionui-ccb-route-b.ps1` to all **3** targets — see [`../integration/route-b-sync.md`](../integration/route-b-sync.md) §2 |
 | I edited `packages/web-host/src/` but web variant unchanged | Source edit alone doesn't propagate | Rebuild web-host and deploy to `D:\aionui-web\aionui-web\` |
 | `bun run dev` can't find aioncore | PATH not set for this shell | Re-export `$env:PATH` per §1 |
 | `bun run dev` → `Error: Electron uninstall` | Electron binary never downloaded (bun postinstall skip / network) | Set `ELECTRON_MIRROR`, run `electron/install.js` — see §1 |
@@ -118,12 +118,12 @@ node "node_modules\.bun\electron@*\node_modules\electron\install.js"
 | `bunx tsc --noEmit` fails on `MessageAcpPermission.tsx` | AskUserQuestion UI types out of sync with `AcpPermissionOption` | Fix per `chat-acp-flow.md` §3.5b; re-run tsc before ship |
 | Dev login posts to local `/login` (401) with valid org password | `AIONUI_SSO_MODE` / `JWT_SECRET` not set in dev shell | Use `ccb-installer/scripts/start-dev-full.ps1` (loads `env.local` / `sso.env`) — **not** bare `bun run dev` |
 | Dev shows upstream Settings → 模型 / 助手 / Agents after **2026-06-26 Layer 2** | Old dev session (Ctrl+R) or CCB authority inactive (`D:\CCB-Wanding` missing) | Kill electron/aioncore → `start-dev-full.ps1` full restart; confirm `isAuthorityActive` in logs |
-| **Electron dev 白屏**（窗口空白，无 UI） | Renderer 打包了 `node:fs` 等 Node-only 模块 → Vite bundle 崩溃；或 Vite/Electron 缓存仍是旧 bundle | 见 **§8 White screen playbook**；优先用 `ccb-installer/scripts/start-aionui-dev.ps1`（已含杀进程 + 清缓存） |
+| **Electron dev 白屏**（窗口空白，无 UI） | Renderer 打包了 `node:fs` 等 Node-only 模块 → Vite bundle 崩溃；或 Vite/Electron 缓存仍是旧 bundle | 见 **§8 White screen playbook**；优先用 `ccb-installer/scripts/start-dev-full.ps1`（已含杀进程 + 清缓存） |
 | **设置 → 能力扩展** 一点就白屏 | 懒加载 `SkillsHubSettings` 曾直接 import `ccbSkills.ts`（含 fs） | 已改 IPC `ccbSkillsService`；若复现，查 renderer 是否又 direct-import 了 `ccbSkills.ts` |
 | 多题 AskUserQuestion 答完 Q1 后一直 spinner | 点了 Cancel 但前端误设 `isAwaitingNextQuestion`；或 backend 未发下一题 permission | Cancel 应显示「已取消」；确认路径 30s 后显示超时警告。见 `chat-acp-flow.md` §3.5b |
 | multiSelect 选了多项但 backend 只收到一项 | Backend dist 未部署 `auqm:` 解析 | Rebuild `claude-code-B` → deploy → route-b sync |
-| 侧栏仍显示 WanD/AionUi 而非 minimax-m3 | `ccbModelBridge` 未加载（main process 未重启） | `ccb-installer/scripts/start-aionui-dev.ps1` 整 app 重启 |
-| Guid 模型下拉全是 **Default (recommended) (default/low/…)** | ACP handshake 返回 effort tier，非 MiniMax 变体 | **2026-06-14 已修**：`mergeCcbMiniMaxAcpModelInfo` 用 CCB `available_variants` 替换列表 → 仅 **MiniMax M3** / **MiniMax M3 (Thinking)**；deploy + `start-aionui-dev.ps1` 重启 |
+| 侧栏仍显示 WanD/AionUi 而非 minimax-m3 | `ccbModelBridge` 未加载（main process 未重启） | `ccb-installer/scripts/start-dev-full.ps1` 整 app 重启 |
+| Guid 模型下拉全是 **Default (recommended) (default/low/…)** | ACP handshake 返回 effort tier，非 MiniMax 变体 | **2026-06-14 已修**：`mergeCcbMiniMaxAcpModelInfo` 用 CCB `available_variants` 替换列表 → 仅 **MiniMax M3** / **MiniMax M3 (Thinking)**；deploy + `start-dev-full.ps1` 重启 |
 | **Guid 白屏**（`useGuidAgentSelection` 改动后） | `selectedAgent` 在声明前被 `useCcbModelInfo(...)` 引用 → `ReferenceError` | 改用 `selectedAgentKey`；见 task `06-13-ccb-minimax-m3-thinking-models` § 2026-06-14 |
 | **Electron dev 白屏**（Thinking 模型 auto-apply 改动后） | 错误 `ipcBridge` import → esbuild `No matching export for import "ipcBridge"`；renderer bundle 未生成 | 见 **§8** Wave 3；`ensureCcbSessionPreferredModel` 用 `acpConversation` named export；renderer 用 `import { ipcBridge } from '@/common'` |
 | **Electron 窗口长时间空白**（~40s 后恢复） | 首次 Vite dep optimize + backend migration 未完成；窗口在 `did-finish-load` 前已 show | **非 bundle 崩溃**；等 migration + `[AionUi] Renderer did-finish-load`；或见 §8 清缓存重启 |
@@ -220,7 +220,7 @@ After packaging, the new exe lives in `out/` (per `electron-builder.yml`); copy 
 | DevTools console: `Module "fs" has been externalized` / `node:fs` import error | **Root cause** — renderer imported Node-only code |
 | DevTools console: `ReferenceError: Cannot access 'selectedAgent' before initialization` | **Root cause (2026-06-14)** — hook used derived state before declaration; fix: use earlier key (e.g. `selectedAgentKey`) |
 | Terminal / DevTools: `No matching export in .../ipcBridge.ts for import "ipcBridge"` | **Root cause (2026-06-14)** — `ipcBridge` is a **namespace re-export** from `@/common`, not a named export in `adapter/ipcBridge.ts` |
-| Electron window white ~30–45s then UI appears | Slow first load (Vite optimize + MCP migration); log shows `Showing main window` before `Renderer did-finish-load` | Wait or use `start-aionui-dev.ps1`; not the same as bundle crash |
+| Electron window white ~30–45s then UI appears | Slow first load (Vite optimize + MCP migration); log shows `Showing main window` before `Renderer did-finish-load` | Wait or use `start-dev-full.ps1`; not the same as bundle crash |
 | External browser shows login UI but Electron still white | Stale Electron/Vite cache serving old broken bundle |
 | External browser `/api/*` 404 | **Expected** — APIs proxy through Electron preload + aioncore, not Vite alone |
 
@@ -229,7 +229,7 @@ After packaging, the new exe lives in `out/` (per `electron-builder.yml`); copy 
 ```
 1. Suspect stale cache
    └── Kill electron + aioncore; delete packages/desktop/out + node_modules/.vite
-   └── Restart via start-aionui-dev.ps1
+   └── Restart via start-dev-full.ps1
    └── If still white → not cache alone; go to step 2
 
 2. Find Node imports on renderer startup path
@@ -251,7 +251,7 @@ After packaging, the new exe lives in `out/` (per `electron-builder.yml`); copy 
    └── Electron window → same (after cache clear + full dev restart)
 
 6. Harden dev launcher
-   └── ccb-installer/scripts/start-aionui-dev.ps1 now: stop stale processes + clear cache + bun run dev
+   └── ccb-installer/scripts/start-dev-full.ps1 now: stop stale processes + clear cache + bun run dev
 
 7. Wave 3 — ipcBridge import pattern (2026-06-14, Thinking auto-apply)
    ├── Symptom: esbuild ERROR `No matching export ... "ipcBridge"` → renderer never loads → white screen
@@ -279,7 +279,7 @@ After packaging, the new exe lives in `out/` (per `electron-builder.yml`); copy 
 
 ```powershell
 # Preferred: script does kill + cache clear + PATH + dev
-Start-Process powershell -ArgumentList '-NoExit','-File','D:\Projects\claude-code-best\ccb-installer\scripts\start-aionui-dev.ps1'
+Start-Process powershell -ArgumentList '-NoExit','-File','D:\Projects\claude-code-best\ccb-installer\scripts\start-dev-full.ps1'
 ```
 
 Manual equivalent:
@@ -299,7 +299,7 @@ cd D:\Projects\aionui-src; bun run dev
 1. **Never** add top-level `import from 'node:fs'` in any file under `common/` that renderer might import — split into `*Shared.ts` + main-only sibling (see `coding-rules.md` §6).
 2. Before declaring dev done, open DevTools (Ctrl+Shift+I) in Electron and confirm no module externalization errors.
 3. Pure renderer edits usually HMR; **structural import changes** need full restart + cache clear.
-4. Do not launch Electron from Cursor background terminal if it exits `-1` — use visible PowerShell via `start-aionui-dev.ps1`.
+4. Do not launch Electron from Cursor background terminal if it exits `-1` — use visible PowerShell via `start-dev-full.ps1`.
 
 ### Wrong vs correct
 
@@ -341,4 +341,4 @@ import { acpConversation } from '@/common/adapter/ipcBridge';
 await acpConversation.getModel.invoke(...);
 ```
 
-> **Verified 2026-06-14:** After Wave 3 import fix + `start-aionui-dev.ps1` restart, Electron window renders normally (`Renderer did-finish-load` + `/api/agents` 200). User confirmed exe UI visible (not white screen).
+> **Verified 2026-06-14:** After Wave 3 import fix + `start-dev-full.ps1` restart, Electron window renders normally (`Renderer did-finish-load` + `/api/agents` 200). User confirmed exe UI visible (not white screen).
