@@ -9,7 +9,7 @@ def get_quote_tools_openai_format() -> list[dict]:
             "type": "function",
             "function": {
                 "name": "fill_quotation_sheet",
-                "description": "【报价单导向】将数据写入报价单 Excel 指定行。用户已确认选型、说“可以/没问题/直接填/按这个报”后，必须使用 fill_items 精确模式并设置 require_exact_codes=true；禁止再走 keywords/file 自动重匹配。output_path 省略或为相对路径时，runtime 必须注入 workspace_path（workspace_kind=aionui_project_temp），否则拒绝写入，避免文件落到 UI 看不到的隐藏目录。fill_items 每项含 row、code、quote_name、unit_price、qty、specification，以及可选的 indonesian_name（印尼名称/Nama Indonesia）、satuan（单位/Satuan）、brand（品牌/Brand）。服务端可按 code 自动补全缺失字段。写入列（VANTSING模板）：F=产品编号, G=报价名称, H=印尼名称, I=报价规格, J=单位, K=数量, L=品牌, M=单价, N=总额；并按表头自动填写「交货日期」「报价日期」（不传则用当天 YYYY/MM/DD）。",
+                "description": "【报价单导向】将数据写入报价单 Excel 指定行。用户已确认选型、说“可以/没问题/直接填/按这个报”后，必须使用 fill_items 精确模式并设置 require_exact_codes=true；禁止再走 keywords/file 自动重匹配。output_path 省略或为相对路径时，runtime 必须注入 workspace_path（workspace_kind=aionui_project_temp），否则拒绝写入，避免文件落到 UI 看不到的隐藏目录。fill_items 每项含 row、code、quote_name、unit_price、qty、inquiry_name（询价名称/Nama Permintaan）、specification，以及可选的 indonesian_name（印尼名称/Nama Indonesia）、satuan（单位/Satuan）、brand（品牌/Brand）。Agent 须在同轮从本会话 match 上下文提取 inquiry_name、从 matched_name/description_english 提取 specification/satuan/brand；服务端可按 code 自动补全缺失的报价侧字段，不推断询价名称。写入列（VANTSING模板）：F=产品编号, G=报价名称, H=印尼名称, I=报价规格, J=单位, K=数量, L=品牌, M=单价, N=总额；并按表头自动填写「交货日期」「报价日期」（不传则用当天 YYYY/MM/DD）。",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -25,6 +25,10 @@ def get_quote_tools_openai_format() -> list[dict]:
                                     "quote_name": {"type": "string"},
                                     "unit_price": {"type": "number"},
                                     "qty": {"type": "integer"},
+                                    "inquiry_name": {
+                                        "type": "string",
+                                        "description": "询价名称（Nama Permintaan / B 列）：本会话 match 时用的用户原话 keywords，如「直接50」；与 quote_name 分列，禁止用报价全名代替",
+                                    },
                                     "specification": {"type": "string"},
                                     "indonesian_name": {"type": "string", "description": "印尼名称（Nama Indonesia）：通常直接取 match_quotation 返回的 description_english 原文"},
                                     "satuan": {"type": "string", "description": "单位（Satuan）：如 根、pcs、set、m，从 matched_name 或 description_english 中提取"},

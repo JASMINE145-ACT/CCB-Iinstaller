@@ -116,6 +116,38 @@ class TestFillQuotationInquiryBackfill(unittest.TestCase):
             raise unittest.SkipTest("blank VANTSING template xlsx not found under data/")
         cls.blank_template = matches[0]
 
+    def test_fill_backfills_inquiry_name_only(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp) / "quote.xlsx"
+            import shutil
+
+            shutil.copy(self.blank_template, work)
+
+            row = 8
+            result = fill_quotation(
+                str(work),
+                [
+                    {
+                        "row": row,
+                        "code": "8010071492",
+                        "quote_name": "PVC-U 直接 dn50",
+                        "unit_price": 8500,
+                        "qty": 1,
+                        "specification": "dn50",
+                        "inquiry_name": "直接50",
+                    }
+                ],
+                output_path=str(Path(tmp) / "filled.xlsx"),
+            )
+            self.assertTrue(result.get("success"), result.get("error"))
+
+            wb = openpyxl.load_workbook(result["output_path"], data_only=True)
+            ws = wb.active
+            layout = _detect_quotation_layout(ws)
+
+            self.assertEqual(ws.cell(row, layout.inquiry_name_col).value, "直接50")
+            self.assertEqual(ws.cell(row, layout.inquiry_spec_col).value, "dn50")
+
     def test_fill_backfills_from_agent_fields(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             work = Path(tmp) / "quote.xlsx"
@@ -137,7 +169,6 @@ class TestFillQuotationInquiryBackfill(unittest.TestCase):
                         "inquiry_name": "直接50",
                         "inquiry_spec": "dn50",
                         "satuan": "个",
-                        "source_keyword": "直接50",
                     }
                 ],
                 output_path=str(Path(tmp) / "filled.xlsx"),

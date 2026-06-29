@@ -249,25 +249,28 @@ def normalize_fill_items(
         specification = str(
             raw.get("specification") or raw.get("spec") or raw.get("model") or nested.get("specification") or ""
         ).strip()
+        inquiry_name = str(raw.get("inquiry_name") or nested.get("inquiry_name") or "").strip()
         price_row = _lookup_wanding_row_by_code(
             str(code),
             customer_level=customer_level,
             price_library_path=price_library_path,
         )
 
+        fill_row: dict[str, Any] = {
+            "row": row,
+            "code": str(code).strip(),
+            "quote_name": str(quote_name).strip(),
+            "unit_price": unit_price,
+            "qty": qty,
+            "specification": specification,
+            "inquiry_name": inquiry_name,
+            "indonesian_name": indonesian_name,
+            "satuan": satuan,
+            "brand": brand,
+        }
         normalized.append(
             enrich_fill_item(
-                {
-                    "row": row,
-                    "code": str(code).strip(),
-                    "quote_name": str(quote_name).strip(),
-                    "unit_price": unit_price,
-                    "qty": qty,
-                    "specification": specification,
-                    "indonesian_name": indonesian_name,
-                    "satuan": satuan,
-                    "brand": brand,
-                },
+                fill_row,
                 matched=matched,
                 price_row=price_row,
                 inquiry_unit=str(

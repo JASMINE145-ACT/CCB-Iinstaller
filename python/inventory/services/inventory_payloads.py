@@ -17,7 +17,10 @@ _INVENTORY_NO_CREDENTIALS = (
 
 def aol_configured() -> bool:
     """True when the bundled inventory API has usable Accurate Online credentials."""
-    return bool(os.getenv("AOL_ACCESS_TOKEN", "").strip())
+    return all(
+        os.getenv(key, "").strip()
+        for key in ("AOL_ACCESS_TOKEN", "AOL_SIGNATURE_SECRET", "AOL_DATABASE_ID")
+    )
 
 
 def item_to_dict(item: Any) -> dict[str, Any] | None:

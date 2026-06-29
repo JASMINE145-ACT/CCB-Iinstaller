@@ -13,7 +13,7 @@ _env_file = _project_root / ".env.accurate"
 if _env_file.exists():
     try:
         from dotenv import load_dotenv
-        load_dotenv(_env_file, override=True)
+        load_dotenv(_env_file, override=True, encoding="utf-8-sig")
     except Exception:
         pass
 

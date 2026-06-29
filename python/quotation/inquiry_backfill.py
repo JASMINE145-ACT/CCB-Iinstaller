@@ -12,6 +12,7 @@ def resolve_inquiry_fields_from_item(item: dict[str, Any]) -> dict[str, str]:
         or item.get("source_keyword")
         or item.get("product_name")
         or item.get("keywords")
+        or item.get("keyword")
         or ""
     ).strip()
     inquiry_spec = str(
