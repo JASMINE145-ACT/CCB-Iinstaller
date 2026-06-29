@@ -25,8 +25,6 @@ $gateCommand = 'bash "$LOCALAPPDATA/CCB-Wanding/.claude/skills/ccb-subagent-gate
 $targetIds = @(
     "ppt-creator",
     "excel-creator",
-    "word-form-creator",
-    "cowork",
     "word-creator",
     "quotation-agent",
     "accurate-agent"

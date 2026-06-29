@@ -18,7 +18,7 @@ if (-not $AgentsDir) {
     $AgentsDir = Join-Path $env:LOCALAPPDATA "CCB-Wanding\.claude\agents"
 }
 
-$ids = @("ppt-creator", "cowork")
+$ids = @("ppt-creator")
 foreach ($id in $ids) {
     foreach ($ext in @(".md", ".aionui.json")) {
         $src = Join-Path $SeedDir "$id$ext"
