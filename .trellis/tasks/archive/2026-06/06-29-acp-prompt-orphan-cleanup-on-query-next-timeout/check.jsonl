@@ -1,0 +1,2 @@
+{"file":".trellis/spec/integration/agents-unified-model.md","reason":"Verify drain-fail orphan row is recorded in the existing validation matrix"}
+{"file":".trellis/spec/backend/acp-session-flow.md","reason":"Verify acp-session-flow reflects the updated retry guard behavior"}

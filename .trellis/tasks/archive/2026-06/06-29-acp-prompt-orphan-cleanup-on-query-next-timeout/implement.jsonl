@@ -1,0 +1,2 @@
+{"file":".trellis/spec/integration/agents-unified-model.md","reason":"Documents query.next timeout row + drain-fail orphan — add drainObservedClean gate behavior"}
+{"file":".trellis/spec/backend/acp-session-flow.md","reason":"ACP session flow spec — add drain-clean guard to timeout/retry section"}
