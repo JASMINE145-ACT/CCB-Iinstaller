@@ -226,7 +226,8 @@ function Stage-WandingHotData {
         'ccb-wanding-quotation.md',
         'ccb-wanding-accurate.md',
         'wanding_business_knowledge.md',
-        'wanding-matching-architecture.md'
+        'wanding-matching-architecture.md',
+        'data.Md'
     )) {
         $srcMd = Join-Path $dataRoot $f
         if (Test-Path -LiteralPath $srcMd) {

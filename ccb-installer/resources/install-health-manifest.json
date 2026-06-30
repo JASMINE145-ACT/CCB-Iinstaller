@@ -14,6 +14,7 @@
     "vendor/mcp-servers/office-word-mcp/site-packages/word_document_server/main.py",
     "vendor/mcp-servers/excel-mcp-server/site-packages/excel_mcp/server.py",
     "vendor/wanding/data/wanding_business_knowledge.md",
+    "vendor/wanding/data/data.Md",
     "vendor/wanding/python/main.py",
     "vendor/wanding/python/system/tool_dispatch.py",
     "vendor/wanding/python/quotation/fill_items.py",
@@ -28,6 +29,7 @@
     "scripts/deploy-subagent-gate-skill.ps1",
     "scripts/sync-ppt-master-agents.ps1",
     "scripts/ensure-ppt-master-deps.ps1",
+    "lib/warm-wanding-mcp.mjs",
     "seed/agents/quotation-agent.md"
   ],
   "route_b": {

@@ -219,6 +219,7 @@ D:\Projects\claude-code-best\data\ccb-wanding-quotation.md
 D:\Projects\claude-code-best\data\ccb-wanding-accurate.md
 D:\Projects\claude-code-best\data\wanding_business_knowledge.md
 D:\Projects\claude-code-best\data\wanding-matching-architecture.md
+D:\Projects\claude-code-best\data\data.Md                                    ← quotation-agent 档位解释契约（get_product_price_tiers 前 Read）
 
 D:\Projects\claude-code-best\data\price_library_cleaned_2026_05_15.xlsx  → always overwrite (gitignored — supply at build); role: bootstrap seed until LKG promoted from org
 D:\Projects\claude-code-best\data\mapping_table.xlsx                       (nonfatal)
@@ -230,8 +231,9 @@ D:\Projects\claude-code-best\data\空白标准报价单.xlsx
 ```text
 D:\Projects\claude-code-best\data\ccb-wanding-update-server.md
 D:\Projects\claude-code-best\data\ccb-wanding-pricing-system.md
-D:\Projects\claude-code-best\data\data.Md
 ```
+
+> ~~`data.Md`~~ **已改为 IN（2026-06-30）** — 曾误列入 Exclude；`quotation-agent` 多档报价前必须 Read。`build-wanding.ps1` fail-closed + `install-health-manifest.json` 门禁。
 
 > **Ship rule (2026-06-21):** `build-wanding.ps1` ships `data\*.md` by **enumeration minus the "Exclude data" denylist above** (was a hardcoded 5-name list → new SOP/knowledge `.md` got silently dropped). A newly added `.md` now auto-ships; only the three denylisted names stay out. `.xlsx` continue to glob-copy.
 
@@ -407,10 +409,12 @@ D:\Projects\claude-code-best\ccb-installer\config\agents\cowork.aionui.json
 
 ### 8.4 App startup MCP warm (#23)
 
-**Source:** `ccb-installer/lib/warm-wanding-mcp.mjs`  
+**Source:** `ccb-installer/lib/warm-wanding-mcp.mjs` (+ sibling probe helpers)  
 **Staging:** `{install}/lib/warm-wanding-mcp.mjs` (same path AionUI main reads via `ccbStartupReadiness.ts`)  
-**Dev sync:** `start-dev-full.ps1` copies on every dev launch — not yet in NSIS/hot zip whitelist (open).  
-**Verify:** Guid banner L1→L2; first send no `Failed to fetch`; `bun test ccbStartupReadinessShared.test.ts`. Spec: [`mcp-health.md`](./mcp-health.md) § App startup readiness gate.
+**Build:** `build-wanding.ps1` mirrors `ccb-installer/lib/` → `staging/lib/`; NSIS `File /r staging\lib\*.*`  
+**Manifest gate:** `install-health-manifest.json` → `lib/warm-wanding-mcp.mjs`  
+**Dev sync:** dev slot `%LOCALAPPDATA%\Programs\CCB-Wanding\lib\` or symlink from repo until repack  
+**Verify:** Guid banner L1→L2 clears (no permanent「MCP 预热未完成」); first send no `Failed to fetch`; `bun test ccbStartupReadinessShared.test.ts`. Spec: [`mcp-health.md`](./mcp-health.md) § App startup readiness gate.
 
 ---
 

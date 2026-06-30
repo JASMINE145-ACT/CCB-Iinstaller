@@ -329,6 +329,7 @@ Test-RequiredFile (Join-Path $dataRoot 'ccb-wanding-claude-index.md') 'claude in
 Test-RequiredFile (Join-Path $dataRoot 'ccb-wanding-quotation.md') 'quotation md'
 Test-RequiredFile (Join-Path $dataRoot 'ccb-wanding-accurate.md') 'accurate md'
 Test-RequiredFile (Join-Path $dataRoot 'wanding_business_knowledge.md') 'business knowledge md'
+Test-RequiredFile (Join-Path $dataRoot 'data.Md') 'data.Md (price tier contract for quotation-agent)'
 Test-OptionalFile (Join-Path $dataRoot 'mapping_table.xlsx') 'mapping_table xlsx'
 
 $dataXlsx = Get-ChildItem -LiteralPath $dataRoot -Filter '*.xlsx' -ErrorAction SilentlyContinue
@@ -531,8 +532,7 @@ New-Item -ItemType Directory -Force -Path $dataDest | Out-Null
 # SOP / knowledge md auto-ships instead of being silently dropped by a stale hardcoded list.
 $dataMdDenylist = @(
     'ccb-wanding-update-server.md',
-    'ccb-wanding-pricing-system.md',
-    'data.Md'
+    'ccb-wanding-pricing-system.md'
 )
 Get-ChildItem -LiteralPath $dataRoot -Filter '*.md' -ErrorAction SilentlyContinue | ForEach-Object {
     if ($dataMdDenylist -notcontains $_.Name) {
@@ -609,6 +609,13 @@ foreach ($s in $shipScripts) {
     Test-RequiredFile $src "script $s"
     Copy-Item -LiteralPath $src -Destination (Join-Path $scriptsDest $s) -Force
 }
+
+# lib/ — app startup MCP warm + probe helpers (AionUI ccbStartupReadiness.ts reads lib/warm-wanding-mcp.mjs)
+$libDest = Join-Path $StagingDir 'lib'
+New-Item -ItemType Directory -Force -Path $libDest | Out-Null
+$libSrc = Join-Path $installerRoot 'lib'
+Test-RequiredFile (Join-Path $libSrc 'warm-wanding-mcp.mjs') 'lib/warm-wanding-mcp.mjs'
+Invoke-RobocopyMirror $libSrc $libDest
 
 # Drift guard: $shipScripts is the authoritative SHIP whitelist (spec §7 — most scripts
 # are dev/CI-only and must NOT ship). $devOnlyScripts knowingly classifies the §7

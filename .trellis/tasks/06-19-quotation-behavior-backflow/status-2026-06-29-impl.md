@@ -46,19 +46,17 @@ Spec: [`.trellis/spec/integration/dev-sync-playbook.md`](../../../spec/integrati
 - [x] User smoke after `start-dev-full.ps1 -SkipBootstrap`: **likely fixed** — user report「我觉得这次可能真的修好了」
 - [ ] Formal sign-off on idle-kill + follow-up (`很好`) no concat — recommend one more idle-5min regression before fleet ship
 
-## Ship (pending)
+## Ship (2026-06-30, rebuild #2)
 
-本次 fix 跨 **三层**，**不能只打 hot zip**：
+| Item | Value |
+|------|-------|
+| Installer | `ccb-installer\CCB-Wanding-1.1.3.exe` (**853.4 MB**, mtime 2026-06-30 12:55) |
+| Build | Full staging clear + fresh `claude-code-B` build + fresh `aionui` win-unpacked (2026-06-30 11:43) + `aioncore` 1h idle (cargo release) + pip MCP + NSIS |
+| Fixes in pack | `lib/warm-wanding-mcp.mjs`, `vendor/wanding/data/data.Md`, acp-agent replay suppress, backflow renderer in app.asar |
+| Agent idle | **1 hour** — `AionCore` `DEFAULT_IDLE_TIMEOUT_SECS=3600` (UI default 60 min display; scanner not yet wired to settings API) |
+| Log | `ccb-installer\build-1.1.3-full.log` |
 
-| 层 | 变更 | 打包路径 |
-|----|------|----------|
-| `aionui-src` renderer | `staleTurnStreamFilter` / `postIdleWakeWindow` / `turn_id` merge | **必须** `build-wanding.ps1` 全量重编 AionUI（无 `-SkipAionUiBuild`） |
-| `claude-code-B` dist | `trimMessagesToCompleteTurnBoundary` | `build-wanding.ps1` Step 1 `bun run build`（默认） |
-| `acp-agent.js` patch | replay suppress + drain teardown | staging 时 **强制**从 repo copy（`build-wanding.ps1` L424–428） |
-
-推荐版本号：**`1.1.4`**（若旧 `1.1.3` exe 已发同事则 bump；若仅本机试打包可覆用 `1.1.3` 重打）。
-
-全量命令见 [`.trellis/spec/integration/wanding-first-ship.md`](../../../spec/integration/wanding-first-ship.md) §5.2 + [`.trellis/spec/guides/wanding-build-path-decision.md`](../../../spec/guides/wanding-build-path-decision.md)。
+**Install smoke:** exe → `ccb-launch-aionui.cmd` → no permanent MCP warm banner; `data.Md` Read OK; idle kill ≥1h not 5min.
 
 ## Not done
 

@@ -174,6 +174,9 @@ install_root_ok:
     SetOutPath "$INSTDIR\scripts"
     File /r "staging\scripts\*.*"
 
+    SetOutPath "$INSTDIR\lib"
+    File /r "staging\lib\*.*"
+
     SetOutPath "$INSTDIR\seed\agents"
     File /r "staging\seed\agents\*.*"
 
