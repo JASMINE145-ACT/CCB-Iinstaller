@@ -46,6 +46,11 @@
     {
       "id": "integration-fix-vendor-gate",
       "title": "Integration 修复 Phase 2 — start-dev-full vendor sync / hash preflight",
+      "status": "completed"
+    },
+    {
+      "id": "integration-fix-vendor-gate-21",
+      "title": "Integration 优化 Phase 2.1 — -Strict / data whitelist / Option E mtime gate",
       "status": "pending"
     },
     {
@@ -62,8 +67,9 @@
   "relatedFiles": [
     ".trellis/tasks/06-30-full-system-review/prd.md",
     ".trellis/tasks/06-30-full-system-review/review-plan.md",
-    ".trellis/tasks/06-30-full-system-review/delivery-phase-01-integration-docs.md",
-    ".trellis/tasks/06-30-full-system-review/reviews/step-01-integration.md",
+    ".trellis/tasks/06-30-full-system-review/delivery-phase-02-integration-vendor.md",
+    ".trellis/tasks/06-30-full-system-review/reviews/phase-02-vendor-sync-exploration.md",
+    ".trellis/tasks/06-30-full-system-review/reviews/phase-02-vendor-sync-optimization-review.md",
     ".trellis/spec/index.md",
     ".trellis/spec/outline.md",
     ".trellis/spec/integration/index.md",
@@ -80,5 +86,5 @@
     ".trellis/spec/integration/dev-runtime-layers.md",
     ".trellis/spec/frontend/dev-test-ship.md"
   ],
-  "notes": "Step 1 完成 2026-06-30（7.5/10）。Integration Phase 1 doc 对齐完成 2026-06-30 — delivery-phase-01-integration-docs.md。待办：Step 2 Backend；Phase 2 vendor sync；Phase 4 冷 ship。"
+  "notes": "Phase 1 doc ✅。Phase 2 Option C ✅ INT-P0-2 closed。Phase 2 优化复审 7.5/10（system-reviewer 9ba9fc53）— phase-02-vendor-sync-optimization-review.md；Phase 2.1 首项 INT-P1-7 data glob parity。"
 }

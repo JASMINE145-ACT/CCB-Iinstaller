@@ -12,6 +12,9 @@
 #   .\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap
 #   .\ccb-installer\scripts\start-dev-full.ps1 -InstallDir D:\CCB-Wanding -Clean
 #   .\ccb-installer\scripts\start-dev-full.ps1 -BuildAioncore:$false   # skip cargo when no Rust changes
+#   .\ccb-installer\scripts\start-dev-full.ps1 -SkipVendorSync         # UI-only; skips repo→vendor sync
+#   .\ccb-installer\scripts\start-dev-full.ps1 -VendorSmoke            # optional HDPE smoke after vendor sync
+#   .\ccb-installer\scripts\start-dev-full.ps1 -VendorUpdateSettings  # optional ensure-wanding-settings after vendor sync
 #
 # ─────────────────────────────────────────────────────────────────────────────
 # COMPLETENESS CHECKLIST (manual verification after launch)
@@ -30,6 +33,9 @@ param(
     [string]$AionUiSrc    = 'D:\Projects\aionui-src',
     [switch]$Clean,
     [switch]$SkipBootstrap,
+    [switch]$SkipVendorSync,
+    [switch]$VendorSmoke,
+    [switch]$VendorUpdateSettings,
     [bool]$BuildAioncore  = $true
 )
 
@@ -124,6 +130,23 @@ Write-Host 'Syncing Route B patch into dev/runtime slots...' -ForegroundColor Cy
 & (Join-Path $repoRoot 'ccb-installer\scripts\sync-aionui-ccb-route-b.ps1') -InstallDir $InstallDir
 if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
     throw "sync-aionui-ccb-route-b failed (exit $LASTEXITCODE)"
+}
+
+if ($SkipVendorSync) {
+    Write-Host '[skip] Vendor sync (-SkipVendorSync) — live vendor python/data may be stale.' -ForegroundColor Yellow
+} else {
+    Write-Host 'Syncing repo python/data/quotation MCP → vendor (sync-dev-wanding-vendor)...' -ForegroundColor Cyan
+    $vendorArgs = @{
+        InstallDir = $InstallDir
+        RepoRoot   = $repoRoot
+    }
+    if ($VendorSmoke) { $vendorArgs.Smoke = $true }
+    if ($VendorUpdateSettings) { $vendorArgs.UpdateSettings = $true }
+    & (Join-Path $repoRoot 'ccb-installer\scripts\sync-dev-wanding-vendor.ps1') @vendorArgs
+    if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+        throw "sync-dev-wanding-vendor failed (exit $LASTEXITCODE)"
+    }
+    Write-Host '[ok] Vendor sync complete.' -ForegroundColor Green
 }
 
 $warmLibSrc = Join-Path $repoRoot 'ccb-installer\lib\warm-wanding-mcp.mjs'

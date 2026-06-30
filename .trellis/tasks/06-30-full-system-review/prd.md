@@ -98,8 +98,8 @@ Step 5  Ship/Ops      ⏳ build-wanding / internal-update / Phase 4 冷构建
 
 | Phase | 内容 | 优先级 |
 |-------|------|--------|
-| 1 | `route-b-sync.md` 对齐 `sync-aionui-ccb-route-b.ps1`（3 targets）；doc sweep `start-aionui-dev` → `start-dev-full` | P0 |
-| 2 | `start-dev-full.ps1` 增加 `-SyncVendor` 或 hash preflight | P0 |
+| 1 | `route-b-sync.md` 对齐… | P0 | ✅ done |
+| 2 | 默认 vendor sync + `-SkipVendorSync`（Option C） | P0 | ✅ `delivery-phase-02-integration-vendor.md` |
 | 3 | 修 `verify-installer.ps1` 默认路径；新增 `integration-smoke.ps1` | P1 |
 | 4 | ACP 版本 `0.39.0` 探测/helper | P1 |
 | 5 | 刷新 `route-b-status.md` + `AIONUI-BACKEND-STATUS.md` | P1 |
@@ -111,6 +111,7 @@ Step 5  Ship/Ops      ⏳ build-wanding / internal-update / Phase 4 冷构建
 - [ ] `backlog.md` 汇总全项目 P0/P1，按 layer 标注 owner
 - [ ] 五步完成后更新 `.trellis/spec/index.md` 成熟度表与 refresh policy
 - [x] Integration Phase 1 doc 对齐（`delivery-phase-01-integration-docs.md`）
+- [x] Integration Phase 2 实现（Option C — `delivery-phase-02-integration-vendor.md`）
 
 ## Out of scope
 

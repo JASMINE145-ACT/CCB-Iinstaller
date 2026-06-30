@@ -17,10 +17,13 @@
 **所有 dev 启动、smoke、parity 测试只允许一条命令链：**
 
 ```powershell
-# 日常（已 bootstrap 过）：
+# 日常（已 bootstrap 过；默认 sync repo→vendor）：
 .\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap
 
-# 首次 / vendor 变更 / 怀疑 baseline 陈旧：
+# 纯 UI 改动、确认不需要 python/data/MCP dist 同步：
+.\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap -SkipVendorSync
+
+# 首次 / 怀疑 baseline 陈旧：
 .\ccb-installer\scripts\start-dev-full.ps1
 
 # AionCore 刚改完 Rust（默认已 -BuildAioncore；可显式关闭加速）：
@@ -31,12 +34,12 @@
 
 | 禁止 | 原因 |
 |------|------|
-| 裸 `bun run dev` | 无 SSO / 无 route-b sync / 无 aioncore inject |
+| 裸 `bun run dev` | 无 SSO / 无 route-b sync / 无 vendor sync / 无 aioncore inject |
 | `start-aionui-dev.ps1` | 曾 `AIONUI_BYPASS_AUTH=1` → 重定向 `start-dev-full` |
 | `start-aionui-dev-work-tasks.ps1` | 旁路 launcher → 重定向 |
 | `org-phase0/start-aionui-dev-org-test.ps1` | 缺 bootstrap/route-b → 重定向 |
 
-`start-dev-full.ps1` 固定顺序：**preflight → bootstrap（可选 Skip）→ route-b sync → `sync-dev-aioncore`（默认 `-Build` + smoke：price-library / work-tasks / org-knowledge 均 401 非 404）→ org SSO env → kill stale → `bun run dev`**。
+`start-dev-full.ps1` 固定顺序：**preflight → bootstrap（可选 Skip）→ route-b sync → `sync-dev-wanding-vendor`（默认；`-SkipVendorSync` 跳过）→ `sync-dev-aioncore`（默认 `-Build` + smoke：price-library / work-tasks / org-knowledge 均 401 非 404）→ org SSO env → kill stale → `bun run dev`**。
 
 | 原则 | 说明 |
 |------|------|
@@ -204,7 +207,15 @@ D:\Projects\claude-code-best\ccb-installer\scripts\start-dev-full.ps1 -Clean
 
 ### 4.6 一键「全层对齐」（日常推荐）
 
-按顺序执行 §4.1 → §4.2 → **§4.3 `sync-dev-wanding-vendor.ps1 -UpdateSettings -Smoke`** → §4.5（§4.4 仅 AionCore 有改动时）。
+**2026-06-30：** `start-dev-full.ps1` **默认**调用 `sync-dev-wanding-vendor.ps1`（route-b 之后、aioncore 之前）。日常只需：
+
+```powershell
+.\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap
+```
+
+纯 UI、不需要 vendor 对齐时：`-SkipVendorSync`。需要 settings 刷新或 HDPE smoke：加 `-VendorUpdateSettings` / `-VendorSmoke`。
+
+**手动分层**（脚本失败或只需 vendor 时）仍可用 §4.1 → §4.2 → §4.3 → §4.5（§4.4 仅 AionCore 有改动时）：
 
 ```powershell
 Get-Process electron,aioncore -ErrorAction SilentlyContinue | Stop-Process -Force
@@ -411,4 +422,6 @@ dev 验证通过后再 `bun run dist:win`；不要每次 UI 小改都打包。
 
 **Recorded:** 2026-06-29 — **Org knowledge MCP CSRF：** `append_business_rule` PUT 需 VPS double-submit（`GET /api/auth/status` → `aionui-csrf-token` + `x-csrf-token`）；见 [`org-knowledge.md`](./org-knowledge.md) § Mutating writes。部署：`sync-dev-wanding-vendor.ps1` → **重启 dev** + **新会话**（MCP 子进程不热加载 vendor python）。
 
-**Recorded:** 2026-06-29 — **Post-idle replay backflow（task `06-19`）：** 三层 fix 已部署本机 dev 槽。**Frontend**（`aionui-src` HMR）：`staleTurnStreamFilter` + `postIdleWakeWindow` + `turn_id` merge guard — 重启 `start-dev-full.ps1 -SkipBootstrap` 加载。**CCB dist：** `cd D:\claude-code-B; bun run build` → `deploy-claude-code-b-to-wanding.ps1`（`trimMessagesToCompleteTurnBoundary` in `chunk-*.js`）。**acp-agent patch：** §4.1.1 force copy → 3 目标；marker `loadSession replay suppressed` / `tearing down dirty`；hash `A0F72FAF87061BEE`（repo=live 2026-06-30）。杀 `aioncore`。**Smoke：** §5.2 #3b 新会话三连发；DevTools `[useAcpMessage] dropped stale turn stream message`。Spec：[`../frontend/chat-acp-flow.md`](../frontend/chat-acp-flow.md) § Post-idle replay backflow guard。**Operator (2026-06-30)：** 用户 dev 验证「可能真的修好了」；**发货须全量 NSIS**（含 aionui-src），见 [`wanding-first-ship.md`](./wanding-first-ship.md) §5.2 + [`guides/wanding-build-path-decision.md`](../guides/wanding-build-path-decision.md)。
+**Recorded:** 2026-06-29 — **Post-idle replay backflow（task `06-19`）：** … **Operator (2026-06-30)：** 用户 dev 验证「可能真的修好了」。
+
+**Recorded:** 2026-06-30 — **Ship `CCB-Wanding-1.1.3.exe`（未外发重打）：** `ccb-installer\CCB-Wanding-1.1.3.exe` ~851 MB；AionUI fresh `electron-builder --dir` + `build-wanding.ps1 -SkipBuild -SkipAionUiBuild -AioncorePath AionCore\target\release\aioncore.exe`；staging validation OK；acp-agent `loadSession replay suppressed` in bundle。BUILD-INFO: ccb `e3bffd10`, aionui `1bc621b`。Log: `ccb-installer\build-1.1.3-staging.log`。

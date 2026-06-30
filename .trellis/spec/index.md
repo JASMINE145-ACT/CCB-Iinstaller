@@ -106,7 +106,7 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 
 | Doc | Role |
 |-----|------|
-| [`../tasks/06-30-full-system-review/prd.md`](../tasks/06-30-full-system-review/prd.md) | **P1 in progress** — 全项目分五步 system review；Integration ✅ + **Phase 1 doc 对齐 ✅** [`delivery-phase-01-integration-docs.md`](../tasks/06-30-full-system-review/delivery-phase-01-integration-docs.md) |
+| [`../tasks/06-30-full-system-review/prd.md`](../tasks/06-30-full-system-review/prd.md) | **P1 in progress** — system review；Phase 1 doc ✅；Phase 2 vendor sync ✅ [`delivery-phase-02-integration-vendor.md`](../tasks/06-30-full-system-review/delivery-phase-02-integration-vendor.md)；Phase 2 优化复审 7.5/10 [`phase-02-vendor-sync-optimization-review.md`](../tasks/06-30-full-system-review/reviews/phase-02-vendor-sync-optimization-review.md) |
 | [`../tasks/06-28-app-startup-readiness-gate/prd.md`](../tasks/06-28-app-startup-readiness-gate/prd.md) | **P1 in progress** — app startup readiness gate; spec [`integration/mcp-health.md`](./integration/mcp-health.md) § App startup readiness gate |
 | [`../tasks/06-28-app-startup-readiness-gate/progress-2026-06-28.md`](../tasks/06-28-app-startup-readiness-gate/progress-2026-06-28.md) | MVP L1+L2 implemented; `.then()` init crash fixed (2026-06-28) |
 | [`../tasks/06-27-quotation-mcp-health/progress-2026-06-28.md`](../tasks/06-27-quotation-mcp-health/progress-2026-06-28.md) | MCP health 29/29 + **AOL BOM fix closed** (2026-06-28) |

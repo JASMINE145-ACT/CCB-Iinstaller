@@ -68,7 +68,7 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
-默认 dev 启动：**`ccb-installer/scripts/start-dev-full.ps1`**（bootstrap + route-b + aioncore 注入 + org SSO）；把 **`AionCore\target\release` 放在 PATH 最前**，其次才是 bundled aioncore。废弃：`start-aionui-dev.ps1`（仅 redirect）。
+默认 dev 启动：**`ccb-installer/scripts/start-dev-full.ps1`**（bootstrap + route-b + **vendor sync 默认** + aioncore 注入 + org SSO）；把 **`AionCore\target\release` 放在 PATH 最前**。纯 UI：`-SkipVendorSync`。废弃：`start-aionui-dev.ps1`（仅 redirect）。
 
 ---
 
@@ -175,7 +175,7 @@ Windows 上跑 test/build 前若 dev 开着，`aioncore.exe` 可能锁文件 →
 
 ## 9. 日常最少记忆（两条命令）
 
-**动了报价 / MCP 业务：**
+**动了报价 / MCP 业务：** 默认 `start-dev-full.ps1` 已 sync vendor；或单独：
 
 ```powershell
 cd D:\Projects\claude-code-best
@@ -186,6 +186,7 @@ cd D:\Projects\claude-code-best
 
 ```powershell
 .\ccb-installer\scripts\start-dev-full.ps1 -Clean
+# 纯 UI：可加 -SkipVendorSync
 ```
 
 全层对齐顺序：[`dev-sync-playbook.md`](./dev-sync-playbook.md) §4.6。

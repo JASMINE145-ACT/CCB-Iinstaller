@@ -9,7 +9,7 @@
 | ID | 项 | Layer | 状态 |
 |----|-----|-------|------|
 | INT-P0-1 | route-b-sync 4 vs 3 目标不一致 | integration | **closed** (doc 2026-06-30) |
-| INT-P0-2 | start-dev-full 未自动 vendor sync | integration | open |
+| INT-P0-2 | start-dev-full 未自动 vendor sync | integration | **closed** (2026-06-30) |
 | SHIP-P0-1 | Phase 4 冷构建 1.1.3-dev 未闭环 | ship | open |
 | FE-P0-1 | App startup readiness gate（06-28） | frontend + integration | in_progress |
 
@@ -30,6 +30,38 @@
 | INT-P2-1 | 缺 integration-smoke.ps1 | integration | open |
 | INT-P2-2 | CI 未覆盖 build-wanding v2 | ship | open |
 | FE-P2-1 | TODO(defensive) 可审计性 | frontend | open |
+
+## Integration Phase 2 修复 backlog（探索完成 2026-06-30）
+
+详见 [`reviews/phase-02-vendor-sync-exploration.md`](./reviews/phase-02-vendor-sync-exploration.md)。
+
+| 决策 | 内容 |
+|------|------|
+| 推荐方案 | **Option C** — 默认跑 `sync-dev-wanding-vendor.ps1`；`-SkipVendorSync` 供纯 UI dev |
+| 插入点 | `route-b sync` 之后、`sync-dev-aioncore` 之前 |
+| 不默认 | `-Smoke`、`-UpdateSettings`（可选 flag 透传） |
+| INT-P0-2 | **closed** (2026-06-30) |
+
+## Integration Phase 2.1 优化 backlog（复审 2026-06-30）
+
+详见 [`reviews/phase-02-vendor-sync-optimization-review.md`](./reviews/phase-02-vendor-sync-optimization-review.md)。  
+结构评分 **7.5/10** — Phase 2 够用；以下为可选增强。
+
+| ID | 项 | 优先级 | 状态 |
+|----|-----|--------|------|
+| INT-P1-7 | dev data 对齐 build glob（md denylist + 全 xlsx） | **P0†** | open |
+| INT-P1-6 | `-Strict` fingerprints + `-VendorStrict` 透传 | P1 | open |
+| INT-P1-8 | Spec 补全（outline、dev-test-ship、playbook §4.3/4.5） | P1 | open |
+| INT-P2-4 | Warn `-SkipVendorSync` + smoke/settings 组合 | P2 | open |
+| INT-P2-3 | Option E: drift-only skip robocopy | P2 | open |
+| INT-P2-7 | Python robocopy `/XD tools` 对齐 | P2 | open |
+| INT-P2-5 | `ensure-wanding-settings` exit 检查 | P2 | open |
+| INT-P2-8 | Vendor sync 写入 bootstrap log | P2 | open |
+| INT-P2-6 | `Invoke-ChildScript` helper（可选） | P3 | open |
+| INT-P2-9 | Preflight vs sync 顺序 | P3 | open |
+
+推荐顺序: INT-P1-7 → INT-P1-6 → INT-P2-4 → INT-P2-3 → INT-P1-8。  
+† Phase 2.1 子域 P0，非全项目 P0。
 
 ## Step 2–5 待填充
 
