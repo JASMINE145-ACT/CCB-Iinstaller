@@ -178,13 +178,13 @@ function ownerDiagnostics(index, kind) {
   return diagnostics;
 }
 
-export async function buildRegistry({ repoRoot }) {
+export async function buildRegistry({ repoRoot, includePackageIds = null }) {
   const installerRoot = resolve(repoRoot, "ccb-installer");
   const packageRoots = [
     join(installerRoot, "packages", "vertical"),
     join(installerRoot, "config", "packages"),
   ];
-  const manifests = [];
+  let manifests = [];
   const diagnostics = [];
 
   for (const packagesRoot of packageRoots) {
@@ -215,6 +215,11 @@ export async function buildRegistry({ repoRoot }) {
         })),
       );
     }
+  }
+
+  if (includePackageIds?.length) {
+    const allowed = new Set(includePackageIds);
+    manifests = manifests.filter((manifest) => allowed.has(manifest.packageId));
   }
 
   const agentOwners = ownerIndex(manifests, "agents");
@@ -387,7 +392,15 @@ async function main() {
           "ccb-installer/config/generated/package-registry.snapshot.json",
         );
   const checkOnly = process.argv.includes("--check");
-  const snapshot = await buildRegistry({ repoRoot });
+  const includePackagesArg = process.argv.indexOf("--include-packages");
+  const includePackageIds =
+    includePackagesArg >= 0 && includePackagesArg + 1 < process.argv.length
+      ? process.argv[includePackagesArg + 1]
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean)
+      : null;
+  const snapshot = await buildRegistry({ repoRoot, includePackageIds });
   const errors = snapshot.diagnostics.filter(
     (item) => item.severity === "error",
   );

@@ -3,6 +3,7 @@
   "packageId": "com.wanding.trade",
   "requiredFiles": [
     "vendor/mcp-servers/quotation-server/dist/index.js",
+    "vendor/mcp-servers/price-library-server/dist/index.js",
     "vendor/wanding/data/wanding_business_knowledge.md",
     "vendor/wanding/data/data.Md",
     "vendor/wanding/python/main.py",

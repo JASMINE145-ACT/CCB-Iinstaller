@@ -3,34 +3,6 @@
   "readOnly": true,
   "packages": [
     {
-      "id": "com.example.manufacturing-scheduling",
-      "version": "0.1.0",
-      "displayName": "Manufacturing Scheduling Pilot",
-      "capabilities": [
-        {
-          "id": "business.manufacturing.schedule",
-          "description": "Build deterministic finite-capacity production schedules."
-        }
-      ],
-      "contributions": [
-        {
-          "id": "manufacturing-scheduling-agent-catalog",
-          "kind": "agent-catalog",
-          "source": "packages/vertical/com.example.manufacturing-scheduling/agents"
-        },
-        {
-          "id": "manufacturing-scheduling-health",
-          "kind": "health",
-          "source": "packages/vertical/com.example.manufacturing-scheduling/health/mcp-health-manifest.json"
-        },
-        {
-          "id": "manufacturing-scheduling-dashboard",
-          "kind": "ui",
-          "source": "packages/vertical/com.example.manufacturing-scheduling/ui/scheduling-dashboard.json"
-        }
-      ]
-    },
-    {
       "id": "com.wanding.trade",
       "version": "0.1.0",
       "displayName": "WanD Trade",
@@ -111,7 +83,9 @@
         "price-library",
         "excel"
       ],
-      "skills": [],
+      "skills": [
+        "price-library-edit"
+      ],
       "requiredCapabilities": [
         "business.pricing.manage"
       ]
@@ -142,21 +116,6 @@
       ],
       "skills": [],
       "requiredCapabilities": []
-    },
-    {
-      "id": "scheduling-agent",
-      "packageId": "com.example.manufacturing-scheduling",
-      "source": "ccb-installer/packages/vertical/com.example.manufacturing-scheduling/agents/scheduling-agent.md",
-      "displayName": "Production Scheduler",
-      "mcpServers": [
-        "manufacturing-scheduling"
-      ],
-      "skills": [
-        "finite-capacity-scheduling"
-      ],
-      "requiredCapabilities": [
-        "business.manufacturing.schedule"
-      ]
     },
     {
       "id": "wande-orchestrator",
@@ -209,14 +168,6 @@
       "providesCapabilities": []
     },
     {
-      "id": "manufacturing-scheduling",
-      "packageId": "com.example.manufacturing-scheduling",
-      "source": "packages/vertical/com.example.manufacturing-scheduling/health/mcp-health-manifest.json",
-      "providesCapabilities": [
-        "business.manufacturing.schedule"
-      ]
-    },
-    {
       "id": "office-word",
       "packageId": null,
       "source": "ccb-installer/config/mcp-health-manifest.json",
@@ -253,11 +204,11 @@
       "providesCapabilities": []
     },
     {
-      "id": "finite-capacity-scheduling",
-      "packageId": "com.example.manufacturing-scheduling",
-      "source": "packages/vertical/com.example.manufacturing-scheduling/skills/finite-capacity-scheduling/SKILL.md",
+      "id": "price-library-edit",
+      "packageId": "com.wanding.trade",
+      "source": "packages/vertical/com.wanding.trade/skills/price-library-edit/SKILL.md",
       "providesCapabilities": [
-        "business.manufacturing.schedule"
+        "business.pricing.manage"
       ]
     },
     {

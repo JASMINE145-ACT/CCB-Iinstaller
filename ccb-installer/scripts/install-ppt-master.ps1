@@ -47,6 +47,20 @@ if (Test-Path -LiteralPath $learnSource) {
     Write-Warning "[ppt-master] quotation-learn-by-data source not found; skipping learn-by-data skill deploy."
 }
 
+$priceEditSource = Join-Path $InstallDir "seed\skills\price-library-edit"
+if (-not (Test-Path -LiteralPath $priceEditSource)) {
+    $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+    $priceEditSource = Join-Path $repoRoot "ccb-installer\packages\vertical\com.wanding.trade\skills\price-library-edit"
+}
+if (Test-Path -LiteralPath $priceEditSource) {
+    Write-Host "[ppt-master] Deploy price-library-edit ..."
+    & (Join-Path $PSScriptRoot "deploy-price-library-edit-skill.ps1") `
+        -SkillsDir $skillsDir `
+        -SourceDir $priceEditSource
+} else {
+    Write-Warning "[ppt-master] price-library-edit source not found; skipping price-library-edit skill deploy."
+}
+
 $seedAgents = Join-Path $InstallDir "seed\agents"
 if (-not (Test-Path -LiteralPath $seedAgents)) {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent

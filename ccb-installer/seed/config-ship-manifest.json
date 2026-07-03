@@ -1,6 +1,6 @@
 {
-  "config_generation": 2,
-  "description": "GUI v2 fleet reset — overwrite CLI-era agent seeds and refresh AionUI ACP runtime on install/upgrade",
+  "config_generation": 3,
+  "description": "Price library edit skill + agent hooks — refresh agent seeds and AionUI ACP runtime on install/upgrade",
   "reset_targets": [
     "agents",
     "aionui_runtime"

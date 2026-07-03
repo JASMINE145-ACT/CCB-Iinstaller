@@ -360,6 +360,7 @@ if (-not $blankTemplate) {
 
 Test-RequiredFile (Join-Path $installerRoot 'vendor\bun\bun.exe') 'vendor bun'
 Test-RequiredFile (Join-Path $repoRoot 'mcp_servers\quotation-server\dist\index.js') 'quotation-server dist'
+Test-RequiredFile (Join-Path $repoRoot 'mcp_servers\price-library-server\dist\index.js') 'price-library-server dist'
 
 if (-not $SkipStagingClear -and $StagingDir -like "$installerRoot\staging*") {
     if (Test-Path -LiteralPath $StagingDir) {
@@ -530,6 +531,27 @@ else {
     throw "quotation-server node_modules missing: $quotNodeModulesSrc"
 }
 
+$priceLibDistSrc = Join-Path $repoRoot 'mcp_servers\price-library-server\dist'
+$priceLibDistDest = Join-Path $mcpDest 'price-library-server\dist'
+Invoke-RobocopyMirror $priceLibDistSrc $priceLibDistDest
+$priceLibNodeModulesSrc = Join-Path $repoRoot 'mcp_servers\price-library-server\node_modules'
+if (Test-Path -LiteralPath $priceLibNodeModulesSrc) {
+    Invoke-RobocopyMirror $priceLibNodeModulesSrc (Join-Path $mcpDest 'price-library-server\node_modules') @(
+        '/XD', '.cache'
+    )
+}
+else {
+    $quotNmDest = Join-Path $mcpDest 'quotation-server\node_modules'
+    $priceLibNmDest = Join-Path $mcpDest 'price-library-server\node_modules'
+    if (Test-Path -LiteralPath $quotNmDest) {
+        Write-Host '  price-library-server: junction node_modules -> quotation-server' -ForegroundColor DarkGray
+        New-Item -ItemType Junction -Path $priceLibNmDest -Target $quotNmDest -Force | Out-Null
+    }
+    else {
+        throw "price-library-server node_modules missing and quotation-server junction source unavailable"
+    }
+}
+
 # accurate single file (required)
 $accurateSrc = Join-Path $installerRoot 'vendor\mcp-servers\accurate-mcp\server.py'
 Test-RequiredFile $accurateSrc 'accurate-mcp server.py'
@@ -587,6 +609,11 @@ foreach ($configDirName in @('schemas', 'runtime')) {
     Test-RequiredFile $source "config directory $configDirName"
     Invoke-RobocopyMirror $source (Join-Path $runtimeConfigDest $configDirName)
 }
+Write-Step 'Regenerate package registry snapshot (WanD release: com.wanding.trade only)'
+$registryScript = Join-Path $installerRoot 'scripts\build-package-registry.mjs'
+Invoke-NativeBuildCommand {
+    & node $registryScript --include-packages com.wanding.trade
+} 'package-registry snapshot'
 $registrySnapshotSrc = Join-Path $installerRoot 'config\generated\package-registry.snapshot.json'
 Test-RequiredFile $registrySnapshotSrc 'P1 package registry snapshot'
 $registrySnapshotDest = Join-Path $runtimeConfigDest 'generated'
@@ -604,6 +631,10 @@ Invoke-RobocopyMirror $seedSkillSrc $seedSkillDest @('/XD', 'tests', '__pycache_
 $learnSkillSrc = Join-Path $installerRoot 'packages\vertical\com.wanding.trade\skills\quotation-learn-by-data'
 $learnSkillDest = Join-Path $StagingDir 'seed\skills\quotation-learn-by-data'
 Invoke-RobocopyMirror $learnSkillSrc $learnSkillDest
+
+$priceEditSkillSrc = Join-Path $installerRoot 'packages\vertical\com.wanding.trade\skills\price-library-edit'
+$priceEditSkillDest = Join-Path $StagingDir 'seed\skills\price-library-edit'
+Invoke-RobocopyMirror $priceEditSkillSrc $priceEditSkillDest
 
 # Scripts (shipped set — whitelist §7)
 # Clear first so stale build-only helpers from a previous build (or a partial
@@ -630,6 +661,7 @@ $shipScripts = @(
     'deploy-ppt-master-skill.ps1',
     'deploy-subagent-gate-skill.ps1',
     'deploy-quotation-learn-by-data-skill.ps1',
+    'deploy-price-library-edit-skill.ps1',
     'sync-ppt-master-agents.ps1',
     'ensure-ppt-master-deps.ps1',
     'install-excel-mcp-server.ps1',
