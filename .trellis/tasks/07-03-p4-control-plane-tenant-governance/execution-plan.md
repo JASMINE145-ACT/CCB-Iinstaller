@@ -5,7 +5,7 @@
 | Scenario | C — security-sensitive cross-layer platform service |
 | Plan depth | Full |
 | Verification profile | Security + Release |
-| Status | Git gate — implementation and automated verification complete |
+| Status | completed — implementation commit `8588abf0` |
 
 ## Phase -1 capability matrix
 
@@ -69,4 +69,4 @@
 | Tenant and package-lock schemas | PASS |
 | P1–P3 regressions | PASS |
 | Live MCP runtime | PASS 5/5 |
-| Git/private-key/credential audit | pending final staged audit |
+| Git/private-key/credential audit | PASS; implementation `8588abf0` |
