@@ -1,0 +1,55 @@
+{
+  "id": "07-03-p0-security-boundary",
+  "name": "07-03-p0-security-boundary",
+  "title": "P0 security and boundary freeze",
+  "description": "Phase 0 of platform decoupling epic: credential exposure remediation, secret scanning gate, platform-forbidden-coupling spec, identity naming, baseline audit. Blocks P1-P5 multi-tenant work.",
+  "status": "in_progress",
+  "dev_type": "architecture",
+  "scope": "cross-layer",
+  "package": "integration",
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-03",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    {"id": "p0-a-credentials", "title": "P0-A — Remove tracked secrets + rotation evidence", "status": "done"},
+    {"id": "p0-b-secret-scan", "title": "P0-B — CI/pre-commit secret scanning", "status": "done"},
+    {"id": "p0-c-forbidden-spec", "title": "P0-C — platform-forbidden-coupling.md", "status": "done"},
+    {"id": "p0-d-identity-schema", "title": "P0-D — platform-identity-schema.md", "status": "done"},
+    {"id": "p0-e-vertical-packages-patch", "title": "P0-E — platform-vertical-packages P0 red lines", "status": "done"},
+    {"id": "p0-f-done-record", "title": "P0-F — p0-security-boundary-done.md", "status": "done"}
+  ],
+  "children": [],
+  "parent": "07-03-platform-business-decoupling",
+  "relatedFiles": [
+    "docs/platform-system-business-decoupling-optimization.md",
+    ".trellis/spec/integration/platform-vertical-packages.md",
+    ".trellis/spec/backend/config-layer.md",
+    ".trellis/tasks/07-03-p0-security-boundary/prd.md",
+    ".trellis/tasks/07-03-p0-security-boundary/execution-plan.md",
+    ".trellis/tasks/07-03-p0-security-boundary/research/p0-baseline-audit-2026-07-03.md",
+    "ccb-installer/src/services/acp/agentSessionProfile.ts",
+    "ccb-installer/resources/install-health-manifest.json",
+    "ccb-installer/scripts/test-mcp-health.ps1",
+    ".mcp.json",
+    ".env.accurate",
+    "scripts/org-phase0/env.local"
+  ],
+  "notes": "2026-07-03: P0 implement complete in working tree. Tracked secrets removed (.mcp.json, env.local, .env.accurate). Secret-scan CI + specs landed. Ops: rotate credentials + atomic commit pending.",
+  "meta": {
+    "parent_epic": "07-03-platform-business-decoupling",
+    "phase": "P0",
+    "execution_plan": "execution-plan.md",
+    "explore_evidence": "research/p0-baseline-audit-2026-07-03.md",
+    "scenario": "A",
+    "verification": [
+      "powershell -NoProfile -File ccb-installer/scripts/test-mcp-health.ps1 -Probe -Quiet"
+    ]
+  }
+}

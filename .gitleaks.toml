@@ -1,0 +1,25 @@
+# Gitleaks config for CCB-Wanding. Extend allowlist only with justification in PR.
+title = "ccb-wanding gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known false positives and example templates"
+paths = [
+  '''\.mcp\.json\.example$''',
+  '''\.env\.accurate\.example$''',
+  '''scripts/org-phase0/env\.local\.example$''',
+  '''scripts/org-phase0/env\.example$''',
+  '''\.trellis/tasks/.*/research/''',
+  '''ccb-installer/config/skills/.*/tests/fixtures/''',
+  # Removed from index 2026-07-03 (P0); secrets rotated — suppress until history rewrite or baseline refresh
+  '''^\.mcp\.json$''',
+  '''^\.env\.accurate$''',
+  '''^scripts/org-phase0/env\.local$''',
+]
+regexTarget = "match"
+regexes = [
+  '''CHANGE_ME''',
+  '''YOUR_[A-Z0-9_]+''',
+]

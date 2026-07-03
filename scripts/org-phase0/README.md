@@ -11,7 +11,7 @@ One-page runbook: Phase 0 [`org-knowledge-phase0-rollout.md`](../../.trellis/spe
 | Script | Where to run | Purpose |
 |--------|--------------|---------|
 | `vps-create-employee-runbook.md` | Ops | **SSH → admin TOKEN → POST /api/users → 验证 → env.local 登记** |
-| `env.example` | Copy → `env.local` (gitignored) | Secrets template |
+| `env.example` / `env.local.example` | Copy → `env.local` (gitignored) | Secrets template — prefer `env.local.example` |
 | `vps-smoke.sh` | VPS | systemd + auth/status + optional knowledge count |
 | `vps-create-employee.sh` | VPS | Promote admin → manager + create employee + verify org login |
 | `verify-desktop.ps1` | Windows | org-server.json, org-session.token, center reachability |

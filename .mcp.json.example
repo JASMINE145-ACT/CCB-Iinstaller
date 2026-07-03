@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "quotation": {
+      "command": "bun",
+      "args": ["run", "mcp_servers/quotation-server/src/index.ts"],
+      "env": {
+        "AOL_ACCESS_TOKEN": "YOUR_AOL_ACCESS_TOKEN",
+        "AOL_DATABASE_ID": "YOUR_AOL_DATABASE_ID",
+        "AOL_SIGNATURE_SECRET": "YOUR_AOL_SIGNATURE_SECRET"
+      }
+    }
+  }
+}

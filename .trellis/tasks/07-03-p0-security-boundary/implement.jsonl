@@ -1,0 +1,3 @@
+{"file": "docs/platform-system-business-decoupling-optimization.md", "reason": "P0 scope sections 4.5 12.3 18 21"}
+{"file": ".trellis/spec/integration/platform-forbidden-coupling.md", "reason": "P0-C deliverable"}
+{"file": ".trellis/spec/integration/platform-identity-schema.md", "reason": "P0-D deliverable"}

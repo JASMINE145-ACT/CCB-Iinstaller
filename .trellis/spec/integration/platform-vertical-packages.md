@@ -321,4 +321,30 @@ Center MCP ≠ move everything to cloud.
 
 | Date | Change |
 |------|--------|
+| 2026-07-03 | P0 red lines: [`platform-forbidden-coupling.md`](./platform-forbidden-coupling.md), [`platform-identity-schema.md`](./platform-identity-schema.md), secret-scan CI; tracked secrets removed from git (task `07-03-p0-security-boundary`) |
 | 2026-06-22 | Initial record from architecture exploration (platform vs vertical, nine change areas, P0–P4, evidence table) |
+
+---
+
+## 10. P0 security & boundary freeze (2026-07-03)
+
+**Epic:** `.trellis/tasks/07-03-platform-business-decoupling` · **Task:** `07-03-p0-security-boundary`
+
+### Non-negotiables (active now)
+
+1. **Four-layer chain is not rewritten** — `AionUI → aioncore → route-b → CCB Runtime` stays platform core.
+2. **No new WanD hardcoding** in platform `ccb-installer/src/` — see [`platform-forbidden-coupling.md`](./platform-forbidden-coupling.md).
+3. **No secrets in git** — `.mcp.json`, `.env.accurate`, `scripts/org-phase0/env.local` are gitignored; use `*.example` templates; CI gitleaks on PR/push.
+4. **Rotate exposed credentials** — files were previously tracked; treat git history as compromised (ops action, not spec content).
+
+### P0 vs later phases
+
+| P0 (this task) | Deferred |
+|----------------|----------|
+| Secret removal + scan + forbidden-coupling spec | Registry implementation (P1) |
+| Identity naming policy | Config compiler (P2) |
+| Baseline audit + MCP probe evidence | `com.wanding.trade` extract (P3) |
+| | OIDC/JWKS (P4) |
+
+**Design doc alignment:** [`docs/platform-system-business-decoupling-optimization.md`](../../../docs/platform-system-business-decoupling-optimization.md) Phase 0.
+

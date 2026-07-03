@@ -23,6 +23,9 @@
 | **Guid / sidebar / Team assistant catalog**（侧栏 emoji + 创建团队 Leader 列表） | [`agents-unified-model.md`](./agents-unified-model.md) § Sidebar avatar fix, § Team / conversation catalog unification (2026-06-29); [`../frontend/file-map.md`](../frontend/file-map.md) §7 |
 | **Quotation 多候选选型回复**（1 推荐 + bullet，禁止默认大表） | [`agents-unified-model.md`](./agents-unified-model.md) § Quotation multi-candidate reply; maint [`../../data/ccb-wanding-quotation.md`](../../data/ccb-wanding-quotation.md) §选型与澄清 |
 | **Quotation 多档查价 / 档位含义**（`get_product_price_tiers` + Read `data.Md`） | [`price-library.md`](./price-library.md) § Multi-tier query + `data.Md` read hook; agent SOP `ccb-installer/config/agents/quotation-agent.md` |
+| **Platform vs vertical packages** (tenant, `com.wanding.trade`, P0–P4) | [`platform-vertical-packages.md`](./platform-vertical-packages.md); design [`../../../docs/platform-system-business-decoupling-optimization.md`](../../../docs/platform-system-business-decoupling-optimization.md); epic `.trellis/tasks/07-03-platform-business-decoupling` |
+| **P0 forbidden coupling / no WanD in platform src** | [`platform-forbidden-coupling.md`](./platform-forbidden-coupling.md) |
+| **Package / tenant / capability IDs** | [`platform-identity-schema.md`](./platform-identity-schema.md) |
 | Layer 1 (desktop) only | You do not need this index. Go to [`../frontend/index.md`](../frontend/index.md). |
 
 ## Project strategy (5 lines)
