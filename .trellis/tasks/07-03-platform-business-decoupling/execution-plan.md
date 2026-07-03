@@ -6,7 +6,7 @@
 | **Scenario** | B（大型规格 + 多 Phase epic） |
 | **Plan depth** | Full |
 | **Verification profile** | Standard |
-| **Active phase** | P2 — Git gate |
+| **Active phase** | P3 — planning |
 | **Approved** | 2026-07-03 (user) |
 | **Parent doc** | `docs/platform-system-business-decoupling-optimization.md` |
 
@@ -16,7 +16,7 @@
 |-------|--------|---------------------|
 | P0 Security & boundary freeze | **done** (ops rotation pending) | `07-03-p0-security-boundary` · commit `6d81848f` · `p0-security-boundary-done.md` |
 | P1 Meta-model & read-only registry | **done** | `p1-registry-snapshot-done.md` · tests 3/3 · lint 0 errors / 10 warnings · MCP probe 5/5 |
-| P2 Config compiler & single source | **in progress — commit gate** | `07-03-p2-config-compiler-v1` · tests 6/6 · parity 0 · MCP 5/5 · staging PASS |
+| P2 Config compiler & single source | **completed** | `2ab9fdb2` · tests 6/6 · parity 0 · MCP 5/5 · staging PASS |
 | P3 Extract `com.wanding.trade` | pending | — |
 | P4 Control plane & tenant governance | pending | — |
 | P5 Second vertical pilot | pending | — |

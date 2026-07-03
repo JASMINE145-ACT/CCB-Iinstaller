@@ -37,7 +37,7 @@
     {
       "id": "p2-config-compiler",
       "title": "P2 — Config compiler, projections, provenance, drift",
-      "status": "in_progress",
+      "status": "completed",
       "taskDir": "07-03-p2-config-compiler-v1"
     },
     {
@@ -84,7 +84,7 @@
     "ccb-installer/resources/install-health-manifest.json",
     "ccb-installer/scripts/ensure-wanding-settings.ps1"
   ],
-  "notes": "Epic approved 2026-07-03. P0 committed 6d81848f; ops credential rotation pending. P1 complete. P2 implementation and automated verification complete (tests 6/6, live parity 0, drift detected, MCP 5/5, staging PASS); scoped Git commit pending.",
+  "notes": "Epic approved 2026-07-03. P0 committed 6d81848f; ops credential rotation pending. P1 complete. P2 completed in 2ab9fdb2 (tests 6/6, live parity 0, drift detected, MCP 5/5, staging PASS). Next phase: P3 planning.",
   "meta": {
     "user_goal": "分 Phase 实现平台与万鼎业务解耦，可装配多垂直包",
     "execution_plan": "execution-plan.md",
