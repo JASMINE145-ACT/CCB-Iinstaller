@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ccb-platform.local/schemas/package-lock-1.0.0.json",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "revision",
+    "platformVersion",
+    "configRevision",
+    "packages"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "revision": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "platformVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "configRevision": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "packageId",
+          "version",
+          "sha256"
+        ]
+      }
+    }
+  }
+}

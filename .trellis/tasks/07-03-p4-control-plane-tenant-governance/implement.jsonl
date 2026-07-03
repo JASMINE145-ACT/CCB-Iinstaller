@@ -1,0 +1,6 @@
+{"file":".trellis/spec/integration/platform-identity-schema.md","reason":"Tenant/package identifiers, schema versioning, and audit fields."}
+{"file":".trellis/spec/integration/platform-vertical-packages.md","reason":"Tenant model, OIDC/JWKS, secret isolation, and deployment boundary."}
+{"file":".trellis/spec/integration/runtime-config-compiler.md","reason":"Desired/observed and secret reference inputs from P2."}
+{"file":".trellis/spec/integration/package-lifecycle.md","reason":"Package state and health inputs from P3."}
+{"file":".trellis/spec/integration/control-plane-tenant-governance.md","reason":"Executable P4 tenant, release, identity, secret, audit, and dashboard contract."}
+{"file":".trellis/tasks/07-03-p4-control-plane-tenant-governance/research/p4-current-control-plane-audit.md","reason":"Current auth gap, implementation decision, and risks."}

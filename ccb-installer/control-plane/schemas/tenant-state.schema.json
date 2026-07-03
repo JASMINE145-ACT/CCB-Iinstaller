@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ccb-platform.local/schemas/tenant-state-1.0.0.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "tenant_id",
+    "displayName",
+    "revision",
+    "environment",
+    "packageLock",
+    "desired",
+    "releases",
+    "observed"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "tenant_id": {
+      "type": "string",
+      "pattern": "^(tn_[a-z0-9][a-z0-9_-]*|[0-9a-fA-F-]{36})$"
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "environment": {
+      "type": "string"
+    },
+    "packageLock": {
+      "type": "object"
+    },
+    "desired": {
+      "type": "object"
+    },
+    "releases": {
+      "type": "array"
+    },
+    "observed": {
+      "type": "object"
+    }
+  }
+}

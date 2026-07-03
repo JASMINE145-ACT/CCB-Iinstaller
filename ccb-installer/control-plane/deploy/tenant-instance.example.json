@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "tenant_id": "tn_example_prod",
+  "environment": "prod",
+  "isolation": "one-instance-per-tenant",
+  "stateRoot": "/var/lib/ccb-control-plane",
+  "catalogRoot": "/opt/ccb-platform/packages/vertical",
+  "secretStore": {
+    "provider": "file-aes-gcm",
+    "root": "/var/lib/ccb-control-plane/secrets",
+    "masterKeySource": "environment:CONTROL_PLANE_MASTER_KEY"
+  },
+  "identity": {
+    "mode": "oidc-jwks",
+    "verifierConfig": "/etc/ccb-control-plane/oidc-verifier.json"
+  },
+  "network": {
+    "bind": "127.0.0.1",
+    "adminAccess": "ssh-or-private-network"
+  }
+}

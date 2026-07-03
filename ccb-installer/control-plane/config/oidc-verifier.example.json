@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0.0",
+  "issuer": "https://identity.example.com/realms/ccb",
+  "jwksUri": "https://identity.example.com/realms/ccb/protocol/openid-connect/certs",
+  "audience": "ccb-platform",
+  "algorithms": [
+    "RS256"
+  ],
+  "requiredClaims": [
+    "sub",
+    "tenant_id",
+    "roles",
+    "permissions",
+    "exp",
+    "iss",
+    "aud"
+  ]
+}

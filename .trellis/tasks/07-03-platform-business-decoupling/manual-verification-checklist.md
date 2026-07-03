@@ -50,7 +50,24 @@ tokens, or private business data in this file.
 
 ## P4 — Control plane and tenant governance
 
-_Added when P4 automation is complete._
+- [ ] Deploy one isolated control-plane state root for a non-production tenant.
+- [ ] Store the AES-GCM master key only in the server secret manager/environment;
+  confirm it is absent from Git, package artifacts, logs, and employee clients.
+- [ ] Register an OIDC client using RS256 and publish its JWKS.
+- [ ] Inspect the client verifier config; confirm it contains issuer, audience,
+  and JWKS URI only—no `JWT_SECRET`, client secret, or private key.
+- [ ] Verify valid login claims include `tenant_id`, roles, permissions, issuer,
+  audience, subject, and expiry.
+- [ ] Attempt wrong-tenant and missing-permission access; confirm rejection.
+- [ ] Create a tenant package lock and compare package hashes with the catalog.
+- [ ] Publish a canary config using only `secret://` references.
+- [ ] Report one matching and one drifting observed device; confirm dashboard
+  desired/observed/drift and tenant-filtered audit.
+- [ ] Promote, then rollback; confirm immutable revision history remains.
+- [ ] Confirm audit contains actor/correlation/tenant/result but no token,
+  secret value, or business document body.
+- [ ] Cut over legacy `org-idp` HS256 only after canary login, config compile,
+  platform health, and full package MCP probes pass.
 
 ## P5 — Second vertical pilot
 

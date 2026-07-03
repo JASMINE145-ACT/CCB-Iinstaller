@@ -1,0 +1,38 @@
+{
+  "id": "p4-control-plane-tenant-governance",
+  "name": "p4-control-plane-tenant-governance",
+  "title": "P4 control plane and tenant governance MVP",
+  "description": "Package catalog/lock, tenant desired-observed state, config release/rollback, JWKS verification, server-side encrypted secret refs, audit, and per-tenant deployment template.",
+  "status": "in_progress",
+  "dev_type": "architecture",
+  "scope": "cross-layer",
+  "package": "integration",
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-03",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "07-03-platform-business-decoupling",
+  "relatedFiles": [
+    "ccb-installer/control-plane",
+    "ccb-installer/packages/vertical",
+    "ccb-installer/config/generated/package-registry.snapshot.json",
+    ".trellis/spec/integration/control-plane-tenant-governance.md"
+  ],
+  "notes": "P4 MVP implementation and automated verification complete: control plane 2/2, JWKS 2/2, secret store 1/1, CLI 1/1, schemas PASS, P1-P3 regressions PASS, live MCP 5/5. Production OIDC/gateway cutover remains a human gate; Git commit pending.",
+  "meta": {
+    "parent_epic": "07-03-platform-business-decoupling",
+    "phase": "P4",
+    "execution_plan": "execution-plan.md",
+    "done_record": "p4-control-plane-done.md",
+    "verification_profile": "Security + Release",
+    "manual_checklist": "../07-03-platform-business-decoupling/manual-verification-checklist.md"
+  }
+}

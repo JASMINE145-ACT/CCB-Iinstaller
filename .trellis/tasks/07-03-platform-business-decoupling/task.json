@@ -55,7 +55,8 @@
     {
       "id": "p4-control-plane",
       "title": "P4 — Control plane, OIDC/JWKS, tenant governance",
-      "status": "pending"
+      "status": "in_progress",
+      "taskDir": "07-03-p4-control-plane-tenant-governance"
     },
     {
       "id": "p5-second-vertical",
@@ -66,7 +67,8 @@
   "children": [
     "07-03-p0-security-boundary",
     "07-03-p2-config-compiler-v1",
-    "07-03-p3-wanding-package-extract"
+    "07-03-p3-wanding-package-extract",
+    "07-03-p4-control-plane-tenant-governance"
   ],
   "parent": null,
   "relatedFiles": [

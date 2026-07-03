@@ -1,0 +1,5 @@
+{"file":".trellis/spec/integration/platform-forbidden-coupling.md","reason":"No secrets, tenantless data, or business coupling in platform core."}
+{"file":".trellis/spec/integration/platform-identity-schema.md","reason":"Validate tenant scope and redacted audit fields."}
+{"file":".trellis/spec/integration/platform-vertical-packages.md","reason":"Validate asymmetric identity and per-tenant deployment."}
+{"file":".trellis/spec/integration/control-plane-tenant-governance.md","reason":"Validate control-plane security and release behavior."}
+{"file":".trellis/tasks/07-03-p4-control-plane-tenant-governance/prd.md","reason":"P4 acceptance and non-goals."}

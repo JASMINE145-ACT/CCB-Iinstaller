@@ -279,6 +279,18 @@ Lifecycle and health composition rules are executable contracts in
 [`package-lifecycle.md`](./package-lifecycle.md). Legacy seed/install paths are
 projections and compatibility aliases, not a second business source of truth.
 
+### 4.11 Implemented P4 control-plane boundary
+
+The opt-in Phase-A control-plane core is under
+`ccb-installer/control-plane/`. It provides tenant package locks, config
+release/rollback, desired-vs-observed drift, public-JWKS verification,
+server-side encrypted secret references, redacted audit, and a dashboard JSON
+projection.
+
+See [`control-plane-tenant-governance.md`](./control-plane-tenant-governance.md).
+Legacy shared-HS256 authentication remains compatibility-only until the human
+OIDC migration checklist passes.
+
 ---
 
 ## 5. Assets that should stay local
