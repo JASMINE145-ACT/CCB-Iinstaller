@@ -1,0 +1,47 @@
+{
+  "id": "org-knowledge-dev-token-alignment",
+  "name": "07-02-org-knowledge-dev-token-alignment",
+  "title": "Org knowledge Dev/Prod JWT 对齐 — profile-strict org_session (v2)",
+  "description": "Dev 机器 quotation MCP 用过期 Prod JWT → append_business_rule 401。v2：AIONUI_APPDATA_PROFILE 显式绑定 + 共享 org_session.py（price/knowledge），禁止 mtime 猜 token；ensure-wanding-settings/start-dev-full 注入 profile。",
+  "status": "in_progress",
+  "dev_type": "implementation",
+  "scope": "python/admin org_session + org clients + ensure-wanding-settings + start-dev-full + spec",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-02",
+  "relatedFiles": [
+    "python/admin/org_session.py",
+    "python/admin/org_knowledge_client.py",
+    "python/admin/org_price_client.py",
+    "python/admin/org_http_csrf.py",
+    "python/admin/test_org_session.py",
+    "python/admin/test_org_knowledge_client.py",
+    "python/tests/test_org_price_client.py",
+    "ccb-installer/scripts/ensure-wanding-settings.ps1",
+    "ccb-installer/scripts/start-dev-full.ps1",
+    "ccb-installer/scripts/sync-dev-wanding-vendor.ps1",
+    ".trellis/spec/integration/org-knowledge.md",
+    ".trellis/spec/integration/dev-sync-playbook.md"
+  ],
+  "notes": "v2 2026-07-02：由 explore 评审升级。P0 org_session 强制；STRICT profile 不 cross-profile；PUT 401/403/409 分型。本机：Prod token 401，Dev token 200。",
+  "meta": {
+    "parent_task": "06-28-org-knowledge-agent-write-path",
+    "symptom": "append_business_rule 401 / org knowledge doc not available",
+    "design_version": "v2-profile-strict",
+    "phases": [
+      "P0-org-session-module",
+      "P0-org-knowledge-client-migrate",
+      "P0-org-price-client-migrate",
+      "P1-settings-profile-injection",
+      "P1-tests-spec-vendor-smoke",
+      "P1-manual-append-e2e"
+    ],
+    "out_of_scope": [
+      "mtime token selection",
+      "shadow md write fallback",
+      "VPS auth model change"
+    ]
+  }
+}

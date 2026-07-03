@@ -4,7 +4,6 @@ from __future__ import annotations
 import http.cookiejar
 import json
 import logging
-import os
 import urllib.error
 import urllib.request
 from datetime import datetime
@@ -13,6 +12,17 @@ from typing import Any
 from urllib.parse import quote
 
 from admin.org_http_csrf import ORG_CSRF_HEADER_NAME, ORG_CSRF_STATUS_PATH, bootstrap_org_csrf, build_cookie_opener
+from admin.org_session import (
+    AuthCandidate,
+    OrgAuthError,
+    OrgCsrfError,
+    OrgHttpError,
+    OrgVersionConflictError,
+    classify_http_status,
+    get_auth_candidates,
+    resolve_auth_fallback_policy,
+    resolve_org_server_url,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -22,53 +32,8 @@ DEFAULT_SLUG = "wanding_business_knowledge"
 _doc_cache: dict[str, dict[str, Any]] = {}
 
 
-def _appdata_roots() -> list[Path]:
-    appdata = os.environ.get("APPDATA", "").strip()
-    if not appdata:
-        return []
-    return [Path(appdata) / "AionUi", Path(appdata) / "AionUi-Dev"]
-
-
-def _org_server_url() -> str:
-    from_env = (os.environ.get("ORG_SERVER_URL") or "").strip().rstrip("/")
-    if from_env:
-        return from_env
-    for root in _appdata_roots():
-        config_path = root / "aionui" / "org-server.json"
-        try:
-            payload = json.loads(config_path.read_text(encoding="utf-8"))
-            url = (payload.get("url") or "").strip().rstrip("/")
-            if url:
-                return url
-        except (OSError, json.JSONDecodeError, AttributeError):
-            continue
-    return ""
-
-
-def _org_session_token() -> str:
-    direct = (os.environ.get("ORG_SESSION_TOKEN") or "").strip()
-    if direct:
-        return direct
-
-    candidates: list[Path] = []
-    token_file = (os.environ.get("ORG_SESSION_TOKEN_FILE") or "").strip()
-    if token_file:
-        candidates.append(Path(token_file))
-    for root in _appdata_roots():
-        candidates.append(root / "aionui" / "org-session.token")
-
-    for path in candidates:
-        try:
-            token = path.read_text(encoding="utf-8").strip()
-            if token:
-                return token
-        except OSError:
-            continue
-    return ""
-
-
 def is_org_api_configured() -> bool:
-    return bool(_org_server_url())
+    return bool(resolve_org_server_url())
 
 
 def invalidate_org_knowledge_cache(slug: str | None = None) -> None:
@@ -80,67 +45,142 @@ def invalidate_org_knowledge_cache(slug: str | None = None) -> None:
         _doc_cache.pop(slug, None)
 
 
-def _api_get(path: str) -> dict[str, Any] | None:
-    base = _org_server_url()
-    if not base:
+def _parse_json_response(payload: bytes) -> dict[str, Any] | None:
+    try:
+        data = json.loads(payload.decode("utf-8"))
+    except json.JSONDecodeError:
         return None
-    token = _org_session_token()
+    if isinstance(data, dict) and "data" in data:
+        inner = data["data"]
+        return inner if isinstance(inner, dict) else None
+    return data if isinstance(data, dict) else None
+
+
+def _make_get(base: str, path: str, token: str) -> dict[str, Any] | None:
     headers = {"Accept": "application/json"}
     if token:
         headers["Authorization"] = f"Bearer {token}"
     req = urllib.request.Request(f"{base}{path}", headers=headers, method="GET")
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
-            payload = json.loads(resp.read().decode("utf-8"))
-            if isinstance(payload, dict) and "data" in payload:
-                return payload["data"]  # type: ignore[return-value]
-            return payload if isinstance(payload, dict) else None
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError) as e:
+            return _parse_json_response(resp.read())
+    except urllib.error.HTTPError as e:
+        if e.code in (401, 403, 409):
+            raise classify_http_status(e.code, context=f"GET {path}") from e
+        logger.warning("org knowledge API GET %s failed: HTTP %s", path, e.code)
+        return None
+    except (urllib.error.URLError, TimeoutError) as e:
         logger.warning("org knowledge API GET %s failed: %s", path, e)
         return None
 
 
+def _api_get(path: str) -> dict[str, Any] | None:
+    base = resolve_org_server_url()
+    if not base:
+        return None
+
+    candidates = get_auth_candidates()
+    if not candidates:
+        try:
+            return _make_get(base, path, "")
+        except OrgAuthError:
+            logger.warning("org knowledge API GET %s: 401 with no session token", path)
+            return None
+
+    saw_auth_error = False
+    for index, candidate in enumerate(candidates):
+        try:
+            result = _make_get(base, path, candidate.token)
+            if index > 0 and result is not None:
+                logger.info(
+                    "org_knowledge_client: org API OK using auth candidate %d/%d source=%s profile=%s",
+                    index + 1,
+                    len(candidates),
+                    candidate.source,
+                    candidate.profile,
+                )
+            return result
+        except OrgAuthError:
+            saw_auth_error = True
+            continue
+
+    if saw_auth_error:
+        policy = resolve_auth_fallback_policy().value
+        logger.warning(
+            "org knowledge API GET %s failed: HTTP Error 401: Unauthorized "
+            "(candidates=%d policy=%s)",
+            path,
+            len(candidates),
+            policy,
+        )
+    return None
+
+
 def _api_json(method: str, path: str, payload: dict[str, Any]) -> dict[str, Any]:
-    base = _org_server_url()
+    base = resolve_org_server_url()
     if not base:
         raise RuntimeError("ORG_SERVER_URL is not configured")
-    token = _org_session_token()
-    if not token:
-        raise RuntimeError("ORG_SESSION_TOKEN or ORG_SESSION_TOKEN_FILE is not configured")
 
-    jar = http.cookiejar.CookieJar()
-    opener = build_cookie_opener(jar)
-    try:
-        csrf_token = bootstrap_org_csrf(base, jar, opener_factory=lambda _: opener)
-    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, RuntimeError) as e:
-        raise RuntimeError(f"org knowledge API CSRF bootstrap GET {ORG_CSRF_STATUS_PATH} failed: {e}") from e
+    candidates = get_auth_candidates()
+    if not candidates:
+        raise RuntimeError("ORG_SESSION_TOKEN or profile org-session.token is not configured")
 
-    headers = {
-        "Accept": "application/json",
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-        ORG_CSRF_HEADER_NAME: csrf_token,
-    }
-    req = urllib.request.Request(
-        f"{base}{path}",
-        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
-        headers=headers,
-        method=method,
-    )
-    try:
-        with opener.open(req, timeout=20) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        raw = e.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"org knowledge API {method} {path} failed: HTTP {e.code} {raw}") from e
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
-        raise RuntimeError(f"org knowledge API {method} {path} failed: {e}") from e
+    last_auth_error: OrgAuthError | None = None
+    for candidate in candidates:
+        jar = http.cookiejar.CookieJar()
+        opener = build_cookie_opener(jar)
+        try:
+            csrf_token = bootstrap_org_csrf(base, jar, opener_factory=lambda _: opener)
+        except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, RuntimeError) as e:
+            raise RuntimeError(
+                f"org knowledge API CSRF bootstrap GET {ORG_CSRF_STATUS_PATH} failed: {e}"
+            ) from e
 
-    if isinstance(data, dict) and "data" in data and isinstance(data["data"], dict):
-        return data["data"]
-    if isinstance(data, dict):
-        return data
-    raise RuntimeError(f"org knowledge API {method} {path} returned invalid JSON")
+        headers = {
+            "Accept": "application/json",
+            "Authorization": f"Bearer {candidate.token}",
+            "Content-Type": "application/json",
+            ORG_CSRF_HEADER_NAME: csrf_token,
+        }
+        req = urllib.request.Request(
+            f"{base}{path}",
+            data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+            headers=headers,
+            method=method,
+        )
+        try:
+            with opener.open(req, timeout=20) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            if e.code == 401:
+                last_auth_error = OrgAuthError(401, f"HTTP 401 Unauthorized ({method} {path})")
+                continue
+            if e.code == 403:
+                raw = e.read().decode("utf-8", errors="replace")
+                raise OrgCsrfError(403, f"org knowledge API {method} {path} failed: HTTP 403 {raw}") from e
+            if e.code == 409:
+                raw = e.read().decode("utf-8", errors="replace")
+                raise OrgVersionConflictError(
+                    409,
+                    f"org knowledge API {method} {path} failed: HTTP 409 {raw}",
+                ) from e
+            raw = e.read().decode("utf-8", errors="replace")
+            raise RuntimeError(f"org knowledge API {method} {path} failed: HTTP {e.code} {raw}") from e
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
+            raise RuntimeError(f"org knowledge API {method} {path} failed: {e}") from e
+
+        if isinstance(data, dict) and "data" in data and isinstance(data["data"], dict):
+            return data["data"]
+        if isinstance(data, dict):
+            return data
+        raise RuntimeError(f"org knowledge API {method} {path} returned invalid JSON")
+
+    if last_auth_error is not None:
+        raise RuntimeError(
+            f"org knowledge API {method} {path} failed: HTTP 401 Unauthorized "
+            f"(candidates={len(candidates)} policy={resolve_auth_fallback_policy().value})"
+        ) from last_auth_error
+    raise RuntimeError(f"org knowledge API {method} {path} failed: no auth candidates")
 
 
 def get_doc(slug: str = DEFAULT_SLUG, *, use_cache: bool = True) -> dict[str, Any] | None:
@@ -164,6 +204,7 @@ def get_doc(slug: str = DEFAULT_SLUG, *, use_cache: bool = True) -> dict[str, An
         "version": data.get("version"),
         "title": data.get("title"),
         "source": "org-api",
+        "updated_by_id": data.get("updated_by_id"),
     }
     _doc_cache[slug] = entry
     logger.info("[KNOWLEDGE_SOURCE] Org API — slug: %s, length: %d", slug, len(content))
@@ -195,6 +236,7 @@ def update_doc(
             "version": data.get("version"),
             "title": data.get("title"),
             "source": "org-api",
+            "updated_by_id": data.get("updated_by_id"),
         }
     return data
 
@@ -246,6 +288,7 @@ def append_business_rule(
         "section": section_text,
         "rule_text": rule,
         "updated_at": response.get("updated_at"),
+        "updated_by_id": response.get("updated_by_id"),
     }
 
 
