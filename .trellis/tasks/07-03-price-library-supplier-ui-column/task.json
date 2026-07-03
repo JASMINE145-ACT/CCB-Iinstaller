@@ -1,0 +1,22 @@
+{
+  "id": "price-library-supplier-ui-column",
+  "name": "07-03-price-library-supplier-ui-column",
+  "title": "价格库 UI 第 42 列 supplier",
+  "description": "Add supplier column to AionUI #/price-library read-only table (types + i18n + search). Follows VPS v3 publish.",
+  "status": "completed",
+  "dev_type": "feature",
+  "scope": "aionui-src-price-library-ui",
+  "package": "aionui-src",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "createdAt": "2026-07-02",
+  "completedAt": "2026-07-02",
+  "parent": "07-01-price-library-admin-agent",
+  "relatedFiles": [
+    "D:/Projects/aionui-src/packages/desktop/src/common/types/priceLibrary/priceLibraryTypes.ts",
+    "D:/Projects/aionui-src/packages/desktop/src/renderer/pages/priceLibrary/filterProducts.ts",
+    "D:/Projects/aionui-src/tests/unit/priceLibrary/priceLibraryColumns.test.ts",
+    ".trellis/spec/integration/price-library.md"
+  ],
+  "notes": "Completed 2026-07-02. User verified UI 42 cols + supplier visible. Tests: bun test tests/unit/priceLibrary/ 7 pass. Code-review PASS."
+}

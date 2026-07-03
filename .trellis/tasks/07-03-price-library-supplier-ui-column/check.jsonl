@@ -1,0 +1,4 @@
+{"check": "PRICE_LIBRARY_COLUMNS length 42, supplier after volume", "evidence": "bun test tests/unit/priceLibrary/priceLibraryColumns.test.ts — 7 pass total"}
+{"check": "filterProducts matches supplier", "evidence": "filterProducts.test.ts supplier case"}
+{"check": "code-review agent", "evidence": "PASS — supplier column minimal scope, column order matches API"}
+{"check": "UI manual — 42 cols + supplier row", "evidence": "user confirmed 搞定 2026-07-02"}

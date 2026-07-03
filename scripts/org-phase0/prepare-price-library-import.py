@@ -2,7 +2,8 @@
 """Prepare price-library xlsx for AionCore import (migration column mapping).
 
 Fills empty price_a..price_d from tax columns without overwriting existing tier
-prices. Rows that still have no quotable price after mapping are excluded.
+prices. Rows with no quotable price after mapping are kept (catalog-only SKUs,
+e.g. CP-ML* ceiling materials) so they appear in the org price library.
 Duplicate material codes are collapsed by keeping the row with
 `is_preferred_price=True` when exactly one exists (752 PE/LESSO overlap groups in
 the 2026-05-15 workbook). Aligns with `data/data.Md` and the wanding matcher.
@@ -34,7 +35,13 @@ except ImportError:
     sys.exit(1)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_INPUT = REPO_ROOT / "data" / "price_library_cleaned_2026_05_15.xlsx"
+DEFAULT_INPUT = (
+    REPO_ROOT
+    / ".trellis"
+    / "tasks"
+    / "06-30-quotation-supplier-remark"
+    / "price_library_with_supplier_simple_draft.xlsx"
+)
 DEFAULT_OUTPUT = REPO_ROOT / "data" / "price_library_import_ready.xlsx"
 DEFAULT_SKIPPED = REPO_ROOT / "data" / "price_library_import_skipped.json"
 SHEET_NAME = "price_library"
@@ -157,9 +164,11 @@ def main() -> int:
     mapped_c = 0
     kept_unchanged = 0
     skipped: list[dict] = []
+    no_price_catalog: list[dict] = []
     deduped: list[dict] = []
     by_material: dict[str, list[tuple[int, tuple]]] = {}
     preferred_i = idx.get("is_preferred_price")
+    supplier_i = idx.get("supplier")
 
     for source_row, raw in enumerate(rows[1:], start=2):
         if raw is None:
@@ -188,24 +197,30 @@ def main() -> int:
             kept_unchanged += 1
 
         if not has_any_price(row, idx):
-            skipped.append(
+            no_price_catalog.append(
                 {
                     "source_row": source_row,
                     "material": material_code,
                     "description": str(row[idx["description"]]).strip()
                     if "description" in idx and row[idx["description"]] is not None
                     else "",
-                    "reason": "no quotable price column after fallback mapping",
+                    "reason": "catalog_only_no_quotable_price",
                 }
             )
-            continue
 
         by_material.setdefault(material_code, []).append((source_row, tuple(row)))
 
     out_rows: list[tuple] = [header]
+    supplier_non_empty = 0
+    supplier_by_material: dict[str, set[str]] = {}
     for material_code, candidates in by_material.items():
         winner_source, winner_tuple, reason = pick_dedupe_winner(candidates, preferred_i)
         out_rows.append(winner_tuple)
+        if supplier_i is not None:
+            supplier_val = winner_tuple[supplier_i]
+            if supplier_val is not None and str(supplier_val).strip():
+                supplier_non_empty += 1
+                supplier_by_material.setdefault(material_code, set()).add(str(supplier_val).strip())
         if len(candidates) > 1:
             for source_row, _ in candidates:
                 if source_row == winner_source:
@@ -236,18 +251,32 @@ def main() -> int:
         "source_data_rows": len(rows) - 1,
         "importable_rows": len(out_rows) - 1,
         "skipped_rows": len(skipped),
+        "no_price_catalog_rows": len(no_price_catalog),
         "mapped_price_b": mapped_b,
         "mapped_price_c": mapped_c,
         "rows_with_existing_abcd": kept_unchanged,
         "deduped_rows": len(deduped),
+        "supplier_column_present": supplier_i is not None,
+        "supplier_non_empty_count": supplier_non_empty,
+        "multi_supplier_material_count": sum(1 for s in supplier_by_material.values() if len(s) > 1),
         "skipped": skipped,
+        "no_price_catalog": no_price_catalog,
         "deduped": deduped,
     }
     args.skipped.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     print(f"Wrote {args.output} ({manifest['importable_rows']} importable rows)")
-    print(f"Skipped manifest: {args.skipped} ({manifest['skipped_rows']} skipped, {manifest['deduped_rows']} deduped)")
+    print(
+        f"Skipped manifest: {args.skipped} "
+        f"({manifest['skipped_rows']} skipped, {manifest['no_price_catalog_rows']} catalog-only, "
+        f"{manifest['deduped_rows']} deduped)"
+    )
     print(f"Mapped price_b: {mapped_b}, price_c: {mapped_c}")
+    if supplier_i is not None:
+        print(
+            f"Supplier: {supplier_non_empty} non-empty rows, "
+            f"{manifest['multi_supplier_material_count']} materials with multiple suppliers in source"
+        )
     return 0
 
 

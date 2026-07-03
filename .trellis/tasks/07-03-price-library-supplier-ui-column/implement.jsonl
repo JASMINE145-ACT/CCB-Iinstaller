@@ -1,0 +1,3 @@
+{"file": "aionui-src/packages/desktop/src/common/types/priceLibrary/priceLibraryTypes.ts", "reason": "supplier field + 42nd column in PRICE_LIBRARY_COLUMNS"}
+{"file": "aionui-src/packages/desktop/src/renderer/pages/priceLibrary/filterProducts.ts", "reason": "search includes supplier"}
+{"file": "aionui-src/tests/unit/priceLibrary/priceLibraryColumns.test.ts", "reason": "column count/order contract test"}

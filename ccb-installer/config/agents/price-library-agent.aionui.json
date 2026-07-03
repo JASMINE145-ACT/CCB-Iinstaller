@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent_id": "price-library-agent",
+  "display_name": "价格库管理",
+  "avatar": "🏷️",
+  "guid_primary": true,
+  "delegatable": false,
+  "requires_price_admin": true,
+  "enabled": true,
+  "sort_order": 90,
+  "source": "bundled",
+  "skills": {
+    "enabled": [],
+    "disabled": []
+  },
+  "recommended_prompts": [
+    "查看当前价格库 draft 有哪些待发布变更",
+    "把物料 M001 的 price_b 改成 12.5 并发布",
+    "导出当前已发布价格库到桌面"
+  ],
+  "mcp_allowlist": [
+    "price-library",
+    "excel"
+  ]
+}

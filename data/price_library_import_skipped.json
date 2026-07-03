@@ -1,215 +1,1348 @@
 {
-  "input": "D:\\Projects\\claude-code-best\\data\\price_library_cleaned_2026_05_15.xlsx",
+  "input": "D:\\Projects\\claude-code-best\\.trellis\\tasks\\06-30-quotation-supplier-remark\\price_library_with_supplier_simple_draft.xlsx",
   "output": "D:\\Projects\\claude-code-best\\data\\price_library_import_ready.xlsx",
   "sheet": "price_library",
-  "source_data_rows": 3867,
-  "importable_rows": 3082,
-  "skipped_rows": 33,
+  "source_data_rows": 4053,
+  "importable_rows": 3299,
+  "skipped_rows": 0,
+  "no_price_catalog_rows": 219,
   "mapped_price_b": 544,
   "mapped_price_c": 2787,
   "rows_with_existing_abcd": 3286,
-  "deduped_rows": 752,
-  "skipped": [
+  "deduped_rows": 754,
+  "supplier_column_present": true,
+  "supplier_non_empty_count": 294,
+  "multi_supplier_material_count": 0,
+  "skipped": [],
+  "no_price_catalog": [
     {
       "source_row": 2257,
       "material": "CP-APSL-001",
       "description": "Aluminium Metal Ceiling Shadow line 铝扣板 边条 1*1*2.5cm，厚0.3mm （尺寸会有下差)",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2258,
       "material": "CP-MLMB-IC1200",
       "description": "Mineral wool board (inch) 矿棉板（英制） 1200x600mmx15mm 1213X603X14MM （外包装灰色）",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2260,
       "material": "CP-MLMB-MC1200-01",
       "description": "Mineral wool board RH 98 矿棉板 98（公制） 1200*600*16 mm 1194*594*16 mm",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2261,
       "material": "CP-MLMB-MC1200-02",
       "description": "Mineral wool board RH 99 矿棉板 99（公制） 1200*600*16 Mm RH 99 1194*594*16mm（实厚）RH 99",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2263,
       "material": "CP-MLMB-IC600",
       "description": "Mineral wool board(metric) 矿棉板（英制） 600x600mmx15mm 603*603*14 mm",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2264,
       "material": "CP-MLSP-MC600",
       "description": "Silicon calcium plate (metric) 硅钙板（公制） 600x600mm 595*595mm",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2265,
       "material": "CP-MLHK-001",
       "description": "Hook 38#(Inc screw) 38主吊（含穿心丝)",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2266,
       "material": "CP-MLSW-001",
       "description": "screw 穿心丝 与38主吊配套",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2268,
       "material": "CP-MLMT-3MIC",
       "description": "Main keel T type(inch) T型主龙骨（英制） 3M 32X24X3050X0.3MM（灰色外包装）",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2269,
       "material": "CP-MLMT-3MMC",
       "description": "Main keel T type(metric) T型主龙骨（公制） 3M 32X24X0.3X3000mm（白色外包装）",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2270,
       "material": "CP-MLVT-0.6MIC",
       "description": "Vice keel T type(inch) T型副龙骨（英制） 0.6M 26X24X610X0.3MM （灰色外包装）",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2272,
       "material": "CP-MLMT-3.6MIC",
       "description": "Main keel T type(inch) T型主龙骨（英制） 3.6M 32X24X3660X0.3MM （灰色外包装）",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2274,
       "material": "CP-MLVT-1.2MIC",
       "description": "Vice keel T type(inch) T型副龙骨（英制） 1.2M 26X24X1220X0.3MM（灰色外包装）",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2277,
       "material": "CP-ACMH-001",
       "description": "Main hook 50# (include Screw) 50#主吊(含穿心丝） /",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2278,
       "material": "CP-ACMH-001",
       "description": "Main hook 50# (include Screw) 50#主吊(含穿心丝） /",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2279,
       "material": "CP-ACHK-001",
       "description": "Hook 50# 50#快吊 /",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2280,
       "material": "CP-ACSH-001",
       "description": "75# Support hook 75#支撑卡 /",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2281,
       "material": "CP-ACVH-001",
       "description": "50# Vice Hook 50#四爪 /",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2282,
       "material": "CP-ACVH-001",
       "description": "50# Vice Hook 50#四爪 /",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2283,
       "material": "CP-ACMK-3M",
       "description": "50#ceiling main keel 50型吊顶主龙骨 50#，U型，3M/根 厚度：厚度1.2mm",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2284,
       "material": "CP-ACMK-3.6M",
       "description": "50#ceiling main keel 50型吊顶主龙骨 50#，U型，3.6M/根 厚度：厚度0.8mm",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2285,
       "material": "CP-ACSK-001",
       "description": "50# Suspended ceiling auxiliary keel 50型 吊顶副龙骨 C型，3米/根 厚0.5mm",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2286,
       "material": "CP-ACCB-001",
       "description": "Corner Bead 护角条 250*250*0.3 mm Long 3 Meters",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2287,
       "material": "CP-ACSC-001",
       "description": "Spring Clip 弹簧夹",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2288,
       "material": "CP-ACWR-001",
       "description": "Wire Rod 线材 4*3000",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2289,
       "material": "CP-DTIN-001",
       "description": "Internal Angle line 阴角线 20mm*20mm*3m， 材质PVC 单根重量150g",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2290,
       "material": "CP-DTAL-001",
       "description": "Angular line 阳角线 20mm*20mm*3m， 材质PVC 单根重量150g",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2291,
       "material": "CP-PKMK-3.2M",
       "description": "Partition keel 隔墙龙骨 0.75mm*75mm (3.2M/根 )",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2292,
       "material": "CP-PKMK-6M",
       "description": "Partition keel 隔墙龙骨 0.75mm*75mm (6M/根 )",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2293,
       "material": "CP-PKMS-76",
       "description": "Metal Stud (Ms) Type 76 金属螺柱 76型 340*760*0.3mm Long 3 Meters",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2294,
       "material": "CP-PKUR-76",
       "description": "U Runner Type 76 U 金属螺柱 76型 340*760*0.3mm Long 3 Meters",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2295,
       "material": "CP-PKMK-3M",
       "description": "Partition keel 竖向隔墙龙骨 0.75mm*75mm (3M/根 )",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
     },
     {
       "source_row": 2296,
       "material": "CP-PKTK-6M",
       "description": "天地龙骨 Tiandi keel U型；型号：75型；6M/根；厚度：国标 0.6mm",
-      "reason": "no quotable price column after fallback mapping"
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3869,
+      "material": "001202130004",
+      "description": "接线盒 SIMON 45DH86 公称直径20 公称直径25 Grey - Loose (SH)",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3870,
+      "material": "001754",
+      "description": "½英寸(DN15)铁吊卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3871,
+      "material": "001755",
+      "description": "¾英寸(DN20)铁吊卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3872,
+      "material": "001758",
+      "description": "1½英寸(DN40)铁吊卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3873,
+      "material": "001760",
+      "description": "2½英寸(DN65)铁吊卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3874,
+      "material": "001762",
+      "description": "4英寸(DN100)铁吊卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3875,
+      "material": "0110238",
+      "description": "PPR内丝直接",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3876,
+      "material": "0110309",
+      "description": "PVC两用管卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3877,
+      "material": "0110312",
+      "description": "PVC两用管卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3878,
+      "material": "0110315",
+      "description": "M10*15cm管卡钉",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3879,
+      "material": "0110316",
+      "description": "20型大吊卡底座",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3880,
+      "material": "0110329",
+      "description": "#6*3cm膨胀管",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3881,
+      "material": "01306",
+      "description": "PSD穿线管",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3882,
+      "material": "01307",
+      "description": "PSD穿线管",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3883,
+      "material": "01308",
+      "description": "PVC PSD穿线管",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3884,
+      "material": "01309",
+      "description": "PVC PSD穿线管",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3885,
+      "material": "01743",
+      "description": "5/16(M8)2英寸(DN65)铁U型管卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3886,
+      "material": "01745",
+      "description": "3/8(M10)4英寸(DN100)铁U型管卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3887,
+      "material": "01754",
+      "description": "½英寸铁吊卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3888,
+      "material": "01761",
+      "description": "¾英寸铁吊卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3889,
+      "material": "01779",
+      "description": "M10x105黄色膨胀螺栓",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3890,
+      "material": "01932",
+      "description": "M10x48黄色膨胀螺栓",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3891,
+      "material": "01934",
+      "description": "M10x80黄色膨胀螺栓",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3892,
+      "material": "101657",
+      "description": "2英寸(DN50)带眼法兰垫片",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3893,
+      "material": "102338",
+      "description": "HDPE 等径三通 dn63（2 寸）",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3894,
+      "material": "102345",
+      "description": "Y Branch 厚壁国标 2 - RUCIKA",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3895,
+      "material": "102352",
+      "description": "1英寸铁马鞍卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3896,
+      "material": "102364",
+      "description": "HDPE 等径三通 DN50",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3897,
+      "material": "102366",
+      "description": "HDPE 异径三通 DN110*90",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3898,
+      "material": "102382",
+      "description": "HDPE 90 度弯头 dn200（8 寸）",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3899,
+      "material": "102412",
+      "description": "160(6英寸)PN16电熔法兰头",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3900,
+      "material": "102429",
+      "description": "HDPE 90 度弯头 DN63",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3901,
+      "material": "102437",
+      "description": "HDPE 给水盘管 外径 50，PN16，壁厚 3.7，每卷 100 米，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3902,
+      "material": "102438",
+      "description": "HDPE 给水盘管 外径 32，PN16，壁厚 3，每卷 100 米，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3903,
+      "material": "102443",
+      "description": "HDPE 异径三通 DE633263，PN16，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3904,
+      "material": "102444",
+      "description": "HDPE 异径三通 DE504050，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3905,
+      "material": "102450",
+      "description": "HDPE 直接头 DE32，PN16，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3906,
+      "material": "102451",
+      "description": "HDPE 直接头 DE25，PN16，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3907,
+      "material": "102452",
+      "description": "HDPE 直接头 DE20，PN16，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3908,
+      "material": "102453",
+      "description": "HDPE90° 弯头 DE32，PN16，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3909,
+      "material": "102454",
+      "description": "HDPE90° 弯头 DE25，PN16，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3910,
+      "material": "102460",
+      "description": "HDPE 球阀 DE32，PN16，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3911,
+      "material": "102461",
+      "description": "HDPE 球阀 DE25，PN16，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3912,
+      "material": "102492",
+      "description": "HDPE 直接头 DE63，PN16，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3913,
+      "material": "102493",
+      "description": "HDPE 异径三通 DE635063，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3914,
+      "material": "102494",
+      "description": "HDPE 异径三通 DE502550，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3915,
+      "material": "102495",
+      "description": "HDPE截止阀 / HDPE 截止阀 DE63，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3916,
+      "material": "102496",
+      "description": "HDPE 直接头 DE50，PN16，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3917,
+      "material": "102497",
+      "description": "HDPE 截止阀 DE50，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3918,
+      "material": "102498",
+      "description": "HDPE 截止阀 DE25，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3919,
+      "material": "102519",
+      "description": "3/4英寸铁管卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3920,
+      "material": "102522",
+      "description": "HDPE 直接头 DE40，PN16，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3921,
+      "material": "102537",
+      "description": "HDPE 给水盘管 外径 25，PN10，壁厚 1.5，每卷 100 米",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3922,
+      "material": "102539",
+      "description": "HDPE 法兰短管配钢制法兰 DE90，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3923,
+      "material": "102547",
+      "description": "HDPE 异径直接 DE250*200，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3924,
+      "material": "102550",
+      "description": "HDPE法兰头",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3925,
+      "material": "102552",
+      "description": "HDPE管道 / HDPE 给水盘管 外径 63，PN10，壁厚 3.8，每卷 100 米，品牌：双林",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3926,
+      "material": "102553",
+      "description": "HDPE 管堵 DE63，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3927,
+      "material": "102554",
+      "description": "HDPE 等径三通 DE323232，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3928,
+      "material": "102555",
+      "description": "PP 等径三通 DE323232，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3929,
+      "material": "102556",
+      "description": "HDPE 管堵 DE32，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3930,
+      "material": "102557",
+      "description": "HDPE 等径三通 DE252525，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3931,
+      "material": "102558",
+      "description": "HDPE 管堵 DE25，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3932,
+      "material": "102559",
+      "description": "HDPE双壁波纹管 环刚度SN8 300mm 6米/根 / HDPE 双壁波纹管 DN300，环刚度 SN8，单根 6 米",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3933,
+      "material": "102560",
+      "description": "橡胶密封圈 内径300mm / DN300 橡胶密封圈",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3934,
+      "material": "102561",
+      "description": "双壁波纹管 90° 弯头 DN300，单承口",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3935,
+      "material": "102562",
+      "description": "双壁波纹管 45° 弯头 DN300，单承口",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3936,
+      "material": "102563",
+      "description": "双壁波纹管 Y 型三通 DN300300300",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3937,
+      "material": "102564",
+      "description": "波纹管对接安装工具，适用 DN200-600",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3938,
+      "material": "102565",
+      "description": "HDPE 内丝直接 S25×3/4 内螺纹，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3939,
+      "material": "102566",
+      "description": "HDPE 法兰短管配套法兰 DE250，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3940,
+      "material": "102567",
+      "description": "HDPE 等径三通 DE160160160，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3941,
+      "material": "102586",
+      "description": "HDPE 穿线盘管 内径 34 / 外径 42（1.25 寸），每卷 100 米",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3942,
+      "material": "102587",
+      "description": "HDPE双壁波纹管 环刚度SN8 500mm",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3943,
+      "material": "102588",
+      "description": "橡胶密封圈 内径500mm",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3944,
+      "material": "102589",
+      "description": "PP 异径直接 DE63*25",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3945,
+      "material": "102590",
+      "description": "HDPE 异径直接 DE50*25",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3946,
+      "material": "102591",
+      "description": "PP90 度弯头 DE25",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3947,
+      "material": "102592",
+      "description": "PP 直接头 DE25",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3948,
+      "material": "102593",
+      "description": "PP 球阀 DE25",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3949,
+      "material": "102594",
+      "description": "HDPE 给水盘管 外径 20，PN10，壁厚 1.4，每卷 100 米",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3950,
+      "material": "102595",
+      "description": "PN16 外径200mm管道",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3951,
+      "material": "102597",
+      "description": "PPR等径三通",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3952,
+      "material": "102601",
+      "description": "短管端（法兰接头）",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3953,
+      "material": "102602",
+      "description": "法兰",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3954,
+      "material": "102603",
+      "description": "HDPE单壁波纹管",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3955,
+      "material": "102604",
+      "description": "HDPE90度弯头",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3956,
+      "material": "102605",
+      "description": "160(6英寸)PN16电熔法兰盘",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3957,
+      "material": "102606",
+      "description": "6英寸(DN150)带眼法兰垫片",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3958,
+      "material": "102607",
+      "description": "HDPE承插大小头",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3959,
+      "material": "102608",
+      "description": "HDPE承插大小头",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3960,
+      "material": "102609",
+      "description": "¾英寸不锈钢球阀",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3961,
+      "material": "102610",
+      "description": "½英寸不锈钢球阀",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3962,
+      "material": "102611",
+      "description": "400型电熔焊机",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3963,
+      "material": "102612",
+      "description": "2英寸(DN50)PE铁法兰",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3964,
+      "material": "102613",
+      "description": "内螺纹法兰 DN40 压力1.6MPa HT",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3965,
+      "material": "102614",
+      "description": "内螺纹法兰 DN50 压力1.6MPa HT",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3966,
+      "material": "102615",
+      "description": "内螺纹法兰 DN65 压力1.6MPa HT",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3967,
+      "material": "102616",
+      "description": "平焊滑套法兰 DN40 压力1.6MPa HT",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3968,
+      "material": "102617",
+      "description": "平焊滑套法兰 DN50 压力1.6MPa HT",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3969,
+      "material": "102618",
+      "description": "平焊滑套法兰 DN65 压力1.6MPa HT",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3970,
+      "material": "102619",
+      "description": "平焊滑套法兰 DN200 压力1.0MPa HT",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3971,
+      "material": "102620",
+      "description": "90°焊接弯头 DN40 HT",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3972,
+      "material": "102621",
+      "description": "90°焊接弯头 DN50 HT",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3973,
+      "material": "102622",
+      "description": "90°焊接弯头 DN65 HT",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3974,
+      "material": "102623",
+      "description": "石膏板 600×600×9mm",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3975,
+      "material": "102624",
+      "description": "M5全牙螺杆 2米",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3976,
+      "material": "102625",
+      "description": "卡式龙骨 32型 2.95米",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3977,
+      "material": "102626",
+      "description": "C50副龙骨 0.45mm 50×19×0.45mm 3米",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3978,
+      "material": "102627",
+      "description": "L型边龙骨 20×20×0.4mm 3米",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3979,
+      "material": "102628",
+      "description": "HDPE 法兰短管配钢制法兰 DE75，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3980,
+      "material": "102629",
+      "description": "HDPE 异径三通 DE405040，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3981,
+      "material": "102630",
+      "description": "HDPE 异径三通 DE506350，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3982,
+      "material": "102631",
+      "description": "HDPE 异径三通 DE509050，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3983,
+      "material": "102632",
+      "description": "HDPE 异径三通 DE905090，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3984,
+      "material": "102633",
+      "description": "HDPE 四通 DE50，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3985,
+      "material": "102634",
+      "description": "HDPE 电熔直接 EF110",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3986,
+      "material": "102635",
+      "description": "HDPE 电熔直接 EF160",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3987,
+      "material": "102636",
+      "description": "HDPE 电熔直接 EF200",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3988,
+      "material": "102637",
+      "description": "HDPE 电熔直接 EF250",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3989,
+      "material": "102638",
+      "description": "HDPE 截止阀 DE75，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3990,
+      "material": "102639",
+      "description": "HDPE 管堵 DE50，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3991,
+      "material": "102641",
+      "description": "HDPE 外丝直接 S63×2 寸外螺纹",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3992,
+      "material": "102642",
+      "description": "HDPE 内丝直接 S63×2 寸内螺纹",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3993,
+      "material": "102646",
+      "description": "1-1/4英寸铁管卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3994,
+      "material": "102647",
+      "description": "dn20弯管弹簧",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3995,
+      "material": "102648",
+      "description": "dn200(8英寸)铁管卡",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3996,
+      "material": "102651",
+      "description": "结构胶 防霉型 A520 白色",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3997,
+      "material": "102652",
+      "description": "水箱MT-715 尺寸:370x120x380mm",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3998,
+      "material": "102655",
+      "description": "膨胀螺栓",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 3999,
+      "material": "102696",
+      "description": "瓷砖开孔 dn40",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4000,
+      "material": "102697",
+      "description": "冲击钻打孔 dn50",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4001,
+      "material": "102698",
+      "description": "#6石膏板自攻丝",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4002,
+      "material": "102699",
+      "description": "防水补漏胶",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4003,
+      "material": "102700",
+      "description": "#8膨胀管",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4004,
+      "material": "102701",
+      "description": "管道对接工具 200-600mm",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4005,
+      "material": "102702",
+      "description": "HDPE 异径三通 DE110160110，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4006,
+      "material": "102703",
+      "description": "HDPE 异径三通 DE160200160，PN16",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4007,
+      "material": "102704",
+      "description": "HDPE 外丝直接 S32×1 寸外螺纹",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4008,
+      "material": "102705",
+      "description": "HDPE 异径三通 DE6390110",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4009,
+      "material": "102706",
+      "description": "HDPE 异径三通 DE75110160",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4010,
+      "material": "102707",
+      "description": "HDPE 四通 DE110，PN10",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4011,
+      "material": "102708",
+      "description": "塑料膨胀管 6mm",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4012,
+      "material": "102709",
+      "description": "木工开孔器 7.5mm",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4013,
+      "material": "102710",
+      "description": "粉线卷",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4014,
+      "material": "102711",
+      "description": "粉线墨水",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4015,
+      "material": "102715",
+      "description": "应急灯 265*245*45mm 220V",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4016,
+      "material": "102716",
+      "description": "应急出口指示灯 220V",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4017,
+      "material": "102717",
+      "description": "HDPE PIPES-PE100 (DN400毫米) 公称压力10 SDR17",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4018,
+      "material": "102718",
+      "description": "HDPE PIPES-PE100 (DN500毫米) 公称压力12.5 SDR13.6",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4019,
+      "material": "102719",
+      "description": "编织增强软管3/4",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4020,
+      "material": "6900011043032",
+      "description": "主龙骨吊件",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4021,
+      "material": "6900011043033",
+      "description": "龙骨卡件",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4022,
+      "material": "6900012091346",
+      "description": "HDPE 球阀 DE50",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4023,
+      "material": "7317000000001",
+      "description": "射钉枪",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4024,
+      "material": "7317000000002",
+      "description": "射钉弹",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4025,
+      "material": "80687977",
+      "description": "PPR90度弯头",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4026,
+      "material": "80688077",
+      "description": "PPR异径直接（大小头）",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4027,
+      "material": "8302410000005",
+      "description": "墙角收边条 3米",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4028,
+      "material": "B0011059",
+      "description": "315(12英寸)HDPE管道抢修哈夫节",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4029,
+      "material": "B157P BK",
+      "description": "1联黑色暗装接线盒（带固定座）",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4030,
+      "material": "CP-DTAL-002",
+      "description": "PVC Corner Bead L Line 2400×20号20毫米 - TBI",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4031,
+      "material": "CP-UPES-003",
+      "description": "镀锌膨胀套管 M8×80米 / 镀锌膨胀套管",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4032,
+      "material": "CP-UPST-004",
+      "description": "全牙丝杆 M10×3000",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4033,
+      "material": "GPR-EQ47C01002",
+      "description": "扎带 2.5*200mm",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4034,
+      "material": "GPR-MB02L01015",
+      "description": "防水涂料 白色",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4035,
+      "material": "GPR-MB02L04001",
+      "description": "防水补漏胶 2Kg",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4036,
+      "material": "GPR-MB20S33001",
+      "description": "滴灌管 滴灌管 1.2米",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4037,
+      "material": "GPR-MB26M33002",
+      "description": "锯片 4寸",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4038,
+      "material": "GPR-SP09M02003",
+      "description": "手动铰刀 2.5mm",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4039,
+      "material": "GPR-SP09M21004",
+      "description": "直柄麻花钻 Ф6mm",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4040,
+      "material": "GPR-SP16J02008",
+      "description": "抛光砂轮片",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4041,
+      "material": "GPR-SP22M21009",
+      "description": "螺丝 3.5×25毫米",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4042,
+      "material": "GPR-WD03J03001",
+      "description": "焊条 422",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4043,
+      "material": "HD-10001-1",
+      "description": "一开双控开关",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4044,
+      "material": "HD-10010-1",
+      "description": "多功能五孔插座",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4045,
+      "material": "HD-10012-1",
+      "description": "一开 13A 插座",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4046,
+      "material": "HD-11001-1",
+      "description": "一开单控开关",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4047,
+      "material": "HD-11002-1",
+      "description": "二开单控开关",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4048,
+      "material": "PVC00241",
+      "description": "PVC法兰",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4049,
+      "material": "PVC0230166",
+      "description": "89(3英寸)透气帽",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4050,
+      "material": "PVC0230167",
+      "description": "114(4英寸)透气帽",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4051,
+      "material": "T00321",
+      "description": "32(1英寸)PVC活接球阀",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4052,
+      "material": "T00902",
+      "description": "1/4英寸取样阀",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4053,
+      "material": "VPR-PL03C01001",
+      "description": "PVC吊顶 PVC扣板 4米",
+      "reason": "catalog_only_no_quotable_price"
+    },
+    {
+      "source_row": 4054,
+      "material": "VPR-PP04M21001",
+      "description": "6英寸(DN150)PN16弹性座封暗杆闸阀",
+      "reason": "catalog_only_no_quotable_price"
     }
   ],
   "deduped": [
+    {
+      "source_row": 2278,
+      "material": "CP-ACMH-001",
+      "kept_source_row": 2277,
+      "reason": "multiple_preferred_kept_first"
+    },
+    {
+      "source_row": 2282,
+      "material": "CP-ACVH-001",
+      "kept_source_row": 2281,
+      "reason": "multiple_preferred_kept_first"
+    },
     {
       "source_row": 3235,
       "material": "8010036428",

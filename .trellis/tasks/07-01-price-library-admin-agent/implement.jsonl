@@ -1,0 +1,35 @@
+{"file": ".trellis/spec/integration/price-library.md", "reason": "API + CSRF + draft/publish + 42-col schema"}
+{"file": ".trellis/spec/integration/org-knowledge.md", "reason": "confirmed=false/true write precedent + org_session CSRF"}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "delegatable + filterDelegatableCustomAgents rules"}
+{"file": "data/data.Md", "reason": "Field semantics — agent Read before edits"}
+{"file": ".trellis/tasks/06-28-org-knowledge-agent-write-path/task.json", "reason": "MCP write-path precedent"}
+{"file": "scripts/org-phase0/vps-price-library-runbook.md", "reason": "draft/items + import API reference"}
+{"file": ".trellis/tasks/07-01-price-library-admin-agent/research/explore-2026-07-02.md", "reason": "Explore scope boundaries"}
+{"file": ".trellis/tasks/07-01-price-library-admin-agent/research/audit-plan-review-2026-07-02.md", "reason": "Pre-P0 audit resolutions"}
+{"file": ".trellis/tasks/07-01-price-library-admin-agent/p1-fleet-org-primary-done.md", "reason": "P-1 delivery record (not implement context)"}
+{"file": "python/admin/org_price_admin_client.py", "reason": "P0B read + CSRF POST draft/items"}
+{"file": "python/admin/org_price_admin_dispatch.py", "reason": "P0B confirmed preview + apply handlers"}
+{"file": "mcp_servers/price-library-server/dist/index.js", "reason": "Independent price-library MCP server"}
+{"file": "python/tests/test_org_price_admin_client.py", "reason": "P0B unit tests — 10 pass"}
+{"file": ".trellis/tasks/07-01-price-library-admin-agent/p0b-mcp-read-preview-done.md", "reason": "P0B delivery record"}
+{"file": ".trellis/tasks/07-01-price-library-admin-agent/execution-plan.md", "reason": "Canonical phased execution plan (resume from disk)"}
+{"file": "python/admin/org_price_admin_client.py", "reason": "P0C publish_draft POST /draft/publish"}
+{"file": "python/admin/org_price_admin_dispatch.py", "reason": "P0C handle_publish_price_library_draft two-phase"}
+{"file": "python/system/error_codes.py", "reason": "P0C ERROR_CODE_REVISION_CONFLICT"}
+{"file": "python/system/price_library_tool_dispatch.py", "reason": "P0C publish route + 409 mapping"}
+{"file": "mcp_servers/price-library-server/dist/index.js", "reason": "P0C publish_price_library_draft tool"}
+{"file": "python/tests/test_org_price_admin_client.py", "reason": "P0C tests — 14 pass"}
+{"file": "ccb-installer/config/agents/price-library-agent.md", "reason": "P1 Guid agent L1 body"}
+{"file": "ccb-installer/config/agents/price-library-agent.aionui.json", "reason": "P1 sidecar delegatable false requires_price_admin"}
+{"file": "ccb-installer/src/services/acp/agentSessionProfile.ts", "reason": "P1 CCB_GUID_ONLY_AGENT_IDS exclude from delegation"}
+{"file": ".trellis/tasks/07-01-price-library-admin-agent/p0c-publish-done.md", "reason": "P0C delivery record"}
+{"file": ".trellis/tasks/07-01-price-library-admin-agent/p1-guid-agent-catalog-done.md", "reason": "P1 delivery record"}
+{"file": "python/admin/price_library_import_guard.py", "reason": "P0D import path whitelist + 10MB cap"}
+{"file": "python/admin/org_price_admin_client.py", "reason": "P0D multipart preview/apply/revert API"}
+{"file": "python/admin/org_price_admin_dispatch.py", "reason": "P0D import/revert dispatch handlers"}
+{"file": "mcp_servers/price-library-server/dist/index.js", "reason": "P0D import/revert MCP tools"}
+{"file": "ccb-installer/config/mcp-health-manifest.json", "reason": "P0D price-library health probe + agent profile"}
+{"file": ".trellis/tasks/07-01-price-library-admin-agent/p0d-import-revert-done.md", "reason": "P0D delivery record"}
+{"file": "aionui-src/packages/desktop/src/common/config/ccbAgentCatalog.ts", "reason": "P1 filterGuidCatalogAgents isPriceAdmin gate"}
+{"file": "aionui-src/packages/desktop/src/common/assistants/fetchAssistantsCatalog.ts", "reason": "P1 resolveIsOrgPriceAdmin draft probe"}
+{"file": "aionui-src/tests/unit/common-config/ccbAgentCatalog.test.ts", "reason": "P1 catalog gate tests — 3 pass"}

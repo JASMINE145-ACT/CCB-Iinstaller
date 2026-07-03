@@ -1,0 +1,108 @@
+{
+  "fixture": "data/smoke/learn-by-data-vantsing-filled.xlsx",
+  "row_count": 16,
+  "scenarios": {
+    "in-candidates": 4,
+    "match": 7,
+    "not-in-candidates": 4,
+    "zero-candidate": 1
+  },
+  "rows": [
+    {
+      "row": 8,
+      "keywords": "直接50",
+      "actual_code": "8020020755",
+      "scenario": "match"
+    },
+    {
+      "row": 9,
+      "keywords": "直接75",
+      "actual_code": "8010024552",
+      "scenario": "match"
+    },
+    {
+      "row": 10,
+      "keywords": "弯头50",
+      "actual_code": "8020020643",
+      "scenario": "match"
+    },
+    {
+      "row": 11,
+      "keywords": "三通50",
+      "actual_code": "8020022784",
+      "scenario": "match"
+    },
+    {
+      "row": 12,
+      "keywords": "直接50",
+      "actual_code": "8010071381",
+      "scenario": "in-candidates"
+    },
+    {
+      "row": 13,
+      "keywords": "直接50",
+      "actual_code": "8010024812",
+      "scenario": "in-candidates"
+    },
+    {
+      "row": 14,
+      "keywords": "弯头50",
+      "actual_code": "8020022822",
+      "scenario": "in-candidates"
+    },
+    {
+      "row": 15,
+      "keywords": "直接75",
+      "actual_code": "8010042696",
+      "scenario": "in-candidates"
+    },
+    {
+      "row": 16,
+      "keywords": "直接50",
+      "actual_code": "8010012697",
+      "scenario": "not-in-candidates"
+    },
+    {
+      "row": 17,
+      "keywords": "直接75",
+      "actual_code": "8010012697",
+      "scenario": "not-in-candidates"
+    },
+    {
+      "row": 18,
+      "keywords": "三通50",
+      "actual_code": "8020020755",
+      "scenario": "not-in-candidates"
+    },
+    {
+      "row": 19,
+      "keywords": "弯头50",
+      "actual_code": "8010012697",
+      "scenario": "not-in-candidates"
+    },
+    {
+      "row": 20,
+      "keywords": "xxxxx_nonexistent_product_xyz",
+      "actual_code": "0000000000",
+      "scenario": "zero-candidate"
+    },
+    {
+      "row": 21,
+      "keywords": "直接50",
+      "actual_code": "8020020755",
+      "scenario": "match"
+    },
+    {
+      "row": 22,
+      "keywords": "直接75",
+      "actual_code": "8010024552",
+      "scenario": "match"
+    },
+    {
+      "row": 23,
+      "keywords": "弯头50",
+      "actual_code": "8020020643",
+      "scenario": "match"
+    }
+  ]
+}

@@ -37,6 +37,7 @@ __pycache__/
 # Large vendored trees (restore via build / staging scripts)
 ccb-installer/staging/
 ccb-installer/node_modules/
+mcp_servers/price-library-server/node_modules/
 ccb-installer/launcher-src/target/
 ccb-installer/out/
 ccb-installer/vendor/python-wanding/

@@ -1,8 +1,9 @@
 # VPS 价格库部署 — 运维手册（PR2）
 
 > **适用：** 在已有 org VPS（`aionorg` systemd）上启用 `/api/price-library/*`。  
-> **依赖：** 自编译 AionCore 含 `aionui-price-library` crate（migration `016` + **`017` full schema**）。  
-> **v2 全列交接：** [`vps-price-library-v2-handoff.md`](./vps-price-library-v2-handoff.md)（2026-06-28）
+> **依赖：** 自编译 AionCore 含 `aionui-price-library` crate（migration `016` + **`017` full schema** + **`018` supplier**）。  
+> **v2 全列交接：** [`vps-price-library-v2-handoff.md`](./vps-price-library-v2-handoff.md)（2026-06-28）  
+> **P-1 完整路线（018 + supplier + fleet revert）：** [`.trellis/tasks/07-01-price-library-admin-agent/p1-fleet-org-primary-done.md`](../../.trellis/tasks/07-01-price-library-admin-agent/p1-fleet-org-primary-done.md)（2026-07-01）
 > **相关：** [`docs/org-knowledge-deploy.md`](../../docs/org-knowledge-deploy.md) · [`deploy-org-aioncore-vps.ps1`](../deploy-org-aioncore-vps.ps1) · [PRD](../../.trellis/tasks/06-27-remote-shared-price-library/prd.md)
 
 **生产 VPS（2026-06）：**
@@ -18,13 +19,18 @@
 ## 0. 流程概览
 
 ```text
-Windows: prepare-price-library-import.py 生成 import-ready xlsx
-  → deploy-org-aioncore-vps.ps1 上传源码 + data/（或 scp 仅 ready 文件）
-  → VPS SSH: bootstrap.sh（或 cargo build + systemctl restart）
-  → 确认 PRICE_ADMIN_USERNAMES=admin
+Windows: prepare-price-library-import.py → import_ready xlsx (42 列)
+  → deploy-org-aioncore-vps.ps1 -ExtractOnRemote（或 scp 仅 ready 文件）
+  → [若 scp 中断] VPS 手动 tar 解压 aioncore-upload.tgz — 不必重传 628MB
+  → VPS: cargo build + systemctl restart（已有 data-org 勿跑 bootstrap.sh）
+  → 验证 migration 018 + supplier 列（python3 / sqlite3）
+  → PRICE_ADMIN_USERNAMES=admin
   → admin 登录 → import/preview → import/apply → draft/publish
-  → GET /api/price-library/active 验收
+  → GET /api/price-library/active 验收（v3+, supplier 行）
+  → Windows: 移除 ensure-wanding-settings.ps1 中 PRICE_USE_BUNDLED_FIRST
 ```
+
+**SSH 注意：** 关 VPN；连续 password scp 易触发 fail2ban → 大 tarball 传完后可 SSH 手动继续。
 
 价格库 **内容** 不走 CCB hot-update；仅 org 服务部署变更。
 
@@ -80,26 +86,35 @@ scp -P 39222 data/price_library_import_ready.xlsx root@67.216.206.3:/opt/aionorg
 
 ## 2. VPS 编译与重启（手动 SSH）
 
+> **已有 `data-org` 用户库：** 只跑本节 `cargo build` + `systemctl restart`。**不要**跑 `/opt/aionorg/bootstrap.sh`（会覆盖 `/etc/aionorg/env` 中的 `JWT_SECRET`）。
+
 ```bash
 ssh -p 39222 root@67.216.206.3
 cd /opt/aionorg
-# 若未用 -ExtractOnRemote，先解压：
-# rm -rf AionCore && mkdir AionCore && tar -xzf aioncore-upload.tgz -C AionCore
+# 若 deploy 在 scp 阶段中断但 aioncore-upload.tgz 已在：
+# rm -rf AionCore && mkdir -p AionCore && tar -xzf aioncore-upload.tgz -C AionCore
 
 source "$HOME/.cargo/env"
 cd /opt/aionorg/AionCore
 cargo build --release -p aionui-app
 
-# 首次部署或升级 systemd env：
-cat > /etc/aionorg/env << 'EOF'
-PRICE_ADMIN_USERNAMES=admin
-EOF
+# 追加 env（勿 cat > 覆盖整个文件）
+grep -E 'JWT_SECRET|PRICE_ADMIN' /etc/aionorg/env
+grep -q PRICE_ADMIN_USERNAMES /etc/aionorg/env || echo 'PRICE_ADMIN_USERNAMES=admin' >> /etc/aionorg/env
 
-systemctl daemon-reload
 systemctl restart aionorg
 sleep 2
 systemctl status aionorg --no-pager | head -15
 curl -s http://127.0.0.1:13401/api/auth/status
+
+# migration 018（无 sqlite3 CLI 时）
+python3 << 'PY'
+import sqlite3
+db="/opt/aionorg/data-org/aionui-backend.db"
+c=sqlite3.connect(db)
+print([r[0] for r in c.execute("SELECT version FROM _sqlx_migrations ORDER BY version")])
+print("supplier:", "supplier" in [r[1] for r in c.execute("PRAGMA table_info(price_products)")])
+PY
 ```
 
 日志应含：`startup: price-library price_admin count resolved` 且 `admin_count >= 1`。
@@ -167,7 +182,7 @@ curl -s http://127.0.0.1:13401/api/price-library/active \
   | python3 -c "import json,sys; d=json.load(sys.stdin).get('data') or {}; v=d.get('version') or {}; print('version_number', v.get('version_number')); print('products', len(d.get('products') or []))"
 ```
 
-期望：`version_number >= 2`（full schema fleet；MVP 曾为 1），`products` ≈ **3082**；spot-check 扩展列（如 RUCIKA `product_type`、`factory_inc_tax`）。
+期望：`version_number >= 2`（full schema fleet；**v3** 含 supplier 2026-07-01），`products` ≈ **3299**；spot-check `supplier`（约 **294** 行非空）。
 
 **已 publish 后重跑 apply：** 常见 `skipped_unchanged_count: 3082`；再 `publish` 可能 `draft has no items` — 用 step 6 确认 active 即可，不必重复 publish。
 
@@ -207,7 +222,9 @@ curl -s http://127.0.0.1:13401/api/price-library/active \
 | `draft has no items` on publish | 常表示已 publish；`GET /active` 查 `version_number` + `products` |
 | `skipped_unchanged_count: 3082` on apply | 数据已在库；非失败 |
 | `404` on `/api/price-library/*` | VPS 二进制过旧，需 `cargo build` 含 price-library crate |
-| 已有 `data-org` 库 | migration 016 在启动时自动应用；无需清库 |
+| deploy scp 中断 exit 255 | tarball 可能已上传；SSH 手动解压，不必重传 628MB |
+| `Connection closed` SSH | VPN/fail2ban；关 VPN，必要时 VPS 解 ban |
+| 已有 `data-org` 库 | migration 自动应用；**勿 bootstrap**；016–018 在启动时跑 |
 
 ---
 
@@ -226,3 +243,4 @@ curl -s http://127.0.0.1:13401/api/price-library/active \
 | 2026-06-27 | PR2：Excel import preview/apply、export、audit API + VPS runbook |
 | 2026-06-27 | 迁移脚本 `prepare-price-library-import.py`；import 改用 `price_library_import_ready.xlsx` |
 | 2026-06-28 | §3 CSRF cookie jar；验收 `version_number >= 2` + `products`；fleet **v2** 3082 full schema verified |
+| 2026-07-01 | migration **018** + supplier publish **v3/3299**；deploy 中断恢复；P-1 fleet revert 记录见 task `p1-fleet-org-primary-done.md` |

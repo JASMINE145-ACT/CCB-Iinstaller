@@ -144,6 +144,34 @@ class OrgKnowledgeClientTests(unittest.TestCase):
         self.assertEqual(result["previous_version"], 4)
         self.assertEqual(result["version"], 5)
 
+    def test_api_get_retries_on_401_with_second_token(self) -> None:
+        calls: list[str] = []
+
+        def fake_make_get(base: str, path: str, token: str) -> dict[str, Any] | None:
+            calls.append(token)
+            if token == "bad-jwt":
+                raise okc.OrgAuthError(401, "HTTP 401 Unauthorized")
+            return {"slug": "wanding_business_knowledge", "content": "# ok", "version": 1}
+
+        with mock.patch.dict(
+            os.environ,
+            {"ORG_SERVER_URL": "http://127.0.0.1:13401"},
+            clear=True,
+        ):
+            with mock.patch.object(okc, "get_auth_candidates") as mock_candidates:
+                from admin.org_session import AuthCandidate
+
+                mock_candidates.return_value = [
+                    AuthCandidate(token="bad-jwt", source="profile:AionUi", profile="AionUi"),
+                    AuthCandidate(token="good-jwt", source="profile:AionUi-Dev", profile="AionUi-Dev"),
+                ]
+                with mock.patch.object(okc, "_make_get", side_effect=fake_make_get):
+                    result = okc._api_get("/api/org-knowledge/wanding_business_knowledge")
+
+        self.assertEqual(calls, ["bad-jwt", "good-jwt"])
+        self.assertIsNotNone(result)
+        self.assertEqual(result["version"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

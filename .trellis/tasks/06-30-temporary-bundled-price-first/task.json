@@ -1,0 +1,7 @@
+{
+  "id": "06-30-temporary-bundled-price-first",
+  "title": "Temporary fleet bundled price library first (PRICE_USE_BUNDLED_FIRST)",
+  "status": "active",
+  "created": "2026-06-30",
+  "summary": "Until VPS migration 018 + org publish: pack import_ready as price_library_cleaned, set PRICE_USE_BUNDLED_FIRST=1 on quotation MCP. REVERT after cloud supplier live."
+}

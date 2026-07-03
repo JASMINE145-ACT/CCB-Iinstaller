@@ -1,0 +1,20 @@
+{"check": "plan audit 2026-07-02", "evidence": "research/audit-plan-review-2026-07-02.md — blockers verified; PRD updated before P0"}
+{"check": "task.json valid JSON", "evidence": "fixed missing comma after child_tasks_completed"}
+{"check": "P0B code-review PASS", "evidence": "code-reviewer 2026-07-02 — confirmed preview, CSRF POST, separate MCP; pytest 10/10"}
+{"check": "P0B pytest", "evidence": "python/tests/test_org_price_admin_client.py — 10 passed"}
+{"check": "P0B live get_active", "evidence": "dispatch smoke — version 3, 3299 products (org_api)"}
+{"check": "P0B vendor sync", "evidence": "sync-dev-wanding-vendor.ps1 -UpdateSettings; price-library MCP in ccb-mcp.json"}
+{"check": "P0B spec § Agent write path", "evidence": ".trellis/spec/integration/price-library.md + p0b-mcp-read-preview-done.md"}
+{"check": "P0C code-review PASS", "evidence": "code-reviewer 7da7bbdf — publish two-phase, revision bind, 409 REVISION_CONFLICT; re-review PASS after P1 fixes"}
+{"check": "P0C pytest", "evidence": "python/tests/test_org_price_admin_client.py — 14 passed"}
+{"check": "P0C vendor sync", "evidence": "sync-dev-wanding-vendor.ps1 -UpdateSettings from repo root — price-library index.js copied"}
+{"check": "P1 catalog bun test", "evidence": "aionui-src tests/unit/common-config/ccbAgentCatalog.test.ts — 3 pass"}
+{"check": "P1 agent sidecar", "evidence": "ccb-installer/config/agents/price-library-agent.* — delegatable false, requires_price_admin true, CCB_GUID_ONLY_AGENT_IDS"}
+{"check": "P0D code-review PASS", "evidence": "code-reviewer 56fae068 — import preview no mutate, apply/revert confirmed gates, CSRF multipart"}
+{"check": "P0D unittest", "evidence": "python/tests/test_org_price_admin_client.py — 19 passed"}
+{"check": "P0D vendor sync", "evidence": "sync-dev-wanding-vendor.ps1 -UpdateSettings — price_library_import_guard.py + index.js"}
+{"check": "P1 deploy-seed agents", "evidence": "deploy-seed-agents.ps1 -ForceMd → price-library-agent.md/.aionui.json in %LOCALAPPDATA%\\CCB-Wanding\\.claude\\agents"}
+{"check": "P1 MCP health config", "evidence": "test-mcp-health.ps1 — price-library registered + agent allowlist PASS"}
+{"check": "P1 vendor sync full", "evidence": "sync-dev-wanding-vendor.ps1 -UpdateSettings from repo root — python + price-library MCP dist"}
+{"check": "P1 dev stack restart", "evidence": "start-dev-full.ps1 -SkipBootstrap -SkipVendorSync -BuildAioncore:$false — localhost:5173 org SSO → VPS 67.216.206.3:13401"}
+{"check": "P3 E2E smoke", "evidence": "pending — admin Guid: upsert confirmed two-phase → publish → version_number++; optional import/revert; non-admin card hidden (needs aionui-src rebuild if old exe)"}

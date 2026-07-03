@@ -1,6 +1,7 @@
 """Remote price library client with LKG snapshot fallback.
 
 Three-tier source precedence for quotation price data:
+  0. Bundled-first override — when PRICE_USE_BUNDLED_FIRST=1 (temporary fleet mode)
   1. Org API   — live authenticated fetch (source="org_api", stale=False)
   2. LKG       — last-known-good local snapshot (source="lkg_snapshot", stale=True)
   3. Seed      — bundled install Excel (source="bundled_seed", stale=True)
@@ -21,11 +22,28 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from admin.org_session import (
+    OrgAuthError,
+    get_auth_candidates,
+    resolve_org_server_url,
+)
+
 logger = logging.getLogger(__name__)
+
+# Backward-compatible alias for tests and callers.
+_AuthError = OrgAuthError
 
 # Full published library is ~3000 products; tiny LKG dirs are dev/test pollution
 # that would otherwise block the bundled seed fallback (~3082 rows).
 LKG_MIN_PRODUCTS = max(1, int(os.environ.get("LKG_MIN_PRODUCTS", "50")))
+
+_BUNDLED_FIRST_TRUTHY = frozenset({"1", "true", "yes", "on"})
+
+
+def _bundled_first_enabled() -> bool:
+    """Temporary fleet override: skip org API + LKG; use install xlsx only."""
+    raw = (os.environ.get("PRICE_USE_BUNDLED_FIRST") or "").strip().lower()
+    return raw in _BUNDLED_FIRST_TRUTHY
 
 # Module-level in-memory price cache.
 # Structure: {"version_id": str, "products": [...], "source": str, ...}
@@ -34,63 +52,15 @@ _cache_lock = threading.Lock()
 
 
 # ---------------------------------------------------------------------------
-# Org server discovery (mirrors org_knowledge_client pattern)
+# Org server discovery (shared org_session module)
 # ---------------------------------------------------------------------------
 
-def _appdata_roots() -> list[Path]:
-    appdata = os.environ.get("APPDATA", "").strip()
-    if not appdata:
-        return []
-    return [Path(appdata) / "AionUi", Path(appdata) / "AionUi-Dev"]
-
-
 def _org_server_url() -> str:
-    from_env = (os.environ.get("ORG_SERVER_URL") or "").strip().rstrip("/")
-    if from_env:
-        return from_env
-    for root in _appdata_roots():
-        config_path = root / "aionui" / "org-server.json"
-        try:
-            payload = json.loads(config_path.read_text(encoding="utf-8"))
-            url = (payload.get("url") or "").strip().rstrip("/")
-            if url:
-                return url
-        except (OSError, json.JSONDecodeError, AttributeError):
-            continue
-    return ""
+    return resolve_org_server_url()
 
 
 def _org_session_token_candidates() -> list[str]:
-    """Return unique org JWT strings to try, in priority order.
-
-    Dev machines often have both %APPDATA%/AionUi and AionUi-Dev token files.
-    The first file on disk may be an expired Prod install token while the active
-    dev session wrote a fresh token under AionUi-Dev. Try each candidate until
-    GET /active returns 200 (see _api_get). Packaged installs typically have one
-    valid file — behaviour unchanged.
-    """
-    direct = (os.environ.get("ORG_SESSION_TOKEN") or "").strip()
-    if direct:
-        return [direct]
-
-    paths: list[Path] = []
-    token_file = (os.environ.get("ORG_SESSION_TOKEN_FILE") or "").strip()
-    if token_file:
-        paths.append(Path(token_file))
-    for root in _appdata_roots():
-        paths.append(root / "aionui" / "org-session.token")
-
-    tokens: list[str] = []
-    seen: set[str] = set()
-    for path in paths:
-        try:
-            token = path.read_text(encoding="utf-8").strip()
-        except OSError:
-            continue
-        if token and token not in seen:
-            seen.add(token)
-            tokens.append(token)
-    return tokens
+    return [candidate.token for candidate in get_auth_candidates()]
 
 
 def _org_session_token() -> str:
@@ -218,10 +188,6 @@ def save_lkg_snapshot(
 # Org API helpers
 # ---------------------------------------------------------------------------
 
-class _AuthError(Exception):
-    """HTTP 401 from org API."""
-
-
 def _make_request(path: str, token: str) -> dict[str, Any] | None:
     """Perform a single authenticated GET. Raises _AuthError on 401."""
     base = _org_server_url()
@@ -239,7 +205,7 @@ def _make_request(path: str, token: str) -> dict[str, Any] | None:
             return payload if isinstance(payload, dict) else None
     except urllib.error.HTTPError as e:
         if e.code == 401:
-            raise _AuthError("401 Unauthorized") from e
+            raise _AuthError(401, "401 Unauthorized") from e
         logger.warning("org_price_client: GET %s returned HTTP %d", path, e.code)
         return None
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
@@ -352,6 +318,7 @@ def _load_bundled_seed() -> dict[str, Any] | None:
                 "description": str(row.get("Describrition") or "").strip(),
                 "description_english": str(row.get("Describrition_English") or "").strip(),
                 "product_type": str(row.get("Product_Type") or "").strip(),
+                "supplier": str(row.get("supplier") or row.get("Supplier") or "").strip(),
                 "unit": "",
                 "price_b": float(row.get("unit_price") or 0),
             })
@@ -367,6 +334,22 @@ def _load_bundled_seed() -> dict[str, Any] | None:
     except Exception as e:
         logger.warning("org_price_client: failed to load bundled seed: %s", e)
         return None
+
+
+def _result_from_bundled_seed(*, stale_reason: str | None = None) -> dict[str, Any] | None:
+    seed = _load_bundled_seed()
+    if not seed or not seed.get("products"):
+        return None
+    reason = stale_reason or "使用安装时捆绑的价格库 seed，可能已过期"
+    return {
+        "products": seed["products"],
+        "version_id": None,
+        "version_number": None,
+        "source": "bundled_seed",
+        "stale": True,
+        "stale_reason": reason,
+        "synced_at": None,
+    }
 
 
 def get_price_data(*, force_refresh: bool = False) -> dict[str, Any]:
@@ -385,6 +368,7 @@ def get_price_data(*, force_refresh: bool = False) -> dict[str, Any]:
         }
 
     Priority:
+        0. Bundled seed when PRICE_USE_BUNDLED_FIRST=1 (temporary; skips org + LKG)
         1. Org API (fresh, stale=False)
         2. LKG snapshot (stale=True)
         3. Bundled seed xlsx (stale=True, source=bundled_seed)
@@ -392,11 +376,36 @@ def get_price_data(*, force_refresh: bool = False) -> dict[str, Any]:
     """
     with _cache_lock:
         if not force_refresh and _price_cache:
-            cached_version = _price_cache.get("version_id")
-            # Quick version check against LKG to see if still valid.
-            # If cache matches LKG or org_api, return early.
-            if _price_cache.get("source") in ("org_api", "lkg_snapshot") and cached_version:
-                return dict(_price_cache)
+            if _bundled_first_enabled():
+                if _price_cache.get("source") == "bundled_seed":
+                    return dict(_price_cache)
+            else:
+                cached_version = _price_cache.get("version_id")
+                if _price_cache.get("source") in ("org_api", "lkg_snapshot") and cached_version:
+                    return dict(_price_cache)
+
+    if _bundled_first_enabled():
+        result = _result_from_bundled_seed(
+            stale_reason="临时使用安装包本地价库（PRICE_USE_BUNDLED_FIRST）；云端价库恢复后请关闭此开关",
+        )
+        if result:
+            with _cache_lock:
+                _price_cache.update(result)
+            logger.info(
+                "org_price_client: bundled_first mode products=%d",
+                len(result["products"]),
+            )
+            return result
+        logger.error("org_price_client: bundled_first enabled but seed xlsx missing/empty")
+        return {
+            "products": [],
+            "version_id": None,
+            "version_number": None,
+            "source": "none",
+            "stale": True,
+            "stale_reason": "PRICE_USE_BUNDLED_FIRST 已启用但本地价库 xlsx 缺失或为空",
+            "synced_at": None,
+        }
 
     # --- Tier 1: Org API ---
     org_data = _api_get("/api/price-library/active")
@@ -483,22 +492,13 @@ def get_price_data(*, force_refresh: bool = False) -> dict[str, Any]:
         return result
 
     # --- Tier 3: Bundled seed ---
-    seed = _load_bundled_seed()
-    if seed and seed.get("products"):
-        result = {
-            "products": seed["products"],
-            "version_id": None,
-            "version_number": None,
-            "source": "bundled_seed",
-            "stale": True,
-            "stale_reason": "使用安装时捆绑的价格库 seed，可能已过期",
-            "synced_at": None,
-        }
+    result = _result_from_bundled_seed()
+    if result:
         with _cache_lock:
             _price_cache.update(result)
         logger.info(
             "org_price_client: using bundled_seed products=%d",
-            len(seed["products"]),
+            len(result["products"]),
         )
         return result
 

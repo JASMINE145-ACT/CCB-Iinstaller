@@ -6,6 +6,7 @@ Run with:  python -m unittest tests.test_org_price_client -v
 from __future__ import annotations
 
 import json
+import os
 import sys
 import tempfile
 import threading
@@ -100,7 +101,7 @@ class TestApiGet(unittest.TestCase):
 
         def fake_make_request(path: str, token: str):
             self.assertEqual(token, "")
-            raise _AuthError("401 Unauthorized")
+            raise _AuthError(401, "401 Unauthorized")
 
         with patch("admin.org_price_client._make_request", side_effect=fake_make_request), \
              patch("admin.org_price_client._org_session_token_candidates", return_value=[]):
@@ -115,7 +116,7 @@ class TestApiGet(unittest.TestCase):
 
         def fake_make_request(path: str, token: str):
             call_count["n"] += 1
-            raise _AuthError("401 Unauthorized")
+            raise _AuthError(401, "401 Unauthorized")
 
         with patch("admin.org_price_client._make_request", side_effect=fake_make_request), \
              patch(
@@ -132,7 +133,7 @@ class TestApiGet(unittest.TestCase):
 
         def fake_make_request(path: str, token: str):
             if token == "stale-prod-token":
-                raise _AuthError("401 Unauthorized")
+                raise _AuthError(401, "401 Unauthorized")
             return {"products": [], "version_id": "v2"}
 
         with patch("admin.org_price_client._make_request", side_effect=fake_make_request), \
@@ -222,7 +223,8 @@ class TestGetPriceData(unittest.TestCase):
         self._clear_cache()
         from admin.org_price_client import get_price_data
 
-        with patch("admin.org_price_client._api_get", return_value=SAMPLE_API_PAYLOAD):
+        with patch.dict(os.environ, {"PRICE_USE_BUNDLED_FIRST": ""}, clear=False), \
+             patch("admin.org_price_client._api_get", return_value=SAMPLE_API_PAYLOAD):
             result = get_price_data(force_refresh=True)
 
         self.assertEqual(result["source"], "org_api")
@@ -230,6 +232,24 @@ class TestGetPriceData(unittest.TestCase):
         self.assertIsNone(result["stale_reason"])
         self.assertEqual(len(result["products"]), 2)
         self.assertEqual(result["version_id"], "ver-001")
+
+    def test_bundled_first_skips_org_api(self) -> None:
+        self._clear_cache()
+        from admin.org_price_client import get_price_data
+
+        seed_data = {
+            "products": SAMPLE_PRODUCTS,
+            "source": "bundled_seed",
+        }
+        with patch.dict(os.environ, {"PRICE_USE_BUNDLED_FIRST": "1"}, clear=False), \
+             patch("admin.org_price_client._api_get") as mock_api, \
+             patch("admin.org_price_client._load_bundled_seed", return_value=seed_data):
+            result = get_price_data(force_refresh=True)
+
+        mock_api.assert_not_called()
+        self.assertEqual(result["source"], "bundled_seed")
+        self.assertTrue(result["stale"])
+        self.assertIn("PRICE_USE_BUNDLED_FIRST", result["stale_reason"] or "")
 
     def test_tier2_lkg_when_api_fails(self) -> None:
         self._clear_cache()
@@ -244,7 +264,8 @@ class TestGetPriceData(unittest.TestCase):
             "products": lkg_products,
         }
 
-        with patch("admin.org_price_client._api_get", return_value=None), \
+        with patch.dict(os.environ, {"PRICE_USE_BUNDLED_FIRST": ""}, clear=False), \
+             patch("admin.org_price_client._api_get", return_value=None), \
              patch("admin.org_price_client.load_lkg_snapshot", return_value=lkg_data):
             result = get_price_data(force_refresh=True)
 
@@ -318,7 +339,8 @@ class TestGetPriceData(unittest.TestCase):
         self._clear_cache()
         from admin.org_price_client import get_price_data
 
-        with patch("admin.org_price_client._api_get", return_value=SAMPLE_API_PAYLOAD) as mock_api:
+        with patch.dict(os.environ, {"PRICE_USE_BUNDLED_FIRST": ""}, clear=False), \
+             patch("admin.org_price_client._api_get", return_value=SAMPLE_API_PAYLOAD) as mock_api:
             get_price_data(force_refresh=True)
             get_price_data()  # Should hit cache, not API again.
 
@@ -343,7 +365,8 @@ class TestGetPriceData(unittest.TestCase):
         def fake_save(vid: str, vnum: int, products: list) -> None:
             saved["version_id"] = vid
 
-        with patch("admin.org_price_client._api_get", return_value=SAMPLE_API_PAYLOAD), \
+        with patch.dict(os.environ, {"PRICE_USE_BUNDLED_FIRST": ""}, clear=False), \
+             patch("admin.org_price_client._api_get", return_value=SAMPLE_API_PAYLOAD), \
              patch("admin.org_price_client.load_lkg_snapshot", return_value=old_lkg), \
              patch("admin.org_price_client.save_lkg_snapshot", side_effect=fake_save), \
              patch("threading.Thread") as mock_thread:
