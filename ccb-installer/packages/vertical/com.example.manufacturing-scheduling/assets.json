@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "com.example.manufacturing-scheduling",
+  "payload": [
+    {
+      "source": "packages/vertical/com.example.manufacturing-scheduling/connector",
+      "target": "packages/vertical/com.example.manufacturing-scheduling/connector",
+      "kind": "mcp"
+    }
+  ],
+  "legacyProjections": [],
+  "retainOnDisable": []
+}

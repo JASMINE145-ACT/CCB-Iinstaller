@@ -1,1 +1,3 @@
-{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file":".trellis/spec/integration/platform-vertical-packages.md","reason":"Canonical package boundary, lifecycle, control-plane, and second-vertical contract."}
+{"file":".trellis/tasks/07-03-p5-manufacturing-scheduling-pilot/research/p5-vertical-selection-adr.md","reason":"Normative domain, fixture, protocol, coexistence, and zero-core-change design."}
+{"file":".trellis/tasks/07-03-p5-manufacturing-scheduling-pilot/research/p5-worktree-baseline.json","reason":"Pre-P5 dirty-worktree baseline used by the changed-path guard."}

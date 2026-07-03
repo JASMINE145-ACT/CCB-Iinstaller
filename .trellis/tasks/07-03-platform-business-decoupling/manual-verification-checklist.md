@@ -71,4 +71,15 @@ tokens, or private business data in this file.
 
 ## P5 — Second vertical pilot
 
-_Added when P5 automation is complete._
+- [ ] In a non-production install, enable both `com.wanding.trade` and
+  `com.example.manufacturing-scheduling`; confirm both agents and MCP health
+  entries appear after compilation.
+- [ ] Start an isolated CCB session and ask the Production Scheduler to build
+  the fixture schedule; confirm `WO-100` completes at 11:30 UTC and `WO-200`
+  at 13:30 UTC.
+- [ ] Submit a 500-minute `CUT` operation and confirm the user-visible result is
+  `CAPACITY_EXCEEDED` without terminating the connector.
+- [ ] Have a manufacturing stakeholder review the package `README.md` case and
+  record whether earliest-due-date behavior is suitable for later discovery.
+- [ ] Treat dynamic rendering of the declarative scheduling dashboard as future
+  UI work; P5 does not authorize production rollout.

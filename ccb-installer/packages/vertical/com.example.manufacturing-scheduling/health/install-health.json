@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "com.example.manufacturing-scheduling",
+  "requiredFiles": [
+    "packages/vertical/com.example.manufacturing-scheduling/package.json",
+    "packages/vertical/com.example.manufacturing-scheduling/connector/server.mjs",
+    "packages/vertical/com.example.manufacturing-scheduling/agents/scheduling-agent.md",
+    "packages/vertical/com.example.manufacturing-scheduling/knowledge/collections.json"
+  ],
+  "configFiles": []
+}

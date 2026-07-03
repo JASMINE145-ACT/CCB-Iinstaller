@@ -1,0 +1,5 @@
+{
+  "display_name": "Production Scheduler",
+  "description": "Build a deterministic finite-capacity production schedule.",
+  "category": "manufacturing"
+}

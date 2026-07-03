@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "com.example.manufacturing-scheduling",
+  "collections": [
+    {
+      "id": "manufacturing-scheduling-basics",
+      "capabilityId": "business.manufacturing.schedule",
+      "documents": [
+        {
+          "id": "finite-capacity-rules",
+          "title": "Finite-capacity scheduling rules",
+          "content": "Operations preserve precedence, cannot overlap on one work center, and must fit inside the declared capacity window."
+        }
+      ]
+    }
+  ]
+}

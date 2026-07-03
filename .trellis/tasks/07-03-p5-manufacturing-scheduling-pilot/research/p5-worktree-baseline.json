@@ -1,0 +1,21 @@
+{
+  "capturedAt": "2026-07-03T18:36:00+08:00",
+  "commit": "16cff83f4305a102103459bfb2a671c5fd456353",
+  "preExistingPaths": [
+    ".agents/skills/trellis-task-execution/SKILL.md",
+    ".agents/skills/trellis-task-execution/examples.md",
+    ".claude/skills/trellis-task-execution/SKILL.md",
+    ".claude/skills/trellis-task-execution/examples.md",
+    ".gitignore",
+    ".trellis/spec/backend/index.md",
+    ".trellis/spec/backend/mcp-business.md",
+    ".trellis/spec/backend/quotation-matching-engine.md",
+    ".trellis/spec/frontend/chat-acp-flow.md",
+    ".trellis/spec/frontend/dev-test-ship.md",
+    ".trellis/spec/frontend/file-map.md",
+    ".trellis/spec/integration/index.md",
+    ".trellis/spec/integration/price-library.md",
+    "ccb-installer/vendor/mcp-servers/excel-mcp/mcp-excel.exe",
+    "docs/industrial-agent-interview-playbook.md"
+  ]
+}

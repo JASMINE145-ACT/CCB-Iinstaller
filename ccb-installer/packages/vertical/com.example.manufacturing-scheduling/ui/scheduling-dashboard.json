@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "manufacturing-scheduling-dashboard",
+  "kind": "ui",
+  "capabilityId": "business.manufacturing.schedule",
+  "container": "package-dashboard",
+  "title": "Production Schedule",
+  "view": "schedule-timeline"
+}

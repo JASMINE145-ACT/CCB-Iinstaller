@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "com.example.manufacturing-scheduling",
+  "capabilityId": "business.manufacturing.schedule",
+  "suites": [
+    {
+      "id": "fixture-schedule",
+      "prompt": "Build the production schedule for the fixture work orders.",
+      "assertions": [
+        "operation-precedence",
+        "work-center-non-overlap",
+        "capacity-window-containment"
+      ]
+    }
+  ]
+}

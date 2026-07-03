@@ -37,7 +37,13 @@ async function testValidAndNegativeClaims() {
     permissions: ["platform.config.publish"],
   };
   const valid = token(privateKey, claims);
-  const tampered = `${valid.slice(0, -1)}${valid.endsWith("A") ? "B" : "A"}`;
+  const [encodedHeader, encodedClaims, encodedSignature] = valid.split(".");
+  const tamperIndex = Math.floor(encodedSignature.length / 2);
+  const tamperedSignature =
+    encodedSignature.slice(0, tamperIndex) +
+    (encodedSignature[tamperIndex] === "A" ? "B" : "A") +
+    encodedSignature.slice(tamperIndex + 1);
+  const tampered = `${encodedHeader}.${encodedClaims}.${tamperedSignature}`;
   const verified = verifyJwt(valid, {
     jwks,
     issuer: claims.iss,

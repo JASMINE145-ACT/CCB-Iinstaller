@@ -221,10 +221,10 @@ P5  Phase 5 — 第二家公司试点
 
 ### Acceptance
 
-- [ ] **零修改** platform core 即可交付第二包
-- [ ] 第二包与 `com.wanding.trade` 可同时安装或互斥（按设计）
-- [ ] 全链 smoke + 简短案例文档
-- [ ] 设计文档 §22「第二垂直验证」指标达成
+- [x] **零修改** platform core 即可交付第二包
+- [x] 第二包与 `com.wanding.trade` 可同时安装或互斥（按设计）
+- [x] 全链 smoke + 简短案例文档
+- [x] 设计文档 §22「第二垂直验证」指标达成
 
 ### 依赖
 

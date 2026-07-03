@@ -291,6 +291,25 @@ See [`control-plane-tenant-governance.md`](./control-plane-tenant-governance.md)
 Legacy shared-HS256 authentication remains compatibility-only until the human
 OIDC migration checklist passes.
 
+### 4.12 Implemented P5 second-vertical proof
+
+The second vertical is
+`ccb-installer/packages/vertical/com.example.manufacturing-scheduling/`.
+It owns a scheduling agent, skill, knowledge collection, declarative UI
+contribution, policy/eval metadata, health descriptors, and a local
+finite-capacity scheduling MCP.
+
+The package is non-trade and credential-free. Its deterministic fixture proves
+operation precedence, work-center non-overlap, capacity-window containment,
+and explicit infeasibility errors. It coexists with `com.wanding.trade`.
+
+Executable acceptance is
+`ccb-installer/scripts/__tests__/p5-manufacturing-pilot.test.mjs`; connector
+protocol tests live beside the package. Together they cover registry,
+compilation, lifecycle/rollback, control-plane convergence, MCP behavior, and
+a tracked-plus-untracked changed-path gate. P5 changed no platform-core
+implementation.
+
 ---
 
 ## 5. Assets that should stay local

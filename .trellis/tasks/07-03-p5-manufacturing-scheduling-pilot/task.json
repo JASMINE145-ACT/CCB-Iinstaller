@@ -3,15 +3,15 @@
   "name": "p5-manufacturing-scheduling-pilot",
   "title": "P5 manufacturing scheduling vertical pilot",
   "description": "Prove platform generality with a non-trade manufacturing finite-capacity scheduling package, deterministic connector, coexistence, lifecycle, compiler, and control-plane evidence.",
-  "status": "planning",
-  "dev_type": null,
-  "scope": null,
+  "status": "completed",
+  "dev_type": "backend",
+  "scope": "ccb-installer/packages/vertical/com.example.manufacturing-scheduling; package-owned connector; P5 integration tests and evidence",
   "package": null,
   "priority": "P0",
   "creator": "JASMINE145-ACT",
   "assignee": "JASMINE145-ACT",
   "createdAt": "2026-07-03",
-  "completedAt": null,
+  "completedAt": "2026-07-03",
   "branch": null,
   "base_branch": "main",
   "worktree_path": null,
@@ -20,7 +20,14 @@
   "subtasks": [],
   "children": [],
   "parent": "07-03-platform-business-decoupling",
-  "relatedFiles": [],
-  "notes": "",
-  "meta": {}
+  "relatedFiles": [
+    "prd.md",
+    "execution-plan.md",
+    "research/p5-vertical-selection-adr.md"
+  ],
+  "notes": "Zero platform-core implementation changes is an acceptance criterion.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "Standard"
+  }
 }

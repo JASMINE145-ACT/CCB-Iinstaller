@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "package_id": "com.example.manufacturing-scheduling",
+  "mcp_servers": {
+    "manufacturing-scheduling": {
+      "kind": "stdio",
+      "lazy": false,
+      "required_paths": [
+        "packages/vertical/com.example.manufacturing-scheduling/connector/server.mjs"
+      ],
+      "tool_prefix": "mcp__manufacturing-scheduling__",
+      "probe_timeout_ms": 10000,
+      "probe_tool_call": {
+        "tool": "build_schedule",
+        "arguments": {}
+      }
+    }
+  },
+  "agent_profiles": {
+    "scheduling-agent": {
+      "required_mcp": [
+        "manufacturing-scheduling"
+      ],
+      "tool_prefixes": [
+        "mcp__manufacturing-scheduling__"
+      ]
+    }
+  }
+}

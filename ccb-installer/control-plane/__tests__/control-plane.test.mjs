@@ -33,8 +33,11 @@ async function testTenantReleaseAndDrift() {
     correlationId: "corr-create",
   });
   const catalog = await plane.getCatalog();
-  assert.equal(catalog.packages[0].packageId, "com.wanding.trade");
-  assert.match(catalog.packages[0].sha256, /^sha256:[a-f0-9]{64}$/);
+  const wandingPackage = catalog.packages.find(
+    (item) => item.packageId === "com.wanding.trade",
+  );
+  assert.ok(wandingPackage);
+  assert.match(wandingPackage.sha256, /^sha256:[a-f0-9]{64}$/);
 
   let tenant = await plane.getTenant("tn_alpha");
   await plane.setPackages({

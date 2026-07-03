@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "com.example.manufacturing-scheduling",
+  "capabilityId": "business.manufacturing.schedule",
+  "networkAccess": false,
+  "secretReferences": [],
+  "writesBusinessData": false,
+  "algorithm": "earliest-due-date"
+}

@@ -1,0 +1,80 @@
+{
+  "$schema": "../../../config/schemas/package-manifest.schema.json",
+  "schemaVersion": "1.0.0",
+  "packageId": "com.example.manufacturing-scheduling",
+  "version": "0.1.0",
+  "displayName": "Manufacturing Scheduling Pilot",
+  "capabilities": [
+    {
+      "id": "business.manufacturing.schedule",
+      "description": "Build deterministic finite-capacity production schedules."
+    }
+  ],
+  "agents": [
+    {
+      "id": "scheduling-agent",
+      "source": "packages/vertical/com.example.manufacturing-scheduling/agents/scheduling-agent.md",
+      "requiredCapabilities": [
+        "business.manufacturing.schedule"
+      ],
+      "mcpServers": [
+        "manufacturing-scheduling"
+      ],
+      "skills": [
+        "finite-capacity-scheduling"
+      ]
+    }
+  ],
+  "mcpServers": [
+    {
+      "id": "manufacturing-scheduling",
+      "source": "packages/vertical/com.example.manufacturing-scheduling/health/mcp-health-manifest.json",
+      "providesCapabilities": [
+        "business.manufacturing.schedule"
+      ],
+      "runtime": {
+        "command": "${installDir}/vendor/bun/bun.exe",
+        "args": [
+          "${installDir}/packages/vertical/com.example.manufacturing-scheduling/connector/server.mjs"
+        ],
+        "description": "Deterministic local finite-capacity scheduling connector."
+      }
+    }
+  ],
+  "skills": [
+    {
+      "id": "finite-capacity-scheduling",
+      "source": "packages/vertical/com.example.manufacturing-scheduling/skills/finite-capacity-scheduling/SKILL.md",
+      "providesCapabilities": [
+        "business.manufacturing.schedule"
+      ]
+    }
+  ],
+  "knowledge": [
+    {
+      "id": "manufacturing-scheduling-knowledge",
+      "source": "packages/vertical/com.example.manufacturing-scheduling/knowledge/collections.json",
+      "providesCapabilities": [
+        "business.manufacturing.schedule"
+      ]
+    }
+  ],
+  "contributions": [
+    {
+      "id": "manufacturing-scheduling-agent-catalog",
+      "kind": "agent-catalog",
+      "source": "packages/vertical/com.example.manufacturing-scheduling/agents"
+    },
+    {
+      "id": "manufacturing-scheduling-health",
+      "kind": "health",
+      "source": "packages/vertical/com.example.manufacturing-scheduling/health/mcp-health-manifest.json"
+    },
+    {
+      "id": "manufacturing-scheduling-dashboard",
+      "kind": "ui",
+      "source": "packages/vertical/com.example.manufacturing-scheduling/ui/scheduling-dashboard.json"
+    }
+  ],
+  "aliases": []
+}
