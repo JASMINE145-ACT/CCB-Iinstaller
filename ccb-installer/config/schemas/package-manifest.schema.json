@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ccb-wanding.local/schemas/package-manifest-1.0.0.json",
+  "title": "CCB Package Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "packageId",
+    "version",
+    "capabilities",
+    "agents",
+    "mcpServers",
+    "skills",
+    "knowledge",
+    "contributions",
+    "aliases"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "packageId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:\\.[a-z0-9-]+)+$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/capability"
+      }
+    },
+    "agents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/agent"
+      }
+    },
+    "mcpServers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/sourceDescriptor"
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/sourceDescriptor"
+      }
+    },
+    "knowledge": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/sourceDescriptor"
+      }
+    },
+    "contributions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/contribution"
+      }
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/alias"
+      }
+    }
+  },
+  "$defs": {
+    "sourceDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "providesCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(platform|business)(?:\\.[a-z0-9-]+)+$"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "agent": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/sourceDescriptor"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "requiredCapabilities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            },
+            "mcpServers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            },
+            "skills": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    "contribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": ["agent-catalog", "health", "command", "ui"]
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    },
+    "alias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["legacyId", "kind", "targetId"],
+      "properties": {
+        "legacyId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": ["agent", "mcpServer", "skill", "knowledge"]
+        },
+        "targetId": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

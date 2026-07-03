@@ -1,0 +1,140 @@
+{
+  "$schema": "../../schemas/package-manifest.schema.json",
+  "schemaVersion": "1.0.0",
+  "packageId": "com.wanding.trade",
+  "version": "0.1.0",
+  "displayName": "WanD Trade",
+  "capabilities": [
+    {
+      "id": "platform.agent.route",
+      "description": "Route a user request to an eligible specialist."
+    },
+    {
+      "id": "business.pricing.quote",
+      "description": "Match products, query inventory, and fill quotation workbooks."
+    },
+    {
+      "id": "business.accounting.analytics",
+      "description": "Read-only Accurate Online business analytics."
+    },
+    {
+      "id": "business.pricing.manage",
+      "description": "Administer organization price-library drafts and releases."
+    }
+  ],
+  "agents": [
+    {
+      "id": "wande-orchestrator",
+      "source": "config/agents/wande-orchestrator.md",
+      "requiredCapabilities": [
+        "platform.agent.route"
+      ],
+      "mcpServers": [],
+      "skills": []
+    },
+    {
+      "id": "quotation-agent",
+      "source": "config/agents/quotation-agent.md",
+      "requiredCapabilities": [
+        "business.pricing.quote"
+      ],
+      "mcpServers": [
+        "quotation",
+        "excel"
+      ],
+      "skills": [
+        "quotation-learn-by-data"
+      ]
+    },
+    {
+      "id": "accurate-agent",
+      "source": "config/agents/accurate-agent.md",
+      "requiredCapabilities": [
+        "business.accounting.analytics"
+      ],
+      "mcpServers": [
+        "accurate"
+      ],
+      "skills": []
+    },
+    {
+      "id": "price-library-agent",
+      "source": "config/agents/price-library-agent.md",
+      "requiredCapabilities": [
+        "business.pricing.manage"
+      ],
+      "mcpServers": [
+        "price-library",
+        "excel"
+      ],
+      "skills": []
+    }
+  ],
+  "mcpServers": [
+    {
+      "id": "quotation",
+      "source": "config/mcp-health-manifest.json",
+      "providesCapabilities": [
+        "business.pricing.quote"
+      ]
+    },
+    {
+      "id": "accurate",
+      "source": "config/mcp-health-manifest.json",
+      "providesCapabilities": [
+        "business.accounting.analytics"
+      ]
+    },
+    {
+      "id": "price-library",
+      "source": "config/mcp-health-manifest.json",
+      "providesCapabilities": [
+        "business.pricing.manage"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "id": "quotation-learn-by-data",
+      "source": "config/skills/quotation-learn-by-data/SKILL.md",
+      "providesCapabilities": [
+        "business.pricing.quote"
+      ]
+    }
+  ],
+  "knowledge": [],
+  "contributions": [
+    {
+      "id": "wanding-agent-catalog",
+      "kind": "agent-catalog",
+      "source": "config/agents"
+    },
+    {
+      "id": "wanding-mcp-health",
+      "kind": "health",
+      "source": "config/mcp-health-manifest.json"
+    }
+  ],
+  "aliases": [
+    {
+      "legacyId": "wande-orchestrator",
+      "kind": "agent",
+      "targetId": "wande-orchestrator"
+    },
+    {
+      "legacyId": "quotation-agent",
+      "kind": "agent",
+      "targetId": "quotation-agent"
+    },
+    {
+      "legacyId": "accurate-agent",
+      "kind": "agent",
+      "targetId": "accurate-agent"
+    },
+    {
+      "legacyId": "wanding_business_knowledge",
+      "kind": "knowledge",
+      "targetId": "wanding-business-knowledge"
+    }
+  ]
+}
