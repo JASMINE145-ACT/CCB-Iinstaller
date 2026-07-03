@@ -1,0 +1,3 @@
+{"file": "aionui-src/packages/desktop/src/common/config/ccbMcpHealth.ts", "reason": "exa HTTP probe: 405/4xx = reachable; connection failure vs upstream 5xx detail strings"}
+{"file": "ccb-installer/scripts/test-mcp-health.ps1", "reason": "Test-McpHttpReachable shared semantics with UI; replaces Test-HttpOk for exa optional layer"}
+{"file": "ccb-installer/scripts/probe-research-capabilities.ps1", "reason": "Test-McpHttpReachable for jina/exa connectivity probes"}

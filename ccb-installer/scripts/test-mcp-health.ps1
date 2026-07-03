@@ -52,6 +52,128 @@ function Get-Manifest {
     return Get-Content -Raw -LiteralPath $manifestPath -Encoding UTF8 | ConvertFrom-Json
 }
 
+function Test-McpHttpReachable {
+    param([string]$Url, [int]$TimeoutSec = 8)
+    foreach ($method in @('Head', 'Get')) {
+        try {
+            $iwParams = @{
+                Uri             = $Url
+                Method          = $method
+                TimeoutSec      = $TimeoutSec
+                UseBasicParsing = $true
+            }
+            if ($PSVersionTable.PSVersion.Major -ge 7) {
+                $iwParams['SkipHttpErrorCheck'] = $true
+            }
+            $resp = Invoke-WebRequest @iwParams
+            $code = [int]$resp.StatusCode
+            if ($code -ge 200 -and $code -lt 400) {
+                return @{ ok = $true; detail = "mcp.exa.ai reachable (HTTP $code)" }
+            }
+            if ($code -ge 400 -and $code -lt 500) {
+                return @{ ok = $true; detail = "mcp.exa.ai reachable (HTTP $code — MCP rejects $method; connectivity OK)" }
+            }
+            if ($code -ge 500) {
+                return @{ ok = $false; detail = "upstream error HTTP $code (research-agent may fail)" }
+            }
+        }
+        catch {
+            $status = $null
+            if ($_.Exception.Response) {
+                try { $status = [int]$_.Exception.Response.StatusCode } catch { }
+            }
+            if ($status -ge 200 -and $status -lt 500) {
+                if ($status -ge 400) {
+                    return @{ ok = $true; detail = "mcp.exa.ai reachable (HTTP $status — MCP rejects $method; connectivity OK)" }
+                }
+                return @{ ok = $true; detail = "mcp.exa.ai reachable (HTTP $status)" }
+            }
+        }
+    }
+    return @{
+        ok     = $false
+        detail = 'connection failed: timeout, DNS, or refused (research-agent may fail; core MCP unaffected)'
+    }
+}
+
+function Test-OptionalLayer {
+    param(
+        [string]$Install,
+        [string]$Config,
+        $Manifest
+    )
+
+    $checks = [System.Collections.Generic.List[object]]::new()
+    $settingsPath = Join-Path $Config "settings.json"
+    $expectedExaUrl = "https://mcp.exa.ai/mcp"
+    if ($Manifest.optional_checks -and $Manifest.optional_checks.exa -and $Manifest.optional_checks.exa.expected_url) {
+        $expectedExaUrl = [string]$Manifest.optional_checks.exa.expected_url
+    }
+
+    $exaEntry = $null
+    if (Test-Path -LiteralPath $settingsPath) {
+        try {
+            $settings = Get-Content -Raw -LiteralPath $settingsPath -Encoding UTF8 | ConvertFrom-Json
+            $exaEntry = $settings.mcpServers.exa
+        }
+        catch { }
+    }
+
+    if ($exaEntry -and $exaEntry.url) {
+        $exaUrl = [string]$exaEntry.url
+        if ($exaUrl -ne $expectedExaUrl) {
+            $checks.Add([pscustomobject]@{
+                layer  = "optional"
+                id     = "exa:config"
+                ok     = $false
+                warn   = $true
+                detail = "unexpected URL: $exaUrl (expected $expectedExaUrl)"
+            })
+        }
+        else {
+            $probe = Test-McpHttpReachable -Url $exaUrl
+            $checks.Add([pscustomobject]@{
+                layer  = "optional"
+                id     = "exa:http"
+                ok     = $probe.ok
+                warn   = (-not $probe.ok)
+                detail = $probe.detail
+            })
+        }
+    }
+    else {
+        $checks.Add([pscustomobject]@{
+            layer  = "optional"
+            id     = "exa:http"
+            ok     = $true
+            warn   = $false
+            detail = "not registered (optional)"
+        })
+    }
+
+    $configSkill = Join-Path $Config "skills\ppt-master\SKILL.md"
+    $configSkillOk = Test-Path -LiteralPath $configSkill
+    $checks.Add([pscustomobject]@{
+        layer  = "optional"
+        id     = "ppt-master:config-skill"
+        ok     = $configSkillOk
+        warn   = (-not $configSkillOk)
+        detail = $(if ($configSkillOk) { "skills/ppt-master/SKILL.md exists" } else { "missing: $configSkill — run install-ppt-master.ps1" })
+    })
+
+    $vendorSkill = Join-Path $Install "vendor\ppt-master-skill\SKILL.md"
+    $vendorSkillOk = Test-Path -LiteralPath $vendorSkill
+    $checks.Add([pscustomobject]@{
+        layer  = "optional"
+        id     = "ppt-master:vendor-skill"
+        ok     = $vendorSkillOk
+        warn   = (-not $vendorSkillOk)
+        detail = $(if ($vendorSkillOk) { "vendor/ppt-master-skill/SKILL.md exists" } else { "missing: $vendorSkill" })
+    })
+
+    return ,$checks
+}
+
 function Test-ConfigLayer {
     param(
         [string]$Install,
@@ -341,13 +463,14 @@ try {
     $manifest = Get-Manifest
     $allChecks = [System.Collections.Generic.List[object]]::new()
     $allChecks.AddRange((Test-ConfigLayer -Install $InstallDir -Config $ConfigDir -Manifest $manifest))
+    $allChecks.AddRange((Test-OptionalLayer -Install $InstallDir -Config $ConfigDir -Manifest $manifest))
 
     foreach ($c in $allChecks) {
-        $level = if ($c.ok) { "PASS" } else { "FAIL" }
+        $level = if ($c.ok) { "PASS" } elseif ($c.warn) { "WARN" } else { "FAIL" }
         Write-HealthLine "$($c.layer)/$($c.id): $($c.detail)" $level
     }
 
-    $configFailed = @($allChecks | Where-Object { -not $_.ok })
+    $configFailed = @($allChecks | Where-Object { -not $_.ok -and -not $_.warn })
     if ($configFailed.Count -gt 0) {
         Write-HealthLine "$($configFailed.Count) config/file/agent check(s) failed. Try: .\ccb-installer\scripts\test-mcp-health.ps1 -Repair" "FAIL"
         if (-not $Probe -and -not $Session) {

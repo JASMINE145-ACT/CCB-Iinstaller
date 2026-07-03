@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/integration/mcp-health.md", "reason": "exa 405 semantics; connection vs HTTP status; task 07-03 trail"}
+{"evidence": "curl HEAD/GET mcp.exa.ai/mcp → 405; CLI optional/exa:http PASS; bun test 4/4 ccbMcpHealth.test.ts"}

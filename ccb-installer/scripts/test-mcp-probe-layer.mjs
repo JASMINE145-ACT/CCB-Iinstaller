@@ -10,6 +10,15 @@ import {
 } from '../lib/mcp-health-manifest.mjs'
 import { probeStdioMcpServer } from '../lib/mcp-stdio-probe.mjs'
 
+function resolveProbeToolCall(serverName, probeCall, install) {
+  if (!probeCall?.tool) return probeCall
+  const args = { ...(probeCall.arguments ?? {}) }
+  if (serverName === 'excel' && args.filepath && !/[\\/]:/.test(String(args.filepath).slice(0, 3))) {
+    args.filepath = join(install, 'vendor', 'wanding', 'data', String(args.filepath))
+  }
+  return { ...probeCall, arguments: args }
+}
+
 const install =
   process.env.CCB_INSTALL_DIR ||
   (existsSync('D:\\CCB-Wanding') ? 'D:\\CCB-Wanding' : null)
@@ -68,8 +77,10 @@ for (const [name, spec] of Object.entries(manifest.mcp_servers)) {
       timeoutMs: spec.probe_timeout_ms ?? 45000,
       minTools: 1,
       probeToolCalls: [
-        ...(spec.probe_tool_call ? [spec.probe_tool_call] : []),
-        ...(spec.probe_inventory_call ? [spec.probe_inventory_call] : []),
+        ...(spec.probe_tool_call ? [resolveProbeToolCall(name, spec.probe_tool_call, install)] : []),
+        ...(spec.probe_inventory_call
+          ? [resolveProbeToolCall(name, spec.probe_inventory_call, install)]
+          : []),
       ],
     },
   )

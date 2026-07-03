@@ -1,0 +1,73 @@
+{
+  "id": "mcp-health-coverage-expansion",
+  "name": "07-02-mcp-health-coverage-expansion",
+  "title": "MCP 健康检查覆盖扩展 + Agent 辅助修复",
+  "description": "Expand CCB MCP health UI/CLI parity: show agents layer + coverage matrix; optional Session probe in UI; deep probe_tool_call for office-word/excel; optional exa/ppt skill checks; strengthen diagnosis and MiniMax Guid repair prompt for remaining failures.",
+  "status": "completed",
+  "dev_type": "feature",
+  "scope": "ccb-installer mcp-health + aionui-src CcbMcpHealthPanel",
+  "package": "integration",
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-02",
+  "completedAt": "2026-07-02",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "D:\\Projects\\claude-code-best\\ccb-installer\\config\\mcp-health-manifest.json",
+    "D:\\Projects\\claude-code-best\\ccb-installer\\scripts\\test-mcp-health.ps1",
+    "D:\\Projects\\claude-code-best\\ccb-installer\\test-mcp-session-health.mjs",
+    "D:\\Projects\\claude-code-best\\ccb-installer\\lib\\mcp-health-manifest.mjs",
+    "D:\\Projects\\claude-code-best\\ccb-installer\\lib\\mcp-stdio-probe.mjs",
+    "D:\\Projects\\claude-code-best\\.trellis\\spec\\integration\\mcp-health.md",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\config\\ccbMcpHealth.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\config\\ccbMcpHealthManifest.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\config\\ccbMcpHealthCoverage.ts",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\common\\config\\ccbMcpHealthDiagnosis.ts",
+    "D:\\Projects\\claude-code-best\\ccb-installer\\scripts\\test-mcp-probe-layer.mjs",
+    "D:\\Projects\\aionui-src\\packages\\desktop\\src\\renderer\\pages\\settings\\ToolsSettings\\CcbMcpHealthPanel.tsx",
+    "D:\\Projects\\aionui-src\\tests\\unit\\common-config\\ccbMcpHealth.test.ts",
+    "D:\\Projects\\aionui-src\\tests\\unit\\common-config\\ccbMcpHealthDiagnosis.test.ts"
+  ],
+  "notes": "Completed 2026-07-02. All workstreams A–E delivered including D (exa HTTP WARN + ppt-master skill optional layer). code-review PASS; bun test PASS; CLI -Probe -Session PASS.",
+  "meta": {
+    "workstreams": [
+      "A-ui-agents-layer-and-coverage-matrix",
+      "B-session-probe-ui",
+      "C-word-excel-deep-probe",
+      "D-optional-exa-ppt-skill",
+      "E-diagnosis-minimax-prompt"
+    ],
+    "phases": {
+      "P0": [
+        "A"
+      ],
+      "P1": [
+        "B",
+        "C",
+        "E"
+      ],
+      "P2": [
+        "D"
+      ]
+    },
+    "verification": {
+      "code_review": "PASS",
+      "bun_test": "12/12 PASS",
+      "cli_probe_session": "4/4 probe + 6/6 session PASS"
+    },
+    "deferred": [],
+    "related_tasks": [
+      "06-27-quotation-mcp-health",
+      "06-28-app-startup-readiness-gate",
+      "07-01-price-library-admin-agent"
+    ]
+  }
+}
