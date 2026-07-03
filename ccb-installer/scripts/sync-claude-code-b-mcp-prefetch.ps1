@@ -19,7 +19,7 @@ if (-not (Test-Path $ClaudeCodeBRoot)) {
 }
 
 $DestAcp = Join-Path $ClaudeCodeBRoot "src\services\acp"
-foreach ($file in @("agent.ts", "agentSessionProfile.ts", "mcpSessionPrefetch.ts", "mcpToolRepeatGuard.ts", "wanDEnvBootstrap.ts", "wanDMcpWarmup.ts", "permissions.ts", "workspacePointer.ts", "promptConversion.ts", "sessionTranscript.ts")) {
+foreach ($file in @("agent.ts", "agentSessionProfile.ts", "mcpSessionPrefetch.ts", "mcpToolRepeatGuard.ts", "wanDEnvBootstrap.ts", "wanDMcpWarmup.ts", "permissions.ts", "askUserQuestionPermissionResolve.ts", "workspacePointer.ts", "promptConversion.ts", "sessionTranscript.ts")) {
   $src = Join-Path $Overlay $file
   if (-not (Test-Path $src)) { Write-Error "Missing overlay file: $src" }
   Copy-Item $src (Join-Path $DestAcp $file) -Force
@@ -66,11 +66,27 @@ if (Test-Path $transcriptTestSrc) {
   Write-Host "Copied sessionTranscript.test.ts"
 }
 
+$mergeTestSrc = Join-Path $Overlay "__tests__\sessionMcpConfigMerge.test.ts"
+$mergeTestDest = Join-Path $DestAcp "__tests__\sessionMcpConfigMerge.test.ts"
+if (Test-Path $mergeTestSrc) {
+  New-Item -ItemType Directory -Force -Path (Split-Path $mergeTestDest -Parent) | Out-Null
+  Copy-Item $mergeTestSrc $mergeTestDest -Force
+  Write-Host "Copied sessionMcpConfigMerge.test.ts"
+}
+
+$auqTestSrc = Join-Path $Overlay "__tests__\askUserQuestionPermissions.test.ts"
+$auqTestDest = Join-Path $DestAcp "__tests__\askUserQuestionPermissions.test.ts"
+if (Test-Path $auqTestSrc) {
+  New-Item -ItemType Directory -Force -Path (Split-Path $auqTestDest -Parent) | Out-Null
+  Copy-Item $auqTestSrc $auqTestDest -Force
+  Write-Host "Copied askUserQuestionPermissions.test.ts"
+}
+
 if ($Build) {
   Push-Location $ClaudeCodeBRoot
   try {
     if ($env:BUN_JSC_forceRAMSize -lt 3500000000) { $env:BUN_JSC_forceRAMSize = "3500000000" }
-    bun test src/services/acp/__tests__/mcpSessionPrefetch.test.ts src/services/acp/__tests__/mcpToolRepeatGuard.test.ts src/services/acp/__tests__/agentSessionProfile.test.ts src/services/acp/__tests__/promptConversion.test.ts src/services/acp/__tests__/sessionTranscript.test.ts
+    bun test src/services/acp/__tests__/mcpSessionPrefetch.test.ts src/services/acp/__tests__/mcpToolRepeatGuard.test.ts src/services/acp/__tests__/agentSessionProfile.test.ts src/services/acp/__tests__/promptConversion.test.ts src/services/acp/__tests__/sessionTranscript.test.ts src/services/acp/__tests__/sessionMcpConfigMerge.test.ts src/services/acp/__tests__/askUserQuestionPermissions.test.ts
     bun run build
   } finally {
     Pop-Location

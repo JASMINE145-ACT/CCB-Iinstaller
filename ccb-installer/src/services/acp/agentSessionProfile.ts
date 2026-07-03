@@ -61,6 +61,8 @@ export const CCB_WANDING_KEEP_AGENT_IDS = new Set([
   'wande-orchestrator',
   'quotation-agent',
   'accurate-agent',
+  'research-agent',
+  'price-library-agent',
   'cowork',
   'word-creator',
   'word-form-creator',
@@ -68,9 +70,14 @@ export const CCB_WANDING_KEEP_AGENT_IDS = new Set([
   'excel-creator',
 ])
 
-/** Specialists the default router may delegate to (keep set minus orchestrator) */
+/** Guid-only specialists — kept in fleet but not delegatable from default router */
+export const CCB_GUID_ONLY_AGENT_IDS = new Set(['price-library-agent'])
+
+/** Specialists the default router may delegate to (keep set minus orchestrator and Guid-only) */
 export const CCB_ROUTER_DELEGATABLE_AGENT_IDS = new Set(
-  [...CCB_WANDING_KEEP_AGENT_IDS].filter(id => id !== CCB_DEFAULT_SESSION_AGENT_ID),
+  [...CCB_WANDING_KEEP_AGENT_IDS].filter(
+    id => id !== CCB_DEFAULT_SESSION_AGENT_ID && !CCB_GUID_ONLY_AGENT_IDS.has(id),
+  ),
 )
 
 /** @deprecated Use CCB_ROUTER_DELEGATABLE_AGENT_IDS */
@@ -516,6 +523,8 @@ const WAN_D_DELEGATION_INTENT: Record<string, string> = {
   'word-form-creator': 'fillable Word forms (.docx)',
   'ppt-creator': 'PowerPoint presentations',
   'excel-creator': 'Excel spreadsheets',
+  'research-agent':
+    'web research, policy/industry intel, evidence files in research/*.md (e.g. 调研, 搜资料, 查政策)',
 }
 
 export function buildWanDDelegationIndex(

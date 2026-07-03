@@ -812,6 +812,7 @@ export class AcpAgent implements Agent {
       // memoized connectToServer. Sub-agents prefetch their own mcpServers on spawn.
       const mcpConfigs = omitLazySessionMcpServers(
         resolveSessionMcpConfigs(params, assistantProfile),
+        { keepForProfile: assistantProfile?.defaults.mcp.enabled ?? [] },
       )
       const { clients: mcpClients, tools: mcpTools } =
         await prefetchAllMcpResources(mcpConfigs)
