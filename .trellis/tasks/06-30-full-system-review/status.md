@@ -8,7 +8,9 @@
 
 **Step 3 Frontend 审查已完成（2026-07-03）** — 7/10；见 `reviews/step-03-frontend.md`。
 
-**下一动作：** P2 FE-P0-1 人工验证（Manual smoke A+B）→ `delivery-fe-p0-1-verify-*.md`。BE-P0-2 待 AUQ 决策。Phase 4 冷构建与 Track B P2+ 延后。
+**Step 3 Frontend 已收口（2026-07-03）** — 7/10；closure gate ✅ `delivery-step-03-closure.md`。FE-P0-1 + BE-P0-2 closed。
+
+**下一动作：** Step 4 Business 审查（待用户确认启动）。Phase 4 冷构建与 Track B P2+ 延后。
 
 ## 子任务进度
 
@@ -30,7 +32,8 @@
 - `reviews/step-01-integration.md` — Step 1（7.5/10）
 - `reviews/step-02-backend.md` — Step 2（7/10）
 - `reviews/step-03-frontend.md` — Step 3（7/10）
-- `delivery-fe-p0-1-verify-2026-07-03.md` — P2 FE-P0-1 验证清单
+- `delivery-fe-p0-1-verify-2026-07-03.md` — FE-P0-1 验证
+- `delivery-step-03-closure.md` — Step 3 closure gate
 - `reviews/phase-02-1-exploration-2026-07-02.md` — Phase 2.1 探索
 - `delivery-phase-02-1-vendor-sync.md` — Phase 2.1 交付
 - `backlog.md` — 含 BE-P0/P1/P2（Step 2 追加）

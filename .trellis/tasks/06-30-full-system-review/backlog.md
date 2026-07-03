@@ -11,9 +11,9 @@
 | INT-P0-1 | route-b-sync 4 vs 3 目标不一致 | integration | **closed** (doc 2026-06-30) |
 | INT-P0-2 | start-dev-full 未自动 vendor sync | integration | **closed** (2026-06-30) |
 | SHIP-P0-1 | Phase 4 冷构建 1.1.3-dev 未闭环 | ship | open |
-| FE-P0-1 | App startup readiness gate（06-28） | frontend + integration | in_progress |
+| FE-P0-1 | App startup readiness gate（06-28） | frontend + integration | **closed** (2026-07-03 P2 smoke) |
 | BE-P0-1 | 刷新 route-b-status.md（2026-06-12 → 当前） | backend + integration | **closed** (2026-07-02) |
-| BE-P0-2 | AskUserQuestion spec↔code 契约统一（deny vs handleAskUserQuestion） | backend + frontend | partial — Backend spec ✅; Frontend Step 3 |
+| BE-P0-2 | AskUserQuestion spec↔code 契约统一（deny vs handleAskUserQuestion） | backend + frontend | **closed** (2026-07-03 spec sync) |
 
 ## P1
 
@@ -37,6 +37,7 @@
 | INT-P2-1 | 缺 integration-smoke.ps1 | integration | open |
 | INT-P2-2 | CI 未覆盖 build-wanding v2 | ship | open |
 | FE-P2-1 | TODO(defensive) 可审计性 | frontend | open |
+| FE-P2-2 | Guid startup banner repair CTA (AC4 optional) | frontend | open |
 | BE-P2-1 | 从上游同步 agent.test.ts / bridge.test.ts 或 CI 指向上游 | backend | open |
 | BE-P2-2 | acp-session-flow greeting 职责写清（Backend vs Frontend） | backend + frontend | **closed** (2026-07-02) |
 | BE-P2-3 | price-library-agent ROE/Stop hook 策略评估 | backend | **closed** (2026-07-02 doc) |

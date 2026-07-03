@@ -4,7 +4,7 @@
 |-------|--------|
 | **Status** | approved |
 | **Scenario** | **D-lite** — Step 3 只读审计（无代码）+ FE-P0-1 收口（有代码，严格门禁） |
-| **Active phase** | P2 — FE-P0-1 verification |
+| **Active phase** | P5 — backlog + spec sync |
 | **Approved** | 2026-07-03 |
 | **Repos** | `claude-code-best`（审计/脚本/spec）+ `aionui-src`（FE-P0-1 与 Step 3 发现修复） |
 | **Spec entry** | `.trellis/spec/frontend/index.md` · `chat-acp-flow.md` · `coding-rules.md` §6 · `integration/mcp-health.md` § App startup readiness gate |
@@ -20,12 +20,12 @@
 
 | Phase | State | Delivery / evidence |
 |-------|--------|---------------------|
-| P0 | **done** (auto ✅, manual ⏳) | `reviews/baseline-2026-07-03.md` |
+| P0 | **done** | `reviews/baseline-2026-07-03.md` |
 | P1 | **done** | `reviews/step-03-frontend.md` |
-| P2 | in_progress | FE-P0-1 验证/缺口清单（`06-28` progress 对照 AC） |
-| P3 | pending | FE-P0-1 修复（仅缺口项；每 PR 一门禁） |
+| P2 | **done** | `delivery-fe-p0-1-verify-2026-07-03.md` — operator ✅ |
+| P3 | **skipped** | No blocking gaps; AC4 repair CTA deferred |
 | P4 | pending | BE-P0-2 前端契约（若 Step 3 标 P0） |
-| P5 | pending | backlog 刷新 + `trellis-update-spec` |
+| P5 | **done** (Step 3 scope) | backlog + frontend spec AUQ sync |
 
 ---
 
@@ -249,5 +249,5 @@ bunx tsc --noEmit -p packages/desktop/tsconfig.json  # 或 monorepo 约定命令
 
 - `docs/ai-tools-reference.md` §五 · §八
 - `.cursor/skills/trellis-task-execution/SKILL.md` Step 5
-- `07-02-mcp-health-coverage-expansion` 门禁范例（`examples.md`）
+- `07-02-mcp-health-coverage-expansion` 集成范例（`examples.md` Example 1；`execution-plan.md` 2026-07-03 追溯补档）
 - `06-28-app-startup-readiness-gate/progress-2026-06-28.md`

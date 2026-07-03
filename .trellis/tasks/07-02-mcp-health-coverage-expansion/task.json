@@ -15,7 +15,7 @@
   "branch": null,
   "base_branch": "main",
   "worktree_path": null,
-  "commit": null,
+  "commit": "a83358b4",
   "pr_url": null,
   "subtasks": [],
   "children": [],
@@ -36,7 +36,7 @@
     "D:\\Projects\\aionui-src\\tests\\unit\\common-config\\ccbMcpHealth.test.ts",
     "D:\\Projects\\aionui-src\\tests\\unit\\common-config\\ccbMcpHealthDiagnosis.test.ts"
   ],
-  "notes": "Completed 2026-07-02. All workstreams A–E delivered including D (exa HTTP WARN + ppt-master skill optional layer). code-review PASS; bun test PASS; CLI -Probe -Session PASS.",
+  "notes": "Completed 2026-07-02. All workstreams A–E delivered including D (exa HTTP WARN + ppt-master skill optional layer). code-review PASS; bun test PASS; CLI -Probe -Session PASS. 2026-07-03: spec updated — .trellis/spec/integration/mcp-health.md: 2026-07-02 health coverage expansion. Retroactive execution-plan.md + done record backfill (original close pre–Step 3b).",
   "meta": {
     "workstreams": [
       "A-ui-agents-layer-and-coverage-matrix",
@@ -63,6 +63,8 @@
       "bun_test": "12/12 PASS",
       "cli_probe_session": "4/4 probe + 6/6 session PASS"
     },
+    "execution_plan": "execution-plan.md",
+    "done_record": "mcp-health-coverage-expansion-done.md",
     "deferred": [],
     "related_tasks": [
       "06-27-quotation-mcp-health",

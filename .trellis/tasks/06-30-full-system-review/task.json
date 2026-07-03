@@ -90,5 +90,5 @@
     ".trellis/spec/integration/dev-runtime-layers.md",
     ".trellis/spec/frontend/dev-test-ship.md"
   ],
-  "notes": "Step 1 Integration 7.5/10 ✅。Step 2 Backend 7/10 ✅ 2026-07-02。Step 3 Frontend 7/10 ✅ 2026-07-03 — step-03-frontend.md。Phase 2.1 ✅。下一步 P2 FE-P0-1 manual verify。\n2026-07-03: execution-plan approved P0–P5；baseline + Step 3 done；P2 in_progress。"
+  "notes": "Step 1 Integration 7.5/10 ✅。Step 2 Backend 7/10 ✅。Step 3 Frontend 7/10 ✅。FE-P0-1 closed 2026-07-03 P2 smoke ✅。Phase 2.1 ✅。下一步 P5 spec/backlog 或 Step 4 Business。"
 }

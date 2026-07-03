@@ -3,7 +3,7 @@
   "name": "06-28-app-startup-readiness-gate",
   "title": "App startup readiness gate — MCP/config warm before first conversation",
   "description": "Move config validation and MCP cold start from first Guid message to app open; Guid readiness UI + send gate; reuse wanDMcpWarmup at startup.",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": null,
   "scope": "aionui-src Guid/readiness UI + ccbMcpHealth startup pipeline; ccb-installer wanDMcpWarmup trigger; trellis mcp-health + agents-unified-model",
   "package": null,
@@ -11,7 +11,7 @@
   "creator": "JASMINE145-ACT",
   "assignee": "JASMINE145-ACT",
   "createdAt": "2026-06-28",
-  "completedAt": null,
+  "completedAt": "2026-07-03",
   "branch": null,
   "base_branch": "main",
   "worktree_path": null,
@@ -34,7 +34,7 @@
     ".trellis/spec/integration/mcp-health.md",
     ".trellis/spec/integration/agents-unified-model.md"
   ],
-  "notes": "Triggered by 2026-06-28 Failed to fetch on first Guid send during MCP cold start. Layer 1+2 MVP; Layer 3 anchor session deferred.",
+  "notes": "Triggered by 2026-06-28 Failed to fetch on first Guid send during MCP cold start. Layer 1+2 MVP closed 2026-07-03 — delivery-fe-p0-1-verify-2026-07-03.md. AC4 repair CTA deferred. Layer 3 anchor session deferred.",
   "meta": {
     "trigger_incident": "Failed to fetch 127.0.0.1:53121 + WanD MCP warmup 120s at session/new",
     "prerequisite_task": "06-27-quotation-mcp-health"

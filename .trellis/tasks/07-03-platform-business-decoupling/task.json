@@ -68,7 +68,8 @@
     "07-03-p0-security-boundary",
     "07-03-p2-config-compiler-v1",
     "07-03-p3-wanding-package-extract",
-    "07-03-p4-control-plane-tenant-governance"
+    "07-03-p4-control-plane-tenant-governance",
+    "07-03-p5-manufacturing-scheduling-pilot"
   ],
   "parent": null,
   "relatedFiles": [

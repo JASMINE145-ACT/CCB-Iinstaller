@@ -133,3 +133,37 @@ sync-aionui-ccb-route-b.ps1 缺少 AppData\Roaming\AionUi exe runtime 路径，�
 ### Next Steps
 
 - None - task complete
+
+
+## Session 4: Commit-gate hook: Claude Code / Cursor / Codex evidence-based git-commit block
+
+**Date**: 2026-07-03
+**Task**: Commit-gate hook: Claude Code / Cursor / Codex evidence-based git-commit block
+**Branch**: `main`
+
+### Summary
+
+Built a code-level PreToolUse/beforeShellExecution hook (shared commit_gate.py + 3 thin per-platform adapters) that denies git commit when the active Trellis task lacks verification evidence (execution-plan.md / check.jsonl / task.json notes), replacing what was previously a text-only convention. Confirmed via source research that Codex's shell matcher is "Bash" and that its JSON parser rejects unknown fields (deny_unknown_fields), so the existing multi-format hybrid hook-output pattern is unsafe for deny decisions there — used a clean single-format payload + exit-code-2 fallback instead. Cursor and Codex wiring done by AI; Claude Code's settings.json PreToolUse/Bash registration was blocked by the auto-mode self-modification permission classifier for both the sub-agent and the main session, so the user applied that one edit manually. 25/25 tests passing across both test files.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `d61099fb` | (see git log) |
+| `4268120d` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

@@ -9,7 +9,7 @@
 
 ## 成熟度
 
-**7/10** — ACP 渲染主路径（`turn_id`、catalog 统一、startup readiness 管线、2026-07-03 能力扩展白屏修复）在代码层落地良好且有单测；但 spec 自评 Frontend **8.5/10** 偏高：AskUserQuestion UI 与 Backend deny 脱节（BE-P0-2）、FE-P0-1 五条 AC 尚无人工 smoke 证据、Guid 配置错误缺一键修复 CTA。Manual smoke A 全 pending（`baseline-2026-07-03.md`）。
+**7/10** — ACP 主路径、startup readiness、能力扩展白屏修复已验证（P2 smoke ✅）。BE-P0-2 spec 已同步（AUQ disabled on CCB）。AC4 repair CTA 延后至 FE-P2-2，不阻塞 Step 3 收口。见 `delivery-step-03-closure.md`。
 
 ---
 
@@ -71,13 +71,13 @@ User (Guid / Conversation / Settings)
 
 | AC | 要求 | 代码状态 | 验证状态 |
 |----|------|----------|----------|
-| **1** | 登录后 2 min 内 MCP warm **早于** conversation create | `ccbStartupReadiness.ts` Layer 2 + `wanDMcpWarmup` 复用 | ⏳ 需 main 日志顺序 |
-| **2** | Guid 卡片/输入显示就绪；Layer 2 前不可发送 | `CcbStartupReadinessBanner`, `isCcbStartupSendAllowed`, `AcpSendBox` | ⏳ 需 UI smoke |
-| **3** | 首条「查询 直接50 价格」无 Failed to fetch | send gate await readiness | ⏳ 需 E2E smoke |
-| **4** | 配置错误可见 + 一键修复 | Banner 可见；**repair CTA 缺失** | ⚠️ 部分 |
-| **5** | smoke 脚本仍 PASS | `test-mcp-health.ps1` exit 0 (51 checks) | ✅ CLI；startup 专用脚本无 |
+| **1** | 登录后 2 min 内 MCP warm **早于** conversation create | `ccbStartupReadiness.ts` Layer 2 | ✅ P2 operator |
+| **2** | Guid 横幅 + send disabled until ready | `CcbStartupReadinessBanner`, send gates | ✅ P2 operator |
+| **3** | 首条「查询 直接50 价格」无 Failed to fetch | send gate await readiness | ✅ P2 operator |
+| **4** | 配置错误可见 + 一键修复 | Banner 可见；repair 仅 Settings | ⏭️ deferred → FE-P2-2 |
+| **5** | smoke 脚本仍 PASS | `test-mcp-health.ps1` | ✅ CLI |
 
-**判定:** 实现约 **70–80%**；**不可 close FE-P0-1** 直至 P2 manual 证据 + AC4 缺口处理。
+**判定:** FE-P0-1 **closed** 2026-07-03 — `delivery-fe-p0-1-verify-2026-07-03.md`.
 
 ---
 
@@ -86,10 +86,10 @@ User (Guid / Conversation / Settings)
 | 项 | 状态 |
 |----|------|
 | Backend `permissions.ts` deny AUQ | Step 2 已确认 |
-| Frontend `MessageAskUserQuestionCard` | 完整实现，**未挂载** |
-| `MessageAcpPermission` | 通用 Allow/Reject；需 `tool_call` |
-| `askUserQuestionIds` / 相关测试 | 存在但无生产路径 |
-| **建议** | P4 仅当决策为「恢复 AUQ」；否则 **spec 同步 + 标 orphan 组件** |
+| Frontend `MessageAskUserQuestionCard` | 完整实现，**未挂载**（dormant） |
+| `MessageAcpPermission` | 通用 Allow/Reject |
+| Spec sync | ✅ `chat-acp-flow.md` §3.5b + `file-map.md` (2026-07-03) |
+| **Re-enable** | 需产品决策 + Backend restore + 接线卡片 |
 
 ---
 
@@ -100,16 +100,16 @@ User (Guid / Conversation / Settings)
 | `rg "from '@/common/config/ccbMcpHealth'" renderer` | **0** |
 | `CcbMcpHealthPanel` imports | `ccbMcpHealthShared` only |
 | `ccbMcpHealthDiagnosis.test.ts` | **9/9 PASS** |
-| Live Settings → 能力扩展 | ⏳ pending（dev 未跑 smoke） |
+| Live Settings → 能力扩展 | ✅ P2 operator |
 
 ---
 
-## 7. 推荐下一步（仅建议，本 Step 不写代码）
+## 7. 推荐下一步
 
-1. **P2** — 跑 Manual smoke A + B；产出 `delivery-fe-p0-1-verify-2026-07-03.md`。
-2. **BE-P0-2** — 产品决策：deny vs restore AUQ → 更新 `chat-acp-flow.md` §3.5b。
-3. **P3（若 AC4 仍红）** — Guid banner 增加 `repairHealth` CTA（最小 diff + 门禁链）。
-4. **P5** — `backlog.md` 刷新 FE-P0-1 / BE-P0-2；`trellis-update-spec`。
+1. ~~P2 manual smoke~~ ✅
+2. ~~BE-P0-2 spec sync~~ ✅
+3. **Step 4** Business 审查（`python/` + `mcp_servers/`）
+4. 可选：**FE-P2-2** Guid repair CTA
 
 ---
 
@@ -118,8 +118,7 @@ User (Guid / Conversation / Settings)
 - SHIP-P0-1 Phase 4 冷构建  
 - Track B P2+ (`07-03-platform-business-decoupling`)  
 - Layer 3 anchor ACP session  
-- AUQ Backend 恢复（无决策前）  
-- Step 4 Business / Step 5 Ship-Ops 审查  
+- AUQ end-to-end restore（无产品决策前）  
 
 ---
 
@@ -127,10 +126,24 @@ User (Guid / Conversation / Settings)
 
 | 交叉 | Step 2 结论 | Step 3 结论 |
 |------|-------------|-------------|
-| AskUserQuestion | Backend deny | Frontend AUQ 卡片 orphan |
-| MCP warm 时机 | `wanDMcpWarmup.ts` 在 session 路径 | App-open pipeline 已加；session warm 仍并存 |
-| route-b / CCB authority | Integration 7.5/10 | `useCcbAuthorityActive` UI 门控一致 |
+| AskUserQuestion | Backend deny | Spec synced; UI dormant |
+| MCP warm 时机 | session 路径仍并存 | App-open pipeline 已加 |
+| route-b / CCB authority | Integration 7.5/10 | UI 门控一致 |
 
 ---
 
-*Reviewer: system-reviewer (2026-07-03). Baseline: `reviews/baseline-2026-07-03.md`.*
+## 10. Closure (2026-07-03)
+
+| Item | Status |
+|------|--------|
+| P2 manual smoke | ✅ |
+| FE-P0-1 | ✅ closed |
+| BE-P0-2 | ✅ closed (spec) |
+| Automated re-run | ✅ 15/15 tests |
+| Gate doc | `delivery-step-03-closure.md` |
+
+**Step 3 closed** — Step 4 may start.
+
+---
+
+*Reviewer: system-reviewer (2026-07-03). Baseline: `reviews/baseline-2026-07-03.md`. Closure: `delivery-step-03-closure.md`.*
