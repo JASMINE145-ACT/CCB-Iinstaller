@@ -88,12 +88,13 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 | [`wanding-first-ship.md`](./integration/wanding-first-ship.md) | ✅ First-ship / full exe checklist |
 | [`wanding-mvp-v1.md`](./integration/wanding-mvp-v1.md) | ✅ MVP v1 scope contract |
 | [`wanding-packaging-whitelist.md`](./integration/wanding-packaging-whitelist.md) | ✅ Install dir file whitelist |
+| [`wanding-release-standard.md`](./integration/wanding-release-standard.md) | **Draft** — 发版验收标准（四层链 + NSIS/热更双矩阵）；打包代码缺口见该文 §11 |
 | [`internal-update.md`](./integration/internal-update.md) | ✅ VPS manifest + hot update ops |
 | [`mcp-health.md`](./integration/mcp-health.md) | ✅ MCP health CLI + UI · **§ AOL inventory closed** · **§ App startup readiness gate** (2026-06-28) |
 | [`dev-runtime-layers.md`](./integration/dev-runtime-layers.md) | ✅ Dev layer map (save ≠ deploy) |
 | [`dev-sync-playbook.md`](./integration/dev-sync-playbook.md) | ✅ Dev sync commands + smoke |
 | [`price-library.md`](./integration/price-library.md) | ✅ Org price library API + AionUI read-only (v2 / 41 cols) |
-| [`org-knowledge.md`](./integration/org-knowledge.md) | ✅ Org knowledge API / dual JWT / agent append + shadow read-only |
+| [`org-knowledge.md`](./integration/org-knowledge.md) | ✅ Org knowledge API / dual JWT / agent append + shadow read-only / **org_session profile** (2026-07-02) |
 | [`org-knowledge-phase0-rollout.md`](./integration/org-knowledge-phase0-rollout.md) | ✅ Phase 0 login linkage ops |
 | [`unified-org-sso-rollout.md`](./integration/unified-org-sso-rollout.md) | ✅ Unified org SSO pilot + fleet |
 | [`agents-unified-model.md`](./integration/agents-unified-model.md) | ✅ Agent markdown + sidecar + subagent gate / ROE / Gate-J · **§ price+stock + image inquiry (2026-06-29)** |
@@ -104,9 +105,14 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 
 ### Task logs (not handbooks)
 
+**Dashboard:** [`../tasks/DASHBOARD.md`](../tasks/DASHBOARD.md) — run `task.py report --write` · playbook [`../tasks/GOVERNANCE.md`](../tasks/GOVERNANCE.md)
+
 | Doc | Role |
 |-----|------|
+| [`../tasks/06-30-task-system-governance/prd.md`](../tasks/06-30-task-system-governance/prd.md) | **P1 in progress** — task hygiene: `report` / DASHBOARD / GOVERNANCE |
 | [`../tasks/06-30-full-system-review/prd.md`](../tasks/06-30-full-system-review/prd.md) | **P1 in progress** — system review；Phase 1 doc ✅；Phase 2 vendor sync ✅ [`delivery-phase-02-integration-vendor.md`](../tasks/06-30-full-system-review/delivery-phase-02-integration-vendor.md)；Phase 2 优化复审 7.5/10 [`phase-02-vendor-sync-optimization-review.md`](../tasks/06-30-full-system-review/reviews/phase-02-vendor-sync-optimization-review.md) |
+| [`../tasks/07-02-org-knowledge-dev-token-alignment/prd.md`](../tasks/07-02-org-knowledge-dev-token-alignment/prd.md) | **P1 in progress** — profile-strict `org_session.py` + MCP `AIONUI_APPDATA_PROFILE`; fix `append_business_rule` 401；spec [`integration/org-knowledge.md`](./integration/org-knowledge.md) § MCP `org_session` |
+| [`../tasks/07-01-aionui-full-auto-permission-sync/prd.md`](../tasks/07-01-aionui-full-auto-permission-sync/prd.md) | **P0 in progress** — 全自动 bypassPermissions 端到端同步；spec [`frontend/chat-acp-flow.md`](./frontend/chat-acp-flow.md) §3.5 · [`backend/acp-session-flow.md`](./backend/acp-session-flow.md) 2026-07-01 |
 | [`../tasks/06-28-app-startup-readiness-gate/prd.md`](../tasks/06-28-app-startup-readiness-gate/prd.md) | **P1 in progress** — app startup readiness gate; spec [`integration/mcp-health.md`](./integration/mcp-health.md) § App startup readiness gate |
 | [`../tasks/06-28-app-startup-readiness-gate/progress-2026-06-28.md`](../tasks/06-28-app-startup-readiness-gate/progress-2026-06-28.md) | MVP L1+L2 implemented; `.then()` init crash fixed (2026-06-28) |
 | [`../tasks/06-27-quotation-mcp-health/progress-2026-06-28.md`](../tasks/06-27-quotation-mcp-health/progress-2026-06-28.md) | MCP health 29/29 + **AOL BOM fix closed** (2026-06-28) |
@@ -126,4 +132,5 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 - **Source MCP migration lands** → ✅ Done (2026-06-12). `acp-session-flow.md` current; dual-state sections collapsed
 - **CCB authority config ownership changes** → update `integration/aionui-config-inventory.md`
 - **Assistant profile schema / handoff changes** → update `integration/aionui-ccb-boundary.md` § CCB assistant profile handoff
+- **Permission mode / 全自动 sync** → update `frontend/chat-acp-flow.md` §3.5 + `backend/acp-session-flow.md` (Guid → session mode)
 - **Ship / recovery workflow changes** → update `guides/mixing-meta-repo.md` + `06-26-aionui-source-level-recovery/status.md`

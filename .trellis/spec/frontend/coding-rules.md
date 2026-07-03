@@ -136,19 +136,23 @@ If still unclear, ask before merging.
 | `*Shared.ts` or base file without fs | Pure functions, types, string paths | renderer + main |
 | `*Node.ts` or full migration file | `existsSync`, `readFile`, spawn, backup | process / bridge only |
 
-**Existing splits (2026-06-13):**
+**Existing splits (2026-06-13; updated 2026-07-03):**
 
 - `ccbWandingRuntime.ts` ↔ `ccbWandingRuntimeNode.ts`
 - `ccbConfigMigrationShared.ts` ↔ `ccbConfigMigration.ts`
 - `ccbMcpSettings.ts` — main-only; renderer uses `ccbMcpBridge` IPC
 - `ccbSkills.ts` — main-only; renderer uses `ccbSkillsService` IPC (`ccbSkillsBridge.ts`)
+- `ccbMcpHealthShared.ts` ↔ `ccbMcpHealth.ts` — **types + `collectCcbMcpHealth*`** in Shared; fs/spawn/probe in main-only module. `ccbMcpHealthDiagnosis.ts` must import collectors from Shared, never from `ccbMcpHealth.ts`, or any renderer importing `buildMinimaxPromptForReport` will pull `node:fs` (Settings → 能力扩展 white screen — see [`dev-test-ship.md` §8 Wave 4](./dev-test-ship.md#8-white-screen-playbook-白屏纠错路线))
+
+**Settings → 能力扩展:** route `#/settings/capabilities` merges Skills + Tools tabs. Do **not** statically import `ToolsModalContent` in the page shell — use `React.lazy` + `Suspense` so the skills tab does not eagerly load the MCP health graph.
 
 **Check before merge:**
 
 ```powershell
 rg "node:fs|node:path|child_process" D:\Projects\aionui-src\packages\desktop\src\common\config\
 # Then trace: is any renderer file (directly or via common/) importing a hit?
-rg "ccbConfigMigration[^S]|ccbWandingRuntimeNode|ccbMcpSettings|ccbSkills" D:\Projects\aionui-src\packages\desktop\src\renderer\
+rg "ccbConfigMigration[^S]|ccbWandingRuntimeNode|ccbMcpSettings|ccbSkills|from '@/common/config/ccbMcpHealth'" D:\Projects\aionui-src\packages\desktop\src\renderer\
+# ccbMcpHealth.ts is main-only — renderer may import types from ccbMcpHealthShared.ts only
 ```
 
 **IPC pattern when renderer needs disk truth:** expose read/write/probe on `process/bridge/*Bridge.ts`, register in `ipcBridge.ts`, call from renderer hook — same as `ccbMcpService.isAuthorityActive`.

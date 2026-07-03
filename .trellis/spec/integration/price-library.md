@@ -2,19 +2,24 @@
 
 > Shared product/price authority on org AionCore (`67.216.206.3:13401`). Pattern mirrors [`org-knowledge.md`](./org-knowledge.md).
 
-**Status (verified 2026-06-28):**
+**Status (verified 2026-07-01):**
 
 | Layer | State |
 |-------|--------|
-| AionCore crate + migration `016` + **`017` full schema** | ✅ Deployed VPS |
+| AionCore crate + migrations `016`–`017` + **`018` supplier** | ✅ Deployed VPS |
 | Route smoke (unauthenticated) | ✅ **401** on `/api/price-library/active` |
-| VPS published active | ✅ **v2 / 3082** — full 41-field products |
+| VPS published active | ✅ **v3 / 3299** — 42-field products (294 rows with `supplier`) |
 | API `GET /active` product shape | ✅ per `data/data.Md` (flatten JSON) |
-| AionUI `#/price-library` read-only | ✅ **41-column** table |
-| Python `org_price_client` + matcher `try_remote` | ✅ In repo |
-| AionUI price_admin UI | ❌ Out of scope — VPS curl/runbook |
+| AionUI `#/price-library` read-only | ✅ **42-column** table (incl. `supplier` after `volume`) |
+| Python `org_price_client` + matcher `try_remote` | ✅ org-primary (no fleet `PRICE_USE_BUNDLED_FIRST`) |
+| price-library MCP write path (10 tools) | ✅ P0B–P1 landed; deploy-seed + vendor sync 2026-07-02 |
+| AionUI price_admin UI | ❌ Out of scope — VPS curl/runbook + Guid agent |
 
-**Task:** `.trellis/tasks/06-27-remote-shared-price-library/` — **completed (full schema v2, 2026-06-28)**.  
+**Task:** `.trellis/tasks/06-27-remote-shared-price-library/` — completed (full schema v2).  
+**P-1 fleet revert:** `.trellis/tasks/07-01-price-library-admin-agent/p1-fleet-org-primary-done.md` (2026-07-01).  
+**P0B price-library MCP:** `.trellis/tasks/07-01-price-library-admin-agent/p0b-mcp-read-preview-done.md` (2026-07-02).  
+**P0C–P1 agent write path:** `.trellis/tasks/07-01-price-library-admin-agent/` — publish, import/revert, Guid agent (2026-07-02); active P3 E2E.  
+**UI supplier column:** `.trellis/tasks/07-03-price-library-supplier-ui-column/` (2026-07-02).  
 **Ops runbooks:** [`minimal-shared-price-closure.md`](../../../scripts/org-phase0/minimal-shared-price-closure.md) · [`vps-price-library-runbook.md`](../../../scripts/org-phase0/vps-price-library-runbook.md)
 
 ---
@@ -38,7 +43,7 @@ Use this spec when:
 | VPS aioncore binary | `/opt/aionorg/AionCore/target/release/aioncore` (systemd `ExecStart`) | `/opt/aionorg/bin/aioncore` (does not exist) |
 | Deploy upload | `scripts/deploy-org-aioncore-vps.ps1 -ExtractOnRemote` | Manual `cp` after build |
 | Post-extract gate | `grep org_knowledge_routes …/aionui-app/.../routes.rs` must match | `cargo build` in 0.5s with empty grep |
-| Import workbook | `data/price_library_import_ready.xlsx` (from `prepare-price-library-import.py`) | Raw `price_library_cleaned_2026_05_15.xlsx` (581 empty-price rows → import fail) |
+| Import workbook | `data/price_library_import_ready.xlsx` (from `prepare-price-library-import.py`) | Raw `price_library_cleaned_2026_05_15.xlsx` direct import (581 empty-price rows fail on **old** parser; use `import_ready`) |
 | Dev launcher | `ccb-installer/scripts/start-dev-full.ps1` only | Retired `start-aionui-dev*.ps1` |
 | Quotation python (dev) | `D:\CCB-Wanding\vendor\wanding\python` after `sync-dev-wanding-vendor.ps1` | Repo `python/` only (MCP subprocess uses vendor) |
 | Org token file | `%APPDATA%\AionUi\aionui\org-session.token` | Local `aionui-session-token` only |
@@ -188,16 +193,78 @@ print('products', len(d.get('products') or []))
 
 ---
 
-## AionUI (read-only — full schema)
+## AionUI (read-only — full schema + supplier UI)
 
 | Item | Path |
 |------|------|
 | Route | `#/price-library` |
-| Types / columns | `aionui-src/.../priceLibraryTypes.ts` — **41 columns** (`PRICE_LIBRARY_COLUMNS`) |
+| Types / columns | `aionui-src/.../priceLibraryTypes.ts` — **42 columns** (`PRICE_LIBRARY_COLUMNS`, incl. `supplier`) |
+| Column order (tail) | … → `unit` → `volume` → **`supplier`** → `raw_json` |
+| i18n (zh-CN) | `priceLibrary.column.supplier` = **供应商** |
+| Search | `filterProducts.ts` — material / description / **supplier** |
 | IPC | `ipcBridge.priceLibrary.getActive` → `GET /api/price-library/active` (flatten JSON) |
-| Delivery | NSIS; dev via `start-dev-full.ps1` |
+| Delivery | NSIS; dev via `start-dev-full.ps1` (UI-only: `-SkipVendorSync`) |
 
-**Canonical field list:** `data/data.Md` + migration `017`. VPS **v2** (2026-06-28) ships all 41 fields; legacy v1 snapshots showed `—` on extended columns.
+**UI smoke (post v3):**
+
+1. Open `#/price-library` — header shows **42 列**, version **v3+**
+2. Scroll right past **体积** — column **供应商** appears
+3. Search `8010012697` or `HENG XIN` — row shows non-empty supplier (~294 products have supplier; catalog-only rows stay `—`)
+
+**Wrong:** Expect supplier on every row — only ~294/3299 have non-empty supplier.  
+**Wrong:** UI shows 41 cols after API v3 — rebuild dev / hard refresh; column def is in `aionui-src`, not CCB vendor sync.
+
+**Canonical field list:** `data/data.Md` + migrations `017` (41 fields) + `018` (optional `supplier`, 42nd column). VPS **v3** (2026-07-01) publishes 3299 products; **294** rows carry non-empty `supplier`.
+
+**VPS deploy + import record:** see `.trellis/tasks/07-01-price-library-admin-agent/p1-fleet-org-primary-done.md`.
+
+---
+
+## Optional supplier extension for quotation remarks
+
+Migration **018** adds optional `supplier TEXT` to `price_products`, `price_draft_items`, and `price_version_items`. Excel import/export accepts **41 or 42** columns (`supplier` optional at parse time).
+
+**VPS status (2026-07-01):** migration **018** applied; active **v3** with `supplier` on 294 products. Quotation MCP uses org API (no fleet bundled-first override).
+
+Contract:
+
+- Python quotation matchers preserve `supplier` when the active price source contains it.
+- `supplier` is fill metadata, not a pricing authority. Rows with supplier but no price must keep price blank/0.
+- Multi-supplier values are preserved as returned by the import/merge step, e.g. `A / B`.
+- VANTSING output uses the backend contract in [`../backend/mcp-business.md`](../backend/mcp-business.md) § Supplier remark contract.
+
+Wrong vs correct:
+
+| Wrong | Correct |
+|-------|---------|
+| Publish a 42-column workbook to org without migration **018** deployed | Deploy AionCore with 018, then import `data/price_library_import_ready.xlsx` |
+| Assume `supplier` must exist on every product | Treat it as optional metadata |
+| Use supplier data to infer or override prices | Use price fields only for pricing; supplier only feeds Catatan/remark |
+
+### Fleet org-primary mode (post P-1, 2026-07-01)
+
+Quotation MCP reads org API first; bundled xlsx remains **seed/LKG fallback only**.
+
+| Layer | Contract |
+|-------|----------|
+| Quotation MCP env | **No** `PRICE_USE_BUNDLED_FIRST` in `ensure-wanding-settings.ps1` |
+| Python | `get_price_data()` → `source=org_api` when logged in + VPS published |
+| Bundled xlsx | Bootstrap / offline fallback only — not primary |
+| UI `#/price-library` | Org API (same source as quotation when online) |
+
+**Verify after settings refresh:**
+
+```powershell
+python -c "from admin.org_price_client import get_price_data; d=get_price_data(force_refresh=True); print(d.get('source'), len(d.get('products') or []))"
+```
+
+Expect `org_api` and product count matching VPS `GET /active`.
+
+**Emergency local override (dev only):** set env `PRICE_USE_BUNDLED_FIRST=1` — skips org + LKG. Do not ship in fleet MCP env.
+
+**Wrong:** Leave `PRICE_USE_BUNDLED_FIRST=1` in fleet after VPS v3+ publish — agent/UI changes invisible to quotation.
+
+**Legacy dev-only bundled override** (emergency): set `PRICE_USE_BUNDLED_FIRST=1` or unreachable `ORG_SERVER_URL` + high `LKG_MIN_PRODUCTS` — do not use after P-1; org v3 is live.
 
 ---
 
@@ -220,11 +287,27 @@ AionUI `#/price-library` and quotation MCP both call `GET /api/price-library/act
 | Consumer | Token source |
 |----------|----------------|
 | AionUI renderer | Electron session / `AionUi-Dev` or `AionUi` store after login |
-| Quotation MCP Python | `admin/org_price_client._org_session_token_candidates()` → disk files |
+| Quotation MCP Python | `admin/org_session.get_auth_candidates()` (used by `org_price_client` + `org_knowledge_client`) |
 
-**Token file candidates (priority order):** `ORG_SESSION_TOKEN` env → `ORG_SESSION_TOKEN_FILE` → `%APPDATA%/AionUi/aionui/org-session.token` → `%APPDATA%/AionUi-Dev/aionui/org-session.token` (deduped).
+**Shared module (2026-07-02):** `python/admin/org_session.py` — profile resolution, STRICT vs LEGACY_SCAN policy, typed HTTP errors. See [`org-knowledge.md`](./org-knowledge.md) § MCP `org_session` profile contract.
 
-**2026-06-29 fix:** `_api_get` tries **each unique candidate** on HTTP 401 until one succeeds. Fixes dev where **stale Prod token** (271 B, 401) blocked **fresh Dev token** while UI still showed v2.
+**MCP env (recommended dev):**
+
+| Env | Dev (`start-dev-full`) | Packaged prod |
+|-----|------------------------|---------------|
+| `AIONUI_APPDATA_PROFILE` | `AionUi-Dev` | unset → `AionUi` |
+| `ORG_SESSION_TOKEN_FILE` | `%APPDATA%\AionUi-Dev\aionui\org-session.token` | `%APPDATA%\AionUi\aionui\org-session.token` |
+
+**Candidate resolution:**
+
+| Mode | When | Order |
+|------|------|-------|
+| **STRICT** | `AIONUI_APPDATA_PROFILE` or `ORG_SESSION_TOKEN(_FILE)` set | Single profile/file only |
+| **LEGACY_SCAN** | No profile env (deprecated) | `ORG_SESSION_TOKEN` → `ORG_SESSION_TOKEN_FILE` → `AionUi` token → `AionUi-Dev` token (deduped) |
+
+**2026-06-29 fix:** `_api_get` tries **each unique candidate** on HTTP 401 until one succeeds (LEGACY_SCAN). Fixes dev where **stale Prod token** (401) blocked **fresh Dev token** while UI still showed v2.
+
+**2026-07-02 fix (v2):** Explicit `AIONUI_APPDATA_PROFILE=AionUi-Dev` from `start-dev-full` + `ensure-wanding-settings` — **preferred** over blind dual-file scan. Task [`07-02-org-knowledge-dev-token-alignment`](../../tasks/07-02-org-knowledge-dev-token-alignment/prd.md).
 
 **Packaged install:** typically one `AionUi` token file — first candidate succeeds; behaviour unchanged.
 
@@ -233,8 +316,8 @@ AionUI `#/price-library` and quotation MCP both call `GET /api/price-library/act
 | Wrong | Correct |
 |-------|---------|
 | `#/price-library` works → assume `get_price_data()` is `org_api` | After login, verify Python: `get_price_data()` → `source=org_api`, `products≈3082` |
-| Delete Dev token manually every time | `sync-dev-wanding-vendor.ps1` + vendor python with multi-candidate auth |
-| `price_source=bundled_seed` with UI logged in | Check both token files; stale Prod file no longer blocks if Dev token valid |
+| Delete Dev token manually every time | `start-dev-full` sets `AIONUI_APPDATA_PROFILE=AionUi-Dev` + `sync-dev-wanding-vendor -UpdateSettings` |
+| `price_source=bundled_seed` with UI logged in | Check `AIONUI_APPDATA_PROFILE` + token file path in `ccb-mcp.json`; stale Prod file under STRICT should not be used |
 
 **Diagnostic:**
 
@@ -294,7 +377,7 @@ Agent: tiers[] prices + data.Md §来源映射 for product_type (e.g. §RUCIKA, 
 
 **Tasks:** [`06-28-product-price-tiers-tool`](../../tasks/06-28-product-price-tiers-tool/) (tool) · [`06-28-price-tiers-data-md-read-hook`](../../tasks/06-28-price-tiers-data-md-read-hook/) (Read hook) · [`06-29-price-tiers-synthesis-and-seed-fallback`](../../tasks/06-29-price-tiers-synthesis-and-seed-fallback/) (synthesis + seed supplement).
 
-**PostToolUse enforcement (2026-06-29):** `post-price-tiers-nudge.py` on `mcp__quotation__get_product_price_tiers` success — injects Read `data_md_path` + markdown tier table requirement; forbids「没有内容」deflection. Wired in `quotation-agent.md` frontmatter with `post-match-knowledge-nudge.py`.
+**PostToolUse enforcement (2026-06-29):** `post-price-tiers-nudge.py` on `get_product_price_tiers` success — injects Read `data_md_path` + markdown tier table requirement. **Knowledge Read (2026-06-30):** PreToolUse `pre-match-knowledge-gate.py` denies `match_quotation` until session `Read(wanding_business_knowledge)`; Stop `:knowledge` = **block**. See [`agents-unified-model.md`](./agents-unified-model.md) § Knowledge Read enforcement.
 
 **Bundled_seed tier supplement (B2, 2026-06-29):** When `price_source` is `bundled_seed` / `lkg_snapshot`, or org dict yields `tier_count < 2`, `get_product_price_tiers` merges non-zero tiers from full `price_library` xlsx (`tier_supplemented_from=local_xlsx`). Org API full dict unchanged.
 
@@ -356,6 +439,8 @@ quotation MCP (match_fuzzy, try_remote=True)
 | VPS active data | `GET /active` + JWT | `version_number >= 1`, `products > 0`; spot-check `factory_inc_tax` / `product_type` non-null after v2 |
 | AionCore unit | `cargo test -p aionui-price-library` | 21 pass (full schema) |
 | Dev org client | `get_price_data()` after login | `source=org_api`, `products > 0` |
+| Price admin MCP (P0B) | `python -m pytest python/tests/test_org_price_admin_client.py` | 10 pass |
+| Price admin MCP live | `get_price_library_active` via dispatch | `version_number >= 3`, `products >= 3299` |
 | Price tiers tool | `python -m unittest tests.test_price_tiers` | tiers from org product dict; `data_md_path` present |
 | Tier E2E (manual) | New quotation session; ask multi-tier for RUCIKA code | Read data.Md + tool; 第一组/第二组 not 青山 |
 | Unit | `python -m unittest tests.test_org_price_client` | pass |
@@ -378,3 +463,76 @@ quotation MCP (match_fuzzy, try_remote=True)
 **Recorded:** 2026-06-29 — `org_price_client` tries all `org-session.token` candidates on 401 (Prod+Dev dual AppData); fixes UI org_api vs MCP `bundled_seed` split. Task [`06-29-price-tiers-synthesis-and-seed-fallback`](../../tasks/06-29-price-tiers-synthesis-and-seed-fallback/) B1.
 
 **Recorded:** 2026-06-29 — Task **06-29 complete** (B1+A+B2): `post-price-tiers-nudge.py` PostToolUse + `quotation-agent.md` L1 synthesis rules; `price_tiers.py` bundled_seed/lkg xlsx tier supplement (`tier_supplemented_from=local_xlsx`). **Deployed** (JASMINE145-ACT machine): `sync-dev-wanding-vendor.ps1`, `deploy-subagent-gate-skill.ps1`, `deploy-seed-agents.ps1 -ForceMd` → live `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\quotation-agent.md` has PostToolUse (match + tiers); `post-price-tiers-nudge.py` on disk. **E2E pending:** restart dev + new quotation session →「8020020755 全部价格」.
+
+**Recorded:** 2026-07-02 — `org_price_client` migrated to shared `admin/org_session.py`; profile-strict MCP env (`AIONUI_APPDATA_PROFILE`) supersedes blind dual-file scan as dev default. Cross-ref [`org-knowledge.md`](./org-knowledge.md) § MCP `org_session` profile contract; task [`07-02-org-knowledge-dev-token-alignment`](../../tasks/07-02-org-knowledge-dev-token-alignment/prd.md).
+
+**Recorded:** 2026-07-01 — **P-1 fleet org-primary:** VPS migration **018** + publish **v3/3299** (294 supplier); removed `PRICE_USE_BUNDLED_FIRST` from fleet MCP. Runbook: [`07-01/.../p1-fleet-org-primary-done.md`](../../tasks/07-01-price-library-admin-agent/p1-fleet-org-primary-done.md).
+
+**Recorded:** 2026-07-02 — **AionUI `#/price-library` supplier column** (42 cols): `priceLibraryTypes.ts` + zh-CN/en-US i18n + supplier search. Task [`07-03-price-library-supplier-ui-column`](../../tasks/07-03-price-library-supplier-ui-column/prd.md). Tests: `bun test tests/unit/priceLibrary/` 7 pass.
+
+---
+
+## Agent write path (price-library MCP — P0B–P1)
+
+| Item | Path |
+|------|------|
+| MCP server | `mcp_servers/price-library-server` (separate from `quotation-server`) |
+| Python entry | `python/price_library_main.py` → `system/price_library_tool_dispatch.py` |
+| Admin client | `python/admin/org_price_admin_client.py` (GET + CSRF POST + multipart import) |
+| Dispatch / preview | `python/admin/org_price_admin_dispatch.py`, `org_price_admin_preview.py` |
+| Import guard | `python/admin/price_library_import_guard.py` (workspace whitelist, `.xlsx`, ≤10MB) |
+| Tests | `python/tests/test_org_price_admin_client.py` (unittest **19/19**) |
+| MCP registry | `ccb-mcp.json` / `ensure-wanding-settings.ps1` → `price-library` |
+| Agent | `ccb-installer/config/agents/price-library-agent.md` + `.aionui.json` |
+| Catalog gate | `aionui-src` — `ccbAgentCatalog.ts`, `resolveIsOrgPriceAdmin()` |
+| Health | `ccb-installer/config/mcp-health-manifest.json` — `price-library` probe |
+
+**MCP tools (10):**
+
+| Tool | Phase |
+|------|-------|
+| `get_price_library_active` | P0B |
+| `get_price_library_draft` | P0B |
+| `export_price_library` | P0B |
+| `upsert_price_library_item` | P0B |
+| `delete_price_library_item` | P0B |
+| `restore_price_library_item` | P0B |
+| `publish_price_library_draft` | P0C |
+| `preview_price_library_import` | P0D |
+| `apply_price_library_import` | P0D |
+| `revert_price_library_version` | P0D |
+
+**Write contract (mirror org-knowledge):**
+
+- `confirmed=false` → local diff from GET active + GET draft; **no POST**
+- `confirmed=true` → `POST /api/price-library/draft/items` (+ CSRF cookie/header)
+- Publish / import / revert → separate tools, two-phase confirm + `revision` on publish
+- **P0C:** `publish_price_library_draft` — `confirmed=false` preview (revision + pending count); `confirmed=true` binds revision; HTTP 409 → `REVISION_CONFLICT`
+- **P0D:** import preview/apply (multipart); revert by version id; import path fail-closed if no workspace roots
+- Final authority: AionCore **403** when caller is not `price_admin`
+
+**Guid visibility (P1):**
+
+- Sidecar `requires_price_admin: true`, `delegatable: false`
+- AionUI catalog probes `GET /api/price-library/draft` — non-admin **no**「价格库管理」card
+- `CCB_GUID_ONLY_AGENT_IDS` excludes price-library from orchestrator delegation index
+- Deploy: `deploy-seed-agents.ps1 -ForceMd` → `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\`
+
+**Wrong vs correct**
+
+| Wrong | Correct |
+|-------|---------|
+| Extend `quotation-server` with write tools | Independent `price-library` MCP + agent |
+| Upsert without `confirmed=true` | Preview first; user confirms; replay with `confirmed=true` |
+| Rely on hidden Guid card for security | AionCore 403 on non-admin JWT |
+| Import arbitrary path | `price_library_import_guard` workspace whitelist only |
+
+Task: [`07-01-price-library-admin-agent`](../../tasks/07-01-price-library-admin-agent/prd.md).
+
+**Recorded:** 2026-07-02 — P0B landed: read tools + confirmed preview + draft/items apply; vendor sync via `sync-dev-wanding-vendor.ps1`. Delivery: [`p0b-mcp-read-preview-done.md`](../../tasks/07-01-price-library-admin-agent/p0b-mcp-read-preview-done.md).
+
+**Recorded:** 2026-07-02 — P0C: `publish_price_library_draft` + `REVISION_CONFLICT` on 409. Delivery: [`p0c-publish-done.md`](../../tasks/07-01-price-library-admin-agent/p0c-publish-done.md). Tests: unittest **14/14**.
+
+**Recorded:** 2026-07-02 — P0D: `preview_price_library_import` / `apply_price_library_import` / `revert_price_library_version` + import path guard + MCP health manifest entry. Delivery: [`p0d-import-revert-done.md`](../../tasks/07-01-price-library-admin-agent/p0d-import-revert-done.md). Tests: unittest **19/19**.
+
+**Recorded:** 2026-07-02 — P1: `price-library-agent` sidecar + AionUI `requires_price_admin` catalog gate + deploy-seed + MCP health PASS. Delivery: [`p1-guid-agent-catalog-done.md`](../../tasks/07-01-price-library-admin-agent/p1-guid-agent-catalog-done.md). Bun catalog **3/3**. **Active:** P3 E2E smoke (admin Guid upsert → publish → `version_number++`).

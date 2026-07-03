@@ -46,6 +46,9 @@ If your symptom is a backend bug, **stop patching the frontend**. See `../integr
 5. **I'm wiring or debugging slash commands (`/` menu)?**
    → [`chat-acp-flow.md`](./chat-acp-flow.md) § Slash Command Flow — merge rules, file map, new-session requirement
 
+6. **Background agent finished or needs permission while I'm on another page?**
+   → [`conversation-attention-notifications.md`](./conversation-attention-notifications.md) — trigger rules, file map, smoke checklist
+
 ---
 
 ## Docs Index
@@ -57,6 +60,7 @@ If your symptom is a backend bug, **stop patching the frontend**. See `../integr
 | [`chat-acp-flow.md`](./chat-acp-flow.md) | Deep-dive on chat event flow + real ACP event examples + "add new chat message type" template |
 | [`coding-rules.md`](./coding-rules.md) | **Code-level** rules (don't import Node in renderer, dedup only in chatLib, etc.) + verification checklist + "add new IPC channel" template |
 | [`dev-test-ship.md`](./dev-test-ship.md) | dev / test / package workflow + symptom → diagnosis table + modify+test loop + **§8 white screen playbook** |
+| [`conversation-attention-notifications.md`](./conversation-attention-notifications.md) | Background agent toast + sidebar blue dot (permission / turn complete); Cursor-style attention when not on `/conversation/:id` — task `07-01-agent-attention-notifications` |
 | [`../integration/index.md`](../integration/index.md) | Backend boundary, route-b sync, defensive fix policy (read when crossing layers) |
 | [`../backend/index.md`](../backend/index.md) | CCB-Wanding / MCP / ACP backend (when root cause is Layer 4) |
 | [`../backend/route-b-status.md`](../backend/route-b-status.md) | What works today in live dist (MCP smoke evidence) |

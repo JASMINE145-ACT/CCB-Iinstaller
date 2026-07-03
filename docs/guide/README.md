@@ -2,6 +2,8 @@
 
 CCB（Claude Code Bundle）是 Claude Code 的 Windows 一键安装包，内置运行依赖、简体中文汉化和 MCP 工具。
 
+**AI 元工具索引**（Trellis / Superpowers / ECC / OpenSpec）：[`ai-tools-reference.md`](../ai-tools-reference.md)
+
 ---
 
 ## 文档目录

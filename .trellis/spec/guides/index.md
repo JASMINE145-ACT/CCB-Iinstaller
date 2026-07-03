@@ -35,6 +35,7 @@ These guides help you **ask the right questions before coding**.
 | [**Mixing Meta-Repo & Source Recovery**](./mixing-meta-repo.md) | 三仓结构、git 快照、日常启动、push GitHub、org-server BOM | **clone 完整项目 / 恢复后 push / 新同事 onboarding** |
 | [**WanD 更新发布维护手册**](./wanding-update-runbook.md) | 热更/全量发版、VPS 上传、回滚、排查 | **每次给员工推送更新时** |
 | [WanD Build Path Decision](./wanding-build-path-decision.md) | Full NSIS vs hot zip vs incremental NSIS | **Before every WanD pack / ship** |
+| [WanD Release Standard](../integration/wanding-release-standard.md) | 四层链验收、NSIS/热更双矩阵、防漏包 | **After build, before fleet push** |
 | [Code Reuse Thinking Guide](./code-reuse-thinking-guide.md) | Identify patterns and reduce duplication | When you notice repeated patterns |
 | [Cross-Layer Thinking Guide](./cross-layer-thinking-guide.md) | Think through data flow across layers | Features spanning multiple layers |
 

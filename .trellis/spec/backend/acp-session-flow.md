@@ -192,6 +192,24 @@ resolveCcbAuthorityAcpModelInfo(sessionInfo, ccbModelInfo) // CCB authority: var
 
 Log markers: `auto_apply_preferred_model_confirmed` / `ensure_preferred_model status: applied` (not `auto_apply_preferred_model_skipped` when backend is still `minimax-m3` but UI shows Thinking).
 
+**2026-07-01 (Guid → session permission mode):** Mirror model sync. UI「全自动」= `bypassPermissions`. Store is send authority; `conversation.extra.session_mode` is seed/fallback only.
+
+| Helper | Role |
+|--------|------|
+| `seedCcbSessionPreferredMode()` | Seed store from extra on conversation mount (no overwrite if already set) |
+| `getCcbSessionPreferredMode()` | Read authoritative user choice per `conversation_id` |
+| `persistCcbSessionPreferredMode()` | Merge `extra.session_mode` after successful `setMode` |
+| `resolveEffectiveAcpSessionMode()` | Store wins over stale extra prop |
+| `ensureCcbSessionPreferredMode()` | GET mode → `setMode` if mismatch |
+| `assertCcbSessionPreferredModeApplied()` | Throw if ensure failed or confirmed ≠ preferred — **blocks send** |
+| Call sites | `useAcpInitialMessage` (first Guid message); `AcpSendBox.executeCommand` (every user send) |
+
+**Anti-pattern:** Mount-time `getMode` in `AcpSendBox` calling `setCcbSessionPreferredMode` — overwrites Guid seed with backend `default` before first send. UI `setCurrentMode` only.
+
+CCB `permissions.ts` already honors `bypassPermissions` via `hasPermissionsToUseTool`; do **not** add Temp `Read` auto-allow as a sync workaround.
+
+Spec: [`../frontend/chat-acp-flow.md`](../frontend/chat-acp-flow.md) §3.5 · Task `07-01-aionui-full-auto-permission-sync`.
+
 **2026-06-14 (idle session stale id):** After aioncore **IdleTimeout** (~5min default) kills the CLI, a later send may warmup a **new** ACP session but still `session/prompt` with the **old** persisted `acp_session_id` → `Session not found` → mislabeled `USER_LLM_PROVIDER_ENDPOINT_NOT_FOUND`.
 
 | Layer | Mitigation (shipped) |
@@ -317,29 +335,25 @@ Tests: `src/services/acp/__tests__/`.
 
 Exact JSON shapes vary by SDK version. AionUI maps these in `useAcpMessage.ts` / `MessageAcpToolCall.tsx`. Typical sequence:
 
-1. `session/new` response — session id, model info
-2. `session/update` — `agent_message_chunk`, `tool_call`, `tool_result`, `plan`, etc.
-3. Permission round-trip before tool execution (`requestPermission` — includes `AskUserQuestion` for multi-match quotation)
+1. `session/new` response — session id, model info, `availableModels`, `modes`, `configOptions` (no greeting chunk from Backend)
+2. `session/update` — `agent_message_chunk`, `tool_call`, `tool_result`, `plan`, etc. (first assistant text usually after user prompt or Frontend Guid seed)
+3. Permission round-trip before tool execution (`requestPermission` for normal tools)
 
-### AskUserQuestion in ACP (2026-06-12)
+**Greeting (2026-07-02):** `AcpAgent.newSession()` returns structural session metadata only (`agent.ts` ~L1059–1064). WanD Guid cards / preset `preset_context` / first user message produce the visible opener — **Frontend + AionUI conversation bootstrap**, not an ACP `agent_message_chunk` emitted at `session/new`.
 
-`permissions.ts` `handleAskUserQuestion()` — do **not** send generic Allow/Reject for this tool.
+### AskUserQuestion in ACP — **disabled in CCB-Wanding (2026-07-02)**
 
-| Step | Behavior |
-|------|----------|
-| Parse input | `AskUserQuestionTool.inputSchema` → `questions[]` |
-| Permission options | Each candidate: `{ optionId: auq:{qIdx}:{encodeURIComponent(label)}, name: label — description }` + `reject` |
-| Multi-question | One `requestPermission` round per unanswered question (sequential) |
-| multiSelect | `confirm_key` = `auqm:{qIdx}:{enc(l1)}\|{enc(l2)}` → `answers[q] = "l1, l2"` |
-| On allow | `updatedInput.answers` = `{ [questionText]: selectedLabel }` before `AskUserQuestionTool.call()` |
-| On reject | Immediate deny; **no** next permission round (frontend must not show awaiting-next spinner) |
-| rawInput per round | `toolCall.rawInput = { ...input, answers: partial }` before each `requestPermission` |
-| AionUI | `MessageAskUserQuestionCard` + nav bar; `auq:*` / `auqm:*` options (not Allow/Reject) |
+**Current production behavior:** `permissions.ts` calls `denyAskUserQuestionUseChat()` for `AskUserQuestion` — the model must clarify in **normal chat text**, not via AUQ permission rounds.
 
-`optionId` prefixes shared with AionUI `askUserQuestionIds.ts` — decode uses `safeDecodeURIComponent` (malformed `%` → null → deny/skip):
+| Layer | Behavior |
+|-------|----------|
+| Backend | `permissions.ts` L68–71 → `denyAskUserQuestionUseChat(toolUseID)`; `behavior: deny` + message instructs chat fallback |
+| Helpers | `askUserQuestionPermissionResolve.ts` retains encode/decode helpers + tests for future re-enable |
+| AionUI | `MessageAskUserQuestionCard` / `auq:*` paths exist but are **not exercised** on the native `--acp` Route B path today |
 
-- Single: `auq:{idx}:{encodeURIComponent(label)}`
-- Multi: `auqm:{idx}:{enc(l1)}|{enc(l2)}` — any malformed segment fails whole decode; labels joined with `", "` in answer
+**Historical design (2026-06-12, not active):** multi-round `requestPermission` with `auq:` / `auqm:` option ids and `MessageAskUserQuestionCard`. Preserved in git history and `askUserQuestionPermissions.test.ts` for helpers only.
+
+**To re-enable AUQ:** restore `handleAskUserQuestion()` in `permissions.ts`, re-verify Frontend card + nav bar, update this section, and run multi-candidate quotation E2E.
 
 When debugging duplicate or missing UI messages, **compare producer logs from `--acp` stdout** with consumer `chatLib.composeMessage` — fix producer first per [`../integration/defensive-fix-policy.md`](../integration/defensive-fix-policy.md).
 

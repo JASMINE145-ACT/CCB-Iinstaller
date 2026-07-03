@@ -1,6 +1,7 @@
 # WanD Build Path Decision — Thinking Checklist
 
-> **Before packaging:** pick full NSIS vs hot zip vs incremental NSIS. **Executable contract:** [`../integration/wanding-first-ship.md`](../integration/wanding-first-ship.md) §5.2.1
+> **Before packaging:** pick full NSIS vs hot zip vs incremental NSIS. **Executable contract:** [`../integration/wanding-first-ship.md`](../integration/wanding-first-ship.md) §5.2.1  
+> **After packaging:** release acceptance → [`../integration/wanding-release-standard.md`](../integration/wanding-release-standard.md) (four-chain verify + feature matrix)
 
 ---
 

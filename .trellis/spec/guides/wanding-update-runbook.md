@@ -6,6 +6,7 @@
 > - 架构设计 → [`../integration/internal-update.md`](../integration/internal-update.md)
 > - 打包白名单 → [`../integration/wanding-packaging-whitelist.md`](../integration/wanding-packaging-whitelist.md)
 > - 打包路径决策 → [`wanding-build-path-decision.md`](./wanding-build-path-decision.md)
+> - **发版验收标准** → [`../integration/wanding-release-standard.md`](../integration/wanding-release-standard.md)
 >
 > **VPS**：`67.216.206.3` · SSH 端口 `39222` · HTTP 端口 `80`
 > **Manifest URL**：`http://67.216.206.3/updates/manifest.json`

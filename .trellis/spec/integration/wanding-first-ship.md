@@ -394,7 +394,8 @@ cd D:\Projects\claude-code-best
 
 > **Rule 0：** 首装 / 残装 / 新机 → **只能**全量 `build-wanding.ps1`（无 `Skip*`）。日常 CCB 热修 → **`build-wanding-hot.ps1`**。动 AionUI → 必须重编 AionUI + 全量 NSIS。
 >
-> 思考清单（发版前 30 秒）：[`../guides/wanding-build-path-decision.md`](../guides/wanding-build-path-decision.md)
+> 思考清单（发版前 30 秒）：[`../guides/wanding-build-path-decision.md`](../guides/wanding-build-path-decision.md)  
+> **验收清单（发版后必做）：** [`wanding-release-standard.md`](./wanding-release-standard.md) — 四层链 + 功能矩阵（Draft）
 
 #### 1. Scope / Trigger
 

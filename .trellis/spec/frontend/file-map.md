@@ -19,6 +19,10 @@
 | Slash command load (ACP) | `platforms/acp/useAcpMessage.ts` + `hooks/chat/useSlashCommands.ts` | warmup → `getSlashCommands`; stream `available_commands` |
 | Tool-call result UI | `packages/desktop/src/renderer/pages/conversation/Messages/acp/MessageAcpToolCall.tsx` | Tool result rendering, file changes display |
 | ACP platform state mgmt | `packages/desktop/src/renderer/pages/conversation/platforms/acp/useAcpMessage.ts` + `useAcpInitialMessage.ts` | The main state machine for CCB / ACP sessions (greeting, streaming, history) |
+| **Permission mode store (全自动)** | `common/config/ccbSessionPreferredModeStore.ts` | Per-conversation `bypassPermissions` authority; see `chat-acp-flow.md` §3.5 |
+| **Permission mode ensure + gate** | `common/config/ensureCcbSessionPreferredMode.ts` (`assertCcbSessionPreferredModeApplied`) | Called before send from `useAcpInitialMessage` + `AcpSendBox` |
+| **Permission mode resolve** | `common/config/resolveEffectiveAcpSessionMode.ts` | Store over `extra.session_mode` |
+| Send box mode selector | `platforms/acp/AcpSendBox.tsx` + `components/agent/AgentModeSelector.tsx` | `onModeChanged` → store + persist; mount `getMode` UI-only |
 | Other platform variants | `packages/desktop/src/renderer/pages/conversation/platforms/{aionrs,gemini,legacy}/` | One folder per platform integration |
 | ACP event TypeScript types | `packages/desktop/src/common/types/platform/acpTypes.ts` | |
 | Whole conversation page | `packages/desktop/src/renderer/pages/conversation/` | |
@@ -52,6 +56,7 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | System settings (theme, locale) | `packages/desktop/src/process/bridge/systemSettingsBridge.ts` + `themeBridge.ts` |
 | Native dialogs (file picker, alert) | `packages/desktop/src/process/bridge/dialogBridge.ts` |
 | Notifications | `packages/desktop/src/process/bridge/notificationBridge.ts` |
+| **Background attention (toast + sidebar dot)** | `GroupedHistory/hooks/useConversationListSync.ts` + `utils/conversationAttention.ts` + `hooks/system/useConversationAttentionNotifications.ts` — see [`conversation-attention-notifications.md`](./conversation-attention-notifications.md) |
 | Feedback dialog (UI) | `packages/desktop/src/process/bridge/feedbackBridge.ts` | Note: `process/feedback/` directory contains only `logs.ts` (not the dialog itself) |
 | Update / version check | `packages/desktop/src/process/bridge/updateBridge.ts` + `packages/desktop/src/common/update/` |
 | WanD internal manifest / CCB dual-track update | `packages/desktop/src/process/bridge/internalUpdateManifest.ts` + `ccbUpdateBridge.ts` (**new**, `ccbUpdate.*`) — spec `integration/internal-update.md` §3.7 |
@@ -129,6 +134,7 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Settings page cards + descriptions | `packages/desktop/src/renderer/components/settings/SettingsModal/contents/CcbModelSettingsPanel.tsx` (CCB branch); `ModelModalContent.tsx` delegates when `useCcbAuthorityActive` |
 | Shared assistant catalog (Guid + Settings + Team + sidebar) | `packages/desktop/src/common/assistants/fetchAssistantsCatalog.ts` — `ASSISTANTS_LIST_SWR_KEY` |
 | **Sidebar conversation row icon (emoji)** | `renderer/pages/conversation/GroupedHistory/ConversationRow.tsx` → `usePresetAssistantInfo.ts` — **must** use `fetchAssistantsCatalog` (not raw `assistants.list`); CCB fallback `ccbAgentsService.getAgent` |
+| **Sidebar attention blue dot** | `GroupedHistory/ConversationRow.tsx` (`hasAttentionUnread`) ← `useConversationListSync.ts` — see [`conversation-attention-notifications.md`](./conversation-attention-notifications.md) |
 | **Team Create / cron / conversation agent picker** | `renderer/pages/conversation/hooks/useConversationAgents.ts` — preset list via **`fetchAssistantsCatalog`** + shared SWR key; consumers: `TeamCreateModal.tsx`, `CreateTaskDialog.tsx` |
 | Sidecar avatars (bundled) | `ccb-installer/config/agents/*.aionui.json` → deploy `deploy-seed-agents.ps1` |
 | CCB preset session extra | `common/utils/ccbPresetConversationExtra.ts` — writes `ccb_agent_id` + `preset_assistant_id` |

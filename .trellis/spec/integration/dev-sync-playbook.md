@@ -39,7 +39,7 @@
 | `start-aionui-dev-work-tasks.ps1` | 旁路 launcher → 重定向 |
 | `org-phase0/start-aionui-dev-org-test.ps1` | 缺 bootstrap/route-b → 重定向 |
 
-`start-dev-full.ps1` 固定顺序：**preflight → bootstrap（可选 Skip）→ route-b sync → `sync-dev-wanding-vendor`（默认；`-SkipVendorSync` 跳过）→ `sync-dev-aioncore`（默认 `-Build` + smoke：price-library / work-tasks / org-knowledge 均 401 非 404）→ org SSO env → kill stale → `bun run dev`**。
+`start-dev-full.ps1` 固定顺序：**preflight → bootstrap（可选 Skip）→ route-b sync → `sync-dev-wanding-vendor`（默认；`-SkipVendorSync` 跳过）→ `deploy-seed-agents -ForceMd`（含退役 prune）→ `sync-dev-aioncore`（默认 `-Build` + smoke：price-library / work-tasks / org-knowledge 均 401 非 404）→ org SSO env → kill stale → `bun run dev`**。
 
 | 原则 | 说明 |
 |------|------|
@@ -47,7 +47,7 @@
 | **dev 数据隔离** | `%APPDATA%\AionUi-Dev\` ≠ `%APPDATA%\AionUi\`（Roaming exe）；会话/DB 不互通 |
 | **新会话验证** | ACP session、slash manifest、assistant profile、MCP 冷启动等——**必须新建 conversation** 再 smoke |
 | **混合态最危险** | 常见：新 frontend + 旧 route-b + 新 CCB dist + 旧 vendor python → 症状像「随机 bug」 |
-| **deploy-seed 只增不删** | `deploy-seed-agents` **复制** repo seed → live `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\`；已有 `.md` 默认 **skip**；**不会**删除已从 keep set 退役的 agent 文件 |
+| **deploy-seed 同步 keep set** | `deploy-seed-agents -ForceMd` 复制 repo seed → live `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\`；并按 `config/agents/retired-agent-ids.json` **自动 prune** 退役 `.md` / `.aionui.json`（2026-06-30 起 `start-dev-full` 每轮必跑） |
 | **Guid 卡片 = live agents 目录** | Renderer 读 `ccbAgentsService.listAgents` → `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\*.md`；与 `%APPDATA%\AionUi-Dev\` SQLite **无关**（CCB authority 路径） |
 
 ---
@@ -97,9 +97,10 @@ AionUI renderer (aionui-src, HMR)
 | `data/*.xlsx`, `data/wanding_business_knowledge.md` | ❌ | robocopy → `CCB-Wanding\vendor\wanding\data`（§4.2） | MCP 查价命中新编码 |
 | `mcp_servers/quotation-server/dist/**` | ❌ | robocopy → `vendor\mcp-servers\quotation-server\dist` | quotation MCP 工具行为；含 `append_business_rule`（2026-06-28） |
 | `ccb-installer/config/agents/quotation-agent.md`（org 知识库写入规则） | ❌ | `deploy-seed-agents.ps1 -ForceMd` + vendor sync + **新会话** | agent 禁止 Edit shadow；追加走 MCP |
+| `ccb-installer/config/skills/ccb-subagent-gate/**`（PreToolUse 强制 Read） | ❌ | `deploy-subagent-gate-skill.ps1` + **新会话** | `pre-match-knowledge-gate.py` 存在；`modes.json` → `quotation-agent:knowledge` = **block** |
 | `AionCore/crates/**` | ❌ | 重启 **`start-dev-full.ps1 -SkipBootstrap`**（默认 `-BuildAioncore`） | sync smoke：work-tasks + org-knowledge **401** |
 | `AionCore` **CCB profile `acp_meta` passthrough** | ❌ | 同上；fork 必须把 `extra.acp_meta` 打进 `session/new` `_meta` | CCB log: `session profile id from session meta: word-creator`（非 handoff） |
-| `ccb-installer/config/agents/**`（keep set / 退役） | ❌ | **§4.7** 删 live 退役文件 + `deploy-seed-agents.mjs --force-md` + 重启 dev | Guid **5** 张预设卡（见 `agents-unified-model.md` §713） |
+| `ccb-installer/config/agents/**`（keep set / 退役） | ❌ | `start-dev-full.ps1` 内建 `deploy-seed-agents -ForceMd`（含 prune）；单独改 agent 也可手动跑同命令 | Guid **5** 张预设卡（见 `agents-unified-model.md` §713） |
 | `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\*.md` | ❌ | `deploy-seed-agents.ps1` 或手动复制 | **新建** Guid 卡片会话 |
 | `.trellis/spec/**` | — | 不影响运行时 | — |
 
@@ -113,7 +114,7 @@ AionUI renderer (aionui-src, HMR)
 | 今天 build 了 CCB dist | **未跑 route-b sync** → ACP 槽仍昨天 |
 | 修了 idle 旧消息 replay | 只改 aionui-src，**未 -Clean 重启** 或仍用**旧 conversation_id** |
 | 修了 greeting 重复 | 需 CCB `agent.ts` deploy；前端 dedup 只是 interim |
-| repo 已退役 agent（如 cowork）但 Guid 仍显示 | **仅改了 repo/aionui-src**；live agents 目录未删；`prune v2` flag 可能已跳过 | 跑 **§4.7** |
+| repo 已退役 agent（如 cowork）但 Guid 仍显示 | live agents 未 prune；或 dev 未走 `start-dev-full` 主线 | 跑 `deploy-seed-agents.ps1 -ForceMd` 或完整 `start-dev-full.ps1`（§4.7） |
 
 ---
 
@@ -163,10 +164,10 @@ cd D:\Projects\claude-code-best
 .\ccb-installer\scripts\sync-dev-wanding-vendor.ps1 -UpdateSettings -Smoke
 ```
 
-- 将 `python/` → `D:\CCB-Wanding\vendor\wanding\python\`
-- 复制 `data/` 业务文件（含 `price_library_cleaned_2026_05_15.xlsx`）
+- 将 `python/` → `D:\CCB-Wanding\vendor\wanding\python\`（robocopy；排除 `tests` / `tools` 等，与 ship 对齐）
+- 复制 `data/`：**所有 `*.md`（denylist 除外）+ 所有 `*.xlsx`** — 与 `build-wanding.ps1` staging 同规则；实现于 `ccb-installer/scripts/lib/sync-wanding-data.ps1`
 - 同步 `mcp_servers/quotation-server/dist`
-- `-UpdateSettings`：刷新 `%LOCALAPPDATA%\CCB-Wanding\.claude\settings.json`（去掉旧 `LEGACY_PRICE_LIBRARY_PATH` 等）
+- `-UpdateSettings`：刷新 `%LOCALAPPDATA%\CCB-Wanding\.claude\settings.json`（去掉旧 `LEGACY_PRICE_LIBRARY_PATH` 等）；写入 `AIONUI_APPDATA_PROFILE` + profile-scoped `ORG_SESSION_TOKEN_FILE`（dev 由 `start-dev-full` 设为 `AionUi-Dev`）
 - `-Smoke`：用 live vendor python 跑 `HDPE 0.6MPa dn125 6M` → 期望 `8010036693`
 
 与 [`wanding-packaging-whitelist.md`](./wanding-packaging-whitelist.md) §5.3–5.4 一致的手动 robocopy（脚本失败时 fallback）：
@@ -178,12 +179,8 @@ $dst = "D:\CCB-Wanding\vendor"
 # Python（排除测试）
 robocopy "$src\python" "$dst\wanding\python" /E /XD tests __pycache__ .pytest_cache /XF test_*.py smoke_*.py _tmp_*.txt
 
-# 业务数据（按需增删文件名）
-robocopy "$src\data" "$dst\wanding\data" `
-  price_library_cleaned_2026_05_15.xlsx `
-  mapping_table.xlsx `
-  wanding_business_knowledge.md `
-  ccb-wanding-quotation.md
+# 业务数据（与 build-wanding 同规则：denylist md + 全 xlsx；脚本优先）
+# 手动 fallback 见 sync-dev-wanding-vendor.ps1 + lib/sync-wanding-data.ps1
 
 # Quotation MCP dist
 robocopy "$src\mcp_servers\quotation-server\dist" "$dst\mcp-servers\quotation-server\dist" /E
@@ -213,7 +210,9 @@ D:\Projects\claude-code-best\ccb-installer\scripts\start-dev-full.ps1 -Clean
 .\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap
 ```
 
-纯 UI、不需要 vendor 对齐时：`-SkipVendorSync`。需要 settings 刷新或 HDPE smoke：加 `-VendorUpdateSettings` / `-VendorSmoke`。
+纯 UI、不需要 vendor 对齐时：`-SkipVendorSync`。`start-dev-full` **默认** `-VendorUpdateSettings`（刷新 `ccb-mcp.json` / org MCP env / **`AIONUI_APPDATA_PROFILE`** 等）。需要 org_api + supplier 断言：加 `-VendorSmoke`。
+
+**Org JWT profile（2026-07-02）：** `start-dev-full` 在 vendor sync 前设置 `$env:AIONUI_APPDATA_PROFILE = 'AionUi-Dev'`；`-UpdateSettings` 写入 quotation MCP env，使 Python `org_session` 读 Dev `org-session.token`（非 stale Prod）。改 MCP env 后须 **新开 Guid 会话**。详见 [`org-knowledge.md`](./org-knowledge.md) § MCP `org_session` profile contract。
 
 **手动分层**（脚本失败或只需 vendor 时）仍可用 §4.1 → §4.2 → §4.3 → §4.5（§4.4 仅 AionCore 有改动时）：
 
@@ -227,50 +226,50 @@ cd D:\Projects\claude-code-best
 .\ccb-installer\scripts\start-dev-full.ps1 -Clean
 ```
 
-### 4.7 Agent keep-set 退役 / Guid 卡片对齐（2026-06-27）
+### 4.7 Agent keep-set 退役 / Guid 卡片对齐（2026-06-27；自动 prune 2026-06-30）
 
 **触发：** repo `ccb-installer/config/agents/` 或 `CCB_WANDING_KEEP_AGENT_IDS` 删了 agent（例：`cowork`、`word-form-creator`），但 dev Guid 仍显示旧卡片（7 张而非 5 张）。
 
-**原因链：**
+**原因链（历史）：**
 
 ```text
 repo config/agents/          live .claude/agents/           Guid UI
   (无 cowork.md)      ≠        cowork.md 仍在          →    仍显示 Cowork
        │                            ▲
-       │                            │
-       └── deploy-seed-agents ──────┘  只 copy/skip，不 unlink 退役文件
-       └── prune v2 migration ────────  仅删 listCcbAgents 能 parse 的 bundled；
-                                         flag 已设则 0ms skip，不会重跑
+       └── deploy-seed（旧）────────┘  只 copy/skip，不 unlink
 ```
 
+**主线（2026-06-30 起）：** `deploy-seed-agents.mjs` 读取 `config/agents/retired-agent-ids.json`，每次 deploy 后 **自动 prune** live 目录中的退役 `.md` / `.aionui.json`。`start-dev-full.ps1` **每轮**在 vendor sync 之后执行 `deploy-seed-agents.ps1 -ForceMd`（含 `-SkipBootstrap` 路径）。
+
 **当前 keep set（Guid 预设 5 卡）：** `quotation-agent`、`accurate-agent`、`word-creator`、`ppt-creator`、`excel-creator`（`wande-orchestrator` 隐藏，默认会话路由）。详见 [`agents-unified-model.md`](./agents-unified-model.md) §613–618、§713。
+
+**退役列表（单一真相源）：** `ccb-installer/config/agents/retired-agent-ids.json` — 新增退役 id 时更新此文件 + `config/agents/README.md` + AionUI `CCB_WANDING_KEEP_AGENT_IDS`（`ccbAgentCatalog.ts`）。
 
 **标准修复（dev，无需 cargo test）：**
 
 ```powershell
-# 1. 停 dev
-Get-Process electron,aioncore -ErrorAction SilentlyContinue | Stop-Process -Force
-Start-Sleep -Seconds 2
+# 推荐：走完整主线（含 prune + route-b + vendor）
+.\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap
 
-# 2. 删 live 退役 agent（按当前 spec 调整 id 列表）
+# 仅对齐 agent 卡片（不停 dev 也可先跑）：
+.\ccb-installer\scripts\deploy-seed-agents.ps1 -ForceMd
+```
+
+**手动兜底（deploy 脚本不可用时）：**
+
+```powershell
 $agents = "$env:LOCALAPPDATA\CCB-Wanding\.claude\agents"
 @('cowork', 'word-form-creator') | ForEach-Object {
   Remove-Item "$agents\$_.md", "$agents\$_.aionui.json" -ErrorAction SilentlyContinue
 }
-
-# 3. 从 repo 重 deploy keep-set（覆盖 .md + sidecar）
-cd D:\Projects\claude-code-best
 D:\CCB-Wanding\vendor\bun\bun.exe .\ccb-installer\scripts\deploy-seed-agents.mjs --force-md
-
-# 4. 重启 dev（Mixing parity + org SSO）
-.\ccb-installer\scripts\start-dev-full.ps1
 ```
 
 **验证：** Guid「选择助手」仅 **5** 张业务/办公预设卡 +「+」；无 Cowork、无可填表单助手。
 
-**可选（prune 未删净时）：** 在 AionUI settings storage 清 `migration.ccbWandingPrunePresets_v2`，冷启动让 `pruneBundledAgentsNotInKeepSetV2WithFlag` 再跑；通常 **§4.7 步骤 2 手动删文件即可**。
+**可选（prune 未删净时）：** 在 AionUI settings storage 清 `migration.ccbWandingPrunePresets_v2`，冷启动让 `pruneBundledAgentsNotInKeepSetV2WithFlag` 再跑；通常 **deploy-seed-agents -ForceMd 即可**。
 
-**不要依赖：** 仅 `start-dev-full.ps1` bootstrap 内的 `deploy-seed-agents` — Quick 模式不会删退役文件；`patch-subagent-gate-hooks.ps1` 仍可能 touch 已退役 id（bootstrap 日志 `[err] No YAML frontmatter` 可忽略或后续从脚本 keep list 移除）。
+**不要依赖：** 仅 bootstrap Quick 模式内的单次 deploy — 用 `-SkipBootstrap` 时须依赖 `start-dev-full` 内建 deploy 步骤（2026-06-30 起已内建）。
 
 ### 4.8 Org HTTP / 知识库 / unified SSO（Electron dev，2026-06-27）
 
@@ -399,12 +398,14 @@ dev 验证通过后再 `bun run dist:win`；不要每次 UI 小改都打包。
 - **claude-agent-acp 版本 bump** → 更新 `sync-aionui-ccb-route-b.ps1` 内 `$relativeDist`，并刷新本节 §5.1 路径。
 - **新增 vendor 数据文件** → 更新 §4.3 robocopy 列表 + packaging whitelist §5.4。
 - **新增 dev 启动脚本** → 更新 §2 表格。
-- **Agent keep set 变更 / 退役** → 更新 §4.7 id 列表 + [`agents-unified-model.md`](./agents-unified-model.md) §613。
+- **Agent keep set 变更 / 退役** → 更新 `config/agents/retired-agent-ids.json` + §4.7 + [`agents-unified-model.md`](./agents-unified-model.md) §613。
 - **Org HTTP / 知识库 dev CORS** → §4.8 + [`org-knowledge.md`](./org-knowledge.md)。
 
 **Recorded:** 2026-06-18 — 由「repo 修改未进 dev / 报价 python 落后 10 天 / route-b MISMATCH」排查沉淀；Problem B 加固见 [`../frontend/chat-acp-flow.md`](../frontend/chat-acp-flow.md) § Idle resume hardening。
 
-**Recorded:** 2026-06-27 — §4.7 agent keep-set 退役同步：`deploy-seed-agents` 只增不删；Guid 7 卡 vs spec 5 卡 → 手动删 live `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\` 退役文件 + `--force-md` redeploy。
+**Recorded:** 2026-06-30 — **Agent keep-set 自动 prune：** `deploy-seed-agents.mjs` 读 `retired-agent-ids.json` 删 live 退役文件；`start-dev-full.ps1` 每轮 `-ForceMd` deploy（含 `-SkipBootstrap`）。退役列表：`cowork`、`word-form-creator`。Guid 验证：5 预设卡。
+
+**Recorded:** 2026-06-27 — §4.7 agent keep-set 退役同步（历史）：`deploy-seed-agents` 曾只增不删；Guid 7 卡 vs spec 5 卡 → 曾需手动删 live 退役文件。
 
 **Recorded:** 2026-06-27 — §4.8 org HTTP IPC：`OrgAuthContext` + `ipcBridge.orgKnowledge` 对齐 `orgRawFetch`；修复 dev 知识库「请从主登录页登录」误报。
 

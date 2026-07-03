@@ -2,7 +2,7 @@
 
 > Shared Markdown knowledge for CCB-Wanding (~10 staff). **Center** org aioncore holds docs; employee desktop keeps **local** aioncore for chat and `/tasks`.
 
-**Status:** Implemented 2026-06-11; **VPS production 2026-06-19** (`67.216.206.3:13401`, `aionorg.service`). **Router rewire + VPS smoke 2026-06-27** — org `/api/org-knowledge` returns **401** without JWT (was 404 when crate existed but `aionui-app` router omitted merge). **Phase 0 login linkage** shipped 2026-06-19 — see **[`org-knowledge-phase0-rollout.md`](./org-knowledge-phase0-rollout.md)**. **Unified org SSO** shipped + **pilot verified 2026-06-22** — see **[`unified-org-sso-rollout.md`](./unified-org-sso-rollout.md)** (`verify-sso-jit.ps1` PASS). **Agent write path MCP wired 2026-06-28** — `append_business_rule` in `quotation-server/dist/index.js`; shadow md **read-only** for agents (task [`06-28-org-knowledge-agent-write-path`](../../tasks/06-28-org-knowledge-agent-write-path/)). Deploy: [`scripts/org-phase0/vps-org-api-deploy-checklist.md`](../../../scripts/org-phase0/vps-org-api-deploy-checklist.md).
+**Status:** Implemented 2026-06-11; **VPS production 2026-06-19** (`67.216.206.3:13401`, `aionorg.service`). **Router rewire + VPS smoke 2026-06-27** — org `/api/org-knowledge` returns **401** without JWT (was 404 when crate existed but `aionui-app` router omitted merge). **Phase 0 login linkage** shipped 2026-06-19 — see **[`org-knowledge-phase0-rollout.md`](./org-knowledge-phase0-rollout.md)**. **Unified org SSO** shipped + **pilot verified 2026-06-22** — see **[`unified-org-sso-rollout.md`](./unified-org-sso-rollout.md)** (`verify-sso-jit.ps1` PASS). **Agent write path MCP wired 2026-06-28** — `append_business_rule` in `quotation-server/dist/index.js`; shadow md **read-only** for agents (task [`06-28-org-knowledge-agent-write-path`](../../tasks/06-28-org-knowledge-agent-write-path/)). **MCP profile-strict JWT 2026-07-02** — shared `org_session.py` + `AIONUI_APPDATA_PROFILE` (task [`07-02-org-knowledge-dev-token-alignment`](../../tasks/07-02-org-knowledge-dev-token-alignment/prd.md)). Deploy: [`scripts/org-phase0/vps-org-api-deploy-checklist.md`](../../../scripts/org-phase0/vps-org-api-deploy-checklist.md).
 
 ---
 
@@ -94,15 +94,83 @@ WS event: `org-knowledge.updated` `{ slug, version }`.
 | File | Role |
 |------|------|
 | `python/admin/org_knowledge_client.py` | `load_doc_content()` API → file fallback |
+| `python/admin/org_session.py` | **Shared** profile + JWT candidate resolution (price + knowledge; 2026-07-02) |
 | `python/admin/org_http_csrf.py` | VPS double-submit CSRF bootstrap (`GET /api/auth/status` → `aionui-csrf-token` + `x-csrf-token` on PUT) |
 | `python/main.py` | Selection context knowledge |
 | `python/inventory/services/llm_selector.py` | Tier 0 org API before Neon/file |
 | `python/inventory/services/wanding_fuzzy_matcher.py` | Field-matching rules from org API |
 | `python/admin/org_knowledge_dispatch.py` | `append_business_rule` confirmation + write dispatch |
 | `mcp_servers/quotation-server/dist/index.js` | **ListTools** must expose `append_business_rule` (wired 2026-06-28) |
-| `mcp_servers/quotation-server/dist/python-spawner.js` | Passes `ORG_SERVER_URL`, `ORG_SESSION_TOKEN_FILE` |
+| `mcp_servers/quotation-server/dist/python-spawner.js` | Passes `ORG_SERVER_URL`, `AIONUI_APPDATA_PROFILE`, `ORG_SESSION_TOKEN_FILE` |
 
-Env (MCP): `ORG_SERVER_URL`, `ORG_SESSION_TOKEN_FILE` (default `%APPDATA%/AionUi/aionui/org-session.token`; Python also reads `org-server.json`).
+### MCP `org_session` profile contract (2026-07-02)
+
+**Problem:** Dev machines often have **two** AppData roots (`AionUi` packaged + `AionUi-Dev` from `start-dev-full`). Stale Prod JWT → `GET/PUT /api/org-knowledge/*` **401** while UI (Electron Dev store) still works. Read path masked by shadow md fallback; **`append_business_rule` has no write fallback**.
+
+**Fix:** Shared `admin/org_session.py` + explicit profile env. Task [`07-02-org-knowledge-dev-token-alignment`](../../tasks/07-02-org-knowledge-dev-token-alignment/prd.md).
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  start-dev-full.ps1                                             │
+│    $env:AIONUI_APPDATA_PROFILE = 'AionUi-Dev'                   │
+│    sync-dev-wanding-vendor -UpdateSettings                        │
+└────────────────────────────┬────────────────────────────────────┘
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  ccb-mcp.json (quotation MCP env)                               │
+│    AIONUI_APPDATA_PROFILE = AionUi-Dev                          │
+│    ORG_SESSION_TOKEN_FILE = %APPDATA%\AionUi-Dev\...\token      │
+│    ORG_SERVER_URL = …                                           │
+└────────────────────────────┬────────────────────────────────────┘
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  org_session.get_auth_candidates()  [STRICT]                    │
+│    → single profile token file only                             │
+│  org_knowledge_client._api_get / _api_json                      │
+│    GET: 401 → next candidate (LEGACY_SCAN only)                 │
+│    PUT: 401 → next; 403 CSRF → stop; 409 → version conflict     │
+└────────────────────────────┬────────────────────────────────────┘
+                             ▼
+                    ORG_SERVER_URL :13401
+```
+
+| Env | Role |
+|-----|------|
+| `AIONUI_APPDATA_PROFILE` | `AionUi` (packaged default) or `AionUi-Dev` (dev launcher) |
+| `ORG_SESSION_TOKEN_FILE` | `%APPDATA%/<profile>/aionui/org-session.token` — written by `ensure-wanding-settings.ps1` |
+| `ORG_SESSION_TOKEN` | Optional strict override (inline JWT; single candidate) |
+| `ORG_SERVER_URL` | Org API base; else read `<profile>/aionui/org-server.json` |
+
+| Policy | When | Behavior |
+|--------|------|----------|
+| **STRICT** | `AIONUI_APPDATA_PROFILE` or `ORG_SESSION_TOKEN(_FILE)` set | One profile / one file; **no** cross-profile token scan |
+| **LEGACY_SCAN** | None of the above (deprecated) | Try `AionUi` then `AionUi-Dev` on 401; logs WARN |
+
+**PUT error boundaries (mutating writes):**
+
+| HTTP | Action |
+|------|--------|
+| 401 | Try next JWT candidate (LEGACY_SCAN) or fail (STRICT) |
+| 403 | `OrgCsrfError` — CSRF/RBAC; **do not** rotate JWT |
+| 409 | `OrgVersionConflictError` — re-read `expected_version` at business layer |
+
+**Packaged prod:** profile defaults to `AionUi`; single token file — behaviour unchanged.
+
+Env (MCP): `ORG_SERVER_URL`, `AIONUI_APPDATA_PROFILE`, `ORG_SESSION_TOKEN_FILE` (path under `%APPDATA%/<profile>/aionui/org-session.token`). Python resolves JWT via shared `admin/org_session.py` (STRICT when profile or token file env is set; LEGACY_SCAN deprecated).
+
+**Dev dual AppData (2026-07-02):** `start-dev-full` sets `AIONUI_APPDATA_PROFILE=AionUi-Dev`; `ensure-wanding-settings` writes matching MCP env. Do **not** point MCP at Prod token while logged into Dev — `append_business_rule` PUT has no shadow fallback (401 = write fail). **New Guid session** after settings sync (MCP subprocess does not hot-reload env).
+
+**Diagnostic (dev):**
+
+```powershell
+$env:AIONUI_APPDATA_PROFILE = 'AionUi-Dev'
+$env:ORG_SESSION_TOKEN_FILE = "$env:APPDATA\AionUi-Dev\aionui\org-session.token"
+cd D:\Projects\claude-code-best\python
+python -c "from admin.org_knowledge_client import get_doc; d=get_doc('wanding_business_knowledge'); print(d.get('source'), d.get('version'))"
+# Expect: org-api <version>
+```
+
+Cross-ref price JWT: [`price-library.md`](./price-library.md) § Org JWT (same `org_session` module).
 
 ### Dev / smoke: 401 is expected (not a quotation bug)
 
@@ -113,7 +181,7 @@ Env (MCP): `ORG_SERVER_URL`, `ORG_SESSION_TOKEN_FILE` (default `%APPDATA%/AionUi
 | `load_doc_content()` | Org API first → **`fallback_path` local shadow md** when API unavailable |
 | Quotation **price match** | Uses `org_price_client` / bundled seed — **independent** of org knowledge API |
 
-401 means **center knowledge was not fetched** (may be stale vs VPS). It does **not** mean HDPE match is broken. For center-latest content + agent `append_business_rule`: dev login AionUI (Phase 0 linkage or unified SSO) so `%APPDATA%/AionUi/aionui/org-session.token` is valid.
+401 means **center knowledge was not fetched** (may be stale vs VPS). It does **not** mean HDPE match is broken. For center-latest content + agent `append_business_rule`: dev login via `start-dev-full` (writes `%APPDATA%/AionUi-Dev/aionui/org-session.token`) then **new Guid session** after `-UpdateSettings`.
 
 Cross-ref triage table: [`price-library.md`](./price-library.md) § Dev / smoke: expected degradations vs real bugs.
 
@@ -197,6 +265,7 @@ This preserves the stable Agent Read path while making center edits propagate to
 | `#/org-knowledge` shows new content → assume quotation agent already has it | Shadow sync on login/WS/interval; **new MCP conversation** after vendor sync |
 | `append_business_rule` for delete/test cleanup | Tool is **append-only**; use UI PUT for removals |
 | `append_business_rule` → **403 CSRF_INVALID** | Re-login does **not** fix — MCP PUT needs CSRF bootstrap (`org_http_csrf.py`); sync `python/` → vendor after fix |
+| `append_business_rule` → **401** with UI `#/org-knowledge` OK | MCP on **stale Prod** `org-session.token` while Dev login wrote `AionUi-Dev` — set `AIONUI_APPDATA_PROFILE=AionUi-Dev` + `-UpdateSettings` + **new Guid session** (task 07-02) |
 | Re-login to fix `append_business_rule` 403 | 403 = missing CSRF on PUT, not expired JWT (GET would still work); deploy `org_knowledge_client` + `org_http_csrf.py` |
 
 ---
@@ -233,7 +302,7 @@ cargo test -p aionui-auth -p aionui-db
 cargo test -p aionui-auth sso -- --test-threads=1
 
 cd D:\Projects\claude-code-best\python
-python -m unittest admin.test_org_knowledge_client
+python -m unittest admin.test_org_session admin.test_org_knowledge_client
 python -m unittest tests.test_quotation_mcp_tool_registry
 
 cd D:\Projects\aionui-src
@@ -244,6 +313,7 @@ bun test tests/unit/common-auth/orgAuthLogin.test.ts tests/unit/common-adapter/o
 |-------|---------|------|
 | MCP registry | `python -m unittest tests.test_quotation_mcp_tool_registry` | `append_business_rule` in repo + vendor `index.js` |
 | Org knowledge CSRF | `python -m unittest admin.test_org_http_csrf admin.test_org_knowledge_client` | bootstrap + PUT header |
+| Org session profile | `python -m unittest admin.test_org_session` | STRICT single-profile; LEGACY_SCAN dedupe |
 | Append dispatch | `tests.test_dispatch_error_codes` (append tests) | `requires_confirmation` without `confirmed=true` |
 | Live vendor | grep `append_business_rule` in `D:\CCB-Wanding\vendor\mcp-servers\quotation-server\dist\index.js` | present after `sync-dev-wanding-vendor.ps1` |
 
@@ -254,3 +324,5 @@ Cross-reference: org login RBAC in [`aioncore-work-tasks.md`](./aioncore-work-ta
 **Recorded:** 2026-06-29 — MCP `append_business_rule` PUT CSRF fix (`org_http_csrf.py` + `org_knowledge_client._api_json`); aligns with `price-library.md` § VPS CSRF contract.
 
 **Recorded:** 2026-06-29 — L1 hard constraint: after `confirmed=false` preview, quotation-agent must same-turn markdown-show `rule_text` + ask confirm (fixes empty-reply「戛然而止」); see § Preview UX.
+
+**Recorded:** 2026-07-02 — **Profile-strict `org_session.py`** (shared with price client): `AIONUI_APPDATA_PROFILE` + MCP env from `ensure-wanding-settings` / `start-dev-full`; fixes `append_business_rule` 401 when Prod+Dev dual AppData coexist. Task [`07-02-org-knowledge-dev-token-alignment`](../../tasks/07-02-org-knowledge-dev-token-alignment/prd.md). Research: [`research/401-dual-token-2026-07-02.md`](../../tasks/07-02-org-knowledge-dev-token-alignment/research/401-dual-token-2026-07-02.md).

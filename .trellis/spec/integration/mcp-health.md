@@ -9,7 +9,7 @@
 
 | Surface | Entry | Layers |
 |---------|-------|--------|
-| **CLI / CI** | `ccb-installer/scripts/test-mcp-health.ps1` | config + files + agents · `-Probe` · `-Session` · `-Repair` |
+| **CLI / CI** | `ccb-installer/scripts/test-mcp-health.ps1` | config + files + agents + **optional** · `-Probe` · `-Session` · `-Repair` |
 | **AionUI UI** | Settings → **能力扩展 → 工具** → **CCB MCP 健康检查** | 快速检查 · 完整探测 · **诊断 + 一键白名单修复** · MiniMax 深度分析 |
 
 UI only appears when `ccbMcpService.isAuthorityActive` ( `%LOCALAPPDATA%\CCB-Wanding\.claude\settings.json` exists).
@@ -21,7 +21,7 @@ UI only appears when `ccbMcpService.isAuthorityActive` ( `%LOCALAPPDATA%\CCB-Wan
 ```powershell
 cd D:\Projects\claude-code-best
 
-# Layer 1 — config, vendor files, agent sidecars (~5s)
+# Layer 1 — config, vendor files, agent sidecars, optional exa/ppt (~5–13s if exa registered)
 .\ccb-installer\scripts\test-mcp-health.ps1
 
 # Layer 2 — serial stdio spawn + tools/list (~1–3 min; office-word cold start up to ~90s)
@@ -58,7 +58,7 @@ Run session probes **serially**. `-Session` writes the same one-shot handoff fil
   { "profile_id": "word-creator", "staged_at": "<ISO8601>" }  # max age 300s
 ```
 
-Profiles tested: `quotation-agent`, `accurate-agent`, `word-creator`, `excel-creator`, `wande-orchestrator` (MCP must be empty).
+Profiles tested: all entries in `agent_profiles` of `ccb-installer/config/mcp-health-manifest.json` (currently 8 — includes `research-agent`, `price-library-agent`, `ppt-creator`). `wande-orchestrator` must register **no** business MCP.
 
 ---
 
@@ -90,13 +90,36 @@ Profiles tested: `quotation-agent`, `accurate-agent`, `word-creator`, `excel-cre
 
 | UI button | CLI equivalent | Notes |
 |-----------|----------------|-------|
-| 快速检查 | `test-mcp-health.ps1` (no flags) | Config + files + agents only |
-| 完整探测 | `-Probe` | Reuses `listCcbMcpServersWithHealth({ test: true })` **plus** `quotation:python` deep probe (`tools/call match_quotation` via installer script) |
+| 快速检查 | `test-mcp-health.ps1` (no flags) | Config + files + agents + **optional** (exa HTTP WARN, ppt-master SKILL.md) |
+| 完整探测 | `-Probe` | Shallow tools/list + deep `tools/call` for all core MCPs (quotation/accurate/office-word/excel) via `test-mcp-probe-layer.mjs` |
+| 会话探针 | `-Session` (after probe) | UI button runs probe + session; serial ACP profile allowlist (~30s) |
 | 一键修复（N 步） | `-Repair` (subset) | Runs **diagnosis.repair_plan** only — skips irrelevant steps |
 | 完整修复 | `-Repair` | All five whitelisted actions in order |
 | MiniMax 分析并修复 | — | **先** `repair_plan` 白名单修复 + 完整探测复检，**再**打开 Guid（预填含修复日志的 prompt） |
 
-**Not in UI (CLI only):** `-Session` ACP live profile probe. Use CLI after UI quick/full check passes but Guid still lacks tools.
+**Not in UI (CLI only):** Session-only without probe — use `test-mcp-health.ps1 -Session` after UI quick/full check passes but Guid still lacks tools. UI **会话探针** now runs probe + session together.
+
+### Optional layer (WARN semantics, task `07-02` Workstream D)
+
+Runs on every quick check (UI + CLI). Items use `layer: optional` and may set `warn: true` when `ok: false` — **WARN never blocks `report.ok`**, startup gate, or CLI exit code.
+
+```
+快速检查 / Layer 1
+  ├─ config + files + agents   ← FAIL blocks overall health
+  └─ optional                  ← WARN only (yellow in UI)
+        ├─ exa:http            registered → 8s HEAD/GET probe; unreachable → WARN
+        ├─ ppt-master:config   $CONFIG/skills/ppt-master/SKILL.md
+        └─ ppt-master:vendor   {install}/vendor/ppt-master-skill/SKILL.md
+```
+
+| Item id | When checked | FAIL vs WARN |
+|---------|--------------|--------------|
+| `exa:http` | `settings.json` has `mcpServers.exa.url` | Unreachable network → **WARN**; wrong URL → **WARN** |
+| `exa:http` | exa not registered | PASS (informational: not registered) |
+| `ppt-master:config-skill` | always | Missing → **WARN**; run `install-ppt-master.ps1` |
+| `ppt-master:vendor-skill` | when install dir resolved | Missing → **WARN** |
+
+WARN items appear in UI optional collapse layer and in MiniMax prompt (`collectCcbMcpHealthWarnItems`); they are excluded from `collectCcbMcpHealthFailedItems` and diagnosis repair plan.
 
 ---
 
@@ -108,17 +131,36 @@ Profiles tested: `quotation-agent`, `accurate-agent`, `word-creator`, `excel-cre
 
 **Specialist → required MCP**
 
-| Agent profile | Required MCP |
-|---------------|--------------|
-| `quotation-agent` | `quotation`, `excel` |
-| `accurate-agent` | `accurate` |
-| `word-creator` | `office-word` |
-| `excel-creator` | `excel` |
-| `wande-orchestrator` | *(none — allowlist empty)* |
+| Agent profile | Required MCP | Notes |
+|---------------|--------------|-------|
+| `quotation-agent` | `quotation`, `excel` | |
+| `accurate-agent` | `accurate` | |
+| `word-creator` | `office-word` | |
+| `excel-creator` | `excel` | |
+| `research-agent` | `exa` | optional `scrapling` when Extended profile installed |
+| `price-library-agent` | `price-library` | Guid-only; optional `excel` |
+| `ppt-creator` | *(skill-only)* | `optional: true` — `ppt-master` skill |
+| `wande-orchestrator` | *(none — allowlist empty)* | |
 
-Skill-only agents (`ppt-creator`, `word-form-creator`, `cowork`) are `optional: true` in manifest — not gated.
+Skill-only / optional agents (`ppt-creator`, retired `word-form-creator`, `cowork`) use `optional: true` where applicable — not hard-gated on core MCP probe pass.
+
+**Optional checks** (`optional_checks` in manifest JSON; UI constants in `ccbMcpHealth.ts` should stay in sync):
+
+```json
+"optional_checks": {
+  "exa": { "expected_url": "https://mcp.exa.ai/mcp", "http_probe_timeout_sec": 8 },
+  "skills": {
+    "ppt-master": {
+      "config_rel": "skills/ppt-master/SKILL.md",
+      "vendor_rel": "vendor/ppt-master-skill/SKILL.md"
+    }
+  }
+}
+```
 
 When updating agent `mcp_allowlist` or adding a new specialist MCP, update **both** manifest files (ccb-installer JSON + aionui TS).
+
+**2026-07-02 health coverage expansion (task `07-02-mcp-health-coverage-expansion`):** UI report split into config / files / agents / probe / session / **optional** layers; coverage matrix in panel; Session probe button; deep `probe_tool_call` for office-word + excel; optional exa HTTP + ppt-master skill checks (WARN semantics); diagnosis `next_step` + MiniMax prompt includes session/deep-probe/skill warns. Verified: bun test 12/12; CLI `-Probe -Session` PASS; optional exa unreachable → `[WARN]` exit 0.
 
 **2026-06-28 AOL inventory credentials:** `ensure-wanding-settings.ps1` writes `{install}/vendor/wanding/.env.accurate` (loaded by `python/main.py` with `override=True`, `encoding=utf-8-sig`) so inventory works even when MCP spawn omits empty `AOL_*` env. **BOM trap (fixed):** PowerShell `Set-Content -Encoding UTF8` wrote UTF-8 BOM → python-dotenv read `\ufeffAOL_ACCESS_TOKEN` → `aol_configured()` false while health passed (settings.json had full `AOL_*`). Fix: `WriteAllText` UTF-8 no BOM; health now checks BOM + `dotenv_values` parse; `python-spawner.js` deletes empty `AOL_*` keys before spawn. `-Probe` calls `get_inventory_by_code` and fails on `inventory_unavailable`.
 
@@ -454,11 +496,11 @@ Task: [`progress-2026-06-28.md`](../../tasks/06-28-app-startup-readiness-gate/pr
 
 | Component | `-Probe -Session` | Separate check |
 |-----------|-------------------|----------------|
-| quotation / accurate / office-word / excel | ✅ spawn + tools/list (+ quotation deep calls) | — |
+| quotation / accurate / office-word / excel | ✅ spawn + tools/list + **deep tools/call** (match_quotation+inventory, accurate_summarize, list_available_documents, create_workbook) | — |
 | excel-mcp (COM) | ⏭️ lazy | Needs Microsoft Excel |
-| exa (HTTP) | ⏭️ optional | Needs network |
+| exa (HTTP) | ✅ optional layer (HTTP WARN if unreachable) | UI quick check + CLI `optional/exa:http` |
 | ccb-subagent-gate + ROE hooks | — | `smoke-roe-deploy.ps1` |
-| ppt-master skill | — | `$CONFIG/skills/ppt-master` + vendor tree |
+| ppt-master skill | ✅ optional layer (config + vendor SKILL.md) | UI quick check; run `install-ppt-master.ps1` if missing |
 | Org price library VPS | — | `price-library.md` / manual UI |
 
 **After aionui-src health UI change:**

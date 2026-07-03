@@ -130,6 +130,33 @@ Renders as: `MessageAcpPermission.tsx` with allow/deny buttons.
 
 **MCP tool permission (2026-06-27):** WanD quotation flow may call `mcp__excel__read_data_from_excel` after fill. Backend `permissions.ts` auto-allows `mcp__quotation__*`, `mcp__accurate__*`, and `mcp__excel__*` without UI. If a prompt still appears, check (1) live `dist` includes #18, (2) UI is not 1.1.2 `app.asar` missing #17 — retro theme + `size='mini'` caused overlapping Always/Allow/Reject radios. Fix: `MessageAcpPermission.css` scoped Arco radio reset; ship via **NSIS 1.1.3** (`internal-update.md` §12.9 #17–#18).
 
+**全自动 / bypassPermissions mode sync (2026-07-01, shipped in `aionui-src`):** UI label「全自动」= `bypassPermissions`. **Product contract:** user-selected mode must apply to the live CCP session before any tool runs; sync failure **blocks** `sendMessage` (no silent fallback to `default`).
+
+| Layer | Mechanism |
+|-------|-----------|
+| Store (authority) | `common/config/ccbSessionPreferredModeStore.ts` — `seed` / `get` / `set` / `persist` / `clear` per `conversation_id` |
+| Resolve | `resolveEffectiveAcpSessionMode(store, extra.session_mode)` — store wins over create-time snapshot |
+| Ensure | `ensureCcbSessionPreferredMode` after warmup |
+| Gate | `assertCcbSessionPreferredModeApplied` — `failed` / `not_applicable` / backend mismatch → throw, no send |
+| Initial send | `useAcpInitialMessage`: readiness → warmup → ensure → assert → `sendMessage` |
+| Subsequent send | `AcpSendBox.executeCommand`: force warmup → ensure → assert → `sendMessage` |
+| UI selector | `AgentModeSelector` / mobile sheet: `setMode` success → `set` + `persistCcbSessionPreferredMode` |
+| Mount `getMode` | **UI only** (`setCurrentMode`) — **must not** `setCcbSessionPreferredMode` (would overwrite Guid seed with stale backend `default`) |
+
+**Files:** `ccbSessionPreferredModeStore.ts`, `resolveEffectiveAcpSessionMode.ts`, `ensureCcbSessionPreferredMode.ts` (`assertCcbSessionPreferredModeApplied`), `ensureCcbSessionPreferredModel.ts`, `acpConfigOptionsAdapter.ts`, `useAcpInitialMessage.ts`, `AcpSendBox.tsx`, `AgentModeSelector.tsx`.
+
+**aioncore 0.1.29+ route contract (2026-07-02):** Mode/model reads and writes for send-time sync **must** use `acpConfigOptionsAdapter` (`/api/conversations/{id}/config-options`), not `ipcBridge` legacy `/mode` or `/model` (removed → `404 Route not found.` → send blocked). Incident: [`.trellis/tasks/07-01-aionui-full-auto-permission-sync/research/route-not-found-config-options-2026-07-02.md`](../../tasks/07-01-aionui-full-auto-permission-sync/research/route-not-found-config-options-2026-07-02.md).
+
+**Common mistake:** UI shows `AIONUI_INTERNAL_ERROR` / `Route not found.` right after warmup → check dev log for `GET .../mode` 404; fix adapter path, not org JWT.
+
+**Out of scope (explicit):** CCB `permissions.ts` Temp `Read` auto-allow — do not mask mode-sync bugs; fix store + ensure instead.
+
+**Smoke:** Guid 万鼎报价专家 + 全自动 + 截图询价 → no `MessageAcpPermission` for `Read` on `%Temp%\aionui\` path; `default` mode still prompts for out-of-workspace Read.
+
+**Tests:** `tests/unit/common-config/resolveEffectiveAcpSessionMode.test.ts`, `ensureCcbSessionPreferredMode.test.ts`, `ensureCcbSessionPreferredModel.test.ts` (incl. assert throws; adapter mocks).
+
+Task: `.trellis/tasks/07-01-aionui-full-auto-permission-sync/`
+
 ### 3.5b AskUserQuestion (candidate selection — not Allow/Reject)
 
 ```json

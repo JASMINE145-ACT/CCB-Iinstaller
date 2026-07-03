@@ -3,7 +3,7 @@
 > **第一版发货入口：** **[`wanding-first-ship.md`](./wanding-first-ship.md)** — §1–§2 清单与缺口 · **§5 打包路径与踩坑**  
 > **Status:** v2 **implemented** (2026-06-19) — `build-wanding.ps1` + `installer-wanding-v2.nsi`.  
 > **Supersedes:** ad-hoc `installer-wanding.nsi` file list for WanD shipping. Legacy NSIS = backup / terminal-stack only.  
-> **Related:** [`wanding-first-ship.md`](./wanding-first-ship.md) · [`../frontend/dev-test-ship.md`](../frontend/dev-test-ship.md) §7 · [`../backend/build-deploy-verify.md`](../backend/build-deploy-verify.md) · [`aionui-ccb-boundary.md`](./aionui-ccb-boundary.md) · [`mcp-health.md`](./mcp-health.md) · [`../frontend/aionui-update-mechanism.md`](../frontend/aionui-update-mechanism.md) · [`internal-update.md`](./internal-update.md) §16
+> **Related:** [`wanding-first-ship.md`](./wanding-first-ship.md) · [`wanding-release-standard.md`](./wanding-release-standard.md) · [`../frontend/dev-test-ship.md`](../frontend/dev-test-ship.md) §7 · [`../backend/build-deploy-verify.md`](../backend/build-deploy-verify.md) · [`aionui-ccb-boundary.md`](./aionui-ccb-boundary.md) · [`mcp-health.md`](./mcp-health.md) · [`../frontend/aionui-update-mechanism.md`](../frontend/aionui-update-mechanism.md) · [`internal-update.md`](./internal-update.md) §16
 
 ---
 
@@ -400,6 +400,17 @@ D:\Projects\claude-code-best\ccb-installer\config\agents\cowork.aionui.json
 ```
 
 **Exclude:** `...\ccb-subagent-gate\tests\**`
+
+### 8.2.1 quotation-learn-by-data skill
+
+**Source:** `ccb-installer\config\skills\quotation-learn-by-data\`  
+**Staging:** `staging\seed\skills\quotation-learn-by-data\`  
+**Deploy target:** `$CONFIG\skills\quotation-learn-by-data\`  
+**Slash command:** `ccb-installer\resources\commands\learn-by-data.md` → `$CONFIG\commands\learn-by-data.md` (NSIS §Preserve, always on install)
+
+**Release verify:** [`wanding-release-standard.md`](./wanding-release-standard.md) §2 — staging alone is insufficient; NSIS must copy seed to `$INSTALL` and bootstrap must deploy to `$CONFIG` (not only when `install-ppt-master` runs).
+
+**Hot-update IN (when skill changes):** add `seed/skills/quotation-learn-by-data/**` to §16.1 (pending 1.1.4.1 packaging fix).
 
 ### 8.3 Quotation MCP health (#20)
 

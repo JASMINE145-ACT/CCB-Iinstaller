@@ -42,3 +42,11 @@ For CCB-Wanding / MCP / ACP backend work (claude-code-B source, dist deploy, quo
 - **Live status snapshot**: `.trellis/spec/backend/route-b-status.md`
 - **Build + deploy + smoke**: `.trellis/spec/backend/build-deploy-verify.md`
 - **route-b sync** (after backend or patch changes): `.trellis/spec/integration/route-b-sync.md`
+
+## Task execution planning (Cursor / Claude)
+
+Before multi-workstream Trellis tasks (especially ccb-installer + aionui-src):
+
+- **Cursor**: `@trellis-task-execution` or command **`/trellis:plan-execution`**
+- **Skill path**: `.agents/skills/trellis-task-execution/` (mirrored in `.cursor/skills/`, `.claude/skills/`)
+- **Meta-tool map**: `docs/ai-tools-reference.md` §五 · §八

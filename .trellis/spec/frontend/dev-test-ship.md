@@ -51,7 +51,7 @@ node "node_modules\.bun\electron@*\node_modules\electron\install.js"
 | work-tasks API | Yes (synced aioncore) | Stale / missing routes |
 | Hot reload | Yes (renderer HMR) | Yes but wrong backend |
 
-> **2026-06-27:** Guid 助手卡片与 repo keep set 不同步（例：仍显示 Cowork / 可填表单）→ live `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\` 未删退役文件；`deploy-seed-agents` 只复制不删除。见 [`../integration/dev-sync-playbook.md`](../integration/dev-sync-playbook.md) **§4.7**。
+> **2026-06-30:** Guid 助手卡片与 keep set 由 `start-dev-full` 内建 `deploy-seed-agents -ForceMd` + `retired-agent-ids.json` 自动 prune。若仍见 Cowork / 可填表单 → 跑 `deploy-seed-agents.ps1 -ForceMd` 或完整 `start-dev-full.ps1`。见 [`../integration/dev-sync-playbook.md`](../integration/dev-sync-playbook.md) **§4.7**。
 
 > **2026-06-27:** 主登录成功但侧栏「知识库」仍提示去登录 → org HTTP 必须走 **`orgHttpBridge` / IPC**，不能 renderer 直连 VPS。改 `OrgAuthContext` 或 `ipcBridge.orgKnowledge` 后 **重启 dev**（非纯 HMR 场景）。见 [`../integration/dev-sync-playbook.md`](../integration/dev-sync-playbook.md) **§4.8**。
 

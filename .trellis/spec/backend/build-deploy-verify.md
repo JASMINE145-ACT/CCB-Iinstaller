@@ -38,8 +38,10 @@ Optional checks before deploy:
 ```powershell
 bun run typecheck
 bun test src/services/acp/__tests__
-# 4 test files as of 2026-06-12 (bridge, permissions, promptConversion, agent) — none cover MCP wiring yet
+# Overlay tests (2026-07-02): mcpSessionPrefetch, sessionMcpConfigMerge, askUserQuestionPermissions, agentSessionProfile, …
 ```
+
+**Overlay vs upstream (2026-07-02):** WanD edits live in `ccb-installer/claude-code-b-src/src/services/acp/`. Sync via `sync-claude-code-b-mcp-prefetch.ps1`. **Upstream-only** (not in overlay): `assistantProfiles.ts`, `bridge.ts`, `capabilities.ts`, `mcpManifest.ts`, `entry.ts` — maintain in `D:\claude-code-B` or extend overlay sync list deliberately.
 
 ---
 
