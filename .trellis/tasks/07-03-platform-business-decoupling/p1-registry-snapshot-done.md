@@ -79,5 +79,11 @@ invent incorrect ownership.
 - No existing Agent markdown, sidecar, MCP health entry, installer, or runtime
   source was changed.
 - The registry is read-only and is not runtime authority in P1.
-- Existing install/runtime behavior therefore remains unchanged.
+- Existing runtime regression was verified:
+
+  ```text
+  .\ccb-installer\scripts\test-mcp-health.ps1 -Probe -Quiet
+  → exit 0; MCP probe PASS 5/5 servers
+  ```
+
 - P2 configuration compilation requires separate approval.

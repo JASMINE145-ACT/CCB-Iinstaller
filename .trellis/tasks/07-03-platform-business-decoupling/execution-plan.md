@@ -15,7 +15,7 @@
 | Phase | State | Delivery / evidence |
 |-------|--------|---------------------|
 | P0 Security & boundary freeze | **done** (ops rotation pending) | `07-03-p0-security-boundary` · commit `6d81848f` · `p0-security-boundary-done.md` |
-| P1 Meta-model & read-only registry | **done** | `p1-registry-snapshot-done.md` · tests 3/3 · lint 0 errors / 10 warnings |
+| P1 Meta-model & read-only registry | **done** | `p1-registry-snapshot-done.md` · tests 3/3 · lint 0 errors / 10 warnings · MCP probe 5/5 |
 | P2 Config compiler & single source | pending | — |
 | P3 Extract `com.wanding.trade` | pending | — |
 | P4 Control plane & tenant governance | pending | — |
