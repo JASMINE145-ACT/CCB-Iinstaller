@@ -76,21 +76,97 @@
       "source": "config/mcp-health-manifest.json",
       "providesCapabilities": [
         "business.pricing.quote"
-      ]
+      ],
+      "runtimeSecretPaths": [
+        "/env/AOL_ACCESS_TOKEN",
+        "/env/AOL_DATABASE_ID",
+        "/env/AOL_SIGNATURE_SECRET"
+      ],
+      "runtime": {
+        "command": "${installDir}/vendor/bun/bun.exe",
+        "args": [
+          "${installDir}/vendor/mcp-servers/quotation-server/dist/index.js"
+        ],
+        "env": {
+          "CCB_PROJECT_ROOT": "${installDir}/vendor/wanding",
+          "DATA_DIR": "${installDir}/vendor/wanding/data",
+          "PYTHON_EXECUTABLE": "${installDir}/vendor/python-wanding/python.exe",
+          "PYTHONPATH": "${installDir}/vendor/wanding/python",
+          "PYTHONUTF8": "1",
+          "PYTHONIOENCODING": "utf-8",
+          "PYTHONNOUSERSITE": "1",
+          "WANDING_PRICE_LIB_PATH": "${installDir}/vendor/wanding/data/price_library_cleaned_2026_05_15.xlsx",
+          "PRICE_LIBRARY_PATH": "${installDir}/vendor/wanding/data/price_library_cleaned_2026_05_15.xlsx",
+          "WANDING_BUSINESS_KNOWLEDGE_PATH": "${installDir}/vendor/wanding/data/wanding_business_knowledge.md",
+          "WANDING_WORKSPACE_POINTER": "${configDir}/runtime/active-workspace.txt",
+          "ORG_SERVER_URL": "${orgServerUrl}",
+          "AIONUI_APPDATA_PROFILE": "${appDataProfile}",
+          "ORG_SESSION_TOKEN_FILE": "${orgSessionTokenFile}",
+          "ENABLE_WANDING_VECTOR": "0",
+          "INVENTORY_ENABLE_RESOLVER_VECTOR": "0",
+          "USE_RESOLVER_FALLBACK": "0",
+          "AOL_ACCESS_TOKEN": "secret://tenant/tn_wanding_prod/aol/access-token",
+          "AOL_DATABASE_ID": "secret://tenant/tn_wanding_prod/aol/database-id",
+          "AOL_SIGNATURE_SECRET": "secret://tenant/tn_wanding_prod/aol/signature-secret",
+          "AOL_API_BASE_URL": "https://account.accurate.id"
+        },
+        "description": "Wanding quotation + inventory MCP: match quotation items, fill quotation sheets, query live stock by code or description, and use bundled Wanding business knowledge."
+      }
     },
     {
       "id": "accurate",
       "source": "config/mcp-health-manifest.json",
       "providesCapabilities": [
         "business.accounting.analytics"
-      ]
+      ],
+      "runtimeSecretPaths": [
+        "/env/AOL_ACCESS_TOKEN",
+        "/env/AOL_DATABASE_ID",
+        "/env/AOL_SIGNATURE_SECRET"
+      ],
+      "runtime": {
+        "command": "${installDir}/vendor/python-wanding/python.exe",
+        "args": [
+          "${installDir}/vendor/mcp-servers/accurate-mcp/server.py"
+        ],
+        "env": {
+          "PYTHONNOUSERSITE": "1",
+          "PYTHONUTF8": "1",
+          "PYTHONIOENCODING": "utf-8",
+          "AOL_ACCESS_TOKEN": "secret://tenant/tn_wanding_prod/aol/access-token",
+          "AOL_SIGNATURE_SECRET": "secret://tenant/tn_wanding_prod/aol/signature-secret",
+          "AOL_DATABASE_ID": "secret://tenant/tn_wanding_prod/aol/database-id",
+          "AOL_BASE_URL": "https://account.accurate.id"
+        },
+        "description": "Accurate Online read-only MCP: search records, fetch lists, batch details, and summarize business amounts with verified filters."
+      }
     },
     {
       "id": "price-library",
       "source": "config/mcp-health-manifest.json",
       "providesCapabilities": [
         "business.pricing.manage"
-      ]
+      ],
+      "runtime": {
+        "command": "${installDir}/vendor/bun/bun.exe",
+        "args": [
+          "${installDir}/vendor/mcp-servers/price-library-server/dist/index.js"
+        ],
+        "env": {
+          "CCB_PROJECT_ROOT": "${installDir}/vendor/wanding",
+          "DATA_DIR": "${installDir}/vendor/wanding/data",
+          "PYTHON_EXECUTABLE": "${installDir}/vendor/python-wanding/python.exe",
+          "PYTHONPATH": "${installDir}/vendor/wanding/python",
+          "PYTHONUTF8": "1",
+          "PYTHONIOENCODING": "utf-8",
+          "PYTHONNOUSERSITE": "1",
+          "WANDING_WORKSPACE_POINTER": "${configDir}/runtime/active-workspace.txt",
+          "ORG_SERVER_URL": "${orgServerUrl}",
+          "AIONUI_APPDATA_PROFILE": "${appDataProfile}",
+          "ORG_SESSION_TOKEN_FILE": "${orgSessionTokenFile}"
+        },
+        "description": "Organization price library admin MCP: read active/draft, preview and apply draft item changes (price_admin + confirmed writes)."
+      }
     }
   ],
   "skills": [

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ccb-wanding.local/schemas/runtime-config-layer-1.0.0.json",
+  "title": "CCB Runtime Config Layer",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "kind",
+    "values"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "kind": {
+      "enum": [
+        "platform",
+        "environment",
+        "package",
+        "tenant",
+        "user",
+        "session"
+      ]
+    },
+    "tenantId": {
+      "type": "string",
+      "pattern": "^tn_[a-z0-9][a-z0-9_-]*$"
+    },
+    "revision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "enabledPackages": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:\\.[a-z0-9-]+)+$"
+      },
+      "uniqueItems": true
+    },
+    "values": {
+      "type": "object"
+    },
+    "lockedPaths": {
+      "$ref": "#/$defs/jsonPointers"
+    },
+    "secretPaths": {
+      "$ref": "#/$defs/jsonPointers"
+    },
+    "userOverridablePaths": {
+      "$ref": "#/$defs/jsonPointers"
+    },
+    "sessionOverridablePaths": {
+      "$ref": "#/$defs/jsonPointers"
+    }
+  },
+  "$defs": {
+    "jsonPointers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^/"
+      },
+      "uniqueItems": true
+    }
+  }
+}

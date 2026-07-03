@@ -17,6 +17,9 @@
     "aliases"
   ],
   "properties": {
+    "$schema": {
+      "type": "string"
+    },
     "schemaVersion": {
       "const": "1.0.0"
     },
@@ -93,6 +96,20 @@
           "type": "array",
           "items": {
             "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "runtime": {
+          "type": "object",
+          "description": "Optional CCB runtime projection template. Values may use ${variable} and secret:// references.",
+          "additionalProperties": true
+        },
+        "runtimeSecretPaths": {
+          "type": "array",
+          "description": "JSON pointers relative to runtime whose values must be secret:// references.",
+          "items": {
+            "type": "string",
+            "pattern": "^/"
           },
           "uniqueItems": true
         }

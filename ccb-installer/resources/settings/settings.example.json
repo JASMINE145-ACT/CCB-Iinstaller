@@ -1,0 +1,22 @@
+{
+  "theme": "light",
+  "modelType": "anthropic",
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.minimaxi.com/anthropic",
+    "ANTHROPIC_AUTH_TOKEN": "secret://platform/llm/auth-token",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "minimax-m3",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "minimax-m3",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "minimax-m3"
+  },
+  "mcpServers": {
+    "exa": {
+      "type": "http",
+      "url": "https://mcp.exa.ai/mcp",
+      "description": "Exa neural web search and page fetch MCP"
+    },
+    "excel-mcp": {
+      "command": "%LOCALAPPDATA%\\Programs\\CCB\\vendor\\mcp-servers\\excel-mcp\\mcp-excel.exe",
+      "description": "ExcelMcp Server v1.8.67 for Microsoft Excel automation. Requires Windows and Microsoft Excel 2016+."
+    }
+  }
+}

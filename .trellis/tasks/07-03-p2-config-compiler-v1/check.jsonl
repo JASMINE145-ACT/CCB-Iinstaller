@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/integration/platform-forbidden-coupling.md", "reason": "No WanD identity or secret values in platform compiler"}
+{"file": ".trellis/spec/integration/aionui-config-inventory.md", "reason": "CCB/AionUI configuration ownership and rollback contract"}
+{"file": ".trellis/spec/integration/package-manifest-schema.md", "reason": "Registry projection must consume P1 descriptors"}

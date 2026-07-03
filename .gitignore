@@ -45,6 +45,9 @@ ccb-installer/vendor/windows-terminal/
 
 # Secrets
 ccb-installer/resources/settings/
+!ccb-installer/resources/settings/
+ccb-installer/resources/settings/*
+!ccb-installer/resources/settings/settings.example.json
 .mcp.json
 .env.accurate
 scripts/org-phase0/env.local

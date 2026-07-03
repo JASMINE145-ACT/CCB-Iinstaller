@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/runtime-config-layer.schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "tenant-tn-wanding-prod",
+  "kind": "tenant",
+  "tenantId": "tn_wanding_prod",
+  "revision": "1",
+  "enabledPackages": [
+    "com.wanding.trade"
+  ],
+  "values": {}
+}

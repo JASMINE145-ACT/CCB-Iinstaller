@@ -41,7 +41,7 @@ $requiredSources = @(
     (Join-Path $InstallerDir "vendor\git\bin\bash.exe"),
     (Join-Path $InstallerDir "vendor\mcp-servers\excel-mcp\mcp-excel.exe"),
     (Join-Path $InstallerDir "vendor\windows-terminal\Microsoft.WindowsTerminal_1.24.11321.0_8wekyb3d8bbwe.msixbundle"),
-    (Join-Path $InstallerDir "resources\settings\settings.json"),
+    (Join-Path $InstallerDir "resources\settings\settings.example.json"),
     (Join-Path $InstallerDir "resources\commands\modo.md")
 )
 foreach ($path in $requiredSources) {
@@ -85,7 +85,7 @@ if ($LASTEXITCODE -ne 0) {
 
 $testSettings = Join-Path $ConfigDir "settings.json"
 if (-not (Test-Path -LiteralPath $testSettings)) {
-    Copy-Item -LiteralPath (Join-Path $InstallerDir "resources\settings\settings.json") -Destination $testSettings
+    Copy-Item -LiteralPath (Join-Path $InstallerDir "resources\settings\settings.example.json") -Destination $testSettings
 }
 
 $commandsDest = Join-Path $ConfigDir "commands"

@@ -559,6 +559,20 @@ $shipManifestSrc = Join-Path $installerRoot 'seed\config-ship-manifest.json'
 Test-RequiredFile $shipManifestSrc 'seed config-ship-manifest.json'
 Copy-Item -LiteralPath $shipManifestSrc -Destination (Join-Path $StagingDir 'seed\config-ship-manifest.json') -Force
 
+# P2 declarative runtime config inputs (compiler remains opt-in).
+$runtimeConfigDest = Join-Path $StagingDir 'config'
+New-Item -ItemType Directory -Force -Path $runtimeConfigDest | Out-Null
+foreach ($configDirName in @('schemas', 'runtime', 'packages')) {
+    $source = Join-Path $installerRoot "config\$configDirName"
+    Test-RequiredFile $source "config directory $configDirName"
+    Copy-Item -LiteralPath $source -Destination (Join-Path $runtimeConfigDest $configDirName) -Recurse -Force
+}
+$registrySnapshotSrc = Join-Path $installerRoot 'config\generated\package-registry.snapshot.json'
+Test-RequiredFile $registrySnapshotSrc 'P1 package registry snapshot'
+$registrySnapshotDest = Join-Path $runtimeConfigDest 'generated'
+New-Item -ItemType Directory -Force -Path $registrySnapshotDest | Out-Null
+Copy-Item -LiteralPath $registrySnapshotSrc -Destination (Join-Path $registrySnapshotDest 'package-registry.snapshot.json') -Force
+
 $seedSkillSrc = Join-Path $installerRoot 'config\skills\ccb-subagent-gate'
 $seedSkillDest = Join-Path $StagingDir 'seed\skills\ccb-subagent-gate'
 Invoke-RobocopyMirror $seedSkillSrc $seedSkillDest @('/XD', 'tests', '__pycache__', '/XF', '*.pyc')
@@ -580,6 +594,8 @@ New-Item -ItemType Directory -Force -Path $scriptsDest | Out-Null
 # Shipped scripts: install/repair/bootstrap only — no build-only helpers.
 $shipScripts = @(
     'ensure-wanding-settings.ps1',
+    'apply-compiled-runtime-config.ps1',
+    'compile-runtime-config.mjs',
     'install-office-word-mcp.ps1',
     'install-ppt-master.ps1',
     # install-ppt-master.ps1 calls these four from $PSScriptRoot at install time
@@ -614,6 +630,11 @@ foreach ($s in $shipScripts) {
     Test-RequiredFile $src "script $s"
     Copy-Item -LiteralPath $src -Destination (Join-Path $scriptsDest $s) -Force
 }
+$runtimeCompilerLibSrc = Join-Path $installerRoot 'scripts\lib\runtime-config-compiler.mjs'
+Test-RequiredFile $runtimeCompilerLibSrc 'runtime config compiler library'
+$runtimeCompilerLibDest = Join-Path $scriptsDest 'lib'
+New-Item -ItemType Directory -Force -Path $runtimeCompilerLibDest | Out-Null
+Copy-Item -LiteralPath $runtimeCompilerLibSrc -Destination (Join-Path $runtimeCompilerLibDest 'runtime-config-compiler.mjs') -Force
 
 # lib/ — app startup MCP warm + probe helpers (AionUI ccbStartupReadiness.ts reads lib/warm-wanding-mcp.mjs)
 $libDest = Join-Path $StagingDir 'lib'
@@ -715,7 +736,12 @@ if ($unclassifiedScripts) {
 
 # Resources for installer config section
 $resDest = Join-Path $StagingDir 'resources'
-Invoke-RobocopyMirror (Join-Path $installerRoot 'resources') $resDest
+Invoke-RobocopyMirror (Join-Path $installerRoot 'resources') $resDest @('/XF', 'settings.json')
+$safeSettingsExample = Join-Path $installerRoot 'resources\settings\settings.example.json'
+Test-RequiredFile $safeSettingsExample 'secret-reference-safe settings example'
+$stagedSettingsDir = Join-Path $resDest 'settings'
+New-Item -ItemType Directory -Force -Path $stagedSettingsDir | Out-Null
+Copy-Item -LiteralPath $safeSettingsExample -Destination (Join-Path $stagedSettingsDir 'settings.json') -Force
 
 # Inject JWT_SECRET from gitignored env.local into ALL staged sso.env.example copies.
 # ensure-wanding-settings.ps1 seeds from vendor\wanding\config\sso.env.example (not resources\).

@@ -32,6 +32,17 @@ function Set-JsonProperty {
     }
 }
 
+function Remove-JsonProperty {
+    param(
+        [Parameter(Mandatory = $true)] $Object,
+        [Parameter(Mandatory = $true)] [string] $Name
+    )
+
+    if ($Object.PSObject.Properties[$Name]) {
+        $Object.PSObject.Properties.Remove($Name)
+    }
+}
+
 New-Item -ItemType Directory -Force -Path $ConfigDir | Out-Null
 
 if (Test-Path -LiteralPath $settingsPath) {
@@ -52,7 +63,14 @@ if (-not $settings.PSObject.Properties["env"]) {
     Set-JsonProperty -Object $settings -Name "env" -Value ([pscustomobject]@{})
 }
 Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_BASE_URL" -Value "https://api.minimaxi.com/anthropic"
-Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_AUTH_TOKEN" -Value "sk-cp-FVpTaa8qfaTOU97mM7m7Svk0NOVNwIIhOq1-aWp4LQubya8kRiTgg3DEGRSgBPImWpJKJwJAFdhR-JlSU4H-Qz-Zq2drSi6KbCscdLnuKsUpXKtXpPraT-I"
+$existingAnthropicAuthToken = $settings.env.PSObject.Properties["ANTHROPIC_AUTH_TOKEN"]
+if ($env:ANTHROPIC_AUTH_TOKEN) {
+    Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_AUTH_TOKEN" -Value $env:ANTHROPIC_AUTH_TOKEN
+}
+elseif (-not $existingAnthropicAuthToken -or [string]::IsNullOrWhiteSpace([string]$existingAnthropicAuthToken.Value)) {
+    Remove-JsonProperty -Object $settings.env -Name "ANTHROPIC_AUTH_TOKEN"
+    Write-Warning "ANTHROPIC_AUTH_TOKEN is not configured; supply it through the environment or compiled runtime settings."
+}
 Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_DEFAULT_OPUS_MODEL" -Value "minimax-m2.7"
 Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_DEFAULT_SONNET_MODEL" -Value "minimax-m2.7"
 Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_DEFAULT_HAIKU_MODEL" -Value "minimax-m2.7"

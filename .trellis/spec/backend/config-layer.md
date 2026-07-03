@@ -21,7 +21,15 @@ Route B sets `CLAUDE_CONFIG_DIR` to the CCB path for the ACP child process only.
 
 **Installer template:** `ccb-installer/resources/settings/settings.json`
 
-**Bootstrap script:** `ccb-installer/scripts/ensure-wanding-settings.ps1` — writes quotation MCP args, env, Wanding data paths into install + user config.
+**Bootstrap script:** `ccb-installer/scripts/ensure-wanding-settings.ps1` — legacy/default path that writes quotation MCP args, env, and Wanding data paths into install + user config.
+
+**P2 compiler (opt-in):**
+
+- inputs: `ccb-installer/config/runtime/` + package manifests + local secret resolver;
+- compile: `ccb-installer/scripts/compile-runtime-config.mjs`;
+- atomic apply: `ccb-installer/scripts/apply-compiled-runtime-config.ps1`;
+- bootstrap bridge: `ensure-wanding-settings.ps1 -CompiledSettingsPath <path>`;
+- contract: [`../integration/runtime-config-compiler.md`](../integration/runtime-config-compiler.md).
 
 Typical blocks:
 
@@ -84,5 +92,11 @@ Do not merge Wanding instructions into official `C:\Users\m1774\.claude\CLAUDE.m
 | Quotation MCP health regression | `test-mcp-health.ps1 -Probe -Session` (#20) — must PASS before pack |
 | AOL inventory credentials | `ensure-wanding-settings.ps1` → `.env.accurate` (no BOM) + `mcpServers.quotation.env.AOL_*` + sync `python-spawner.js` | Closed 2026-06-28 — see `mcp-health.md` § AOL inventory |
 | Installer first-run defaults | `ensure-wanding-settings.ps1` + `resources/settings/` |
+| Layer/merge/provenance/drift | `config/runtime/` + `compile-runtime-config.mjs`; do not add another mutation order to bootstrap |
+
+Tracked settings and package inputs must contain `secret://` references only.
+Runtime bootstrap may resolve from environment, existing live settings, or a
+gitignored local secret file. Never add literal provider/AOL credentials back
+to `resources/settings/settings.json` or `ensure-wanding-settings.ps1`.
 
 After settings-only changes: restart ACP child (AionUI new chat or aioncore restart). No `bun run build` unless TypeScript spawn logic changed.

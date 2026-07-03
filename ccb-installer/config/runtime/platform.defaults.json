@@ -1,0 +1,74 @@
+{
+  "$schema": "../schemas/runtime-config-layer.schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "platform-defaults",
+  "kind": "platform",
+  "values": {
+    "theme": "dark",
+    "modelType": "anthropic",
+    "env": {
+      "ANTHROPIC_BASE_URL": "https://api.minimaxi.com/anthropic",
+      "ANTHROPIC_AUTH_TOKEN": "secret://platform/llm/auth-token",
+      "ANTHROPIC_DEFAULT_OPUS_MODEL": "minimax-m3",
+      "ANTHROPIC_DEFAULT_SONNET_MODEL": "minimax-m3",
+      "ANTHROPIC_DEFAULT_HAIKU_MODEL": "minimax-m3",
+      "PYTHON_EXECUTABLE": "${installDir}/vendor/python-wanding/python.exe",
+      "CCB_INSTALL_DIR": "${installDir}",
+      "PYTHONNOUSERSITE": "1",
+      "PYTHONUTF8": "1",
+      "PYTHONIOENCODING": "utf-8",
+      "CLAUDE_CODE_DISABLE_BACKGROUND_TASKS": "1"
+    },
+    "mcpServers": {
+      "exa": {
+        "type": "http",
+        "url": "https://mcp.exa.ai/mcp",
+        "description": "Exa neural web search and page fetch MCP"
+      },
+      "excel-mcp": {
+        "command": "${installDir}/vendor/mcp-servers/excel-mcp/mcp-excel.exe",
+        "description": "ExcelMcp Server v1.8.67 for Microsoft Excel automation. Requires Windows and Microsoft Excel 2016+."
+      },
+      "office-word": {
+        "command": "${installDir}/vendor/python-wanding/python.exe",
+        "args": [
+          "${installDir}/vendor/mcp-servers/office-word-mcp/server.py"
+        ],
+        "env": {
+          "PYTHONNOUSERSITE": "1",
+          "PYTHONUTF8": "1",
+          "PYTHONIOENCODING": "utf-8",
+          "PYTHONPATH": "${installDir}/vendor/mcp-servers/office-word-mcp/site-packages",
+          "MCP_TRANSPORT": "stdio",
+          "FASTMCP_LOG_LEVEL": "WARNING"
+        },
+        "description": "Office-Word MCP (GongRzhe): create, read, format, and manipulate .docx documents via python-docx."
+      },
+      "excel": {
+        "command": "${installDir}/vendor/python-wanding/python.exe",
+        "args": [
+          "${installDir}/vendor/mcp-servers/excel-mcp-server/server.py"
+        ],
+        "env": {
+          "PYTHONNOUSERSITE": "1",
+          "PYTHONUTF8": "1",
+          "PYTHONIOENCODING": "utf-8",
+          "PYTHONPATH": "${installDir}/vendor/mcp-servers/excel-mcp-server/site-packages",
+          "FASTMCP_LOG_LEVEL": "WARNING"
+        },
+        "description": "Excel file MCP (haris-musa/excel-mcp-server): create, edit, chart .xlsx without Microsoft Excel."
+      }
+    }
+  },
+  "lockedPaths": [
+    "/env/ANTHROPIC_BASE_URL",
+    "/env/ANTHROPIC_AUTH_TOKEN"
+  ],
+  "secretPaths": [
+    "/env/ANTHROPIC_AUTH_TOKEN"
+  ],
+  "userOverridablePaths": [
+    "/theme"
+  ],
+  "sessionOverridablePaths": []
+}

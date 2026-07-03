@@ -27,6 +27,7 @@
 | **P0 forbidden coupling / no WanD in platform src** | [`platform-forbidden-coupling.md`](./platform-forbidden-coupling.md) |
 | **Package / tenant / capability IDs** | [`platform-identity-schema.md`](./platform-identity-schema.md) |
 | **Package manifest / read-only registry** | [`package-manifest-schema.md`](./package-manifest-schema.md) |
+| **Layered runtime config / provenance / drift** | [`runtime-config-compiler.md`](./runtime-config-compiler.md) |
 | Layer 1 (desktop) only | You do not need this index. Go to [`../frontend/index.md`](../frontend/index.md). |
 
 ## Project strategy (5 lines)

@@ -23,6 +23,9 @@
     "vendor/wanding/python/quotation/inquiry_backfill.py",
     "vendor/ppt-master-skill/SKILL.md",
     "scripts/run-wanding-bootstrap.ps1",
+    "scripts/apply-compiled-runtime-config.ps1",
+    "scripts/compile-runtime-config.mjs",
+    "scripts/lib/runtime-config-compiler.mjs",
     "scripts/sync-aionui-ccb-route-b.ps1",
     "scripts/install-ppt-master.ps1",
     "scripts/deploy-ppt-master-skill.ps1",
@@ -30,6 +33,12 @@
     "scripts/sync-ppt-master-agents.ps1",
     "scripts/ensure-ppt-master-deps.ps1",
     "lib/warm-wanding-mcp.mjs",
+    "config/schemas/runtime-config-layer.schema.json",
+    "config/schemas/package-manifest.schema.json",
+    "config/runtime/platform.defaults.json",
+    "config/runtime/tenants/tn_wanding_prod.desired.json",
+    "config/packages/com.wanding.trade/package.json",
+    "config/generated/package-registry.snapshot.json",
     "seed/agents/quotation-agent.md"
   ],
   "route_b": {

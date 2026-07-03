@@ -1,7 +1,8 @@
 param(
     [string]$InstallDir,
     [string]$ConfigDir,
-    [string]$OrgServerUrl
+    [string]$OrgServerUrl,
+    [string]$CompiledSettingsPath
 )
 
 $ErrorActionPreference = "Stop"
@@ -10,7 +11,12 @@ $ErrorActionPreference = "Stop"
 $DefaultOrgServerUrl = "http://67.216.206.3:13401"
 
 if (-not $InstallDir) {
-    $InstallDir = Split-Path -Parent $PSScriptRoot
+    $candidateInstallDir = Split-Path -Parent $PSScriptRoot
+    $runtimeSentinel = Join-Path $candidateInstallDir 'vendor\wanding\python\main.py'
+    if (-not (Test-Path -LiteralPath $runtimeSentinel)) {
+        throw "Cannot infer a deployed InstallDir from source tree '$candidateInstallDir'. Pass -InstallDir explicitly (for example D:\CCB-Wanding)."
+    }
+    $InstallDir = $candidateInstallDir
 }
 if (-not $ConfigDir) {
     $ConfigDir = Join-Path $env:LOCALAPPDATA "CCB-Wanding\.claude"
@@ -184,6 +190,24 @@ function Get-OrgAppDataProfile {
     if (-not [string]::IsNullOrWhiteSpace($raw)) {
         return $raw.Trim()
     }
+    # Preserve the profile that already owns the org session. Replacing an
+    # existing AionUi-Dev token path with AionUi silently breaks org APIs (401).
+    if (Test-Path -LiteralPath $settingsPath) {
+        try {
+            $existingSettings = Get-Content -Raw -Encoding UTF8 -LiteralPath $settingsPath | ConvertFrom-Json
+            foreach ($serverName in @('price-library', 'quotation')) {
+                $server = $existingSettings.mcpServers.PSObject.Properties[$serverName]
+                if (-not $server) { continue }
+                $profile = [string]$server.Value.env.AIONUI_APPDATA_PROFILE
+                if (-not [string]::IsNullOrWhiteSpace($profile)) {
+                    return $profile.Trim()
+                }
+            }
+        }
+        catch {
+            # Invalid settings are handled by the normal backup/rebuild path.
+        }
+    }
     return 'AionUi'
 }
 
@@ -210,6 +234,46 @@ function Set-JsonProperty {
     else {
         $Object | Add-Member -MemberType NoteProperty -Name $Name -Value $Value
     }
+}
+
+function Remove-JsonProperty {
+    param(
+        [Parameter(Mandatory = $true)] $Object,
+        [Parameter(Mandatory = $true)] [string] $Name
+    )
+    $property = $Object.PSObject.Properties[$Name]
+    if ($property) {
+        $Object.PSObject.Properties.Remove($Name)
+    }
+}
+
+function Get-JsonPathValue {
+    param(
+        $Object,
+        [Parameter(Mandatory = $true)] [string[]] $Path
+    )
+    $current = $Object
+    foreach ($segment in $Path) {
+        if ($null -eq $current) { return '' }
+        $property = $current.PSObject.Properties[$segment]
+        if (-not $property) { return '' }
+        $current = $property.Value
+    }
+    return [string]$current
+}
+
+function Get-FirstLocalSecret {
+    param([object[]] $Values)
+    foreach ($candidate in $Values) {
+        $value = [string]$candidate
+        if (
+            -not [string]::IsNullOrWhiteSpace($value) -and
+            -not $value.StartsWith('secret://', [System.StringComparison]::OrdinalIgnoreCase)
+        ) {
+            return $value
+        }
+    }
+    return ''
 }
 
 function Set-MarkedSection {
@@ -355,7 +419,17 @@ if (-not $settings.PSObject.Properties["env"]) {
     Set-JsonProperty -Object $settings -Name "env" -Value ([pscustomobject]@{})
 }
 Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_BASE_URL" -Value "https://api.minimaxi.com/anthropic"
-Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_AUTH_TOKEN" -Value "sk-cp-FVpTaa8qfaTOU97mM7m7Svk0NOVNwIIhOq1-aWp4LQubya8kRiTgg3DEGRSgBPImWpJKJwJAFdhR-JlSU4H-Qz-Zq2drSi6KbCscdLnuKsUpXKtXpPraT-I"
+$anthropicAuthToken = Get-FirstLocalSecret @(
+    $env:ANTHROPIC_AUTH_TOKEN,
+    (Get-JsonPathValue -Object $settings -Path @('env', 'ANTHROPIC_AUTH_TOKEN'))
+)
+if ($anthropicAuthToken) {
+    Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_AUTH_TOKEN" -Value $anthropicAuthToken
+}
+else {
+    Remove-JsonProperty -Object $settings.env -Name "ANTHROPIC_AUTH_TOKEN"
+    Write-Warning "ANTHROPIC_AUTH_TOKEN is not configured locally; tracked templates no longer bundle credentials"
+}
 Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_DEFAULT_OPUS_MODEL" -Value "minimax-m3"
 Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_DEFAULT_SONNET_MODEL" -Value "minimax-m3"
 Set-JsonProperty -Object $settings.env -Name "ANTHROPIC_DEFAULT_HAIKU_MODEL" -Value "minimax-m3"
@@ -381,41 +455,57 @@ $excel = [pscustomobject]@{
     description = "ExcelMcp Server v1.8.67 for Microsoft Excel automation. Requires Windows and Microsoft Excel 2016+."
 }
 
-# Bundled Accurate Online credentials — quotation inventory + accurate MCP.
-$aolAccessToken = "aat.NTA.eyJ2IjoxLCJ1Ijo2MDAzNTUsImQiOjMwMDYwMCwiYWkiOjYzMjUyLCJhayI6ImI2Y2JmOTUwLWViNDItNGEyYS1hNjkyLTA2YmY3NDhmZjJmMCIsImFuIjoiRGV2IGZvciBkYXRhIHdlYiIsImFwIjoiYTUxNTJjYzMtM2E4Mi00ODg1LWIxYjgtYjQ3NzViZTNkNmQ1IiwidCI6MTc2ODc3MzQ4ODQwMH0.hm4ysdDzSqDX6umEqbR2okCJQHjuX7Mke1iC8y/0Z/TnbVTdp51WKp1TU0f6AIoXHY1N/hUjYSncweXGpYRpzcZ36JwQuz1yMfl1HPBMwK5AfPoZmxuKUd7gxBAyI3zWFvmFYoF5vLNjXsNLLaWVQfM6LIxwEC7wjIQHVIF1vA9jyRDIJfN1//YHtsDEDIBzsIK1B6dyXuM=.Dpew9QjvKyN531ejkyiaLLDaBxGgKPDw2rMB2mfJGKg"
-$aolDatabaseId = "iris"
-$aolSignatureSecret = "aru0mBgxVKLzuQydryQ9qUyQTuR4CNVeliCyx7znbxaDDuYVPXAhhSUYyZr7F59I"
+# Accurate Online credentials are local runtime inputs. Never bundle them in git.
+$envAccuratePath = Join-Path $wandingRoot ".env.accurate"
+$localAol = Read-SsoEnvVars -Path $envAccuratePath
+$aolAccessToken = Get-FirstLocalSecret @(
+    $env:AOL_ACCESS_TOKEN,
+    (Get-JsonPathValue -Object $settings -Path @('mcpServers', 'quotation', 'env', 'AOL_ACCESS_TOKEN')),
+    (Get-JsonPathValue -Object $settings -Path @('mcpServers', 'accurate', 'env', 'AOL_ACCESS_TOKEN')),
+    $localAol['AOL_ACCESS_TOKEN']
+)
+$aolDatabaseId = Get-FirstLocalSecret @(
+    $env:AOL_DATABASE_ID,
+    (Get-JsonPathValue -Object $settings -Path @('mcpServers', 'quotation', 'env', 'AOL_DATABASE_ID')),
+    (Get-JsonPathValue -Object $settings -Path @('mcpServers', 'accurate', 'env', 'AOL_DATABASE_ID')),
+    $localAol['AOL_DATABASE_ID']
+)
+$aolSignatureSecret = Get-FirstLocalSecret @(
+    $env:AOL_SIGNATURE_SECRET,
+    (Get-JsonPathValue -Object $settings -Path @('mcpServers', 'quotation', 'env', 'AOL_SIGNATURE_SECRET')),
+    (Get-JsonPathValue -Object $settings -Path @('mcpServers', 'accurate', 'env', 'AOL_SIGNATURE_SECRET')),
+    $localAol['AOL_SIGNATURE_SECRET']
+)
 $aolApiBaseUrl = "https://account.accurate.id"
+
+$quotationEnv = [ordered]@{
+    CCB_PROJECT_ROOT = $wandingRoot
+    DATA_DIR = $wandingDataDir
+    PYTHON_EXECUTABLE = $pythonExe
+    PYTHONPATH = $wandingPythonDir
+    PYTHONUTF8 = "1"
+    PYTHONIOENCODING = "utf-8"
+    PYTHONNOUSERSITE = "1"
+    WANDING_PRICE_LIB_PATH = $wandingPriceLib
+    PRICE_LIBRARY_PATH = $wandingPriceLib
+    WANDING_BUSINESS_KNOWLEDGE_PATH = $wandingKnowledge
+    WANDING_WORKSPACE_POINTER = $workspacePointer
+    ORG_SERVER_URL = $orgServerUrl
+    AIONUI_APPDATA_PROFILE = $orgAppDataProfile
+    ORG_SESSION_TOKEN_FILE = $orgSessionTokenFile
+    ENABLE_WANDING_VECTOR = "0"
+    INVENTORY_ENABLE_RESOLVER_VECTOR = "0"
+    USE_RESOLVER_FALLBACK = "0"
+    AOL_API_BASE_URL = $aolApiBaseUrl
+}
+if ($aolAccessToken) { $quotationEnv['AOL_ACCESS_TOKEN'] = $aolAccessToken }
+if ($aolDatabaseId) { $quotationEnv['AOL_DATABASE_ID'] = $aolDatabaseId }
+if ($aolSignatureSecret) { $quotationEnv['AOL_SIGNATURE_SECRET'] = $aolSignatureSecret }
 
 $quotation = [pscustomobject]@{
     command     = $bunExe
     args        = @($quotationServer)
-    env         = [pscustomobject]@{
-        CCB_PROJECT_ROOT = $wandingRoot
-        DATA_DIR = $wandingDataDir
-        PYTHON_EXECUTABLE = $pythonExe
-        PYTHONPATH = $wandingPythonDir
-        PYTHONUTF8 = "1"
-        PYTHONIOENCODING = "utf-8"
-        # Isolate the bundled runtime from any per-user site-packages on the
-        # target machine, so quotation/inventory always import the packaged
-        # pandas/numpy/openpyxl/requests instead of a stray global install.
-        PYTHONNOUSERSITE = "1"
-        WANDING_PRICE_LIB_PATH = $wandingPriceLib
-        PRICE_LIBRARY_PATH = $wandingPriceLib
-        WANDING_BUSINESS_KNOWLEDGE_PATH = $wandingKnowledge
-        WANDING_WORKSPACE_POINTER = $workspacePointer
-        ORG_SERVER_URL = $orgServerUrl
-        AIONUI_APPDATA_PROFILE = $orgAppDataProfile
-        ORG_SESSION_TOKEN_FILE = $orgSessionTokenFile
-        ENABLE_WANDING_VECTOR = "0"
-        INVENTORY_ENABLE_RESOLVER_VECTOR = "0"
-        USE_RESOLVER_FALLBACK = "0"
-        AOL_ACCESS_TOKEN = $aolAccessToken
-        AOL_DATABASE_ID = $aolDatabaseId
-        AOL_SIGNATURE_SECRET = $aolSignatureSecret
-        AOL_API_BASE_URL = $aolApiBaseUrl
-    }
+    env         = [pscustomobject]$quotationEnv
     description = "Wanding quotation + inventory MCP: match quotation items, fill quotation sheets, query live stock by code or description, and use bundled Wanding business knowledge."
 }
 
@@ -438,18 +528,20 @@ $priceLibrary = [pscustomobject]@{
     description = "Organization price library admin MCP: read active/draft, preview and apply draft item changes (price_admin + confirmed writes)."
 }
 
+$accurateEnv = [ordered]@{
+    PYTHONNOUSERSITE = "1"
+    PYTHONUTF8 = "1"
+    PYTHONIOENCODING = "utf-8"
+    AOL_BASE_URL = $aolApiBaseUrl
+}
+if ($aolAccessToken) { $accurateEnv['AOL_ACCESS_TOKEN'] = $aolAccessToken }
+if ($aolSignatureSecret) { $accurateEnv['AOL_SIGNATURE_SECRET'] = $aolSignatureSecret }
+if ($aolDatabaseId) { $accurateEnv['AOL_DATABASE_ID'] = $aolDatabaseId }
+
 $accurate = [pscustomobject]@{
     command     = $pythonExe
     args        = @($accurateServer)
-    env         = [pscustomobject]@{
-        PYTHONNOUSERSITE     = "1"
-        PYTHONUTF8           = "1"
-        PYTHONIOENCODING     = "utf-8"
-        AOL_ACCESS_TOKEN     = $aolAccessToken
-        AOL_SIGNATURE_SECRET = $aolSignatureSecret
-        AOL_DATABASE_ID      = $aolDatabaseId
-        AOL_BASE_URL         = $aolApiBaseUrl
-    }
+    env         = [pscustomobject]$accurateEnv
     description = "Accurate Online read-only MCP: search records, fetch lists, batch details, and summarize business amounts with verified filters."
 }
 
@@ -489,16 +581,20 @@ Set-JsonProperty -Object $settings.mcpServers -Name "office-word" -Value $office
 Set-JsonProperty -Object $settings.mcpServers -Name "excel" -Value $excelFile
 
 # Python main.py loads vendor/wanding/.env.accurate (override=True) when MCP env omits AOL_*.
-$envAccuratePath = Join-Path $wandingRoot ".env.accurate"
-$envAccurateBody = @(
-    "AOL_ACCESS_TOKEN=$aolAccessToken"
-    "AOL_DATABASE_ID=$aolDatabaseId"
-    "AOL_SIGNATURE_SECRET=$aolSignatureSecret"
-    "AOL_API_BASE_URL=$aolApiBaseUrl"
-) -join "`n"
-# UTF-8 without BOM — BOM breaks python-dotenv key names (\ufeffAOL_ACCESS_TOKEN).
-$utf8NoBom = New-Object System.Text.UTF8Encoding $false
-[System.IO.File]::WriteAllText($envAccuratePath, $envAccurateBody, $utf8NoBom)
+if ($aolAccessToken -and $aolDatabaseId -and $aolSignatureSecret) {
+    $envAccurateBody = @(
+        "AOL_ACCESS_TOKEN=$aolAccessToken"
+        "AOL_DATABASE_ID=$aolDatabaseId"
+        "AOL_SIGNATURE_SECRET=$aolSignatureSecret"
+        "AOL_API_BASE_URL=$aolApiBaseUrl"
+    ) -join "`n"
+    # UTF-8 without BOM — BOM breaks python-dotenv key names (\ufeffAOL_ACCESS_TOKEN).
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($envAccuratePath, $envAccurateBody, $utf8NoBom)
+}
+else {
+    Write-Warning "Accurate Online credentials are incomplete; configure local AOL_* values before inventory/accounting use"
+}
 
 if (-not $settings.PSObject.Properties["theme"] -or $settings.theme -eq "light") {
     Set-JsonProperty -Object $settings -Name "theme" -Value "dark"
@@ -507,17 +603,31 @@ if (-not $settings.PSObject.Properties["modelType"]) {
     Set-JsonProperty -Object $settings -Name "modelType" -Value "anthropic"
 }
 
-$settings | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $settingsPath -Encoding UTF8
-
-$mcpConfig = [pscustomobject]@{
-    mcpServers = [pscustomobject]@{
-        exa = $exa
-        "excel-mcp" = $excel
-        quotation = $quotation
-        "price-library" = $priceLibrary
-        accurate = $accurate
-        "office-word" = $officeWord
-        excel = $excelFile
+$mcpConfig = $null
+if ($CompiledSettingsPath) {
+    $applyCompiledScript = Join-Path $PSScriptRoot 'apply-compiled-runtime-config.ps1'
+    if (-not (Test-Path -LiteralPath $applyCompiledScript)) {
+        throw "Compiled settings bridge missing: $applyCompiledScript"
+    }
+    & $applyCompiledScript `
+        -CompiledSettingsPath $CompiledSettingsPath `
+        -InstallDir $InstallDir `
+        -ConfigDir $ConfigDir
+    $settings = Get-Content -Raw -Encoding UTF8 -LiteralPath $settingsPath | ConvertFrom-Json
+    $mcpConfig = [pscustomobject]@{ mcpServers = $settings.mcpServers }
+}
+else {
+    $settings | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $settingsPath -Encoding UTF8
+    $mcpConfig = [pscustomobject]@{
+        mcpServers = [pscustomobject]@{
+            exa = $exa
+            "excel-mcp" = $excel
+            quotation = $quotation
+            "price-library" = $priceLibrary
+            accurate = $accurate
+            "office-word" = $officeWord
+            excel = $excelFile
+        }
     }
 }
 $mcpConfig | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $mcpConfigPath -Encoding UTF8

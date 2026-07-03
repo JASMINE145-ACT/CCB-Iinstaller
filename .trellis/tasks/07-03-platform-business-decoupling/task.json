@@ -37,7 +37,8 @@
     {
       "id": "p2-config-compiler",
       "title": "P2 — Config compiler, projections, provenance, drift",
-      "status": "pending"
+      "status": "in_progress",
+      "taskDir": "07-03-p2-config-compiler-v1"
     },
     {
       "id": "p3-wanding-package",
@@ -61,7 +62,8 @@
     }
   ],
   "children": [
-    "07-03-p0-security-boundary"
+    "07-03-p0-security-boundary",
+    "07-03-p2-config-compiler-v1"
   ],
   "parent": null,
   "relatedFiles": [
@@ -82,7 +84,7 @@
     "ccb-installer/resources/install-health-manifest.json",
     "ccb-installer/scripts/ensure-wanding-settings.ps1"
   ],
-  "notes": "Epic approved 2026-07-03. P0 committed 6d81848f; ops credential rotation pending. P1 registry/schema completed with tests 3/3, lint 0 errors / 10 traceable legacy warnings, and MCP probe 5/5. Awaiting P2 approval.",
+  "notes": "Epic approved 2026-07-03. P0 committed 6d81848f; ops credential rotation pending. P1 complete. P2 implementation and automated verification complete (tests 6/6, live parity 0, drift detected, MCP 5/5, staging PASS); scoped Git commit pending.",
   "meta": {
     "user_goal": "分 Phase 实现平台与万鼎业务解耦，可装配多垂直包",
     "execution_plan": "execution-plan.md",

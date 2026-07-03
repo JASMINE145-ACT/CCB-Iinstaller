@@ -2,7 +2,7 @@
 
 **Epic status:** approved · in_progress  
 **Last updated:** 2026-07-03  
-**Active phase:** P1
+**Active phase:** P2 Git gate
 
 ## Phase tracker
 
@@ -10,15 +10,14 @@
 |-------|------|--------|----------|
 | P0 | Security & boundary freeze | ✅ done (ops rotation pending) | `6d81848f` · `07-03-p0-security-boundary` |
 | P1 | Meta-model & read-only registry | ✅ done | `p1-registry-snapshot-done.md` · tests 3/3 · lint 0 errors |
-| P2 | Config compiler & single source | ⬜ pending | — |
+| P2 | Config compiler & single source | 🟡 commit gate | `07-03-p2-config-compiler-v1` · automated verification PASS |
 | P3 | Extract `com.wanding.trade` | ⬜ pending | — |
 | P4 | Control plane & tenant governance | ⬜ pending | — |
 | P5 | Second vertical pilot | ⬜ pending | — |
 
 ## Active subtasks
 
-P1 was delivered in the parent epic because schema and registry projection form
-one atomic, read-only change. Later runtime-changing phases remain child tasks.
+- `07-03-p2-config-compiler-v1` — implementation/test complete; commit pending.
 
 ## Blockers
 
@@ -28,5 +27,5 @@ one atomic, read-only change. Later runtime-changing phases remain child tasks.
 ## Next action
 
 1. 完成 P0 凭据轮换（独立 ops blocker，不影响 P1 artifact）。
-2. 用户审阅 P1 WARN 清单和 manifest ownership。
-3. 批准后创建 P2 child task：config compiler v1。
+2. Complete scoped review and atomic P2 commit.
+3. Start P3 only after P2 commit evidence is recorded.

@@ -8,7 +8,7 @@ module.exports = {
     env: {
       NODE_ENV: 'production',
       ANTHROPIC_BASE_URL:         'https://api.minimaxi.com/anthropic',
-      ANTHROPIC_AUTH_TOKEN:       'sk-cp-FVpTaa8qfaTOU97mM7m7Svk0NOVNwIIhOq1-aWp4LQubya8kRiTgg3DEGRSgBPImWpJKJwJAFdhR-JlSU4H-Qz-Zq2drSi6KbCscdLnuKsUpXKtXpPraT-I',
+      ANTHROPIC_AUTH_TOKEN:       process.env.ANTHROPIC_AUTH_TOKEN,
       ANTHROPIC_DEFAULT_OPUS_MODEL:   'minimax-m3',
       ANTHROPIC_DEFAULT_SONNET_MODEL: 'minimax-m3',
       ANTHROPIC_DEFAULT_HAIKU_MODEL:  'minimax-m3',

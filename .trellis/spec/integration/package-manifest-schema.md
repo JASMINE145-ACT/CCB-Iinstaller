@@ -24,6 +24,12 @@ Agents declare `requiredCapabilities`. MCP and skill descriptors declare
 `providesCapabilities`. Runtime transport names remain implementation details;
 new platform branches must not hardcode WanD IDs.
 
+P2 MCP descriptors may also declare:
+
+- `runtime`: the CCB projection template (`${variable}` and `secret://` allowed);
+- `runtimeSecretPaths`: JSON pointers relative to `runtime` that must remain
+  secret references until local compilation.
+
 ## Registry command
 
 ```powershell
