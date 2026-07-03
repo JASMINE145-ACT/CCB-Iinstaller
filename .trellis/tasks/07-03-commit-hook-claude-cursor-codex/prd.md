@@ -63,9 +63,9 @@
 - [x] `TRELLIS_DISABLE_HOOKS=1` 可临时绕过 — 三平台 adapter 一致实现
 - [x] hook 脚本内部异常不会导致用户完全无法提交代码（fail-open + 可见告警）— 测试覆盖
 
-## 已知缺口（未勾选 = 需要用户动作，非代码缺陷）
+## 已知缺口（已解决）
 
-- [ ] `.claude/settings.json` 注册 `PreToolUse`/`"Bash"` matcher → `.claude/hooks/commit-gate.py`：子 agent 和主会话直接编辑均被 auto-mode 权限分类器拦下（判定为"修改 AI 自己的权限/hook 配置"），需要用户手动加这几行或显式二次授权这个具体动作。diff 见 `research`/对话记录。
+- [x] `.claude/settings.json` 注册 `PreToolUse`/`"Bash"` matcher → `.claude/hooks/commit-gate.py`：AI 侧（子 agent + 主会话）两次尝试均被 auto-mode 权限分类器拦下，**用户于 2026-07-03 手动完成注册**，JSON 校验通过，位置正确（`Agent` matcher 之后）。**注意**：Claude Code 通常在 session 启动时加载 hooks 配置，本次编辑发生在当前会话运行期间——若这个门禁在本 session 内测试不生效，先确认是否需要开新 session /`/clear` 让 hook 配置重新加载，而不要误判为代码问题。
 - Cursor 侧改动（`.cursor/hooks/commit-gate.py` + `.cursor/hooks.json`）真实生效但 `.cursor/` 全目录 gitignore（仓库既有约定），commit 这个 task 时不会包含这部分文件——这是预期行为，不是遗漏。
 
 ## Definition of Done

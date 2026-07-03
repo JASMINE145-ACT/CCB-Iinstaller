@@ -55,6 +55,16 @@
             "timeout": 30
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/commit-gate.py",
+            "timeout": 30
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
