@@ -47,7 +47,7 @@ AionUI renderer → aioncore → route-b patch → CCB-Wanding --acp → quotati
 | Step | 模块 | 状态 | Artifact | 成熟度 | 下一步触发 |
 |------|------|------|----------|--------|------------|
 | 1 | Integration | ✅ 完成 | `reviews/step-01-integration.md` | **7.5/10** | — |
-| 2 | Backend | ⏳ 待审 | `reviews/step-02-backend.md` | — | 用户说「继续 Backend」或 `/system-reviewer step 2` |
+| 2 | Backend | ✅ 完成 | `reviews/step-02-backend.md` | **7/10** | — |
 | 3 | Frontend | ⏳ 待审 | `reviews/step-03-frontend.md` | — | Step 2 后或并行若只关心 UI |
 | 4 | Business | ⏳ 待审 | `reviews/step-04-business.md` | — | Step 2 后（与 Backend 强相关） |
 | 5 | Ship/Ops | ⏳ 待审 | `reviews/step-05-ship-ops.md` | — | Phase 4 冷构建前必做 |

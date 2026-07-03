@@ -50,6 +50,10 @@ Tables: `work_tasks`, `work_task_attachments` — see `AionCore/crates/aionui-db
 ## Out of scope (post Phase 3)
 - Desktop `schema.ts` changes
 
+## Phase 4 — center sync (extend)
+
+> **Task:** [`07-03-work-tasks-center-sync`](../07-03-work-tasks-center-sync/prd.md) — 云端 VPS 权威 + 经理组织全员可见；UI 改 `orgHttpBridge`。本 Phase 1–3 本机 MVP 保持 `completed` 不变。
+
 ## Verification
 
 | Check | Result |

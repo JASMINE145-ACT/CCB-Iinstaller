@@ -1,0 +1,41 @@
+{
+  "id": "ccb-agent-skills-ui-unified",
+  "name": "07-01-ccb-agent-skills-ui-unified",
+  "title": "CCB Agent 技能 UI 统一真相（A+B+C，对标 MCP）",
+  "description": "所有 CCB Guid/会话 UI 忠实反映 agent.md + sidecar + .claude/skills 绑定；分层展示 Agent 专属 vs 平台技能；conversation.extra 贯通 FileAttachButton。",
+  "status": "pending",
+  "dev_type": "feature",
+  "scope": "frontend-integration",
+  "package": "aionui-src,ccb-installer",
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-01",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "aionui-src/packages/desktop/src/renderer/pages/guid/utils/guidCapabilitiesCatalog.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/guid/components/GuidActionRow.tsx",
+    "aionui-src/packages/desktop/src/renderer/pages/guid/GuidPage.tsx",
+    "aionui-src/packages/desktop/src/renderer/components/media/FileAttachButton.tsx",
+    "aionui-src/packages/desktop/src/renderer/pages/conversation/platforms/acp/AcpSendBox.tsx",
+    "aionui-src/packages/desktop/src/common/config/ccbAgents.ts",
+    "aionui-src/packages/desktop/src/common/config/ccbAgentCatalog.ts",
+    "ccb-installer/config/agents/*.aionui.json",
+    "ccb-installer/src/services/acp/agentSessionProfile.ts",
+    ".trellis/spec/frontend/chat-acp-flow.md",
+    ".trellis/spec/integration/agents-unified-model.md"
+  ],
+  "notes": "Builds on 07-01-quotation-skills-ui-quick. Target: MCP-level observability for skills. Pattern reference: resolveSessionEffectiveMcpServerIds + 本会话 MCP menu.",
+  "meta": {
+    "tier": "A+B+C",
+    "predecessor": "07-01-quotation-skills-ui-quick"
+  }
+}

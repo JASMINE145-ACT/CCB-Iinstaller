@@ -1,0 +1,2 @@
+{"type":"spec","path":".trellis/tasks/07-01-agent-attention-notifications/prd.md","reason":"Acceptance criteria and user-confirmed trigger rules"}
+{"type":"spec","path":"aionui-src/packages/desktop/src/renderer/hooks/system/useNotificationClick.ts","reason":"Verify click navigation to conversation_id works end-to-end"}

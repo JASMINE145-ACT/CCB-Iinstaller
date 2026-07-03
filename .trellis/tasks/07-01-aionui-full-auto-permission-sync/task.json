@@ -1,0 +1,48 @@
+{
+  "id": "aionui-full-auto-permission-sync",
+  "name": "07-01-aionui-full-auto-permission-sync",
+  "title": "AionUI 全自动权限模式同步 — 单一状态权威与发送前强校验",
+  "description": "用户选「权限·全自动」时，CCB 会话从首条消息起必须为 bypassPermissions。建立 conversation 级 mode store，修复首条与后续发送使用旧值的问题；发送前同步失败必须阻止发送，不通过放宽 CCB Read 权限兜底。",
+  "status": "in_progress",
+  "dev_type": "implementation",
+  "scope": "AionUI ACP permission mode sync + CCB permissions bridge",
+  "package": "integration",
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-01",
+  "relatedFiles": [
+    "D:/Projects/aionui-src/packages/desktop/src/renderer/pages/conversation/platforms/acp/useAcpInitialMessage.ts",
+    "D:/Projects/aionui-src/packages/desktop/src/renderer/pages/conversation/platforms/acp/AcpSendBox.tsx",
+    "D:/Projects/aionui-src/packages/desktop/src/renderer/components/agent/AgentModeSelector.tsx",
+    "D:/Projects/aionui-src/packages/desktop/src/common/config/ensureCcbSessionPreferredMode.ts",
+    "D:/Projects/aionui-src/packages/desktop/src/common/config/ensureCcbSessionPreferredModel.ts",
+    "D:/Projects/aionui-src/packages/desktop/src/common/adapter/acpConfigOptionsAdapter.ts",
+    "D:/Projects/aionui-src/packages/desktop/src/common/config/ccbSessionPreferredModeStore.ts",
+    "D:/Projects/aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/acp/MessageAcpPermission.tsx",
+    "D:/Projects/aionui-src/packages/desktop/src/renderer/services/i18n/locales/zh-CN/agentMode.json",
+    ".trellis/spec/frontend/chat-acp-flow.md",
+    ".trellis/spec/integration/agents-unified-model.md",
+    ".trellis/tasks/07-01-aionui-full-auto-permission-sync/research/route-not-found-config-options-2026-07-02.md",
+  ],
+  "notes": "2026-07-01 实现 store + ensure/assert。2026-07-02 incident：aioncore 0.1.29 移除 /mode → send 报 Route not found；ensureCcb* 改走 acpConfigOptionsAdapter（research/route-not-found-config-options-2026-07-02.md）。单测 7/7。待 dev 新会话 smoke。",
+  "meta": {
+    "user_contract": {
+      "full_auto_label_zh": "全自动",
+      "full_auto_mode_id": "bypassPermissions",
+      "expectation": "all_tool_permissions_auto_approved_when_mode_selected"
+    },
+    "root_causes": [
+      "useAcpInitialMessage ignores initialSessionMode",
+      "AcpSendBox uses stale conversation.extra.session_mode",
+      "ensureCcbSessionPreferredMode failure can be ignored by callers",
+      "AgentModeSelector and send path do not share one per-conversation authoritative mode",
+      "ensureCcbSessionPreferredMode used ipcBridge legacy /mode on aioncore 0.1.29 (404 Route not found)"
+    ],
+    "phases": [
+      "P0-conversation-mode-store",
+      "P0-send-before-strict-mode-verification",
+      "P1-tests-and-spec"
+    ]
+  }
+}

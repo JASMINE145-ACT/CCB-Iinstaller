@@ -1,0 +1,5 @@
+{"path": "aionui-src/packages/desktop/src/common/adapter/ipcBridge.ts", "reason": "workTask HTTP routes — switch to org bridge"}
+{"path": "aionui-src/packages/desktop/src/common/adapter/orgHttpBridge.ts", "reason": "Pattern for center org REST from renderer"}
+{"path": "aionui-src/packages/desktop/src/renderer/pages/workTasks/useWorkTasks.ts", "reason": "SWR + scope + members + query hooks"}
+{"path": "AionCore/crates/aionui-work-tasks/src/routes.rs", "reason": "REST surface already on org binary"}
+{"path": ".trellis/spec/integration/org-knowledge.md", "reason": "Dual JWT + org IPC contract to mirror"}

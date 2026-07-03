@@ -1,0 +1,56 @@
+{
+  "id": "work-tasks-center-sync",
+  "name": "07-03-work-tasks-center-sync",
+  "title": "工作任务中心化 — 云端存储 + 经理全员可见",
+  "description": "Extend 06-15：work_tasks 从本机 SQLite 迁到中心 org aioncore（VPS）；/tasks UI 改走 orgHttpBridge；经理 query 组织全员任务。",
+  "status": "planning",
+  "dev_type": "feature",
+  "scope": "aionui-src + AionCore + org VPS deploy",
+  "package": "aionui+aioncore",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-01",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "06-15-aionui-work-tasks",
+  "relatedFiles": [
+    ".trellis/tasks/07-03-work-tasks-center-sync/research/decisions.md",
+    ".trellis/tasks/07-03-work-tasks-center-sync/prd.md",
+    ".trellis/tasks/06-15-aionui-work-tasks/prd.md",
+    ".trellis/spec/integration/aioncore-work-tasks.md",
+    ".trellis/spec/integration/org-knowledge.md",
+    "AionCore/crates/aionui-work-tasks",
+    "aionui-src/packages/desktop/src/renderer/pages/workTasks",
+    "aionui-src/packages/desktop/src/common/adapter/orgHttpBridge.ts",
+    "aionui-src/packages/desktop/src/common/adapter/ipcBridge.ts",
+    "scripts/org-phase0/vps-org-api-deploy-checklist.md"
+  ],
+  "notes": "2026-07-01 explore 立项 + 决策锁定：云端权威、经理全公司、丢本机数据、必须在线、admin=manager、轮询刷新、中心附件。可进 Phase 4-A 实现。",
+  "meta": {
+    "user_decisions": {
+      "storage": "center_org_aioncore_vps",
+      "manager_visibility": "all_company_no_department",
+      "http_path": "orgHttpBridge_not_local_httpBridge",
+      "local_data_migration": "discard",
+      "offline": "online_required",
+      "admin_is_manager": true,
+      "realtime_v1": "swr_poll_and_focus_refresh",
+      "attachments": "center_org_fs_upload"
+    },
+    "phases": [
+      "P4-A-org-http-wiring",
+      "P4-B-vps-data-deploy",
+      "P4-C-users-rbac",
+      "P4-D-realtime-badge",
+      "P4-E-local-migration-sunset"
+    ],
+    "open_questions_resolved": "2026-07-01"
+  }
+}

@@ -21,7 +21,7 @@
     {
       "id": "step-02-backend",
       "title": "Step 2 — Backend 层审查（CCB-Wanding / ACP / MCP / claude-code-B）",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "step-03-frontend",
@@ -51,7 +51,7 @@
     {
       "id": "integration-fix-vendor-gate-21",
       "title": "Integration 优化 Phase 2.1 — -Strict / data whitelist / Option E mtime gate",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "integration-fix-verify-installer",
@@ -70,6 +70,8 @@
     ".trellis/tasks/06-30-full-system-review/delivery-phase-02-integration-vendor.md",
     ".trellis/tasks/06-30-full-system-review/reviews/phase-02-vendor-sync-exploration.md",
     ".trellis/tasks/06-30-full-system-review/reviews/phase-02-vendor-sync-optimization-review.md",
+    ".trellis/tasks/06-30-full-system-review/reviews/phase-02-1-exploration-2026-07-02.md",
+    ".trellis/tasks/06-30-full-system-review/reviews/step-02-backend.md",
     ".trellis/spec/index.md",
     ".trellis/spec/outline.md",
     ".trellis/spec/integration/index.md",
@@ -77,7 +79,10 @@
     ".trellis/spec/frontend/index.md",
     "ccb-installer/scripts/start-dev-full.ps1",
     "ccb-installer/scripts/sync-aionui-ccb-route-b.ps1",
+    ".trellis/tasks/06-30-full-system-review/delivery-phase-02-1-vendor-sync.md",
+    "ccb-installer/scripts/lib/sync-wanding-data.ps1",
     "ccb-installer/scripts/sync-dev-wanding-vendor.ps1",
+    "ccb-installer/scripts/tests/test-sync-wanding-data.ps1",
     "ccb-installer/scripts/build-wanding.ps1",
     "ccb-installer/scripts/test-mcp-health.ps1",
     ".trellis/tasks/06-26-aionui-source-level-recovery/status.md",
@@ -86,5 +91,5 @@
     ".trellis/spec/integration/dev-runtime-layers.md",
     ".trellis/spec/frontend/dev-test-ship.md"
   ],
-  "notes": "Phase 1 doc ✅。Phase 2 Option C ✅ INT-P0-2 closed。Phase 2 优化复审 7.5/10（system-reviewer 9ba9fc53）— phase-02-vendor-sync-optimization-review.md；Phase 2.1 首项 INT-P1-7 data glob parity。"
+  "notes": "Step 1 Integration 7.5/10 ✅。Step 2 Backend 7/10 ✅ 2026-07-02 — step-02-backend.md。Phase 2.1 ✅。下一步 Step 3 Frontend。\n2026-07-03: system-reviewer next-phase — Step 3 Frontend audit + FE-P0-1；defer SHIP-P0-1 / Track B P2+。\n2026-07-03: execution-plan.md (draft) — Step 3 + 严格测试门禁 P0–P5。"
 }

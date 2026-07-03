@@ -1,0 +1,53 @@
+{
+  "id": "agent-attention-notifications",
+  "name": "07-01-agent-attention-notifications",
+  "title": "Agent 注意力通知（Cursor 式 Toast + 侧边栏角标）",
+  "description": "当用户不在某会话时，Agent 需要权限或停止回答后，通过系统 Toast + ChatHistory 角标提示（与 Cron unread 同触发规则）。接线已有 notificationBridge 与 confirmation.add / stream finish 事件。",
+  "status": "completed",
+  "dev_type": "feature",
+  "scope": "aionui-src desktop renderer + main process notification",
+  "package": "aionui-src",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-01",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "aionui-src/packages/desktop/src/process/bridge/notificationBridge.ts",
+    "aionui-src/packages/desktop/src/common/platform/ElectronPlatformServices.ts",
+    "aionui-src/packages/desktop/src/renderer/hooks/system/useNotificationClick.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/conversation/components/ChatHistory.tsx",
+    "aionui-src/packages/desktop/src/renderer/pages/cron/useCronJobs.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/cron/components/CronJobIndicator.tsx",
+    "aionui-src/packages/desktop/src/renderer/pages/team/hooks/useSiderTeamBadges.ts",
+    "aionui-src/packages/desktop/src/process/pet/petEventBridge.ts",
+    "aionui-src/packages/desktop/src/common/adapter/ipcBridge.ts",
+    ".trellis/spec/frontend/index.md"
+  ],
+  "notes": "2026-07-01 explore 立项。用户确认：① 不在该会话就弹（同 Cron，不要求窗口失焦）；② 任务完成 = agent 停止回答；③ 权限与完成同等优先级。基础设施已存在但未接线（showNotification 无调用方；notification.clicked 未从 main emit）。",
+  "meta": {
+    "user_decisions": {
+      "trigger_when": "active_conversation_id !== event.conversation_id",
+      "task_complete_signal": "agent_turn_finish_stream_finish",
+      "permission_vs_complete_priority": "equal"
+    },
+    "phases": [
+      "P0-attention-coordinator-events",
+      "P0-os-toast-and-click-nav",
+      "P1-chathistory-badge",
+      "P2-taskbar-overlay-optional"
+    ],
+    "related_tasks": [
+      "07-01-aionui-full-auto-permission-sync",
+      "07-01-quotation-skills-ui-quick"
+    ]
+  }
+}

@@ -3,7 +3,7 @@
   "name": "07-03-p0-security-boundary",
   "title": "P0 security and boundary freeze",
   "description": "Phase 0 of platform decoupling epic: credential exposure remediation, secret scanning gate, platform-forbidden-coupling spec, identity naming, baseline audit. Blocks P1-P5 multi-tenant work.",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": "architecture",
   "scope": "cross-layer",
   "package": "integration",
@@ -15,7 +15,7 @@
   "branch": null,
   "base_branch": "main",
   "worktree_path": null,
-  "commit": null,
+  "commit": "6d81848f",
   "pr_url": null,
   "subtasks": [
     {"id": "p0-a-credentials", "title": "P0-A — Remove tracked secrets + rotation evidence", "status": "done"},

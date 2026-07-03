@@ -1,0 +1,112 @@
+{
+  "id": "07-03-platform-business-decoupling",
+  "name": "07-03-platform-business-decoupling",
+  "title": "Platform business decoupling — phased implementation",
+  "description": "Epic: evolve CCB-Wanding into Platform Core + vertical packages per docs/platform-system-business-decoupling-optimization.md. Six phases P0–P5; preserve four-layer runtime chain; no big-bang rewrite.",
+  "status": "in_progress",
+  "dev_type": "architecture",
+  "scope": "cross-layer",
+  "package": "integration",
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-03",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    {
+      "id": "p0-security-boundary",
+      "title": "P0 — Security, secret scanning, platform forbidden-coupling rules",
+      "status": "completed",
+      "taskDir": "07-03-p0-security-boundary"
+    },
+    {
+      "id": "p1-manifest-schema",
+      "title": "P1-A — Package manifest JSON Schema + descriptor types",
+      "status": "pending"
+    },
+    {
+      "id": "p1-registry-snapshot",
+      "title": "P1-B — Read-only registry snapshot + lint from ccb-installer assets",
+      "status": "pending"
+    },
+    {
+      "id": "p2-config-compiler",
+      "title": "P2 — Config compiler, projections, provenance, drift",
+      "status": "pending"
+    },
+    {
+      "id": "p3-wanding-package",
+      "title": "P3 — Extract com.wanding.trade vertical package",
+      "status": "pending"
+    },
+    {
+      "id": "p3-platform-health-split",
+      "title": "P3-E — Platform install health without WanD required files",
+      "status": "pending"
+    },
+    {
+      "id": "p4-control-plane",
+      "title": "P4 — Control plane, OIDC/JWKS, tenant governance",
+      "status": "pending"
+    },
+    {
+      "id": "p5-second-vertical",
+      "title": "P5 — Second company vertical pilot (non-quotation domain)",
+      "status": "pending"
+    }
+  ],
+  "children": [
+    "07-03-p0-security-boundary"
+  ],
+  "parent": null,
+  "relatedFiles": [
+    "docs/platform-system-business-decoupling-optimization.md",
+    "docs/ccb-wanding-platform-architecture.md",
+    "docs/ccb-wanding-agent-engineering-maturity.md",
+    ".trellis/spec/integration/platform-vertical-packages.md",
+    ".trellis/spec/integration/platform-architecture.md",
+    ".trellis/spec/integration/agents-unified-model.md",
+    ".trellis/spec/integration/mcp-health.md",
+    ".trellis/spec/integration/aionui-config-inventory.md",
+    ".trellis/spec/backend/config-layer.md",
+    ".trellis/tasks/07-03-platform-business-decoupling/prd.md",
+    ".trellis/tasks/07-03-platform-business-decoupling/execution-plan.md",
+    ".trellis/tasks/07-03-platform-business-decoupling/status.md",
+    ".trellis/tasks/07-03-platform-business-decoupling/open-questions.md",
+    "ccb-installer/config/mcp-health-manifest.json",
+    "ccb-installer/resources/install-health-manifest.json",
+    "ccb-installer/scripts/ensure-wanding-settings.ps1"
+  ],
+  "notes": "Epic approved 2026-07-03. P0 committed 6d81848f; ops credential rotation pending. Active phase P1.",
+  "meta": {
+    "user_goal": "分 Phase 实现平台与万鼎业务解耦，可装配多垂直包",
+    "execution_plan": "execution-plan.md",
+    "design_doc": "docs/platform-system-business-decoupling-optimization.md",
+    "scenario": "B",
+    "phases": [
+      "P0",
+      "P1",
+      "P2",
+      "P3",
+      "P4",
+      "P5"
+    ],
+    "suggested_child_slugs": [
+      "07-03-p0-security-boundary",
+      "07-03-p1-package-manifest-schema",
+      "07-03-p1-registry-snapshot-lint",
+      "07-03-p2-config-compiler-v1",
+      "07-03-p2-provenance-drift",
+      "07-03-p3-wanding-package-extract",
+      "07-03-p3-platform-health-split",
+      "07-03-p4-oidc-jwks-tenant",
+      "07-03-p4-control-plane-mvp",
+      "07-03-p5-second-vertical-pilot"
+    ]
+  }
+}

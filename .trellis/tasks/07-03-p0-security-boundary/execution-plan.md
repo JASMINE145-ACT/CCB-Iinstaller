@@ -2,10 +2,10 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | in_progress |
+| **Status** | completed (implement); ops rotation pending |
 | **Scenario** | A（标准 spec + 门禁，跨 integration/backend） |
 | **Parent** | `07-03-platform-business-decoupling` |
-| **Active phase** | P0 implement done — pending ops rotation + git commit |
+| **Active phase** | Closed — hand off to P1 |
 
 ## Progress snapshot
 
@@ -13,14 +13,14 @@
 |------|--------|----------|
 | P0-Explore 基线审计 | **done** | `research/p0-baseline-audit-2026-07-03.md` |
 | P0-Explore MCP probe | **done** | `test-mcp-health.ps1 -Probe` PASS 5/5 |
-| P0-A 凭据移出 git | **done** | `.gitignore`, examples, `git rm --cached` |
+| P0-A 凭据移出 git | **done** | commit `6d81848f` |
 | P0-B secret scanning | **done** | `secret-scan.yml`, `.gitleaks.toml` |
 | P0-C forbidden-coupling spec | **done** | `platform-forbidden-coupling.md` |
 | P0-D identity schema spec | **done** | `platform-identity-schema.md` |
 | P0-E platform-vertical-packages 更新 | **done** | §10 |
 | P0-F done 记录 | **done** | `p0-security-boundary-done.md` |
-| Ops 凭据轮换 | pending | 人工 |
-| Atomic git commit | pending | 人工 |
+| Ops 凭据轮换 | **pending** | `research/p0-credential-rotation-runbook.md` |
+| Atomic git commit | **done** | `6d81848f` |
 
 ---
 

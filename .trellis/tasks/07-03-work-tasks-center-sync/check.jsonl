@@ -1,0 +1,3 @@
+{"path": ".trellis/tasks/07-03-work-tasks-center-sync/prd.md", "reason": "Acceptance scenarios"}
+{"path": ".trellis/spec/integration/aioncore-work-tasks.md", "reason": "API + RBAC contract"}
+{"path": "scripts/org-phase0/vps-org-api-deploy-checklist.md", "reason": "VPS deploy smoke"}

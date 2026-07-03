@@ -1,0 +1,5 @@
+{"type":"spec","path":".trellis/spec/frontend/index.md","reason":"AionUI frontend entry; notification/attention UI belongs to renderer + main process boundary"}
+{"type":"spec","path":"aionui-src/packages/desktop/src/process/bridge/notificationBridge.ts","reason":"Existing showNotification IPC; must wire click emit and become call site for attention events"}
+{"type":"spec","path":"aionui-src/packages/desktop/src/renderer/pages/cron/useCronJobs.ts","reason":"Reference pattern for unreadConversations + markAsRead when activeConversationId differs"}
+{"type":"spec","path":"aionui-src/packages/desktop/src/renderer/pages/conversation/components/ChatHistory.tsx","reason":"Session list surface for attention badge (currently only CronJobIndicator)"}
+{"type":"spec","path":"aionui-src/packages/desktop/src/common/adapter/ipcBridge.ts","reason":"confirmation.add/remove events and notification.show/clicked IPC definitions"}

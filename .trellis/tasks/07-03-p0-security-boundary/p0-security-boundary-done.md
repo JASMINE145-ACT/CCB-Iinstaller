@@ -55,9 +55,9 @@ powershell -NoProfile -File ccb-installer\scripts\test-mcp-health.ps1 -Probe -Qu
 
 | Action | Owner | Status |
 |--------|-------|--------|
-| Rotate AOL / org admin / employee / JWT credentials (were in git history) | Ops | **TODO** |
+| Rotate AOL / org admin / employee / JWT credentials (were in git history) | Ops | **TODO** — see `research/p0-credential-rotation-runbook.md` |
 | Assess git history exposure (BFG vs accept + rotate) | Ops | **TODO** |
-| Atomic git commit of all P0 files | Dev | **TODO** (user request) |
+| Atomic git commit of all P0 files | Dev | **done** `6d81848f` |
 
 No secret values recorded in this document.
 
