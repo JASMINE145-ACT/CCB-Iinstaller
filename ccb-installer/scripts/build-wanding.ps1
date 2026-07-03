@@ -563,6 +563,10 @@ $seedSkillSrc = Join-Path $installerRoot 'config\skills\ccb-subagent-gate'
 $seedSkillDest = Join-Path $StagingDir 'seed\skills\ccb-subagent-gate'
 Invoke-RobocopyMirror $seedSkillSrc $seedSkillDest @('/XD', 'tests', '__pycache__', '/XF', '*.pyc')
 
+$learnSkillSrc = Join-Path $installerRoot 'config\skills\quotation-learn-by-data'
+$learnSkillDest = Join-Path $StagingDir 'seed\skills\quotation-learn-by-data'
+Invoke-RobocopyMirror $learnSkillSrc $learnSkillDest
+
 # Scripts (shipped set — whitelist §7)
 # Clear first so stale build-only helpers from a previous build (or a partial
 # -SkipStagingClear run) can never survive into staging and ship via NSIS
@@ -584,6 +588,7 @@ $shipScripts = @(
     # build if they are not shipped. (vendor-ppt-master.ps1 stays dev-only.)
     'deploy-ppt-master-skill.ps1',
     'deploy-subagent-gate-skill.ps1',
+    'deploy-quotation-learn-by-data-skill.ps1',
     'sync-ppt-master-agents.ps1',
     'ensure-ppt-master-deps.ps1',
     'install-excel-mcp-server.ps1',

@@ -24,6 +24,7 @@ $excelServer = Join-Path $InstallDir "vendor\mcp-servers\excel-mcp\mcp-excel.exe
 $bunExe = Join-Path $InstallDir "vendor\bun\bun.exe"
 $pythonExe = Join-Path $InstallDir "vendor\python-wanding\python.exe"
 $quotationServer = Join-Path $InstallDir "vendor\mcp-servers\quotation-server\dist\index.js"
+$priceLibraryServer = Join-Path $InstallDir "vendor\mcp-servers\price-library-server\dist\index.js"
 $accurateServer = Join-Path $InstallDir "vendor\mcp-servers\accurate-mcp\server.py"
 $officeWordServer = Join-Path $InstallDir "vendor\mcp-servers\office-word-mcp\server.py"
 $officeWordSitePackages = Join-Path $InstallDir "vendor\mcp-servers\office-word-mcp\site-packages"
@@ -178,20 +179,21 @@ function Get-OrgServerUrlFromDesktopConfig {
     return ''
 }
 
-function Get-OrgSessionTokenFilePath {
-    $candidates = @(
-        (Join-Path $env:APPDATA "AionUi\aionui\org-session.token"),
-        (Join-Path $env:APPDATA "AionUi-Dev\aionui\org-session.token")
-    )
-    foreach ($path in $candidates) {
-        if (Test-Path -LiteralPath $path) {
-            return $path
-        }
+function Get-OrgAppDataProfile {
+    $raw = $env:AIONUI_APPDATA_PROFILE
+    if (-not [string]::IsNullOrWhiteSpace($raw)) {
+        return $raw.Trim()
     }
-    return $candidates[0]
+    return 'AionUi'
+}
+
+function Get-OrgSessionTokenFilePath {
+    $profile = Get-OrgAppDataProfile
+    return Join-Path $env:APPDATA "$profile\aionui\org-session.token"
 }
 
 $orgServerUrl = Get-OrgServerUrlFromDesktopConfig
+$orgAppDataProfile = Get-OrgAppDataProfile
 $orgSessionTokenFile = Get-OrgSessionTokenFilePath
 
 function Set-JsonProperty {
@@ -404,6 +406,7 @@ $quotation = [pscustomobject]@{
         WANDING_BUSINESS_KNOWLEDGE_PATH = $wandingKnowledge
         WANDING_WORKSPACE_POINTER = $workspacePointer
         ORG_SERVER_URL = $orgServerUrl
+        AIONUI_APPDATA_PROFILE = $orgAppDataProfile
         ORG_SESSION_TOKEN_FILE = $orgSessionTokenFile
         ENABLE_WANDING_VECTOR = "0"
         INVENTORY_ENABLE_RESOLVER_VECTOR = "0"
@@ -414,6 +417,25 @@ $quotation = [pscustomobject]@{
         AOL_API_BASE_URL = $aolApiBaseUrl
     }
     description = "Wanding quotation + inventory MCP: match quotation items, fill quotation sheets, query live stock by code or description, and use bundled Wanding business knowledge."
+}
+
+$priceLibrary = [pscustomobject]@{
+    command     = $bunExe
+    args        = @($priceLibraryServer)
+    env         = [pscustomobject]@{
+        CCB_PROJECT_ROOT = $wandingRoot
+        DATA_DIR = $wandingDataDir
+        PYTHON_EXECUTABLE = $pythonExe
+        PYTHONPATH = $wandingPythonDir
+        PYTHONUTF8 = "1"
+        PYTHONIOENCODING = "utf-8"
+        PYTHONNOUSERSITE = "1"
+        WANDING_WORKSPACE_POINTER = $workspacePointer
+        ORG_SERVER_URL = $orgServerUrl
+        AIONUI_APPDATA_PROFILE = $orgAppDataProfile
+        ORG_SESSION_TOKEN_FILE = $orgSessionTokenFile
+    }
+    description = "Organization price library admin MCP: read active/draft, preview and apply draft item changes (price_admin + confirmed writes)."
 }
 
 $accurate = [pscustomobject]@{
@@ -461,6 +483,7 @@ $excelFile = [pscustomobject]@{
 Set-JsonProperty -Object $settings.mcpServers -Name "exa" -Value $exa
 Set-JsonProperty -Object $settings.mcpServers -Name "excel-mcp" -Value $excel
 Set-JsonProperty -Object $settings.mcpServers -Name "quotation" -Value $quotation
+Set-JsonProperty -Object $settings.mcpServers -Name "price-library" -Value $priceLibrary
 Set-JsonProperty -Object $settings.mcpServers -Name "accurate" -Value $accurate
 Set-JsonProperty -Object $settings.mcpServers -Name "office-word" -Value $officeWord
 Set-JsonProperty -Object $settings.mcpServers -Name "excel" -Value $excelFile
@@ -491,6 +514,7 @@ $mcpConfig = [pscustomobject]@{
         exa = $exa
         "excel-mcp" = $excel
         quotation = $quotation
+        "price-library" = $priceLibrary
         accurate = $accurate
         "office-word" = $officeWord
         excel = $excelFile

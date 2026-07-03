@@ -1,4 +1,4 @@
-# Deploy all CCB-managed skills (subagent-gate + ppt-master).
+# Deploy all CCB-managed skills (subagent-gate + quotation-learn-by-data + ppt-master).
 # Usage:
 #   .\ccb-installer\scripts\deploy-ccb-skills.ps1
 #   .\ccb-installer\scripts\deploy-ccb-skills.ps1 -VendorPptMaster
@@ -12,6 +12,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 & (Join-Path $PSScriptRoot "deploy-subagent-gate-skill.ps1") -SkillsDir $SkillsDir
+& (Join-Path $PSScriptRoot "deploy-quotation-learn-by-data-skill.ps1") -SkillsDir $SkillsDir
 
 $pptArgs = @{}
 if ($SkillsDir) { $pptArgs["SkillsDir"] = $SkillsDir }

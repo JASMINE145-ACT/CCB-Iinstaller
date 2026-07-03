@@ -13,8 +13,9 @@
 #   .\ccb-installer\scripts\start-dev-full.ps1 -InstallDir D:\CCB-Wanding -Clean
 #   .\ccb-installer\scripts\start-dev-full.ps1 -BuildAioncore:$false   # skip cargo when no Rust changes
 #   .\ccb-installer\scripts\start-dev-full.ps1 -SkipVendorSync         # UI-only; skips repo→vendor sync
-#   .\ccb-installer\scripts\start-dev-full.ps1 -VendorSmoke            # optional HDPE smoke after vendor sync
-#   .\ccb-installer\scripts\start-dev-full.ps1 -VendorUpdateSettings  # optional ensure-wanding-settings after vendor sync
+#   .\ccb-installer\scripts\start-dev-full.ps1 -VendorSmoke            # optional HDPE+supplier smoke after vendor sync
+#   .\ccb-installer\scripts\start-dev-full.ps1 -VendorUpdateSettings:$false  # skip ccb-mcp.json refresh
+#   .\ccb-installer\scripts\start-dev-full.ps1 -VendorStrict              # vendor sync fingerprint drift → fail
 #
 # ─────────────────────────────────────────────────────────────────────────────
 # COMPLETENESS CHECKLIST (manual verification after launch)
@@ -23,6 +24,7 @@
 #  □  Login with yjc + password succeeds
 #  □  Window title: Mixing (not AionUI)
 #  □  Left sider: 万鼎报价专家 Guid card visible
+#  □  Guid assistant picker: 5 preset cards only (no Cowork / word-form-creator)
 #  □  Settings → Tools: quotation / accurate / excel MCP entries present
 #  □  Settings → Models: model list non-empty (CCB models)
 #  □  Chat → 万鼎报价专家: WanD MCP warmup completes within ~15 s
@@ -35,9 +37,18 @@ param(
     [switch]$SkipBootstrap,
     [switch]$SkipVendorSync,
     [switch]$VendorSmoke,
-    [switch]$VendorUpdateSettings,
+    [switch]$VendorStrict,
+    [bool]$VendorUpdateSettings = $true,
     [bool]$BuildAioncore  = $true
 )
+
+if ($SkipVendorSync -and (
+        $PSBoundParameters.ContainsKey('VendorSmoke') -or
+        $PSBoundParameters.ContainsKey('VendorStrict') -or
+        ($PSBoundParameters.ContainsKey('VendorUpdateSettings') -and $VendorUpdateSettings)
+    )) {
+    Write-Warning 'SkipVendorSync skips vendor sync; -VendorSmoke / -VendorUpdateSettings / -VendorStrict have no effect on this run.'
+}
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
@@ -60,7 +71,7 @@ function Import-SsoEnvFile {
 
 # ── Pre-flight checks ────────────────────────────────────────────────────────
 
-function Assert-Path {
+function Test-DevPreflightPath {
     param([string]$Label, [string]$Path)
     if (-not (Test-Path -LiteralPath $Path)) {
         Write-Host "[PREFLIGHT FAIL] $Label" -ForegroundColor Red
@@ -73,25 +84,25 @@ function Assert-Path {
 Write-Host ''
 Write-Host 'Pre-flight checks...' -ForegroundColor Cyan
 
-Assert-Path 'Org server config (AionUi-Dev)' `
+Test-DevPreflightPath 'Org server config (AionUi-Dev)' `
     "$env:APPDATA\AionUi-Dev\aionui\org-server.json"
 
-Assert-Path 'Route B patch (AionUi-Dev runtime slot)' `
+Test-DevPreflightPath 'Route B patch (AionUi-Dev runtime slot)' `
     "$env:APPDATA\AionUi-Dev\aionui\runtime\managed-tools\acp\claude-agent-acp\0.39.0\win32-x64\node_modules\@agentclientprotocol\claude-agent-acp\dist\index.js"
 
-Assert-Path 'Bun runtime' `
+Test-DevPreflightPath 'Bun runtime' `
     "$InstallDir\vendor\bun\bun.exe"
 
-Assert-Path 'Python runtime' `
+Test-DevPreflightPath 'Python runtime' `
     "$InstallDir\vendor\python-wanding\python.exe"
 
-Assert-Path 'Quotation MCP server' `
+Test-DevPreflightPath 'Quotation MCP server' `
     "$InstallDir\vendor\mcp-servers\quotation-server\dist\index.js"
 
-Assert-Path 'Seed agent (quotation-agent.md)' `
+Test-DevPreflightPath 'Seed agent (quotation-agent.md)' `
     "$env:LOCALAPPDATA\CCB-Wanding\.claude\agents\quotation-agent.md"
 
-Assert-Path 'Org knowledge (quotation SOP)' `
+Test-DevPreflightPath 'Org knowledge (quotation SOP)' `
     "$InstallDir\vendor\wanding\data\ccb-wanding-quotation.md"
 
 Write-Host 'All pre-flight checks passed.' -ForegroundColor Green
@@ -107,6 +118,7 @@ New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 $env:CCB_INSTALL_DIR           = $InstallDir
 $env:CCB_WANDING_HOME          = $InstallDir
 $env:CCB_WANDING_CONFIG_DIR    = $configDir
+$env:AIONUI_APPDATA_PROFILE   = 'AionUi-Dev'
 $env:AIONUI_DISABLE_AUTO_UPDATE = '1'
 if (-not $env:CCB_UPDATE_MANIFEST_URL) {
     $env:CCB_UPDATE_MANIFEST_URL = 'http://67.216.206.3/updates/manifest.json'
@@ -142,12 +154,49 @@ if ($SkipVendorSync) {
     }
     if ($VendorSmoke) { $vendorArgs.Smoke = $true }
     if ($VendorUpdateSettings) { $vendorArgs.UpdateSettings = $true }
+    if ($VendorStrict) { $vendorArgs.Strict = $true }
     & (Join-Path $repoRoot 'ccb-installer\scripts\sync-dev-wanding-vendor.ps1') @vendorArgs
     if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
         throw "sync-dev-wanding-vendor failed (exit $LASTEXITCODE)"
     }
     Write-Host '[ok] Vendor sync complete.' -ForegroundColor Green
+    Test-DevPreflightPath 'Price tier contract (data.Md)' `
+        (Join-Path $InstallDir 'vendor\wanding\data\data.Md')
 }
+
+Write-Host 'Deploying agent keep-set (seed + prune retired)...' -ForegroundColor Cyan
+$agentsDir = Join-Path $configDir 'agents'
+$deployAgentsScript = Join-Path $repoRoot 'ccb-installer\scripts\deploy-seed-agents.ps1'
+$deployAgentArgs = @{
+    ConfigDir = $agentsDir
+    ForceMd   = $true
+}
+& $deployAgentsScript @deployAgentArgs
+if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+    throw "deploy-seed-agents failed (exit $LASTEXITCODE)"
+}
+Write-Host '[ok] Agent keep-set deployed, retired agents pruned from live' -ForegroundColor Green
+
+$commandsDir = Join-Path $configDir 'commands'
+$learnByDataCmd = Join-Path $repoRoot 'ccb-installer\resources\commands\learn-by-data.md'
+if (Test-Path -LiteralPath $learnByDataCmd) {
+    New-Item -ItemType Directory -Force -Path $commandsDir | Out-Null
+    Copy-Item -LiteralPath $learnByDataCmd -Destination (Join-Path $commandsDir 'learn-by-data.md') -Force
+    Write-Host "[ok] Slash command learn-by-data -> $commandsDir" -ForegroundColor Green
+}
+
+$skillsDir = Join-Path $configDir 'skills'
+Write-Host 'Deploying CCB skills (subagent-gate + quotation-learn-by-data)...' -ForegroundColor Cyan
+& (Join-Path $repoRoot 'ccb-installer\scripts\deploy-ccb-skills.ps1') -SkillsDir $skillsDir
+if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+    throw "deploy-ccb-skills failed (exit $LASTEXITCODE)"
+}
+$patchHooks = Join-Path $repoRoot 'ccb-installer\scripts\patch-subagent-gate-hooks.ps1'
+& $patchHooks -AgentsDir $agentsDir
+if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+    throw "patch-subagent-gate-hooks failed (exit $LASTEXITCODE)"
+}
+Write-Host '[ok] CCB skills + Stop hooks patched' -ForegroundColor Green
 
 $warmLibSrc = Join-Path $repoRoot 'ccb-installer\lib\warm-wanding-mcp.mjs'
 $warmLibDstDir = Join-Path $InstallDir 'lib'
@@ -222,4 +271,14 @@ Write-Host "  JWT_SECRET   : len=$($env:JWT_SECRET.Length)" -ForegroundColor Dar
 Write-Host ''
 
 # No AIONUI_BYPASS_AUTH — login page is shown, matching 1.1.2 installed behavior.
-bun run dev
+# Bun/npm write progress to stderr; with $ErrorActionPreference Stop that becomes a terminating error.
+$prevEa = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
+try {
+    & bun run dev
+    if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+        throw "bun run dev failed (exit $LASTEXITCODE)"
+    }
+} finally {
+    $ErrorActionPreference = $prevEa
+}
