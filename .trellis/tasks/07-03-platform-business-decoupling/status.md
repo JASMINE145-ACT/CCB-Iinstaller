@@ -2,7 +2,7 @@
 
 **Epic status:** approved · in_progress  
 **Last updated:** 2026-07-03  
-**Active phase:** P3 planning
+**Active phase:** P4 planning
 
 ## Phase tracker
 
@@ -11,13 +11,13 @@
 | P0 | Security & boundary freeze | ✅ done (ops rotation pending) | `6d81848f` · `07-03-p0-security-boundary` |
 | P1 | Meta-model & read-only registry | ✅ done | `p1-registry-snapshot-done.md` · tests 3/3 · lint 0 errors |
 | P2 | Config compiler & single source | ✅ done | `2ab9fdb2` · tests 6/6 · MCP 5/5 · staging PASS |
-| P3 | Extract `com.wanding.trade` | ⬜ pending | — |
+| P3 | Extract `com.wanding.trade` | ✅ done | `37b12091` · lifecycle 3/3 · platform 2/2 · MCP 5/5 |
 | P4 | Control plane & tenant governance | ⬜ pending | — |
 | P5 | Second vertical pilot | ⬜ pending | — |
 
 ## Active subtasks
 
-- `07-03-p2-config-compiler-v1` — completed in `2ab9fdb2`.
+- `07-03-p3-wanding-package-extract` — completed in `37b12091`.
 
 ## Blockers
 
@@ -27,5 +27,5 @@
 ## Next action
 
 1. 完成 P0 凭据轮换（独立 ops blocker，不影响 P1 artifact）。
-2. Explore and plan P3 package extraction.
-3. Keep the P2 compiled-settings bridge opt-in until the human checklist is completed.
+2. Explore and plan P4 control plane and tenant governance.
+3. Keep P2/P3 live state transitions opt-in until the human checklist is completed.

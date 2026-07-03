@@ -5,7 +5,7 @@
 | Scenario | C — multi-workstream cross-layer extraction |
 | Plan depth | Full |
 | Verification profile | Release + Security |
-| Status | Git gate — implementation and automated verification complete |
+| Status | completed — implementation commit `37b12091` |
 | Parent | `07-03-platform-business-decoupling` |
 
 ## Phase -1 capability matrix
@@ -78,4 +78,4 @@
 | Fresh and repeat staging | PASS |
 | Hot package closure | PASS |
 | Live MCP runtime | PASS 5/5 |
-| Git scope/credential scan | pending final staged audit |
+| Git scope/credential scan | PASS; implementation `37b12091` |

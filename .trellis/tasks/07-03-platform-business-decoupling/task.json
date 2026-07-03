@@ -43,13 +43,13 @@
     {
       "id": "p3-wanding-package",
       "title": "P3 — Extract com.wanding.trade vertical package",
-      "status": "in_progress",
+      "status": "completed",
       "taskDir": "07-03-p3-wanding-package-extract"
     },
     {
       "id": "p3-platform-health-split",
       "title": "P3-E — Platform install health without WanD required files",
-      "status": "in_progress",
+      "status": "completed",
       "taskDir": "07-03-p3-wanding-package-extract"
     },
     {
@@ -87,7 +87,7 @@
     "ccb-installer/resources/install-health-manifest.json",
     "ccb-installer/scripts/ensure-wanding-settings.ps1"
   ],
-  "notes": "Epic approved 2026-07-03. P0 committed 6d81848f; ops credential rotation pending. P1 complete. P2 completed in 2ab9fdb2 (tests 6/6, live parity 0, drift detected, MCP 5/5, staging PASS). Next phase: P3 planning.",
+  "notes": "Epic approved 2026-07-03. P0 committed 6d81848f; ops credential rotation pending. P1 complete. P2 completed in 2ab9fdb2. P3 completed in 37b12091 (empty platform 2/2, full MCP 5/5, staging and lifecycle PASS). Next phase: P4 planning.",
   "meta": {
     "user_goal": "分 Phase 实现平台与万鼎业务解耦，可装配多垂直包",
     "execution_plan": "execution-plan.md",
