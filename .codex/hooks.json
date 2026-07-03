@@ -20,6 +20,16 @@
             "timeout": 30
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python 'D:\\Projects\\claude-code-best\\.codex\\hooks\\commit-gate.py'",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "SessionStart": [

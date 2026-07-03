@@ -659,7 +659,7 @@ openspec config                            # 查看/修改配置
 | 需求不清晰 | Superpowers: `brainstorming` |
 | 功能很大，需要文档 | OpenSpec: `/opsx:explore` → `/opsx:propose` |
 | 普通功能开发 | Trellis: `task.py create` → `trellis-brainstorm` |
-| **设计任务怎么执行** | **`trellis-task-execution`** → Workstream→工具映射 + 门禁链 |
+| **设计任务怎么执行** | **`trellis-task-execution`** → Workstream→工具映射 + 门禁链；Step 3b 金标准见 `07-01-price-library-admin-agent/execution-plan.md`；集成 D-lite 见 `07-02`（含 2026-07-03 追溯补档） |
 | 遇到 bug | Superpowers: `systematic-debugging` |
 | 即将写代码 | Superpowers: `test-driven-development` |
 | 代码写完 | Superpowers: `verification-before-completion` + ECC: `/code-review` |
@@ -738,6 +738,9 @@ task.py finish             # 完成任务
 | **ECC** | 用户/AI 调命令 | build/lint/test 流水线 | `/verify` · `/code-review` |
 | **Trellis** | 工作流 | 对照 task spec + 项目 `.trellis/spec/` | `trellis-check` agent/skill |
 | **Cursor User Rules** | 用户规则（若启用） | **顺序**：code-review agent PASS → test PASS → 文档 | Task `code-reviewer` 等 |
+| **Commit 硬门禁**（2026-07-03 新增） | 代码层 hook（不是自律） | 有 active task 但无验证证据（execution-plan.md ✅ / check.jsonl PASS / task.json notes）时，**代码层拦截** `git commit` | `.trellis/scripts/common/commit_gate.py` + 三平台 `commit-gate.py` adapter — 详见 [`trellis-meta` change-hooks.md § Example: Add a Blocking Pre-Commit Gate](../.claude/skills/trellis-meta/references/customize-local/change-hooks.md) |
+
+> **注意**：上面四套门禁（Superpowers/ECC/Trellis/Cursor Rules）此前**全部是文本约定**——AI 读 skill 文档后自觉执行，没有代码层强制。"Commit 硬门禁"是第一个真正在代码层拦截的机制，且目前只有 **Cursor（已接线）+ Codex（已接线）** 生效；**Claude Code 侧 `commit-gate.py` 已写好但 `.claude/settings.json` 的 `PreToolUse`/`Bash` matcher 尚未注册**——这是刻意的：注册这个 matcher 属于修改 AI 自己的权限/hook 配置，被 auto-mode 权限分类器拦下，需要用户手动添加或显式二次授权，AI 不会自行绕过。
 
 ```
 推荐顺序（与本仓库 user rules 对齐时）：

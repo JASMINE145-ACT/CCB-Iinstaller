@@ -1,0 +1,4 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".claude/skills/trellis-meta/references/customize-local/change-hooks.md", "reason": "hook 修改步骤/注意事项权威参考"}
+{"file": ".claude/skills/trellis-meta/references/platform-files/hooks-and-settings.md", "reason": "三平台 hook 注册位置/契约权威参考"}
+{"file": ".trellis/tasks/07-03-commit-hook-claude-cursor-codex/prd.md", "reason": "本任务需求与已定 ADR 决策"}
