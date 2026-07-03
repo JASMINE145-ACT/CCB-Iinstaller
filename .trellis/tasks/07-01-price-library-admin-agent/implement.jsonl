@@ -33,3 +33,19 @@
 {"file": "aionui-src/packages/desktop/src/common/config/ccbAgentCatalog.ts", "reason": "P1 filterGuidCatalogAgents isPriceAdmin gate"}
 {"file": "aionui-src/packages/desktop/src/common/assistants/fetchAssistantsCatalog.ts", "reason": "P1 resolveIsOrgPriceAdmin draft probe"}
 {"file": "aionui-src/tests/unit/common-config/ccbAgentCatalog.test.ts", "reason": "P1 catalog gate tests — 3 pass"}
+{"file": "python/admin/org_price_admin_client.py", "reason": "P2-Edit list_versions() GET /versions"}
+{"file": "python/admin/org_price_admin_dispatch.py", "reason": "P2-Edit handle_list_price_library_versions newest-first + limit"}
+{"file": "python/system/price_library_tool_dispatch.py", "reason": "P2-Edit wire list_price_library_versions"}
+{"file": "mcp_servers/price-library-server/dist/index.js", "reason": "P2-Edit list_price_library_versions MCP tool registration"}
+{"file": "ccb-installer/packages/vertical/com.wanding.trade/agents/price-library-agent.md", "reason": "P2-Edit hooks + enhanced SOP + diff table format + revert with list"}
+{"file": "ccb-installer/packages/vertical/com.wanding.trade/agents/price-library-agent.aionui.json", "reason": "P2-Edit recommended_prompts with list versions"}
+{"file": "ccb-installer/packages/vertical/com.wanding.trade/skills/price-library-edit/SKILL.md", "reason": "P2-Edit bulk SOP skill (三分法 + prepare + revert)"}
+{"file": "ccb-installer/packages/vertical/com.wanding.trade/package.json", "reason": "P2-Edit register price-library-edit skill"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/scripts/pre-price-library-data-md-gate.py", "reason": "P2-Edit PreToolUse data.Md gate"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/scripts/post-price-library-confirm-nudge.py", "reason": "P2-Edit PostToolUse confirm nudge"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/scripts/validators/price-library-unpublished.sh", "reason": "P2-Edit Stop warn unpublished draft"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/scripts/lib/parse_transcript_data_md_gate.py", "reason": "P2-Edit data.Md transcript parser"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/scripts/lib/parse_transcript_price_library_unpublished.py", "reason": "P2-Edit unpublished draft transcript parser"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/config/modes.json", "reason": "P2-Edit price-library-agent + :unpublished modes"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/scripts/subagent-gate.sh", "reason": "P2-Edit price-library-agent case + unpublished validator"}
+{"file": "python/tests/test_org_price_admin_client.py", "reason": "P2-Edit list_versions tests — 23 pass"}

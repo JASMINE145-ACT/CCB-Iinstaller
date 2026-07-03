@@ -85,6 +85,10 @@ case "$agent_type" in
     bash "$SCRIPT_DIR/validators/research-agent-mcp.sh" \
       "$transcript_path" "$session_id" "$agent_type" "$last_msg" "$mode"
     ;;
+  price-library-agent)
+    bash "$SCRIPT_DIR/validators/price-library-unpublished.sh" \
+      "$transcript_path" "$session_id" "$agent_type" "$last_msg" "$(resolve_gate_mode "price-library-agent:unpublished")"
+    ;;
   *)
     if [[ "$mode" != "off" ]]; then
       :

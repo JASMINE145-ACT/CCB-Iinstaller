@@ -14,9 +14,10 @@
     "disabled": []
   },
   "recommended_prompts": [
-    "查看当前价格库 draft 有哪些待发布变更",
-    "把物料 M001 的 price_b 改成 12.5 并发布",
-    "导出当前已发布价格库到桌面"
+    "查看当前价格库 draft revision 和待发布变更",
+    "把物料 8010012697 的 supplier 改成 HENG XIN（先预览再确认）",
+    "列出最近 5 个价格库版本",
+    "导出当前已发布价格库到工作区"
   ],
   "mcp_allowlist": [
     "price-library",

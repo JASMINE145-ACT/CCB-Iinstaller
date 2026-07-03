@@ -37,6 +37,12 @@
 
 Model-facing names in session: `mcp__quotation__<tool>` (e.g. `mcp__quotation__match_quotation`).
 
+### Matching engine (domain core)
+
+`match_quotation` recall + scoring is **not** implemented in `quotation-server` JS. Live path: MCP → `python/main.py` → `match_quotation_union` → `wanding_fuzzy_matcher.search_fuzzy` (+ mapping table parallel recall). Final SKU selection is **Claude Code** + `wanding_business_knowledge.md`, not an internal LLM selector.
+
+**Full architecture:** [`quotation-matching-engine.md`](./quotation-matching-engine.md) — token expansion, hard filters, score formula, legacy stub warning, test map.
+
 ### `fill_quotation_sheet` Path routing & MCP schema (2026-06-30)
 
 **Problem:** Agent post-match fill failed with `file_path is required` or `FILE_NOT_FOUND` on `blank` / `Wanding-Quotation_*.xlsx` because `quotation-server/dist/index.js` required `file_path` and did not expose `fill_items`, while Python Path C already supported direct fill via bundled VANTSING blank template.

@@ -18,6 +18,7 @@ from admin.org_price_admin_dispatch import (  # noqa: E402
     handle_apply_price_library_import,
     handle_delete_price_library_item,
     handle_get_price_library_active,
+    handle_list_price_library_versions,
     handle_publish_price_library_draft,
     handle_revert_price_library_version,
     handle_upsert_price_library_item,
@@ -293,6 +294,39 @@ class OrgPriceAdminDispatchTests(unittest.TestCase):
         self.assertEqual(result["new_version_id"], "plv-9")
 
 
+class ListPriceLibraryVersionsTests(unittest.TestCase):
+    def test_list_versions_normalizes_and_marks_active(self) -> None:
+        versions = [
+            {"id": "plv-2", "version_number": 2, "item_count": 100},
+            {"id": "plv-3", "version_number": 3, "item_count": 3299, "published_at": "2026-07-01"},
+        ]
+        active = {"version": {"id": "plv-3", "version_number": 3}, "products": []}
+        with mock.patch.object(opac, "list_versions", return_value=versions):
+            with mock.patch.object(opac, "get_active", return_value=active):
+                result = handle_list_price_library_versions({"limit": 5})
+        self.assertEqual(result["count"], 2)
+        self.assertEqual(result["active_version_id"], "plv-3")
+        self.assertTrue(result["versions"][0]["is_active"])
+        self.assertEqual(result["versions"][0]["version_id"], "plv-3")
+
+    def test_list_versions_limit_returns_newest_first(self) -> None:
+        versions = [
+            {"id": "plv-1", "version_number": 1},
+            {"id": "plv-2", "version_number": 2},
+            {"id": "plv-3", "version_number": 3},
+        ]
+        with mock.patch.object(opac, "list_versions", return_value=versions):
+            with mock.patch.object(opac, "get_active", return_value={"version": {"id": "plv-3"}}):
+                result = handle_list_price_library_versions({"limit": 2})
+        self.assertEqual(result["count"], 2)
+        self.assertEqual(result["versions"][0]["version_id"], "plv-3")
+        self.assertEqual(result["versions"][1]["version_id"], "plv-2")
+
+    def test_list_versions_rejects_invalid_limit(self) -> None:
+        with self.assertRaises(ValueError):
+            handle_list_price_library_versions({"limit": "bad"})
+
+
 class PriceLibraryImportPathGuardTests(unittest.TestCase):
     def test_validate_import_path_rejects_non_xlsx(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -312,6 +346,7 @@ class PriceLibraryMcpRegistryTests(unittest.TestCase):
         for name in (
             "get_price_library_active",
             "get_price_library_draft",
+            "list_price_library_versions",
             "upsert_price_library_item",
             "delete_price_library_item",
             "export_price_library",

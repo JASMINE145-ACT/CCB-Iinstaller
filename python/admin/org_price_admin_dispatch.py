@@ -78,6 +78,62 @@ def handle_get_price_library_draft(_params: dict[str, Any]) -> dict[str, Any]:
     return data
 
 
+def handle_list_price_library_versions(params: dict[str, Any]) -> dict[str, Any]:
+    from admin.org_price_admin_client import get_active, list_versions
+
+    raw_limit = params.get("limit")
+    limit: int | None = None
+    if raw_limit is not None:
+        try:
+            limit = max(1, int(raw_limit))
+        except (TypeError, ValueError) as exc:
+            raise ValueError("limit must be a positive integer") from exc
+
+    versions = list_versions()
+    normalized: list[dict[str, Any]] = []
+    for item in versions:
+        version_id = item.get("id") or item.get("version_id")
+        if not version_id:
+            continue
+        normalized.append(
+            {
+                "version_id": str(version_id),
+                "version_number": item.get("version_number"),
+                "published_at": item.get("published_at"),
+                "item_count": item.get("item_count"),
+                "reason": item.get("reason"),
+                "is_active": bool(item.get("is_active")),
+            }
+        )
+
+    normalized.sort(
+        key=lambda row: (
+            int(row.get("version_number") or 0),
+            str(row.get("published_at") or ""),
+        ),
+        reverse=True,
+    )
+
+    active_data = get_active() or {}
+    active_version = active_data.get("version") or {}
+    active_version_id = active_version.get("id")
+    if active_version_id:
+        active_id = str(active_version_id)
+        for row in normalized:
+            if row["version_id"] == active_id:
+                row["is_active"] = True
+
+    if limit is not None:
+        normalized = normalized[:limit]
+
+    return {
+        "count": len(normalized),
+        "active_version_id": str(active_version_id) if active_version_id else None,
+        "active_version_number": active_version.get("version_number"),
+        "versions": normalized,
+    }
+
+
 def handle_export_price_library(params: dict[str, Any]) -> dict[str, Any]:
     from pathlib import Path
 

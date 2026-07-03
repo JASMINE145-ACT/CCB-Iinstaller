@@ -40,6 +40,16 @@ server.setRequestHandler(ListToolsRequestSchema, () => ({
             inputSchema: { type: "object", properties: {} },
         },
         {
+            name: "list_price_library_versions",
+            description: "List published price library version history (version_id, version_number, published_at). Use before revert.",
+            inputSchema: {
+                type: "object",
+                properties: {
+                    limit: { type: "integer", description: "Optional max rows to return (newest first)." },
+                },
+            },
+        },
+        {
             name: "export_price_library",
             description: "Download the active price library as xlsx. Optional output_path to save on disk.",
             inputSchema: {

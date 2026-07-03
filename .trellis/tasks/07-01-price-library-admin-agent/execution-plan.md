@@ -10,7 +10,9 @@
 | **Approved** | 2026-07-02（用户确认「按思路执行」） |
 | **Scenario** | A + D-lite |
 | **Repos** | `claude-code-best`（主）+ `aionui-src`（P1 catalog） |
-| **Active phase** | **P3** — VPS E2E smoke（需用户） |
+| **Plan depth** | **Full**（edit 体系完善） |
+| **Verification profile** | **UI**（Guid smoke 为主） |
+| **Active phase** | **P3** — Guid E2E smoke（需用户） |
 
 ---
 
@@ -24,9 +26,11 @@
 | **P0C** publish + 409 | ✅ | [`p0c-publish-done.md`](./p0c-publish-done.md) · pytest 14/14 · code-review PASS |
 | **P0D** import/revert + path security | ✅ | [`p0d-import-revert-done.md`](./p0d-import-revert-done.md) · unittest 19/19 · code-review PASS |
 | **P1** Guid agent + catalog gate | ✅ | [`p1-guid-agent-catalog-done.md`](./p1-guid-agent-catalog-done.md) · deploy-seed 16 files · health PASS |
-| P1.5 Orchestrator delegate | ⬜ | optional |
-| P2 Bulk SOP | ⬜ | — |
-| P3 E2E | ⬜ | [`p3-e2e-pending.md`](./p3-e2e-pending.md) — admin Guid smoke |
+| P1.5 Orchestrator delegate | ⬜ | optional — defer |
+| **P2-Edit-a** 单条对话 SOP + hooks | ✅ | [`p2-edit-done.md`](./p2-edit-done.md) · pytest 23/23 · gate 4/4 |
+| **P2-Edit-b** 批量 SOP + prepare 衔接 | ✅ | `skills/price-library-edit/SKILL.md` |
+| **P2-Edit-c** list versions MCP | ✅ | `list_price_library_versions` |
+| **P3** E2E + 记录 | ⬜ | [`p3-e2e-pending.md`](./p3-e2e-pending.md) |
 
 **Child task done:** [`07-03-price-library-supplier-ui-column`](../07-03-price-library-supplier-ui-column/)
 
@@ -155,6 +159,158 @@ P0B ✅ → P0C → P0D → P1(ccb) → P1(aionui) → P2 → P3
 
 ---
 
+---
+
+## P2-Edit — Edit 体系完善（2026-07-03，**draft 待批准**）
+
+> **动机：** MCP 写路径已齐，但「主力维护工具」的对话体验、批量路径、读能力缺口尚未闭环。  
+> **原则：** 探索 → 落档 → 实现 → 测试 → 记录；每里程碑 mini-gate。
+
+### Edit 能力矩阵（现状 vs 目标）
+
+| 场景 | 工具路径 | 代码 | Agent SOP | E2E |
+|------|----------|------|-----------|-----|
+| 单字段改价（price_b 等） | `upsert` 两阶段 | ✅ | 基础 | ⬜ |
+| 同 SKU 多字段 | `upsert` 多字段一次 | ✅ | 缺示例 | ⬜ |
+| 新增 SKU | `upsert` + `is_preferred_price` | ✅ | 缺说明 | ⬜ |
+| 软删 / 恢复 | `delete` / `restore` | ✅ | 基础 | ⬜ |
+| supplier 维护 | `upsert` supplier | ✅ | 缺 | ⬜ |
+| RUCIKA 多档 | `upsert` rucika_* | ✅ | 缺 + 验收用 quotation tiers | ⬜ |
+| 小表批量（≤N 行） | excel → `preview`/`apply` | ✅ | 基础 | ⬜ |
+| 全量规范化 | `prepare-price-library-import.py` → import | 脚本 ✅ | **缺衔接** | ⬜ |
+| 导出→改→再导入 | `export` + excel + import | ✅ | **缺** | ⬜ |
+| 发布 / 409 并发 | `publish` 两阶段 | ✅ | 基础 | ⬜ |
+| 回滚 | `revert` 需 `version_id` | revert ✅ | **缺 list versions** | ⬜ |
+| 审计 / 版本列表 | GET `/versions` `/audit` | API ✅ | **无 MCP** | — |
+
+**关键缺口：** ① sidecar 无 hooks（data.Md / 未 publish 提醒）；② revert 无 `list_price_library_versions`；③ P2 bulk 与 prepare 脚本未写入 agent skill。
+
+### Phase -1 — Capability matrix
+
+| Capability | Preferred tool | Status | Fallback |
+|------------|----------------|--------|----------|
+| Spec read | `trellis-before-dev` | available | 主会话读 integration spec |
+| Explore / gap audit | `/opsx:explore` | available | `research/edit-capability-audit-2026-07-03.md` |
+| Sidecar + hooks | `trellis-implement` | available | 主会话改 agent md + gate scripts |
+| MCP read 补全 | TDD → implement | available | 主会话 |
+| Review | `code-reviewer` agent | available | trellis-check |
+| Test | `pytest` + Guid manual | available | — |
+| Spec 沉淀 | `trellis-update-spec` | available | 主会话改 price-library.md |
+| P3 smoke | 用户 Guid | available | `p3-e2e-pending.md` 填结果 |
+
+### Phase E0 — Explore & 落档（无代码）
+
+| Step | Output | Done |
+|------|--------|------|
+| 读 sidecar + quotation-agent hooks 先例 | gap 列表 | ⬜ |
+| 读 `prepare-price-library-import.py` + runbook §1.1 | bulk 三分法决策 | ⬜ |
+| 写 `research/edit-capability-audit-2026-07-03.md` | 能力矩阵 + 场景路由 | ⬜ |
+
+**Bulk 三分法（拟落档）：**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  用户意图              │  路径                              │
+├────────────────────────┼────────────────────────────────────┤
+│  1–5 行改几个字段       │  upsert 两阶段（不走 Excel）        │
+│  几十行局部更新         │  export → excel 改 → preview/apply │
+│  全库/规范化/去重/映射  │  prepare 脚本 → import_ready → apply│
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Phase P2-Edit-a — 单条改价对话体验
+
+| WS | Risk | Tool | Files | Required output | Profile |
+|----|------|------|-------|-----------------|---------|
+| Sidecar SOP 增强 | ui | edit md | `price-library-agent.md`, `.aionui.json` | 多场景 SOP + diff 展示模板 + recommended_prompts | UI |
+| PreToolUse data.Md | ui | hook | `ccb-subagent-gate` 新 script 或复用模式 | 首次 upsert/import 前强制 Read | UI |
+| Stop 未 publish 提醒 | ui | hook | 同上 Stop matcher | 会话有 confirmed write 未 publish → nudge | UI |
+| PostToolUse confirmed nudge | ui | hook | preview 后提醒用户确认再 true | 减少 skip preview | UI |
+
+**TDD contract（hooks）：**
+
+| WS | Level | RED | GREEN | Regression |
+|----|-------|-----|-------|------------|
+| gate scripts | unit | 无 Read → block upsert | pytest 新用例 | quotation gate 不回归 |
+| sidecar | smoke | N/A | deploy-seed + 人工读 md | — |
+
+### Phase P2-Edit-b — 批量维护 SOP
+
+| WS | Risk | Tool | Files | Required output | Profile |
+|----|------|------|-------|-----------------|---------|
+| Agent skill | — | new skill | `skills/price-library-edit/SKILL.md` | prepare 场景 + export 小表 + import 摘要格式 | Standard |
+| prepare 衔接 | external-api | doc in skill | 引用 `prepare-price-library-import.py` | 何时跑脚本、skipped.json 含义、dedupe 与 data.Md 张力 | Standard |
+| import 摘要模板 | ui | agent md | preview counts → 人类可读表 | create/update/unchanged/error 必报 | UI |
+
+**P2 还缺什么（相对 prepare 脚本）：**
+
+1. Agent **不知道何时**跑 prepare（全量 vs 用户小表）
+2. **skipped.json / deduped** 解释未写入 sidecar（用户问「为什么行少了」）
+3. **export → excel MCP → import** 闭环未文档化
+4. import preview **错误行**展示格式未规定
+5. prepare 默认 input 路径（supplier draft xlsx）对 agent 不透明
+
+### Phase P2-Edit-c — 读能力补全（revert / 审计）
+
+| WS | Risk | Tool | Files | Required output | Profile |
+|----|------|------|-------|-----------------|---------|
+| `list_price_library_versions` | external-api | TDD | client + dispatch + MCP `index.js` | GET `/versions` 包装 | Standard |
+| `get_price_library_audit`（可选 P2.5） | — | defer OK | GET `/audit` | 若 revert smoke 需要再开 | — |
+| revert SOP 更新 | ui | agent md | 用 list → 选 id → revert 两阶段 | — | UI |
+
+**TDD contract：**
+
+| WS | Level | RED | GREEN | Regression |
+|----|-------|-----|-------|------------|
+| list versions | unit | mock GET /versions | pytest + MCP tool list 11 tools | 现有 19 tests 仍 pass |
+
+### Phase P3 — E2E smoke + 记录
+
+**最短手动路径（admin，~15 min）：**
+
+1. `start-dev-full` + org SSO 登录 **admin**
+2. Guid →「**价格库管理**」→ **新会话**
+3. 说：「查 draft revision」→ 记下 `revision`
+4. 说：「把物料 `8010012697` 的 `supplier` 改成 `TEST-SMOKE`（先预览）」
+   - 期望：agent 先 `upsert` `confirmed=false` 展示 diff → 你回复「确认」→ `confirmed=true`
+5. 说：「发布（先预览）」→ 确认 → `publish` `confirmed=true`
+6. 说：「查 active version_number」→ 应 **递增**
+7. **（可选 5 min）** 导出小 xlsx → 改 1 行 → preview import → apply → publish
+8. 填 [`p3-e2e-pending.md`](./p3-e2e-pending.md) + 本 plan Progress 表
+
+**扩展 smoke（有时间再做）：** 双 admin 409 · revert · quotation 新会话 `org_api` · RUCIKA tiers
+
+### Verification profile — **UI**
+
+1. `code-reviewer` PASS（P2-Edit-a/b/c 每里程碑）
+2. `python -m pytest python/tests/test_org_price_admin_client.py` — 目标 **≥22**（+list versions）
+3. `deploy-seed-agents.ps1 -ForceMd` + `sync-dev-wanding-vendor.ps1`
+4. **用户** P3 smoke → 证据写入 `p3-e2e-pending.md`
+5. `trellis-update-spec` → `price-library.md` § Agent write path
+6. `implement.jsonl` + `check.jsonl` + prd AC
+7. commit（仅用户要求）→ `/trellis:finish-work`
+
+### Recovery
+
+| Trigger | Return to | Re-approval |
+|---------|-----------|-------------|
+| Guid 跳过 confirmed=false | P2-Edit-a hooks | no |
+| import 路径 403/拒绝 | 检查 workspace 白名单 | no |
+| publish 409 | agent SOP 重读 draft | no |
+| list versions API 形态与假设不符 | P2-Edit-c research | yes if scope changes |
+| P3 smoke fail | 对应 WS + 重跑 gate | no |
+
+### Recommended order
+
+```
+E0 explore 落档 → P2-Edit-c (list versions, 小) → P2-Edit-a (hooks+sidecar)
+  → P2-Edit-b (skill+bulk SOP) → P3 smoke 记录 → finish-work
+```
+
+P1.5 orchestrator **仍 defer**（不阻塞 edit 体系）。
+
+---
+
 ## Change log
 
 | Date | Change |
@@ -162,3 +318,4 @@ P0B ✅ → P0C → P0D → P1(ccb) → P1(aionui) → P2 → P3
 | 2026-07-02 | Plan created; P0B marked complete from delivery note |
 | 2026-07-02 | P0D import/revert + MCP health manifest landed |
 | 2026-07-02 | P1 deploy-seed + vendor sync + dev restart; active phase → P3 E2E |
+| 2026-07-03 | P2-Edit 完善计划（edit 矩阵 + hooks + bulk SOP + list versions + P3 最短 smoke） |

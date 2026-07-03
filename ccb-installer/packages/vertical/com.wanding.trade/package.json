@@ -67,7 +67,9 @@
         "price-library",
         "excel"
       ],
-      "skills": []
+      "skills": [
+        "price-library-edit"
+      ]
     }
   ],
   "mcpServers": [
@@ -175,6 +177,13 @@
       "source": "packages/vertical/com.wanding.trade/skills/quotation-learn-by-data/SKILL.md",
       "providesCapabilities": [
         "business.pricing.quote"
+      ]
+    },
+    {
+      "id": "price-library-edit",
+      "source": "packages/vertical/com.wanding.trade/skills/price-library-edit/SKILL.md",
+      "providesCapabilities": [
+        "business.pricing.manage"
       ]
     }
   ],

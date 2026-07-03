@@ -17,4 +17,9 @@
 {"check": "P1 MCP health config", "evidence": "test-mcp-health.ps1 — price-library registered + agent allowlist PASS"}
 {"check": "P1 vendor sync full", "evidence": "sync-dev-wanding-vendor.ps1 -UpdateSettings from repo root — python + price-library MCP dist"}
 {"check": "P1 dev stack restart", "evidence": "start-dev-full.ps1 -SkipBootstrap -SkipVendorSync -BuildAioncore:$false — localhost:5173 org SSO → VPS 67.216.206.3:13401"}
-{"check": "P3 E2E smoke", "evidence": "pending — admin Guid: upsert confirmed two-phase → publish → version_number++; optional import/revert; non-admin card hidden (needs aionui-src rebuild if old exe)"}
+{"check": "P2-Edit code-review PASS", "evidence": "code-reviewer 671529ff re-review 2026-07-03 — list_versions newest-first, hooks advisory-only, two-phase preserved; PASS"}
+{"check": "P2-Edit pytest", "evidence": "python/tests/test_org_price_admin_client.py — 23 passed (list_versions + limit + order + invalid limit)"}
+{"check": "P2-Edit gate tests", "evidence": "ccb-subagent-gate/tests/test_price_library_data_md_gate.py — 2 pass; test_price_library_unpublished_gate.py — 2 pass"}
+{"check": "P2-Edit spec update", "evidence": ".trellis/spec/integration/price-library.md — 11 tools, hooks, skill recorded"}
+{"check": "P2-Edit delivery", "evidence": "p2-edit-done.md + execution-plan.md Progress updated"}
+{"check": "P3 E2E smoke", "evidence": "pending — admin Guid: upsert confirmed two-phase → publish → version_number++; list_versions; optional import/revert; non-admin card hidden (needs aionui-src rebuild if old exe)"}

@@ -274,7 +274,7 @@ Expect `org_api` and product count matching VPS `GET /active`.
 |------|------|
 | Client | `python/admin/org_price_client.py` |
 | Tests | `python/tests/test_org_price_client.py` |
-| Matcher hook | `wanding_fuzzy_matcher._try_load_from_org_remote` when `price_library_path is None` |
+| Matcher hook | `wanding_fuzzy_matcher._try_load_from_org_remote` when `price_library_path is None` — engine spec: [`../backend/quotation-matching-engine.md`](../backend/quotation-matching-engine.md) |
 | All tiers per code | `get_product_price_tiers` MCP — org product dict → factory/A–E/LOCAL/RUCIKA/PE; agent **must Read** `vendor/wanding/data/data.Md` same turn for per-source labels |
 | LKG store | `%APPDATA%/AionUi/aionui/price-library/` |
 | LKG min products | `LKG_MIN_PRODUCTS` env (default **50**); snapshots below this are ignored → bundled seed |
@@ -487,12 +487,13 @@ quotation MCP (match_fuzzy, try_remote=True)
 | Catalog gate | `aionui-src` — `ccbAgentCatalog.ts`, `resolveIsOrgPriceAdmin()` |
 | Health | `ccb-installer/config/mcp-health-manifest.json` — `price-library` probe |
 
-**MCP tools (10):**
+**MCP tools (11):**
 
 | Tool | Phase |
 |------|-------|
 | `get_price_library_active` | P0B |
 | `get_price_library_draft` | P0B |
+| `list_price_library_versions` | P2-Edit |
 | `export_price_library` | P0B |
 | `upsert_price_library_item` | P0B |
 | `delete_price_library_item` | P0B |
@@ -514,6 +515,8 @@ quotation MCP (match_fuzzy, try_remote=True)
 **Guid visibility (P1):**
 
 - Sidecar `requires_price_admin: true`, `delegatable: false`
+- Skill `price-library-edit` — bulk 三分法 + prepare script SOP (P2-Edit)
+- Hooks (P2-Edit): PreToolUse `data.Md` gate on upsert/apply; PostToolUse confirm nudge; Stop warn if draft applied without publish
 - AionUI catalog probes `GET /api/price-library/draft` — non-admin **no**「价格库管理」card
 - `CCB_GUID_ONLY_AGENT_IDS` excludes price-library from orchestrator delegation index
 - Deploy: `deploy-seed-agents.ps1 -ForceMd` → `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\`
@@ -536,3 +539,5 @@ Task: [`07-01-price-library-admin-agent`](../../tasks/07-01-price-library-admin-
 **Recorded:** 2026-07-02 — P0D: `preview_price_library_import` / `apply_price_library_import` / `revert_price_library_version` + import path guard + MCP health manifest entry. Delivery: [`p0d-import-revert-done.md`](../../tasks/07-01-price-library-admin-agent/p0d-import-revert-done.md). Tests: unittest **19/19**.
 
 **Recorded:** 2026-07-02 — P1: `price-library-agent` sidecar + AionUI `requires_price_admin` catalog gate + deploy-seed + MCP health PASS. Delivery: [`p1-guid-agent-catalog-done.md`](../../tasks/07-01-price-library-admin-agent/p1-guid-agent-catalog-done.md). Bun catalog **3/3**. **Active:** P3 E2E smoke (admin Guid upsert → publish → `version_number++`).
+
+**Recorded:** 2026-07-03 — **P2-Edit:** `list_price_library_versions` MCP; `price-library-edit` skill; agent hooks (data.Md PreToolUse, confirm PostToolUse, unpublished Stop warn); sidecar SOP + diff table. Delivery: [`p2-edit-done.md`](../../tasks/07-01-price-library-admin-agent/p2-edit-done.md). Tests: unittest **23/23** + gate **4/4**.

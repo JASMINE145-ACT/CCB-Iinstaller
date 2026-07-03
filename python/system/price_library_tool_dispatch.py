@@ -25,6 +25,11 @@ def dispatch(tool: str, params: dict[str, Any]) -> Any:
 
         return handle_get_price_library_draft(params)
 
+    if tool == "list_price_library_versions":
+        from admin.org_price_admin_dispatch import handle_list_price_library_versions
+
+        return handle_list_price_library_versions(params)
+
     if tool == "export_price_library":
         from admin.org_price_admin_dispatch import handle_export_price_library
 

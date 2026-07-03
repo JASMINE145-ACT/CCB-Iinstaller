@@ -7,6 +7,8 @@
   "quotation-agent:roe": "off",
   "accurate-agent": "warn",
   "research-agent": "warn",
+  "price-library-agent": "off",
+  "price-library-agent:unpublished": "warn",
   "word-creator:roe-judge": "block",
   "ppt-creator:roe-judge": "block",
   "excel-creator:roe-judge": "block",

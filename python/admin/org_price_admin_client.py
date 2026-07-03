@@ -274,6 +274,19 @@ def get_draft() -> dict[str, Any] | None:
     return _api_get(f"{_API_PREFIX}/draft")
 
 
+def list_versions() -> list[dict[str, Any]]:
+    """Fetch published version history (any authenticated org user)."""
+    data = _api_get(f"{_API_PREFIX}/versions")
+    if not data:
+        return []
+    versions = data.get("versions")
+    if isinstance(versions, list):
+        return [item for item in versions if isinstance(item, dict)]
+    if isinstance(data, list):
+        return [item for item in data if isinstance(item, dict)]
+    return []
+
+
 def export_active_bytes() -> bytes:
     """Download active library as xlsx bytes (authenticated read)."""
     base = resolve_org_server_url()

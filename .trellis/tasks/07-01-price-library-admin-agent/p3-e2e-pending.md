@@ -12,7 +12,7 @@
 | Org API | `http://67.216.206.3:13401` |
 | Install dir | `D:\CCB-Wanding` |
 | Agents deployed | `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\price-library-agent.*` |
-| MCP tools | 10 (read + upsert + publish + import + revert) |
+| MCP tools | 11 (read + upsert + publish + import + revert + **list versions**) |
 
 **Note:** Local embedded aioncore may log `PRICE_ADMIN_USERNAMES is not set` — irrelevant for MCP writes; org VPS has admin configured.
 
@@ -23,7 +23,8 @@
 3. `upsert_price_library_item` — `confirmed=false` → review → `confirmed=true`
 4. `publish_price_library_draft` — two-phase confirm with same `revision`
 5. `get_price_library_active` → expect `version_number` increment (was 3 → 4)
-6. *(optional)* import preview/apply on small xlsx; revert with separate confirm
+6. `list_price_library_versions` `limit=5` → active `version_id` matches step 5
+7. *(optional)* import preview/apply on small xlsx; revert with separate confirm
 
 ## PRD checklist (record results here when done)
 
