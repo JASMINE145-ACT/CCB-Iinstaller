@@ -70,4 +70,4 @@ cd D:\Projects\claude-code-best\ccb-installer\scripts
 .\test-mcp-health.ps1 -Probe
 ```
 
-**Operator:** _pending user/dev session_
+**Operator:** dev running (`start-dev-full.ps1 -SkipBootstrap`); Vite `http://localhost:5173/` → **200** (2026-07-03). Complete Smoke A+B in Electron window.

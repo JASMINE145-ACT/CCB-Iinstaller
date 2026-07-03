@@ -28,7 +28,9 @@
 ## Artifacts
 
 - `reviews/step-01-integration.md` — Step 1（7.5/10）
+- `reviews/step-02-backend.md` — Step 2（7/10）
 - `reviews/step-03-frontend.md` — Step 3（7/10）
+- `delivery-fe-p0-1-verify-2026-07-03.md` — P2 FE-P0-1 验证清单
 - `reviews/phase-02-1-exploration-2026-07-02.md` — Phase 2.1 探索
 - `delivery-phase-02-1-vendor-sync.md` — Phase 2.1 交付
 - `backlog.md` — 含 BE-P0/P1/P2（Step 2 追加）
