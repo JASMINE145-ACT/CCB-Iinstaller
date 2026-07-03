@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "com.wanding.trade",
+  "suites": [
+    {
+      "id": "quotation-knowledge-gate",
+      "source": "config/skills/ccb-subagent-gate/tests/test_knowledge_read_gate.py"
+    },
+    {
+      "id": "quotation-transcript-fixtures",
+      "source": "config/skills/ccb-subagent-gate/tests/fixtures/transcripts"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 > **Status:** Active (P1 — task `07-03-platform-business-decoupling`)
 > **Schema:** `ccb-installer/config/schemas/package-manifest.schema.json`
-> **Example:** `ccb-installer/config/packages/com.wanding.trade/package.json`
+> **Example:** `ccb-installer/packages/vertical/com.wanding.trade/package.json`
 
 P1 introduces a declarative description layer without changing installation or
 runtime behavior. Package manifests describe ownership and relationships;

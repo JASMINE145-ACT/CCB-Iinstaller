@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "inventoryFailure": "fail-closed",
+  "priceCacheFailure": "read-only-degrade",
+  "disablePolicy": {
+    "removeRuntimeProjection": true,
+    "retainTenantData": true,
+    "retainSecrets": true
+  }
+}

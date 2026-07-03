@@ -43,12 +43,14 @@
     {
       "id": "p3-wanding-package",
       "title": "P3 — Extract com.wanding.trade vertical package",
-      "status": "pending"
+      "status": "in_progress",
+      "taskDir": "07-03-p3-wanding-package-extract"
     },
     {
       "id": "p3-platform-health-split",
       "title": "P3-E — Platform install health without WanD required files",
-      "status": "pending"
+      "status": "in_progress",
+      "taskDir": "07-03-p3-wanding-package-extract"
     },
     {
       "id": "p4-control-plane",
@@ -63,7 +65,8 @@
   ],
   "children": [
     "07-03-p0-security-boundary",
-    "07-03-p2-config-compiler-v1"
+    "07-03-p2-config-compiler-v1",
+    "07-03-p3-wanding-package-extract"
   ],
   "parent": null,
   "relatedFiles": [

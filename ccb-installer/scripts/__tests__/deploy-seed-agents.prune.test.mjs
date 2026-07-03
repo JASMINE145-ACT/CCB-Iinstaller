@@ -10,7 +10,6 @@ const installerRoot = join(here, '..', '..');
 const script = join(here, '..', 'deploy-seed-agents.mjs');
 const tmp = join(installerRoot, '.tmp-deploy-seed-prune-test');
 const live = join(tmp, 'live-agents');
-const source = join(installerRoot, 'config', 'agents');
 
 function assert(cond, msg) {
   if (!cond) {
@@ -27,7 +26,7 @@ writeFileSync(join(live, 'quotation-agent.md'), 'stale', 'utf8');
 
 const run = spawnSync(
   process.execPath,
-  [script, '--force-md', `--config=${live}`, `--source=${source}`],
+  [script, '--force-md', `--config=${live}`],
   { encoding: 'utf8', cwd: installerRoot },
 );
 

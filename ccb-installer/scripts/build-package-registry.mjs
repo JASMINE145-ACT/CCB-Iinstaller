@@ -180,21 +180,41 @@ function ownerDiagnostics(index, kind) {
 
 export async function buildRegistry({ repoRoot }) {
   const installerRoot = resolve(repoRoot, "ccb-installer");
-  const packagesRoot = join(installerRoot, "config", "packages");
-  const packageDirs = await listDirectories(packagesRoot);
+  const packageRoots = [
+    join(installerRoot, "packages", "vertical"),
+    join(installerRoot, "config", "packages"),
+  ];
   const manifests = [];
   const diagnostics = [];
 
-  for (const directory of packageDirs) {
-    const path = join(packagesRoot, directory, "package.json");
-    const manifest = await readJson(path);
-    manifests.push(manifest);
-    diagnostics.push(
-      ...validatePackageManifest(manifest).map((item) => ({
-        ...item,
-        source: relative(repoRoot, path).replaceAll("\\", "/"),
-      })),
-    );
+  for (const packagesRoot of packageRoots) {
+    const packageDirs = await listDirectories(packagesRoot);
+    for (const directory of packageDirs) {
+      const path = join(packagesRoot, directory, "package.json");
+      let manifest;
+      try {
+        manifest = await readJson(path);
+      } catch (error) {
+        if (error.code === "ENOENT") continue;
+        throw error;
+      }
+      if (manifests.some((item) => item.packageId === manifest.packageId)) {
+        diagnostics.push({
+          severity: "error",
+          code: "duplicate-package",
+          message: `Package ${manifest.packageId} has more than one canonical manifest`,
+          source: relative(repoRoot, path).replaceAll("\\", "/"),
+        });
+        continue;
+      }
+      manifests.push(manifest);
+      diagnostics.push(
+        ...validatePackageManifest(manifest).map((item) => ({
+          ...item,
+          source: relative(repoRoot, path).replaceAll("\\", "/"),
+        })),
+      );
+    }
   }
 
   const agentOwners = ownerIndex(manifests, "agents");
@@ -207,13 +227,28 @@ export async function buildRegistry({ repoRoot }) {
   );
 
   const agentsRoot = join(installerRoot, "config", "agents");
-  const agentFiles = await listFiles(agentsRoot, ".md");
-  const agents = [];
-  for (const file of agentFiles.filter((name) => name !== "README.md")) {
+  const packageAgentSources = new Map(
+    manifests.flatMap((manifest) =>
+      manifest.agents.map((agent) => [agent.id, agent.source]),
+    ),
+  );
+  const agentSources = new Map(packageAgentSources);
+  for (const file of (await listFiles(agentsRoot, ".md")).filter(
+    (name) => name !== "README.md",
+  )) {
     const id = file.slice(0, -3);
-    const markdown = await readFile(join(agentsRoot, file), "utf8");
+    if (!agentSources.has(id)) {
+      agentSources.set(id, `config/agents/${file}`);
+    }
+  }
+  const agents = [];
+  for (const [id, source] of [...agentSources].sort(([a], [b]) =>
+    a.localeCompare(b),
+  )) {
+    const sourcePath = join(installerRoot, source);
+    const markdown = await readFile(sourcePath, "utf8");
     const owners = agentOwners.get(id) ?? [];
-    const sidecarPath = join(agentsRoot, `${id}.aionui.json`);
+    const sidecarPath = join(dirname(sourcePath), `${id}.aionui.json`);
     let sidecar = {};
     try {
       sidecar = await readJson(sidecarPath);
@@ -225,7 +260,7 @@ export async function buildRegistry({ repoRoot }) {
     agents.push({
       id,
       packageId: owners[0]?.packageId ?? null,
-      source: relative(repoRoot, join(agentsRoot, file)).replaceAll("\\", "/"),
+      source: relative(repoRoot, sourcePath).replaceAll("\\", "/"),
       displayName: sidecar.display_name ?? null,
       mcpServers,
       skills,
@@ -256,7 +291,13 @@ export async function buildRegistry({ repoRoot }) {
   const healthManifest = await readJson(
     join(installerRoot, "config", "mcp-health-manifest.json"),
   );
-  const mcpServers = Object.keys(healthManifest.mcp_servers)
+  const healthIds = new Set(Object.keys(healthManifest.mcp_servers));
+  for (const manifest of manifests) {
+    for (const descriptor of manifest.mcpServers) {
+      healthIds.add(descriptor.id);
+    }
+  }
+  const mcpServers = [...healthIds]
     .sort()
     .map((id) => {
       const owners = mcpOwners.get(id) ?? [];
@@ -270,14 +311,22 @@ export async function buildRegistry({ repoRoot }) {
       return {
         id,
         packageId: owners[0]?.packageId ?? null,
-        source: "ccb-installer/config/mcp-health-manifest.json",
+        source:
+          owners[0]?.descriptor.source ??
+          "ccb-installer/config/mcp-health-manifest.json",
         providesCapabilities:
           owners[0]?.descriptor.providesCapabilities ?? [],
       };
     });
 
   const skillsRoot = join(installerRoot, "config", "skills");
-  const skills = (await listDirectories(skillsRoot)).map((id) => {
+  const skillIds = new Set(await listDirectories(skillsRoot));
+  for (const manifest of manifests) {
+    for (const descriptor of manifest.skills) {
+      skillIds.add(descriptor.id);
+    }
+  }
+  const skills = [...skillIds].sort().map((id) => {
     const owners = skillOwners.get(id) ?? [];
     if (owners.length === 0) {
       diagnostics.push({
@@ -289,7 +338,9 @@ export async function buildRegistry({ repoRoot }) {
     return {
       id,
       packageId: owners[0]?.packageId ?? null,
-      source: `ccb-installer/config/skills/${id}/SKILL.md`,
+      source:
+        owners[0]?.descriptor.source ??
+        `ccb-installer/config/skills/${id}/SKILL.md`,
       providesCapabilities:
         owners[0]?.descriptor.providesCapabilities ?? [],
     };

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "com.wanding.trade",
+  "collections": [
+    {
+      "id": "wanding-business-knowledge",
+      "legacyAliases": [
+        "wanding_business_knowledge"
+      ],
+      "seed": "vendor/wanding/data/wanding_business_knowledge.md",
+      "visibility": "tenant",
+      "syncPolicy": "package-managed"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "com.wanding.trade",
+  "requiredFiles": [
+    "vendor/mcp-servers/quotation-server/dist/index.js",
+    "vendor/wanding/data/wanding_business_knowledge.md",
+    "vendor/wanding/data/data.Md",
+    "vendor/wanding/python/main.py",
+    "vendor/wanding/python/system/tool_dispatch.py",
+    "vendor/wanding/python/quotation/fill_items.py",
+    "vendor/wanding/python/quotation/fill_dispatch.py",
+    "vendor/wanding/python/quotation/fill_row_guard.py",
+    "vendor/wanding/python/quotation/inquiry_backfill.py",
+    "packages/vertical/com.wanding.trade/package.json"
+  ],
+  "configFiles": [
+    "%LOCALAPPDATA%/CCB-Wanding/.claude/agents/quotation-agent.md",
+    "%LOCALAPPDATA%/CCB-Wanding/.claude/agents/quotation-agent.aionui.json"
+  ]
+}

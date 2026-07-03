@@ -469,7 +469,7 @@ Do **not** re-enable legacy `quotation-agent` MCP-only gate without delegated ro
 | Layer | Artifact | Role |
 |-------|----------|------|
 | Maint SOP | `data/ccb-wanding-quotation.md` §报价匹配规则 | 先 Read（会话一次）→ match；多候选 1 推荐 + bullet |
-| L1 seed | `ccb-installer/config/agents/quotation-agent.md` §业务知识库 Read | PreToolUse + Stop；`deploy-seed-agents.ps1 -ForceMd` |
+| L1 seed | `ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md` §业务知识库 Read | PreToolUse + Stop；`deploy-seed-agents.ps1 -ForceMd` |
 | **PreToolUse** | `pre-match-knowledge-gate.py` | **Deny** match until session Read |
 | PostToolUse | `post-match-knowledge-nudge.py` | 多候选回复形态 nudge（不再要求 Read） |
 | PostToolUse | `post-price-tiers-nudge.py` | `get_product_price_tiers` 成功 → Read data.Md + markdown 全档表 |
@@ -534,7 +534,7 @@ Detail: [`../backend/mcp-business.md`](../backend/mcp-business.md) § VANTSING f
 
 | Item | Path / contract |
 |------|-----------------|
-| Skill source | `ccb-installer/config/skills/quotation-learn-by-data/SKILL.md` |
+| Skill source | `ccb-installer/packages/vertical/com.wanding.trade/skills/quotation-learn-by-data/SKILL.md` |
 | Agent wiring | `quotation-agent.md` `skills: [quotation-learn-by-data]` + §工具决策表 `/learn-by-data` row |
 | Live deploy | `%LOCALAPPDATA%\CCB-Wanding\.claude\skills\quotation-learn-by-data\` via `deploy-ccb-skills.ps1` |
 | MVP scope | VANTSING only — fixed cols B/C keywords, F actual code, rows 8..Total-1 |
@@ -618,7 +618,7 @@ Task note: `quotation-agent` L1 realign 2026-06-29; knowledge Read **block** + P
 
 | Layer | Artifact | Role |
 |-------|----------|------|
-| L1 seed | `ccb-installer/config/agents/quotation-agent.md` §工具决策表 + §硬禁止 | Route price+stock via two-step path; forbid dead tool by name |
+| L1 seed | `ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md` §工具决策表 + §硬禁止 | Route price+stock via two-step path; forbid dead tool by name |
 | Maint SOP | `data/ccb-wanding-quotation.md` §工具次数 / §库存查询规则 | Same routing; JSON examples use match → inventory |
 | Orchestrator | `wande-orchestrator.md` §How to delegate | Example: `match_quotation` → `get_inventory_by_code` |
 | Eval | `eval/agent_eval_cases.jsonl` | `price-and-stock-single`, `price-and-stock-ambiguous`, `session-open-price-and-stock` expect match + inventory; **forbid** `match_price_and_get_inventory` |
@@ -658,7 +658,7 @@ User attaches image (+ optional text)
 | ACP overlay | `ccb-installer/src/services/acp/promptConversion.ts` | `promptToSubmitInput`, `isEmptyPromptSubmitInput`; `promptToQueryInput` deprecated (drops images) |
 | ACP agent | `ccb-installer/src/services/acp/agent.ts` `prompt()` | `submitMessage(promptToSubmitInput(...))` |
 | Tests | `src/services/acp/__tests__/promptConversion.test.ts` | base64 image blocks; image-only not empty |
-| L1 seed | `ccb-installer/config/agents/quotation-agent.md` §图片/截图询价 | Forbid「无法读取图片」; OCR → match |
+| L1 seed | `ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md` §图片/截图询价 | Forbid「无法读取图片」; OCR → match |
 | Backend spec | [`../backend/acp-session-flow.md`](../backend/acp-session-flow.md) § Image prompts + § Capability parity audit | Route-B vs legacy patch paths |
 | Eval scenario | `eval/scenarios/quotation-ppr-image-sheet-20260619.md` S4 | 图片/文字 5 行 PPR — regression anchor |
 
@@ -892,9 +892,9 @@ This is the **asymmetry**: sidecar `claude_md` (stored as JSON string) is read b
 Force-copied the clean source files over the corrupted live files:
 
 ```powershell
-Copy-Item "D:\Projects\claude-code-best\ccb-installer\config\agents\accurate-agent.md" `
+Copy-Item "D:\Projects\claude-code-best\ccb-installer\packages\vertical\com.wanding.trade\agents\accurate-agent.md" `
     "$env:LOCALAPPDATA\CCB-Wanding\.claude\agents\accurate-agent.md" -Force
-Copy-Item "D:\Projects\claude-code-best\ccb-installer\config\agents\quotation-agent.md" `
+Copy-Item "D:\Projects\claude-code-best\ccb-installer\packages\vertical\com.wanding.trade\agents\quotation-agent.md" `
     "$env:LOCALAPPDATA\CCB-Wanding\.claude\agents\quotation-agent.md" -Force
 ```
 
@@ -1045,7 +1045,7 @@ When `listCcbAgents()` returns empty (CCB not installed), list falls back entire
 
 - Model resolution priority for a delegated sub-agent: env `CLAUDE_CODE_SUBAGENT_MODEL` (global) → `Agent()` tool `model` param (per-call) → agent `.md` frontmatter `model:` (pinned, e.g. `quotation-agent`/`accurate-agent` = `minimax-m3`) → `inherit` (main session model).
 - Telling the model "请调用 thinking model" in chat text does **nothing** by itself — it only reaches the sub-agent's task prompt, not the model selector. The only reliable switch is the orchestrator passing `"model": "minimax-m3-thinking"` in the same `Agent()` call.
-- `wande-orchestrator.md` (`ccb-installer/config/agents/wande-orchestrator.md` + live `.md`) carries a **"Thinking model switch"** rule: explicit keyword list (`thinking`/`深度推理`/`仔细想`/`认真分析`/`深入分析`/`复杂情况`/`多方案比较`/`再三确认`) → add `model` override to that turn's delegation call only; default stays fast; not sticky across turns unless the user asks for a standing session preference.
+- `wande-orchestrator.md` (`ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md` + live `.md`) carries a **"Thinking model switch"** rule: explicit keyword list (`thinking`/`深度推理`/`仔细想`/`认真分析`/`深入分析`/`复杂情况`/`多方案比较`/`再三确认`) → add `model` override to that turn's delegation call only; default stays fast; not sticky across turns unless the user asks for a standing session preference.
 - Same class of fix as the empty-L1-body bug above: a capability that only works if it's wired into the **tool-call parameters** the orchestrator actually emits, not into prose the model is expected to interpret on its own.
 
 **Orchestrator sync delegation + Word MCP efficiency (2026-06-17):**

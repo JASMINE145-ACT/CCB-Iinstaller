@@ -359,7 +359,7 @@ node .\ccb-installer\scripts\probe-accurate-summarize.mjs
 | `ccb-installer/config/mcp-health-manifest.json` | `probe_tool_call`: `accurate_summarize_records` + reject AOL/参数/API 错误 |
 | `wanDMcpWarmup.ts` / `warm-wanding-mcp.mjs` | warmup 使用正确 `table_name` + 日期区间 |
 | `patches/aionui-acp/acp-agent.js` | `ENABLE_SEARCH_EXTRA_TOOLS` 默认 `false`（对齐 route-b） |
-| `config/agents/accurate-agent.md` | 禁止未调用就声称汇总工具不可用 |
+| `packages/vertical/com.wanding.trade/agents/accurate-agent.md` | 禁止未调用就声称汇总工具不可用 |
 | `scripts/probe-accurate-summarize.mjs` | 手工 deep probe（~90s） |
 
 ### Gate command

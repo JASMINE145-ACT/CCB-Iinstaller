@@ -1,0 +1,7 @@
+{
+  "id": "001-legacy-projection",
+  "from": "0.0.0",
+  "to": "0.1.0",
+  "description": "Project package agents and skill into legacy seed paths.",
+  "reversible": true
+}

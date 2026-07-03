@@ -1,5 +1,5 @@
 {
-  "$schema": "../../schemas/package-manifest.schema.json",
+  "$schema": "../../../config/schemas/package-manifest.schema.json",
   "schemaVersion": "1.0.0",
   "packageId": "com.wanding.trade",
   "version": "0.1.0",
@@ -25,7 +25,7 @@
   "agents": [
     {
       "id": "wande-orchestrator",
-      "source": "config/agents/wande-orchestrator.md",
+      "source": "packages/vertical/com.wanding.trade/agents/wande-orchestrator.md",
       "requiredCapabilities": [
         "platform.agent.route"
       ],
@@ -34,7 +34,7 @@
     },
     {
       "id": "quotation-agent",
-      "source": "config/agents/quotation-agent.md",
+      "source": "packages/vertical/com.wanding.trade/agents/quotation-agent.md",
       "requiredCapabilities": [
         "business.pricing.quote"
       ],
@@ -48,7 +48,7 @@
     },
     {
       "id": "accurate-agent",
-      "source": "config/agents/accurate-agent.md",
+      "source": "packages/vertical/com.wanding.trade/agents/accurate-agent.md",
       "requiredCapabilities": [
         "business.accounting.analytics"
       ],
@@ -59,7 +59,7 @@
     },
     {
       "id": "price-library-agent",
-      "source": "config/agents/price-library-agent.md",
+      "source": "packages/vertical/com.wanding.trade/agents/price-library-agent.md",
       "requiredCapabilities": [
         "business.pricing.manage"
       ],
@@ -73,7 +73,7 @@
   "mcpServers": [
     {
       "id": "quotation",
-      "source": "config/mcp-health-manifest.json",
+      "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json",
       "providesCapabilities": [
         "business.pricing.quote"
       ],
@@ -115,7 +115,7 @@
     },
     {
       "id": "accurate",
-      "source": "config/mcp-health-manifest.json",
+      "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json",
       "providesCapabilities": [
         "business.accounting.analytics"
       ],
@@ -143,7 +143,7 @@
     },
     {
       "id": "price-library",
-      "source": "config/mcp-health-manifest.json",
+      "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json",
       "providesCapabilities": [
         "business.pricing.manage"
       ],
@@ -172,23 +172,31 @@
   "skills": [
     {
       "id": "quotation-learn-by-data",
-      "source": "config/skills/quotation-learn-by-data/SKILL.md",
+      "source": "packages/vertical/com.wanding.trade/skills/quotation-learn-by-data/SKILL.md",
       "providesCapabilities": [
         "business.pricing.quote"
       ]
     }
   ],
-  "knowledge": [],
+  "knowledge": [
+    {
+      "id": "wanding-business-knowledge",
+      "source": "packages/vertical/com.wanding.trade/knowledge/collections.json",
+      "providesCapabilities": [
+        "business.pricing.quote"
+      ]
+    }
+  ],
   "contributions": [
     {
       "id": "wanding-agent-catalog",
       "kind": "agent-catalog",
-      "source": "config/agents"
+      "source": "packages/vertical/com.wanding.trade/agents"
     },
     {
       "id": "wanding-mcp-health",
       "kind": "health",
-      "source": "config/mcp-health-manifest.json"
+      "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json"
     }
   ],
   "aliases": [

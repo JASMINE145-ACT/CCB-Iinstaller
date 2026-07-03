@@ -1,0 +1,40 @@
+{
+  "id": "07-03-p3-wanding-package-extract",
+  "name": "07-03-p3-wanding-package-extract",
+  "title": "P3 extract com.wanding.trade vertical package",
+  "description": "Phase 3: package-owned WanD agents, skills, MCP, knowledge, health and lifecycle with empty-platform health and legacy adapters.",
+  "status": "in_progress",
+  "dev_type": "architecture",
+  "scope": "cross-layer",
+  "package": "integration",
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-03",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "07-03-platform-business-decoupling",
+  "relatedFiles": [
+    "ccb-installer/packages/vertical/com.wanding.trade",
+    "ccb-installer/scripts/build-package-registry.mjs",
+    "ccb-installer/scripts/package-lifecycle.mjs",
+    "ccb-installer/scripts/test-install-health.ps1",
+    "ccb-installer/scripts/build-wanding.ps1",
+    "ccb-installer/config/mcp-health-manifest.json"
+  ],
+  "notes": "Implementation and automated verification complete: lifecycle 3/3, registry 3/3, compiler 6/6, empty-platform health 2/2, fresh staging PASS, hot package closure PASS, live MCP 5/5. Human AionUI lifecycle checklist remains; Git commit pending.",
+  "meta": {
+    "parent_epic": "07-03-platform-business-decoupling",
+    "phase": "P3",
+    "execution_plan": "execution-plan.md",
+    "done_record": "p3-wanding-package-done.md",
+    "verification_profile": "Release + Security",
+    "manual_checklist": "../07-03-platform-business-decoupling/manual-verification-checklist.md"
+  }
+}

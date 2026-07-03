@@ -36,7 +36,7 @@ if (Test-Path -LiteralPath $gateSource) {
 $learnSource = Join-Path $InstallDir "seed\skills\quotation-learn-by-data"
 if (-not (Test-Path -LiteralPath $learnSource)) {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-    $learnSource = Join-Path $repoRoot "ccb-installer\config\skills\quotation-learn-by-data"
+    $learnSource = Join-Path $repoRoot "ccb-installer\packages\vertical\com.wanding.trade\skills\quotation-learn-by-data"
 }
 if (Test-Path -LiteralPath $learnSource) {
     Write-Host "[ppt-master] Deploy quotation-learn-by-data ..."

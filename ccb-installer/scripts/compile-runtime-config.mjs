@@ -133,12 +133,40 @@ async function compile(repoRoot) {
       "generated/package-registry.snapshot.json",
     ),
   );
-  const packageManifest = await readJson(
-    join(
-      configRoot,
-      "packages/com.wanding.trade/package.json",
-    ),
-  );
+  const packageStatePath = argValue("--package-state");
+  let enabledPackages = tenant.enabledPackages;
+  let packageManifests;
+  if (packageStatePath) {
+    const packageState = await readJson(resolve(packageStatePath));
+    enabledPackages = packageState.enabledPackages ?? [];
+    const stateRoot = dirname(resolve(packageStatePath));
+    packageManifests = await Promise.all(
+      enabledPackages.map((packageId) => {
+        const entry = packageState.packages?.[packageId];
+        if (!entry?.activeVersion) {
+          throw new Error(`Enabled package ${packageId} has no active version`);
+        }
+        return readJson(
+          join(
+            stateRoot,
+            "installed",
+            packageId,
+            entry.activeVersion,
+            "package.json",
+          ),
+        );
+      }),
+    );
+  } else {
+    packageManifests = [
+      await readJson(
+        join(
+          repoRoot,
+          "packages/vertical/com.wanding.trade/package.json",
+        ),
+      ),
+    ];
+  }
   const secretFile = argValue("--secrets");
   if (!fixture && !secretFile) {
     throw new Error(
@@ -151,8 +179,8 @@ async function compile(repoRoot) {
   const compiled = compileRuntimeConfig({
     layers: [platform, tenant],
     registry,
-    packageManifests: [packageManifest],
-    enabledPackages: tenant.enabledPackages,
+    packageManifests,
+    enabledPackages,
     variables: {
       installDir,
       configDir,

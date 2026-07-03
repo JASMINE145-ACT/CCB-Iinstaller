@@ -227,8 +227,8 @@ function Test-StagingWanDInstall {
     param([string]$Root, [string]$Label = 'staging')
     # Single source of truth: validate against the SAME install-health-manifest.json
     # that the field-side test-install-health.ps1 reads, so build-time and install-time
-    # checks can never drift. OOTB-critical files (site-packages, ppt/gate closure) live
-    # in manifest.required_files; only the staging-checkable subset is asserted here
+    # checks can never drift. Platform and enabled-package requirements are composed;
+    # only the staging-checkable subset is asserted here
     # (config_files + route_b.runtime_* are post-install/launch artifacts — skipped).
     $manifestPath = Join-Path $Root 'install-health-manifest.json'
     if (-not (Test-Path -LiteralPath $manifestPath)) {
@@ -240,7 +240,25 @@ function Test-StagingWanDInstall {
     $manifest = Get-Content -Raw -LiteralPath $manifestPath -Encoding UTF8 | ConvertFrom-Json
 
     $failures = @()
-    foreach ($rel in @($manifest.required_files)) {
+    $requiredFiles = if ($manifest.PSObject.Properties['platform_required_files']) {
+        @($manifest.platform_required_files)
+    }
+    else {
+        @($manifest.required_files)
+    }
+    foreach ($packageManifestRel in @($manifest.package_health_manifests)) {
+        $packageManifestPath = Join-Path $Root ([string]$packageManifestRel -replace '/', '\')
+        if (-not (Test-Path -LiteralPath $packageManifestPath)) {
+            $packageManifestPath = Join-Path $installerRoot ([string]$packageManifestRel -replace '/', '\')
+        }
+        if (-not (Test-Path -LiteralPath $packageManifestPath)) {
+            $failures += "missing package health manifest $packageManifestRel"
+            continue
+        }
+        $packageHealth = Get-Content -Raw -LiteralPath $packageManifestPath -Encoding UTF8 | ConvertFrom-Json
+        $requiredFiles += @($packageHealth.requiredFiles)
+    }
+    foreach ($rel in $requiredFiles) {
         $p = Join-Path $Root ([string]$rel -replace '/', '\')
         if (-not (Test-Path -LiteralPath $p)) {
             $failures += "missing $rel"
@@ -300,7 +318,7 @@ function Test-StagingWanDInstall {
     if ($failures.Count -gt 0) {
         throw "$Label validation failed:`n  - $($failures -join "`n  - ")"
     }
-    Write-Host "  $Label validation OK (manifest-driven: $(@($manifest.required_files).Count) files + Route B + app.asar)" -ForegroundColor Green
+    Write-Host "  $Label validation OK (manifest-driven: $($requiredFiles.Count) platform+package files + Route B + app.asar)" -ForegroundColor Green
 }
 
 function Get-MakensisPath() {
@@ -554,30 +572,36 @@ New-Item -ItemType Directory -Force -Path $seedAgentsDest | Out-Null
 Get-ChildItem -LiteralPath (Join-Path $installerRoot 'config\agents') -File |
     Where-Object { $_.Name -ne 'README.md' } |
     ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $seedAgentsDest -Force }
+Get-ChildItem -LiteralPath (Join-Path $installerRoot 'packages\vertical\com.wanding.trade\agents') -File |
+    ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $seedAgentsDest -Force }
 
 $shipManifestSrc = Join-Path $installerRoot 'seed\config-ship-manifest.json'
 Test-RequiredFile $shipManifestSrc 'seed config-ship-manifest.json'
 Copy-Item -LiteralPath $shipManifestSrc -Destination (Join-Path $StagingDir 'seed\config-ship-manifest.json') -Force
 
-# P2 declarative runtime config inputs (compiler remains opt-in).
+# Declarative runtime config and vertical package inputs.
 $runtimeConfigDest = Join-Path $StagingDir 'config'
 New-Item -ItemType Directory -Force -Path $runtimeConfigDest | Out-Null
-foreach ($configDirName in @('schemas', 'runtime', 'packages')) {
+foreach ($configDirName in @('schemas', 'runtime')) {
     $source = Join-Path $installerRoot "config\$configDirName"
     Test-RequiredFile $source "config directory $configDirName"
-    Copy-Item -LiteralPath $source -Destination (Join-Path $runtimeConfigDest $configDirName) -Recurse -Force
+    Invoke-RobocopyMirror $source (Join-Path $runtimeConfigDest $configDirName)
 }
 $registrySnapshotSrc = Join-Path $installerRoot 'config\generated\package-registry.snapshot.json'
 Test-RequiredFile $registrySnapshotSrc 'P1 package registry snapshot'
 $registrySnapshotDest = Join-Path $runtimeConfigDest 'generated'
 New-Item -ItemType Directory -Force -Path $registrySnapshotDest | Out-Null
 Copy-Item -LiteralPath $registrySnapshotSrc -Destination (Join-Path $registrySnapshotDest 'package-registry.snapshot.json') -Force
+$packageSource = Join-Path $installerRoot 'packages\vertical\com.wanding.trade'
+$packageDest = Join-Path $StagingDir 'packages\vertical\com.wanding.trade'
+Test-RequiredFile (Join-Path $packageSource 'package.json') 'com.wanding.trade package manifest'
+Invoke-RobocopyMirror $packageSource $packageDest
 
 $seedSkillSrc = Join-Path $installerRoot 'config\skills\ccb-subagent-gate'
 $seedSkillDest = Join-Path $StagingDir 'seed\skills\ccb-subagent-gate'
 Invoke-RobocopyMirror $seedSkillSrc $seedSkillDest @('/XD', 'tests', '__pycache__', '/XF', '*.pyc')
 
-$learnSkillSrc = Join-Path $installerRoot 'config\skills\quotation-learn-by-data'
+$learnSkillSrc = Join-Path $installerRoot 'packages\vertical\com.wanding.trade\skills\quotation-learn-by-data'
 $learnSkillDest = Join-Path $StagingDir 'seed\skills\quotation-learn-by-data'
 Invoke-RobocopyMirror $learnSkillSrc $learnSkillDest
 
@@ -596,11 +620,12 @@ $shipScripts = @(
     'ensure-wanding-settings.ps1',
     'apply-compiled-runtime-config.ps1',
     'compile-runtime-config.mjs',
+    'package-lifecycle.mjs',
     'install-office-word-mcp.ps1',
     'install-ppt-master.ps1',
     # install-ppt-master.ps1 calls these four from $PSScriptRoot at install time
     # (run-wanding-bootstrap Full); they are runtime deps now asserted by
-    # install-health-manifest.required_files, so the manifest-driven gate fails the
+    # composed install-health manifests, so the manifest-driven gate fails the
     # build if they are not shipped. (vendor-ppt-master.ps1 stays dev-only.)
     'deploy-ppt-master-skill.ps1',
     'deploy-subagent-gate-skill.ps1',
@@ -632,9 +657,12 @@ foreach ($s in $shipScripts) {
 }
 $runtimeCompilerLibSrc = Join-Path $installerRoot 'scripts\lib\runtime-config-compiler.mjs'
 Test-RequiredFile $runtimeCompilerLibSrc 'runtime config compiler library'
+$packageLifecycleLibSrc = Join-Path $installerRoot 'scripts\lib\package-lifecycle.mjs'
+Test-RequiredFile $packageLifecycleLibSrc 'package lifecycle library'
 $runtimeCompilerLibDest = Join-Path $scriptsDest 'lib'
 New-Item -ItemType Directory -Force -Path $runtimeCompilerLibDest | Out-Null
 Copy-Item -LiteralPath $runtimeCompilerLibSrc -Destination (Join-Path $runtimeCompilerLibDest 'runtime-config-compiler.mjs') -Force
+Copy-Item -LiteralPath $packageLifecycleLibSrc -Destination (Join-Path $runtimeCompilerLibDest 'package-lifecycle.mjs') -Force
 
 # lib/ — app startup MCP warm + probe helpers (AionUI ccbStartupReadiness.ts reads lib/warm-wanding-mcp.mjs)
 $libDest = Join-Path $StagingDir 'lib'
@@ -655,6 +683,7 @@ $devOnlyScripts = @(
     'package-aionui-exe.ps1',
     'sync-aionui-ccb-patch.ps1',
     'test-mcp-health.ps1',
+    'test-package-health-split.ps1',
     'test-native-acp-agent.mjs',
     'install-windows-terminal.ps1',
     'launch-ccb-wanding.ps1',

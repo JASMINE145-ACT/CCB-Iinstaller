@@ -36,7 +36,9 @@ if (!install) {
 
 const settingsPath = join(configDir, 'settings.json')
 const settings = JSON.parse(readFileSync(settingsPath, 'utf8').replace(/^\uFEFF/, ''))
-const manifest = loadMcpHealthManifest()
+const manifest = loadMcpHealthManifest({
+  includePackages: process.env.CCB_MCP_HEALTH_PLATFORM_ONLY !== '1',
+})
 const mcpServers = settings.mcpServers ?? {}
 
 /** @type {Array<{ ok: boolean, name: string, error?: string }>} */

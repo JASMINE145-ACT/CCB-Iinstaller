@@ -6,6 +6,7 @@ param(
     [switch]$Session,
     [switch]$Repair,
     [switch]$Json,
+    [switch]$PlatformOnly,
     [switch]$Quiet
 )
 
@@ -49,7 +50,29 @@ function Get-Manifest {
     if (-not (Test-Path -LiteralPath $manifestPath)) {
         throw "Manifest missing: $manifestPath"
     }
-    return Get-Content -Raw -LiteralPath $manifestPath -Encoding UTF8 | ConvertFrom-Json
+    $manifest = Get-Content -Raw -LiteralPath $manifestPath -Encoding UTF8 | ConvertFrom-Json
+    if (-not $PlatformOnly) {
+        foreach ($relativePath in @($manifest.package_health_manifests)) {
+            $packagePath = Join-Path $installerRoot ([string]$relativePath -replace '/', '\')
+            if (-not (Test-Path -LiteralPath $packagePath)) {
+                throw "Package health manifest missing: $packagePath"
+            }
+            $packageHealth = Get-Content -Raw -LiteralPath $packagePath -Encoding UTF8 | ConvertFrom-Json
+            foreach ($property in @($packageHealth.mcp_servers.PSObject.Properties)) {
+                if ($manifest.mcp_servers.PSObject.Properties[$property.Name]) {
+                    throw "Duplicate MCP health descriptor: $($property.Name)"
+                }
+                $manifest.mcp_servers | Add-Member -MemberType NoteProperty -Name $property.Name -Value $property.Value
+            }
+            foreach ($property in @($packageHealth.agent_profiles.PSObject.Properties)) {
+                if ($manifest.agent_profiles.PSObject.Properties[$property.Name]) {
+                    throw "Duplicate agent health profile: $($property.Name)"
+                }
+                $manifest.agent_profiles | Add-Member -MemberType NoteProperty -Name $property.Name -Value $property.Value
+            }
+        }
+    }
+    return $manifest
 }
 
 function Test-McpHttpReachable {
@@ -249,10 +272,11 @@ function Test-ConfigLayer {
         }
     }
 
-    $expectedWandingRoot = Join-Path $Install "vendor\wanding"
-    $expectedMainPy = Join-Path $expectedWandingRoot "python\main.py"
-    $quotationEntry = $mcpServers.PSObject.Properties["quotation"]
-    if ($quotationEntry) {
+    if (-not $PlatformOnly) {
+        $expectedWandingRoot = Join-Path $Install "vendor\wanding"
+        $expectedMainPy = Join-Path $expectedWandingRoot "python\main.py"
+        $quotationEntry = $mcpServers.PSObject.Properties["quotation"]
+        if ($quotationEntry) {
         $qEnv = $quotationEntry.Value.env
         $ccbRoot = if ($qEnv -and $qEnv.CCB_PROJECT_ROOT) { [string]$qEnv.CCB_PROJECT_ROOT } else { "" }
         if (-not $ccbRoot) {
@@ -282,17 +306,17 @@ function Test-ConfigLayer {
                 })
             }
         }
-    }
+        }
 
-    $envAccuratePath = Join-Path $Install "vendor\wanding\.env.accurate"
-    $envAccurateOk = Test-Path -LiteralPath $envAccuratePath
-    $envAccurateDetail = if (-not $envAccurateOk) {
+        $envAccuratePath = Join-Path $Install "vendor\wanding\.env.accurate"
+        $envAccurateOk = Test-Path -LiteralPath $envAccuratePath
+        $envAccurateDetail = if (-not $envAccurateOk) {
         "missing: $envAccuratePath — run ensure-wanding-settings.ps1"
     } else {
         "exists (AOL fallback for python/main.py)"
     }
-    $envAccurateParseOk = $false
-    if ($envAccurateOk) {
+        $envAccurateParseOk = $false
+        if ($envAccurateOk) {
         $bytes = [System.IO.File]::ReadAllBytes($envAccuratePath)
         $hasBom = ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF)
         if ($hasBom) {
@@ -316,13 +340,14 @@ function Test-ConfigLayer {
                 $envAccurateParseOk = -not $hasBom
             }
         }
+        }
+        $checks.Add([pscustomobject]@{
+            layer  = "files"
+            id     = "quotation/vendor/wanding/.env.accurate"
+            ok     = ($envAccurateOk -and $envAccurateParseOk)
+            detail = $envAccurateDetail
+        })
     }
-    $checks.Add([pscustomobject]@{
-        layer  = "files"
-        id     = "quotation/vendor/wanding/.env.accurate"
-        ok     = ($envAccurateOk -and $envAccurateParseOk)
-        detail = $envAccurateDetail
-    })
 
     foreach ($name in $Manifest.mcp_servers.PSObject.Properties.Name) {
         $spec = $Manifest.mcp_servers.$name
@@ -416,6 +441,13 @@ function Invoke-ProbeLayer {
     $probeScript = Join-Path $installerRoot "scripts\test-mcp-probe-layer.mjs"
     $env:CCB_INSTALL_DIR = $Install
     $env:CLAUDE_CONFIG_DIR = $Config
+    $previousPlatformOnly = $env:CCB_MCP_HEALTH_PLATFORM_ONLY
+    if ($PlatformOnly) {
+        $env:CCB_MCP_HEALTH_PLATFORM_ONLY = '1'
+    }
+    else {
+        Remove-Item Env:CCB_MCP_HEALTH_PLATFORM_ONLY -ErrorAction SilentlyContinue
+    }
 
     $exit = 1
     $out = @()
@@ -429,6 +461,12 @@ function Invoke-ProbeLayer {
             Write-HealthLine "MCP probe hit transient spawn EPERM; retrying attempt $($attempt + 1)/3" "WARN"
             Start-Sleep -Seconds $attempt
         }
+    }
+    if ($null -eq $previousPlatformOnly) {
+        Remove-Item Env:CCB_MCP_HEALTH_PLATFORM_ONLY -ErrorAction SilentlyContinue
+    }
+    else {
+        $env:CCB_MCP_HEALTH_PLATFORM_ONLY = $previousPlatformOnly
     }
 
     foreach ($line in $out) { Write-Host $line }

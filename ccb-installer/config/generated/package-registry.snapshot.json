@@ -28,12 +28,12 @@
         {
           "id": "wanding-agent-catalog",
           "kind": "agent-catalog",
-          "source": "config/agents"
+          "source": "packages/vertical/com.wanding.trade/agents"
         },
         {
           "id": "wanding-mcp-health",
           "kind": "health",
-          "source": "config/mcp-health-manifest.json"
+          "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json"
         }
       ]
     }
@@ -42,7 +42,7 @@
     {
       "id": "accurate-agent",
       "packageId": "com.wanding.trade",
-      "source": "ccb-installer/config/agents/accurate-agent.md",
+      "source": "ccb-installer/packages/vertical/com.wanding.trade/agents/accurate-agent.md",
       "displayName": "万鼎账务专家",
       "mcpServers": [
         "accurate"
@@ -77,7 +77,7 @@
     {
       "id": "price-library-agent",
       "packageId": "com.wanding.trade",
-      "source": "ccb-installer/config/agents/price-library-agent.md",
+      "source": "ccb-installer/packages/vertical/com.wanding.trade/agents/price-library-agent.md",
       "displayName": "价格库管理",
       "mcpServers": [
         "price-library",
@@ -91,7 +91,7 @@
     {
       "id": "quotation-agent",
       "packageId": "com.wanding.trade",
-      "source": "ccb-installer/config/agents/quotation-agent.md",
+      "source": "ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md",
       "displayName": "万鼎报价专家",
       "mcpServers": [
         "quotation",
@@ -118,7 +118,7 @@
     {
       "id": "wande-orchestrator",
       "packageId": "com.wanding.trade",
-      "source": "ccb-installer/config/agents/wande-orchestrator.md",
+      "source": "ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md",
       "displayName": "全局路由",
       "mcpServers": [],
       "skills": [],
@@ -142,7 +142,7 @@
     {
       "id": "accurate",
       "packageId": "com.wanding.trade",
-      "source": "ccb-installer/config/mcp-health-manifest.json",
+      "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json",
       "providesCapabilities": [
         "business.accounting.analytics"
       ]
@@ -174,7 +174,7 @@
     {
       "id": "price-library",
       "packageId": "com.wanding.trade",
-      "source": "ccb-installer/config/mcp-health-manifest.json",
+      "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json",
       "providesCapabilities": [
         "business.pricing.manage"
       ]
@@ -182,7 +182,7 @@
     {
       "id": "quotation",
       "packageId": "com.wanding.trade",
-      "source": "ccb-installer/config/mcp-health-manifest.json",
+      "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json",
       "providesCapabilities": [
         "business.pricing.quote"
       ]
@@ -204,7 +204,7 @@
     {
       "id": "quotation-learn-by-data",
       "packageId": "com.wanding.trade",
-      "source": "ccb-installer/config/skills/quotation-learn-by-data/SKILL.md",
+      "source": "packages/vertical/com.wanding.trade/skills/quotation-learn-by-data/SKILL.md",
       "providesCapabilities": [
         "business.pricing.quote"
       ]

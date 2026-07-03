@@ -352,12 +352,12 @@ patch-subagent-gate-hooks.ps1, smoke-wanding-e2e.ps1
 **Deploy target:** `$CONFIG\agents\` (via `deploy-seed-agents.ps1`)
 
 ```text
-D:\Projects\claude-code-best\ccb-installer\config\agents\wande-orchestrator.md
-D:\Projects\claude-code-best\ccb-installer\config\agents\wande-orchestrator.aionui.json
-D:\Projects\claude-code-best\ccb-installer\config\agents\quotation-agent.md
-D:\Projects\claude-code-best\ccb-installer\config\agents\quotation-agent.aionui.json
-D:\Projects\claude-code-best\ccb-installer\config\agents\accurate-agent.md
-D:\Projects\claude-code-best\ccb-installer\config\agents\accurate-agent.aionui.json
+D:\Projects\claude-code-best\ccb-installer\packages\vertical\com.wanding.trade\agents\wande-orchestrator.md
+D:\Projects\claude-code-best\ccb-installer\packages\vertical\com.wanding.trade\agents\wande-orchestrator.aionui.json
+D:\Projects\claude-code-best\ccb-installer\packages\vertical\com.wanding.trade\agents\quotation-agent.md
+D:\Projects\claude-code-best\ccb-installer\packages\vertical\com.wanding.trade\agents\quotation-agent.aionui.json
+D:\Projects\claude-code-best\ccb-installer\packages\vertical\com.wanding.trade\agents\accurate-agent.md
+D:\Projects\claude-code-best\ccb-installer\packages\vertical\com.wanding.trade\agents\accurate-agent.aionui.json
 D:\Projects\claude-code-best\ccb-installer\config\agents\word-creator.md
 D:\Projects\claude-code-best\ccb-installer\config\agents\word-creator.aionui.json
 D:\Projects\claude-code-best\ccb-installer\config\agents\word-form-creator.md
@@ -403,7 +403,7 @@ D:\Projects\claude-code-best\ccb-installer\config\agents\cowork.aionui.json
 
 ### 8.2.1 quotation-learn-by-data skill
 
-**Source:** `ccb-installer\config\skills\quotation-learn-by-data\`  
+**Source:** `ccb-installer\packages\vertical\com.wanding.trade\skills\quotation-learn-by-data\`
 **Staging:** `staging\seed\skills\quotation-learn-by-data\`  
 **Deploy target:** `$CONFIG\skills\quotation-learn-by-data\`  
 **Slash command:** `ccb-installer\resources\commands\learn-by-data.md` → `$CONFIG\commands\learn-by-data.md` (NSIS §Preserve, always on install)
@@ -768,7 +768,7 @@ NSIS：非空且无 `.ccb-wanding-install-root` → 拒绝安装。
 
 IN: `ensure-wanding-settings`, `install-office-word-mcp`, `install-excel-mcp-server`, `install-ppt-master`, `deploy-ppt-master-skill`, `deploy-subagent-gate-skill`, `sync-ppt-master-agents`, `ensure-ppt-master-deps`, `deploy-seed-agents`(+mjs), `patch-subagent-gate-hooks`, `sync-aionui-ccb-route-b`, `test-install-health`, `run-wanding-bootstrap`, `smoke-wanding-e2e`, `ccb-diagnose`, `ccb-check-update`, `verify-update-server`, `internal-upgrade`
 
-> **ppt/gate 运行时闭包（2026-06-21）：** `install-ppt-master` 在 Full bootstrap 用 `$PSScriptRoot` 调 `deploy-ppt-master-skill` / `deploy-subagent-gate-skill` / `sync-ppt-master-agents` / `ensure-ppt-master-deps` —— 运行时依赖，必须同包。这四个 + office-word/excel **site-packages** 现已写进 `install-health-manifest.json` 的 `required_files`，由 manifest-driven gate 强制（缺则构建失败）。
+> **ppt/gate 运行时闭包（2026-06-21）：** `install-ppt-master` 在 Full bootstrap 用 `$PSScriptRoot` 调 `deploy-ppt-master-skill` / `deploy-subagent-gate-skill` / `sync-ppt-master-agents` / `ensure-ppt-master-deps` —— 运行时依赖，必须同包。这四个 + office-word/excel **site-packages** 写进平台 `platform_required_files`，由 manifest-driven gate 强制（缺则构建失败）。
 
 OUT: `build-wanding*`, `vendor-ppt-master`（联网抓 skill，仅 `-VendorIfMissing`）, `sync-aionui-ccb-patch`, `test-mcp-health`（dev/CI）
 
@@ -778,10 +778,10 @@ OUT: `build-wanding*`, `vendor-ppt-master`（联网抓 skill，仅 `-VendorIfMis
 
 | 读者 | 何时 | 查什么 |
 |------|------|--------|
-| `Test-StagingWanDInstall`（build gate） | 构建机出包前 | `required_files`（staging 相对）+ `route_b.bundled` marker + app.asar（build 专属）；**跳过** `config_files` / `route_b.runtime_*`（装后/启动才有） |
-| `test-install-health.ps1`（`ccb-check-install.cmd`） | 用户机 Check Install | `required_files`（$INSTALL 相对）+ `route_b.bundled`/`runtime` + `acp-agent`（`120_000`）+ `config_files` + settings.json 合法性 |
+| `Test-StagingWanDInstall`（build gate） | 构建机出包前 | `platform_required_files` + enabled package `requiredFiles` + `route_b.bundled` marker + app.asar（build 专属）；**跳过** `config_files` / `route_b.runtime_*`（装后/启动才有） |
+| `test-install-health.ps1`（`ccb-check-install.cmd`） | 用户机 Check Install | Platform 或 Full profile 组合文件清单 + `route_b.bundled`/`runtime` + `acp-agent`（`120_000`）+ profile config files + settings.json 合法性 |
 
-`required_files` 已含 site-packages（office-word/excel）+ ppt/gate 运行时闭包 + bundled `pptx`，故两侧都能拦「漏打包」与「装后被杀软隔离/半截解压」。新增 OOTB 关键文件**只**改 manifest，两侧自动覆盖。
+平台清单含 site-packages（office-word/excel）+ ppt/gate 运行时闭包 + bundled `pptx`；垂直包清单声明业务文件。两侧都能拦「漏打包」与「装后被杀软隔离/半截解压」。
 
 ### 17.7 Cases
 

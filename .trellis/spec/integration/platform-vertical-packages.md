@@ -265,6 +265,20 @@ Platform upgrade must **not** overwrite tenant knowledge, secrets, or installed 
 
 Existing hot-update path: [`internal-update.md`](./internal-update.md), [`wanding-first-ship.md`](./wanding-first-ship.md) §5.2.1 — applies to **platform `dist/`** today; package-level zip is a **next layer**.
 
+### 4.10 Implemented P3 package boundary
+
+The canonical first vertical now lives at:
+
+`ccb-installer/packages/vertical/com.wanding.trade/`
+
+It owns its manifest, business agents, quotation skill, knowledge declaration,
+health/probe descriptors, policies, eval references, migrations, and payload
+mapping. Platform health and reusable MCP health remain outside this directory.
+
+Lifecycle and health composition rules are executable contracts in
+[`package-lifecycle.md`](./package-lifecycle.md). Legacy seed/install paths are
+projections and compatibility aliases, not a second business source of truth.
+
 ---
 
 ## 5. Assets that should stay local

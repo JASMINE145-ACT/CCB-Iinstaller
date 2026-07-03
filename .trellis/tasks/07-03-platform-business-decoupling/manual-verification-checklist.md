@@ -27,7 +27,26 @@ tokens, or private business data in this file.
 
 ## P3 — Vertical package lifecycle
 
-_Added when P3 automation is complete._
+- [ ] Install `com.wanding.trade` into a new non-production lifecycle state root.
+- [ ] Enable it and confirm `projections/seed/agents` contains the four WanD
+  business agents and `package-runtime.json` names version `0.1.0`.
+- [ ] Compile with `--package-state <stateRoot>/state.json`; confirm quotation,
+  Accurate, and price-library are present.
+- [ ] Start AionUI from the P3 staging tree and verify the WanD orchestrator,
+  quotation, Accurate, and price-library cards open.
+- [ ] Run one quotation/inventory lookup, one Accurate summary, and one
+  price-library read.
+- [ ] Disable the package; compile again and confirm business agents/MCPs are
+  absent while platform Office/research health remains green.
+- [ ] Confirm disable did not delete WanD data, tenant state, or local secrets.
+- [ ] Upgrade a sandbox copy to a higher test version, then rollback; confirm
+  the prior version and agent projections are restored.
+- [ ] Attempt uninstall while enabled; confirm it is rejected. Disable, then
+  uninstall; confirm package versions are removed but tenant data/secrets remain.
+- [ ] Run `test-install-health.ps1 -Profile Platform -SkipBootstrap` on an
+  empty-platform install and confirm PASS.
+- [ ] Run the Full install-health and MCP probe on a package-enabled install;
+  expected MCP probe result is `PASS 5/5`.
 
 ## P4 — Control plane and tenant governance
 

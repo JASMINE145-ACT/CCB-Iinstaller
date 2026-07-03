@@ -215,7 +215,7 @@ Contract:
 | 3 | User replies「确认」/「同意」 |
 | 4 | `append_business_rule` with `confirmed=true` (needs org token) |
 
-**Shipped:** `ccb-installer/config/agents/quotation-agent.md` § `append_business_rule` 预览后（硬约束）+ §回复形态 + §硬禁止.
+**Shipped:** `ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md` § `append_business_rule` 预览后（硬约束）+ §回复形态 + §硬禁止.
 
 **Deploy verify:**
 
@@ -261,7 +261,7 @@ This preserves the stable Agent Read path while making center edits propagate to
 |-------|---------|
 | Agent Edit/Write `vendor/.../wanding_business_knowledge.md` for fleet update | `#/org-knowledge` Save (delete/full edit) or MCP `append_business_rule` (append only) |
 | Python has `append_business_rule` in `tool_dispatch` → assume MCP exposes it | Verify `mcp_servers/quotation-server/dist/index.js` ListTools + live `vendor/mcp-servers/.../index.js` after `sync-dev-wanding-vendor.ps1` |
-| Changed `ccb-installer/config/agents/quotation-agent.md` only | Also `deploy-seed-agents.ps1 -ForceMd` — default deploy skips existing user `.md` |
+| Changed `ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md` only | Also `deploy-seed-agents.ps1 -ForceMd` — default deploy skips existing user `.md` |
 | `#/org-knowledge` shows new content → assume quotation agent already has it | Shadow sync on login/WS/interval; **new MCP conversation** after vendor sync |
 | `append_business_rule` for delete/test cleanup | Tool is **append-only**; use UI PUT for removals |
 | `append_business_rule` → **403 CSRF_INVALID** | Re-login does **not** fix — MCP PUT needs CSRF bootstrap (`org_http_csrf.py`); sync `python/` → vendor after fix |

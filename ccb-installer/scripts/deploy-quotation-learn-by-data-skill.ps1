@@ -18,7 +18,7 @@ if (-not $SourceDir) {
     }
 }
 if (-not $SourceDir -or -not (Test-Path -LiteralPath $SourceDir)) {
-    $SourceDir = Join-Path $repoRoot "ccb-installer\config\skills\quotation-learn-by-data"
+    $SourceDir = Join-Path $repoRoot "ccb-installer\packages\vertical\com.wanding.trade\skills\quotation-learn-by-data"
 }
 
 if (-not $SkillsDir) {

@@ -150,7 +150,7 @@ async function testRegistryProjections() {
   const packageManifest = await readJson(
     resolve(
       repoRoot,
-      "ccb-installer/config/packages/com.wanding.trade/package.json",
+      "ccb-installer/packages/vertical/com.wanding.trade/package.json",
     ),
   );
   const platform = await readJson(
@@ -198,6 +198,33 @@ async function testRegistryProjections() {
     compiled.healthPlan.servers.some((item) => item.id === "quotation"),
   );
   assert.match(compiled.revision, /^sha256:[a-f0-9]{64}$/);
+
+  const platformOnly = compileRuntimeConfig({
+    layers: [platform, tenant],
+    registry,
+    packageManifests: [packageManifest],
+    enabledPackages: [],
+    variables: {
+      installDir: "D:/CCB-Wanding",
+      configDir: "D:/Config",
+      appDataProfile: "AionUi",
+      orgServerUrl: "https://org.example",
+      orgSessionTokenFile: "D:/Config/runtime/org-session.token",
+    },
+    secrets,
+  });
+  assert.equal(platformOnly.settings.mcpServers.quotation, undefined);
+  assert.deepEqual(platformOnly.agentProjection.agents, []);
+  assert.equal(
+    platformOnly.healthPlan.servers.some(
+      (item) => item.packageId === "com.wanding.trade",
+    ),
+    false,
+  );
+  assert.deepEqual(
+    platformOnly.healthPlan.servers.map((item) => item.id).sort(),
+    ["exa", "excel", "excel-mcp", "office-word"],
+  );
 
   const again = compileRuntimeConfig({
     layers: [platform, tenant],

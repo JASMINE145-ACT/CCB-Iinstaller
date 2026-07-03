@@ -1,0 +1,6 @@
+{"file":".trellis/spec/integration/platform-vertical-packages.md","reason":"Package ownership, lifecycle, compatibility, and extraction boundary."}
+{"file":".trellis/spec/integration/package-manifest-schema.md","reason":"Canonical descriptor and registry contract."}
+{"file":".trellis/spec/integration/runtime-config-compiler.md","reason":"P2 projections and enabled-package inputs reused by P3."}
+{"file":".trellis/spec/integration/mcp-health.md","reason":"Health composition and live probe requirements."}
+{"file":".trellis/spec/integration/package-lifecycle.md","reason":"Executable P3 lifecycle, health composition, and compatibility contract."}
+{"file":".trellis/tasks/07-03-p3-wanding-package-extract/research/p3-current-package-boundary-audit.md","reason":"Current hardcoded paths, ownership decision, migration risks."}

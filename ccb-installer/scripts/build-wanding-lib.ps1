@@ -46,6 +46,7 @@ function Get-WandingHotComponentCatalog() {
         python          = 'vendor/wanding/python/**'
         data            = 'vendor/wanding/data/**'
         seed            = 'seed/agents + seed/skills/ccb-subagent-gate'
+        package         = 'packages/vertical/com.wanding.trade/**'
         'quotation-mcp' = 'vendor/mcp-servers/quotation-server/dist + node_modules'
         'accurate-mcp'  = 'vendor/mcp-servers/accurate-mcp/**'
         'office-word'   = 'vendor/mcp-servers/office-word-mcp/**'
@@ -56,6 +57,9 @@ function Get-WandingHotComponentCatalog() {
 function Get-WandingShipScripts {
     return @(
         'ensure-wanding-settings.ps1',
+        'apply-compiled-runtime-config.ps1',
+        'compile-runtime-config.mjs',
+        'package-lifecycle.mjs',
         'install-office-word-mcp.ps1',
         'install-ppt-master.ps1',
         'deploy-ppt-master-skill.ps1',
@@ -129,6 +133,9 @@ function Resolve-WandingHotComponentsFromGit {
             '^data/' { [void]$set.Add('data') }
             '^ccb-installer/config/agents/' { [void]$set.Add('seed') }
             '^ccb-installer/config/skills/' { [void]$set.Add('seed') }
+            '^ccb-installer/packages/vertical/com\.wanding\.trade/agents/' { [void]$set.Add('seed'); [void]$set.Add('package') }
+            '^ccb-installer/packages/vertical/com\.wanding\.trade/skills/' { [void]$set.Add('seed'); [void]$set.Add('package') }
+            '^ccb-installer/packages/vertical/com\.wanding\.trade/' { [void]$set.Add('package') }
             '^mcp_servers/quotation-server/' { [void]$set.Add('quotation-mcp') }
             '^ccb-installer/vendor/mcp-servers/accurate-mcp/' { [void]$set.Add('accurate-mcp') }
             '^ccb-installer/scripts/install-office-word-mcp\.ps1$' { [void]$set.Add('office-word') }
@@ -246,9 +253,14 @@ function Stage-WandingHotSeed {
     Get-ChildItem -LiteralPath (Join-Path $installerRoot 'config\agents') -File |
         Where-Object { $_.Name -ne 'README.md' } |
         ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $seedAgentsDest -Force }
+    Get-ChildItem -LiteralPath (Join-Path $installerRoot 'packages\vertical\com.wanding.trade\agents') -File |
+        ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $seedAgentsDest -Force }
     $seedSkillSrc = Join-Path $installerRoot 'config\skills\ccb-subagent-gate'
     $seedSkillDest = Join-Path $HotRoot 'seed\skills\ccb-subagent-gate'
     Invoke-WandingRobocopyMirror $seedSkillSrc $seedSkillDest @('/XD', 'tests')
+    $learnSkillSrc = Join-Path $installerRoot 'packages\vertical\com.wanding.trade\skills\quotation-learn-by-data'
+    $learnSkillDest = Join-Path $HotRoot 'seed\skills\quotation-learn-by-data'
+    Invoke-WandingRobocopyMirror $learnSkillSrc $learnSkillDest
 }
 
 function Stage-WandingHotScripts {
@@ -262,6 +274,20 @@ function Stage-WandingHotScripts {
             Copy-Item -LiteralPath $file -Destination $dest -Force
         }
     }
+    $libDest = Join-Path $dest 'lib'
+    New-Item -ItemType Directory -Force -Path $libDest | Out-Null
+    foreach ($name in @('runtime-config-compiler.mjs', 'package-lifecycle.mjs')) {
+        $file = Join-Path $src "lib\$name"
+        Test-WandingRequiredFile $file "script library $name"
+        Copy-Item -LiteralPath $file -Destination $libDest -Force
+    }
+}
+
+function Stage-WandingHotPackage {
+    param([string]$HotRoot, [hashtable]$Roots)
+    $source = Join-Path $Roots.InstallerRoot 'packages\vertical\com.wanding.trade'
+    $destination = Join-Path $HotRoot 'packages\vertical\com.wanding.trade'
+    Invoke-WandingRobocopyMirror $source $destination
 }
 
 function Stage-WandingHotQuotationMcp {
@@ -347,6 +373,7 @@ function Invoke-WandingHotComponentStage {
         'python' { Stage-WandingHotPython -HotRoot $HotRoot -RepoRoot $Roots.RepoRoot }
         'data' { Stage-WandingHotData -HotRoot $HotRoot -Roots $Roots }
         'seed' { Stage-WandingHotSeed -HotRoot $HotRoot -Roots $Roots }
+        'package' { Stage-WandingHotPackage -HotRoot $HotRoot -Roots $Roots }
         'quotation-mcp' { Stage-WandingHotQuotationMcp -HotRoot $HotRoot -Roots $Roots }
         'accurate-mcp' { Stage-WandingHotAccurateMcp -HotRoot $HotRoot -Roots $Roots }
         'office-word' {
@@ -377,6 +404,7 @@ function Get-WandingHotZipRelPaths {
         python          = @('vendor\wanding\python')
         data            = @('vendor\wanding\data')
         seed            = @('seed\agents', 'seed\skills\ccb-subagent-gate')
+        package         = @('packages\vertical\com.wanding.trade\package.json')
         'quotation-mcp' = @('vendor\mcp-servers\quotation-server\dist', 'vendor\mcp-servers\quotation-server\node_modules')
         'accurate-mcp'  = @('vendor\mcp-servers\accurate-mcp')
         'office-word'   = @('vendor\mcp-servers\office-word-mcp')

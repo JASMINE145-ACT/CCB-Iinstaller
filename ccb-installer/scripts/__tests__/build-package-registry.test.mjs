@@ -21,8 +21,8 @@ async function testPackageManifest() {
     "ccb-installer/config/schemas/package-manifest.schema.json",
   );
   const manifestPath = resolve(
-    repoRoot,
-    "ccb-installer/config/packages/com.wanding.trade/package.json",
+      repoRoot,
+      "ccb-installer/packages/vertical/com.wanding.trade/package.json",
   );
   const schema = await readJson(schemaPath);
   const manifest = await readJson(manifestPath);

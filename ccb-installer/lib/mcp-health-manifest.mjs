@@ -10,14 +10,46 @@ const MANIFEST_PATH = join(ROOT, 'config', 'mcp-health-manifest.json')
 
 /** @typedef {import('../config/mcp-health-manifest.json')} McpHealthManifest */
 
-let _cached = null
+const cache = new Map()
+
+function readJson(path) {
+  return JSON.parse(readFileSync(path, 'utf8').replace(/^\uFEFF/, ''))
+}
 
 /** @returns {McpHealthManifest} */
-export function loadMcpHealthManifest() {
-  if (!_cached) {
-    _cached = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8').replace(/^\uFEFF/, ''))
+export function loadMcpHealthManifest({ includePackages = true } = {}) {
+  const cacheKey = includePackages ? 'full' : 'platform'
+  if (!cache.has(cacheKey)) {
+    const platform = readJson(MANIFEST_PATH)
+    const composed = {
+      ...platform,
+      mcp_servers: { ...platform.mcp_servers },
+      agent_profiles: { ...platform.agent_profiles },
+    }
+    if (includePackages) {
+      for (const relativePath of platform.package_health_manifests ?? []) {
+        const packageHealth = readJson(join(ROOT, relativePath))
+        for (const [id, descriptor] of Object.entries(
+          packageHealth.mcp_servers ?? {},
+        )) {
+          if (composed.mcp_servers[id]) {
+            throw new Error(`Duplicate MCP health descriptor: ${id}`)
+          }
+          composed.mcp_servers[id] = descriptor
+        }
+        for (const [id, descriptor] of Object.entries(
+          packageHealth.agent_profiles ?? {},
+        )) {
+          if (composed.agent_profiles[id]) {
+            throw new Error(`Duplicate agent health profile: ${id}`)
+          }
+          composed.agent_profiles[id] = descriptor
+        }
+      }
+    }
+    cache.set(cacheKey, composed)
   }
-  return _cached
+  return cache.get(cacheKey)
 }
 
 /** @param {string} installDir */

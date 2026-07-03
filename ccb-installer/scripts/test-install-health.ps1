@@ -5,6 +5,8 @@ param(
     [string]$ConfigDir = '',
     [string]$ManifestPath = '',
     [string]$LogFile = '',
+    [ValidateSet('Platform', 'Full')]
+    [string]$Profile = 'Full',
     [switch]$SkipBootstrap,
     [switch]$Quiet
 )
@@ -60,6 +62,30 @@ if (-not (Test-Path -LiteralPath $ManifestPath)) {
 }
 
 $manifest = Get-Content -Raw -LiteralPath $ManifestPath -Encoding UTF8 | ConvertFrom-Json
+$requiredFiles = if ($manifest.PSObject.Properties['platform_required_files']) {
+    @($manifest.platform_required_files)
+}
+else {
+    @($manifest.required_files)
+}
+$configFiles = @($manifest.config_files)
+
+if ($Profile -eq 'Full') {
+    foreach ($packageManifestRel in @($manifest.package_health_manifests)) {
+        $packageManifestPath = Expand-HealthPath ([string]$packageManifestRel)
+        if (-not (Test-Path -LiteralPath $packageManifestPath)) {
+            $packageManifestPath = Join-Path (Split-Path $PSScriptRoot -Parent) ([string]$packageManifestRel)
+        }
+        if (-not (Test-Path -LiteralPath $packageManifestPath)) {
+            Write-CheckLine 'FAIL' "package health manifest missing: $packageManifestRel"
+            $failures++
+            continue
+        }
+        $packageHealth = Get-Content -Raw -LiteralPath $packageManifestPath -Encoding UTF8 | ConvertFrom-Json
+        $requiredFiles += @($packageHealth.requiredFiles)
+        $configFiles += @($packageHealth.configFiles)
+    }
+}
 
 if ($manifest.install_root) {
     $markerRel = [string]$manifest.install_root.marker
@@ -85,7 +111,7 @@ if ($manifest.install_root) {
     }
 }
 
-if (-not $SkipBootstrap) {
+if (-not $SkipBootstrap -and $Profile -eq 'Full') {
     $bootstrap = Join-Path $InstallDir 'scripts\run-wanding-bootstrap.ps1'
     if (Test-Path -LiteralPath $bootstrap) {
         Write-CheckLine 'START' 'bootstrap quick check'
@@ -104,7 +130,7 @@ if (-not $SkipBootstrap) {
     }
 }
 
-foreach ($rel in @($manifest.required_files)) {
+foreach ($rel in $requiredFiles) {
     $path = Expand-HealthPath $rel
     if (Test-Path -LiteralPath $path) {
         Write-CheckLine 'OK' $rel
@@ -143,7 +169,7 @@ if ($acpAgentMarker) {
     }
 }
 
-foreach ($entry in @($manifest.config_files)) {
+foreach ($entry in $configFiles) {
     $path = Expand-HealthPath $entry
     if (Test-Path -LiteralPath $path) {
         Write-CheckLine 'OK' $entry

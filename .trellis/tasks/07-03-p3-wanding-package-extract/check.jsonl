@@ -1,0 +1,5 @@
+{"file":".trellis/spec/integration/platform-vertical-packages.md","reason":"Check empty-platform and package lifecycle acceptance."}
+{"file":".trellis/spec/integration/wanding-packaging-whitelist.md","reason":"Preserve installer whitelist and staging gates."}
+{"file":".trellis/spec/integration/mcp-health.md","reason":"Check current full WanD MCP health regression."}
+{"file":".trellis/spec/integration/package-lifecycle.md","reason":"Check lifecycle transitions and platform/package health composition."}
+{"file":".trellis/tasks/07-03-p3-wanding-package-extract/prd.md","reason":"Verify all P3 acceptance criteria and non-goals."}

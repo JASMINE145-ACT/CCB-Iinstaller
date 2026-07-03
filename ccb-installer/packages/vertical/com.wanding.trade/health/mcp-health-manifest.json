@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "package_id": "com.wanding.trade",
+  "mcp_servers": {
+    "quotation": {
+      "kind": "stdio",
+      "lazy": false,
+      "required_paths": [
+        "vendor/bun/bun.exe",
+        "vendor/mcp-servers/quotation-server/dist/index.js",
+        "vendor/python-wanding/python.exe",
+        "vendor/wanding/data",
+        "vendor/wanding/python/main.py",
+        "vendor/wanding/.env.accurate"
+      ],
+      "tool_prefix": "mcp__quotation__",
+      "probe_timeout_ms": 90000,
+      "probe_tool_call": {
+        "tool": "match_quotation",
+        "arguments": {
+          "keywords": "pipe",
+          "showAllCandidates": true
+        }
+      },
+      "probe_inventory_call": {
+        "tool": "get_inventory_by_code",
+        "arguments": {
+          "code": "HEALTH-PROBE"
+        },
+        "reject_patterns": [
+          "inventory_unavailable",
+          "not configured",
+          "AOL_ACCESS_TOKEN"
+        ]
+      }
+    },
+    "accurate": {
+      "kind": "stdio",
+      "lazy": false,
+      "required_paths": [
+        "vendor/python-wanding/python.exe",
+        "vendor/mcp-servers/accurate-mcp/server.py"
+      ],
+      "tool_prefix": "mcp__accurate__",
+      "probe_timeout_ms": 120000,
+      "probe_tool_call": {
+        "tool": "accurate_summarize_records",
+        "arguments": {
+          "table_name": "purchase-invoice",
+          "start_date": "01/01/2026",
+          "end_date": "31/01/2026",
+          "group_by": "month",
+          "page_size": 10,
+          "max_pages": 1
+        },
+        "reject_patterns": [
+          "AOL_ACCESS_TOKEN 未设置",
+          "AOL_SIGNATURE_SECRET 未设置",
+          "AOL_DATABASE_ID 未设置",
+          "[参数错误]",
+          "[API 错误]"
+        ]
+      }
+    },
+    "price-library": {
+      "kind": "stdio",
+      "lazy": false,
+      "required_paths": [
+        "vendor/bun/bun.exe",
+        "vendor/mcp-servers/price-library-server/dist/index.js",
+        "vendor/python-wanding/python.exe",
+        "vendor/wanding/python/price_library_main.py"
+      ],
+      "tool_prefix": "mcp__price-library__",
+      "probe_timeout_ms": 60000,
+      "probe_tool_call": {
+        "tool": "get_price_library_active",
+        "arguments": {}
+      },
+      "notes": "Read probe works for any org-authenticated user. Draft/write tools require price_admin."
+    }
+  },
+  "agent_profiles": {
+    "wande-orchestrator": {
+      "required_mcp": [],
+      "forbidden_mcp": [
+        "quotation",
+        "accurate",
+        "office-word",
+        "excel"
+      ],
+      "notes": "Router session with an empty MCP allowlist."
+    },
+    "quotation-agent": {
+      "required_mcp": [
+        "quotation",
+        "excel"
+      ],
+      "tool_prefixes": [
+        "mcp__quotation__",
+        "mcp__excel__"
+      ]
+    },
+    "accurate-agent": {
+      "required_mcp": [
+        "accurate"
+      ],
+      "tool_prefixes": [
+        "mcp__accurate__"
+      ]
+    },
+    "price-library-agent": {
+      "required_mcp": [
+        "price-library"
+      ],
+      "tool_prefixes": [
+        "mcp__price-library__"
+      ],
+      "optional_mcp": [
+        "excel"
+      ]
+    }
+  }
+}

@@ -16,9 +16,17 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const installDir = join(scriptDir, '..');
 const seedAgentsDir = join(installDir, 'seed', 'agents');
 const configAgentsDir = join(installDir, 'config', 'agents');
+const packageAgentsDir = join(
+  installDir,
+  'packages',
+  'vertical',
+  'com.wanding.trade',
+  'agents',
+);
 
 const explicitSource = process.argv.find((a) => a.startsWith('--source='))?.slice('--source='.length);
 let sourceDir = explicitSource ?? null;
+let sourceDirs = [];
 if (!sourceDir) {
   if (existsSync(join(seedAgentsDir, 'quotation-agent.md'))) {
     sourceDir = seedAgentsDir;
@@ -28,6 +36,11 @@ if (!sourceDir) {
     throw new Error(`No agent seed source found (checked seed and config/agents under ${installDir})`);
   }
 }
+sourceDirs = explicitSource
+  ? [sourceDir]
+  : sourceDir === seedAgentsDir
+    ? [seedAgentsDir]
+    : [configAgentsDir, packageAgentsDir].filter(existsSync);
 const configDir =
   process.argv.find((a) => a.startsWith('--config='))?.slice('--config='.length) ??
   join(process.env.LOCALAPPDATA ?? '', 'CCB-Wanding', '.claude', 'agents');
@@ -80,10 +93,19 @@ mkdirSync(configDir, { recursive: true });
 const deployed = [];
 const skipped = [];
 
-for (const name of readdirSync(sourceDir).sort()) {
+const sourceFiles = new Map();
+for (const directory of sourceDirs) {
+  for (const name of readdirSync(directory).sort()) {
+    if (sourceFiles.has(name)) {
+      throw new Error(`Duplicate agent seed ${name} in ${directory}`);
+    }
+    sourceFiles.set(name, join(directory, name));
+  }
+}
+
+for (const [name, src] of [...sourceFiles].sort(([a], [b]) => a.localeCompare(b))) {
   if (name.toLowerCase() === 'readme.md') continue;
   if (name === 'retired-agent-ids.json') continue;
-  const src = join(sourceDir, name);
   const dest = join(configDir, name);
   let shouldCopy = true;
 

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "com.wanding.trade",
+  "payload": [
+    {
+      "source": "vendor/wanding",
+      "target": "vendor/wanding",
+      "kind": "runtime"
+    },
+    {
+      "source": "vendor/mcp-servers/quotation-server",
+      "target": "vendor/mcp-servers/quotation-server",
+      "kind": "mcp"
+    },
+    {
+      "source": "vendor/mcp-servers/accurate-mcp",
+      "target": "vendor/mcp-servers/accurate-mcp",
+      "kind": "mcp"
+    },
+    {
+      "source": "vendor/mcp-servers/price-library-server",
+      "target": "vendor/mcp-servers/price-library-server",
+      "kind": "mcp"
+    }
+  ],
+  "legacyProjections": [
+    {
+      "source": "agents",
+      "target": "seed/agents"
+    },
+    {
+      "source": "skills/quotation-learn-by-data",
+      "target": "seed/skills/quotation-learn-by-data"
+    }
+  ],
+  "retainOnDisable": [
+    "vendor/wanding/data",
+    "runtime/secrets",
+    "runtime/tenant-state"
+  ]
+}
