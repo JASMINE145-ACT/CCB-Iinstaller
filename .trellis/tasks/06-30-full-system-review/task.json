@@ -25,8 +25,7 @@
     },
     {
       "id": "step-03-frontend",
-      "title": "Step 3 — Frontend 层审查（AionUI desktop / IPC / chat / Guid）",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "step-04-business",
@@ -71,7 +70,7 @@
     ".trellis/tasks/06-30-full-system-review/reviews/phase-02-vendor-sync-exploration.md",
     ".trellis/tasks/06-30-full-system-review/reviews/phase-02-vendor-sync-optimization-review.md",
     ".trellis/tasks/06-30-full-system-review/reviews/phase-02-1-exploration-2026-07-02.md",
-    ".trellis/tasks/06-30-full-system-review/reviews/step-02-backend.md",
+    ".trellis/tasks/06-30-full-system-review/reviews/step-03-frontend.md",
     ".trellis/spec/index.md",
     ".trellis/spec/outline.md",
     ".trellis/spec/integration/index.md",
@@ -91,5 +90,5 @@
     ".trellis/spec/integration/dev-runtime-layers.md",
     ".trellis/spec/frontend/dev-test-ship.md"
   ],
-  "notes": "Step 1 Integration 7.5/10 ✅。Step 2 Backend 7/10 ✅ 2026-07-02 — step-02-backend.md。Phase 2.1 ✅。下一步 Step 3 Frontend。\n2026-07-03: system-reviewer next-phase — Step 3 Frontend audit + FE-P0-1；defer SHIP-P0-1 / Track B P2+。\n2026-07-03: execution-plan.md (draft) — Step 3 + 严格测试门禁 P0–P5。"
+  "notes": "Step 1 Integration 7.5/10 ✅。Step 2 Backend 7/10 ✅ 2026-07-02。Step 3 Frontend 7/10 ✅ 2026-07-03 — step-03-frontend.md。Phase 2.1 ✅。下一步 P2 FE-P0-1 manual verify。\n2026-07-03: execution-plan approved P0–P5；baseline + Step 3 done；P2 in_progress。"
 }
