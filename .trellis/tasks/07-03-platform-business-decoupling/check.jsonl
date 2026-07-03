@@ -1,2 +1,3 @@
-{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
 {"file": ".trellis/spec/backend/config-layer.md", "reason": "P2 config compiler must align with CCB authority model"}
+{"file": ".trellis/spec/integration/package-manifest-schema.md", "reason": "P1 manifest, registry diagnostic, and read-only boundary contract"}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "Validate Agent markdown and sidecar relationships"}

@@ -91,10 +91,10 @@ P5  Phase 5 — 第二家公司试点
 
 ### Acceptance
 
-- [ ] 可从单一 manifest **图**回答：「某租户（模拟）有哪些 Agent/Skill/MCP 及依赖」
-- [ ] Lint 对当前万鼎资产运行通过或输出可追踪 WARN 清单
-- [ ] 现有安装/运行脚本 **仍可工作**（本阶段无行为变更）
-- [ ] `p1-registry-snapshot-done.md` 含样例输出路径与命令
+- [x] 可从单一 manifest **图**回答：「某租户（模拟）有哪些 Agent/Skill/MCP 及依赖」
+- [x] Lint 对当前万鼎资产运行通过或输出可追踪 WARN 清单
+- [x] 现有安装/运行脚本 **仍可工作**（本阶段无行为变更）
+- [x] `p1-registry-snapshot-done.md` 含样例输出路径与命令
 
 ### Spec entry
 

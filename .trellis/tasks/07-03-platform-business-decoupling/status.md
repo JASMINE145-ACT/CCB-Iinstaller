@@ -9,7 +9,7 @@
 | Phase | Name | Status | Evidence |
 |-------|------|--------|----------|
 | P0 | Security & boundary freeze | ✅ done (ops rotation pending) | `6d81848f` · `07-03-p0-security-boundary` |
-| P1 | Meta-model & read-only registry | 🟡 next | create `07-03-p1-*` child task |
+| P1 | Meta-model & read-only registry | ✅ done | `p1-registry-snapshot-done.md` · tests 3/3 · lint 0 errors |
 | P2 | Config compiler & single source | ⬜ pending | — |
 | P3 | Extract `com.wanding.trade` | ⬜ pending | — |
 | P4 | Control plane & tenant governance | ⬜ pending | — |
@@ -17,7 +17,8 @@
 
 ## Active subtasks
 
-_尚无子 task；Phase 开工时用 `task.py create --parent 07-03-platform-business-decoupling` 创建。_
+P1 was delivered in the parent epic because schema and registry projection form
+one atomic, read-only change. Later runtime-changing phases remain child tasks.
 
 ## Blockers
 
@@ -26,6 +27,6 @@ _尚无子 task；Phase 开工时用 `task.py create --parent 07-03-platform-bus
 
 ## Next action
 
-1. 完成凭据轮换 + smoke（`verify-sso-jit.ps1`、`test-mcp-health.ps1 -Probe`）
-2. 创建子 task：`07-03-p1-package-manifest-schema` 或 `07-03-p1-registry-snapshot-lint`
-3. P1-Explore：扫描 `ccb-installer/config/*` 多份镜像关系
+1. 完成 P0 凭据轮换（独立 ops blocker，不影响 P1 artifact）。
+2. 用户审阅 P1 WARN 清单和 manifest ownership。
+3. 批准后创建 P2 child task：config compiler v1。

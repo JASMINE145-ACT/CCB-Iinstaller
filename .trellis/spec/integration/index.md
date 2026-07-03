@@ -26,6 +26,7 @@
 | **Platform vs vertical packages** (tenant, `com.wanding.trade`, P0–P4) | [`platform-vertical-packages.md`](./platform-vertical-packages.md); design [`../../../docs/platform-system-business-decoupling-optimization.md`](../../../docs/platform-system-business-decoupling-optimization.md); epic `.trellis/tasks/07-03-platform-business-decoupling` |
 | **P0 forbidden coupling / no WanD in platform src** | [`platform-forbidden-coupling.md`](./platform-forbidden-coupling.md) |
 | **Package / tenant / capability IDs** | [`platform-identity-schema.md`](./platform-identity-schema.md) |
+| **Package manifest / read-only registry** | [`package-manifest-schema.md`](./package-manifest-schema.md) |
 | Layer 1 (desktop) only | You do not need this index. Go to [`../frontend/index.md`](../frontend/index.md). |
 
 ## Project strategy (5 lines)
