@@ -1,0 +1,7 @@
+{
+  "id": "06-30-fill-quotation-path-c-schema",
+  "title": "fill_quotation_sheet Path C MCP schema parity",
+  "status": "completed",
+  "created": "2026-06-30",
+  "summary": "Align MCP index.js, tool_schema.py, fill_path_guard, and ROE hints so post-match fill uses fill_items without required file_path."
+}

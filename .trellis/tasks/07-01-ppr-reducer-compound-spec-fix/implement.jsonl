@@ -1,0 +1,3 @@
+{"ts":"2026-07-01T00:00:00Z","type":"implement","summary":"Task created from learn-by-data Section B explore: PPR Reducing 40x32/40x25 not-in-candidates; root cause _compound_specs thread_side mis-parse; Option A incremental fix scoped"}
+{"ts":"2026-07-02T00:00:00Z","type":"implement","summary":"PRD expanded Workstream B: rows 9/11 bare DN 40→dn50; _diameter_values empty + MM_TO_INCH[40]=1-1/2\" favors LESSO dn50; fix B1 bare DN extract + B2 exact dn tie-break"}
+{"ts":"2026-07-02T12:00:00Z","type":"implement","summary":"Delivered A+B: _compound_sub_thread_side, _bare_nominal_dn_values, exact dn bonus; 4 LESSO compat tests + test_lesso_dn_spec_fix.py live smoke"}

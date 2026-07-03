@@ -3,11 +3,11 @@ from __future__ import annotations
 
 from typing import Any
 
+from quotation.fill_path_guard import guard_path_a_file_path, resolve_direct_template_path
 from quotation.fill_items import normalize_fill_items
 from quotation.template_paths import (
     coerce_direct_fill_output_path,
     coerce_flow_fill_output_path,
-    default_blank_template,
 )
 from system.param_coercion import coerce_bool, require_text_param
 
@@ -32,15 +32,7 @@ def handle_fill_quotation_sheet(params: dict[str, Any]) -> Any:
             price_library_path=params.get("price_library_path"),
             require_exact_codes=require_exact_codes,
         )
-        file_path = (
-            params.get("file_path")
-            or params.get("path")
-            or params.get("quotation_path")
-            or params.get("template_path")
-            or params.get("template")
-            or params.get("file")
-            or default_blank_template()
-        )
+        file_path = resolve_direct_template_path(params)
         workspace_path = params.get("workspace_path") or params.get("workspace") or None
         output_path = coerce_direct_fill_output_path(
             params.get("output_path") or params.get("out_path"),
@@ -54,6 +46,8 @@ def handle_fill_quotation_sheet(params: dict[str, Any]) -> Any:
             quotation_date=params.get("quotation_date"),
             delivery_date=params.get("delivery_date"),
         ) | {"mode": "direct_fill", "items_count": len(fill_items)}
+
+    guard_path_a_file_path(params)
 
     from quotation.flow_orchestrator import run_quotation_fill_flow
 

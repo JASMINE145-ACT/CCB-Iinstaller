@@ -191,6 +191,13 @@ class TestDispatchErrorCodes(unittest.TestCase):
         self.assertIn("fill_quotation_sheet", names)
         self.assertIn("edit_excel", names)
 
+    def test_fill_tool_schema_path_c_has_no_required_file_path(self) -> None:
+        tools = get_quote_tools_openai_format()
+        fill_tool = next(t for t in tools if t["function"]["name"] == "fill_quotation_sheet")
+        params = fill_tool["function"]["parameters"]
+        self.assertNotIn("file_path", params.get("required", []))
+        self.assertIn("fill_items", params["properties"])
+
     def test_excel_edit_cell_ref_parser_lives_in_excel_edit_module(self) -> None:
         self.assertEqual(_parse_cell_ref("B12"), (12, 2))
         self.assertIsNone(_parse_cell_ref("12B"))
@@ -223,6 +230,17 @@ class TestDispatchErrorCodes(unittest.TestCase):
             handle_fill_quotation_sheet({"file_path": "D:\\tmp\\quote.xlsx", "confirmed": True})
 
         self.assertIn("fill_items", str(ctx.exception))
+
+    def test_fill_path_a_rejects_placeholder_file_path(self) -> None:
+        response = handle_request({
+            "tool": "fill_quotation_sheet",
+            "params": {"file_path": "blank", "customer_level": "B"},
+        })
+
+        self.assertFalse(response["success"])
+        self.assertEqual(response["error_code"], "INVALID_INPUT")
+        self.assertIn("Path C", response["error"])
+        self.assertIn("fill_items", response["error"])
 
     def test_confirmed_fill_items_require_code(self) -> None:
         response = handle_request({

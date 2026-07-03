@@ -1,0 +1,9 @@
+{"file": ".trellis/tasks/06-30-quotation-learn-by-data-skill/prd.md", "reason": "Acceptance criteria checklist — all items verifiable (skills wiring, show_candidates, VANTSING col map, smoke fixture path)"}
+{"file": "ccb-installer/config/agents/quotation-agent.md", "reason": "skills: [quotation-learn-by-data] frontmatter + /learn-by-data tool table row; no regression to fill/match SOP"}
+{"file": "ccb-installer/config/skills/quotation-learn-by-data/SKILL.md", "reason": "4-step SOP, VANTSING fixed cols B/C/F, show_candidates=true, membership fallback, Section A/B templates"}
+{"file": "ccb-installer/scripts/deploy-ccb-skills.ps1", "reason": "Skill copied to %LOCALAPPDATA%\\CCB-Wanding\\.claude\\skills\\quotation-learn-by-data\\"}
+{"file": "data/smoke/learn-by-data-vantsing-filled.xlsx", "reason": "E2E smoke fixture ≥15 rows (match / in-candidates / not-in-candidates / zero-candidate)"}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "§ learn-by-data documented; trigger + deploy + MVP VANTSING scope"}
+{"file": ".trellis/spec/backend/mcp-business.md", "reason": "Confirm no MCP tool changes (out of scope); match_quotation_batch show_candidates behavior"}
+{"file": "python/quotation/layout.py", "reason": "VANTSING_LAYOUT column numbers match SKILL col map (product_no_col=6, data_start_row=8)"}
+{"file": "python/quotation/selection_payloads.py", "reason": "Candidate limit 10 vs 15 with show_candidates; no product_type in payload"}

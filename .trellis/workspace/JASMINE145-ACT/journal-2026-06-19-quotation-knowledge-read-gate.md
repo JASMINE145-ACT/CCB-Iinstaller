@@ -65,8 +65,32 @@ Live：`%LOCALAPPDATA%\CCB-Wanding\.claude\skills\ccb-subagent-gate\` + `agents\
 
 ## 后续
 
-- warn 误杀率稳定后：`quotation-agent:knowledge` → **block**
+- ~~warn 误杀率稳定后：`quotation-agent:knowledge` → **block**~~ **Done (2026-06-30)** — see §2026-06-30 below
 - dedupe 从 45s 改为 user-turn 边界（可选）
+
+## 2026-06-30 — 强制 Read + 会话一次
+
+**需求：** 只要查报价就必须 Read 业务知识库；同会话多次查价只 Read 一次。
+
+| 层 | 变更 |
+|----|------|
+| PreToolUse | 新增 `pre-match-knowledge-gate.py` — 未 Read 时 **deny** `match_quotation` / `batch` |
+| Stop | `quotation-agent:knowledge`: **warn → block** |
+| Parser | `parse_transcript_knowledge_gate.py` — 全 transcript 扫描；任意查价（含单候选）均需 session Read |
+| L1 | `quotation-agent.md` PreToolUse frontmatter + §业务知识库 Read |
+| Maint | `data/ccb-wanding-quotation.md` §报价匹配规则 |
+| PostToolUse | `post-match-knowledge-nudge.py` — 仅多候选回复形态，不再要求 Read |
+
+**部署：**
+
+```powershell
+.\ccb-installer\scripts\deploy-subagent-gate-skill.ps1
+.\ccb-installer\scripts\deploy-seed-agents.ps1 -ForceMd
+```
+
+**验收：** 新会话 →「查询三通价格」→ 第一次 match 被 deny → Read KB → match 成功 → 同会话再问「直接50」→ 不再 Read。
+
+**Spec：** `.trellis/spec/integration/agents-unified-model.md` § Knowledge Read enforcement (2026-06-30).
 
 ## Spec 指针
 

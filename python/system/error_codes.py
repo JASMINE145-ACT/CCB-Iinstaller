@@ -10,6 +10,7 @@ ERROR_CODE_INVALID_INPUT = "INVALID_INPUT"
 ERROR_CODE_TIMEOUT = "TIMEOUT"
 ERROR_CODE_DEPENDENCY_MISSING = "DEPENDENCY_MISSING"
 ERROR_CODE_PERMISSION_REQUIRED = "PERMISSION_REQUIRED"
+ERROR_CODE_REVISION_CONFLICT = "REVISION_CONFLICT"
 
 
 def infer_error_code(error: Any) -> str:
@@ -18,6 +19,8 @@ def infer_error_code(error: Any) -> str:
         return ERROR_CODE_INVALID_INPUT
     if any(token in text for token in ("timed out", "timeout", "超时")):
         return ERROR_CODE_TIMEOUT
+    if any(token in text for token in ("409", "revision conflict", "version conflict", "版本冲突")):
+        return ERROR_CODE_REVISION_CONFLICT
     if any(token in text for token in ("permission", "denied", "not allowed", "权限", "拒绝")):
         return ERROR_CODE_PERMISSION_REQUIRED
     if any(token in text for token in ("no such file", "file not found", "文件不存在", "模板不存在")):

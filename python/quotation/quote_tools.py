@@ -10,6 +10,8 @@ from datetime import date
 from pathlib import Path
 from typing import Any, List, Tuple
 
+from openpyxl.utils import get_column_letter
+
 from quotation.fill_enrich import infer_default_satuan, resolve_quote_specification
 from quotation.fill_row_guard import validate_and_fix_fill_rows
 from quotation.inquiry_backfill import backfill_inquiry_columns_if_empty
@@ -63,6 +65,140 @@ def _copy_cell_style(source_cell, dest_cell) -> None:
         logger.debug("复制单元格样式时部分属性失败", exc_info=True)
 
 
+def _use_excel_line_total_formulas(layout: QuotationTemplateLayout) -> bool:
+    """VANTSING standard template: row/footer totals use Excel formulas for user edits."""
+    return layout.template_id == "vantsing"
+
+
+def _excel_col_letter(col_1based: int) -> str:
+    return get_column_letter(col_1based)
+
+
+def _row_line_total_formula(layout: QuotationTemplateLayout, row: int) -> str:
+    price_col = _excel_col_letter(layout.unit_price_col)
+    qty_col = _excel_col_letter(layout.quote_qty_col)
+    return f"={price_col}{row}*{qty_col}{row}"
+
+
+def _apply_footer_total_formulas(
+    ws,
+    layout: QuotationTemplateLayout,
+    total_row_1based: int,
+    data_start_row: int,
+    last_data_row: int,
+    freight_value: float,
+) -> None:
+    """Write dynamic SUM / PPN / grand-total formulas matching 空白标准报价单.xlsx."""
+    total_col = _excel_col_letter(layout.totals_value_col)
+    _set_cell_value_merged_safe(
+        ws,
+        row=total_row_1based,
+        col=layout.totals_value_col,
+        value=f"=SUM({total_col}{data_start_row}:{total_col}{last_data_row})",
+    )
+    _set_cell_value_merged_safe(
+        ws,
+        row=total_row_1based + 1,
+        col=layout.totals_value_col,
+        value=f"={total_col}{total_row_1based}*0.11",
+    )
+    _set_cell_value_merged_safe(
+        ws,
+        row=total_row_1based + 2,
+        col=layout.totals_value_col,
+        value=freight_value,
+    )
+    _set_cell_value_merged_safe(
+        ws,
+        row=total_row_1based + 3,
+        col=layout.totals_value_col,
+        value=f"=SUM({total_col}{total_row_1based}:{total_col}{total_row_1based + 2})",
+    )
+
+
+# (min_row, max_row, min_col, max_col)
+_MergeRange = Tuple[int, int, int, int]
+
+
+def _unmerge_ranges_touching_rows(ws, row_start: int, row_end: int) -> None:
+    """Unmerge any merged range overlapping [row_start, row_end] (inclusive, 1-based)."""
+    to_unmerge: list[_MergeRange] = []
+    for merged_range in list(ws.merged_cells.ranges):
+        if merged_range.min_row <= row_end and merged_range.max_row >= row_start:
+            to_unmerge.append(
+                (merged_range.min_row, merged_range.max_row, merged_range.min_col, merged_range.max_col)
+            )
+    for min_row, max_row, min_col, max_col in to_unmerge:
+        ws.unmerge_cells(
+            start_row=min_row,
+            start_column=min_col,
+            end_row=max_row,
+            end_column=max_col,
+        )
+
+
+def _unmerge_ranges_from_row(ws, from_row_1based: int) -> list[_MergeRange]:
+    """Unmerge all ranges with min_row >= from_row_1based; return removed ranges for restore."""
+    saved: list[_MergeRange] = []
+    for merged_range in list(ws.merged_cells.ranges):
+        if merged_range.min_row >= from_row_1based:
+            saved.append(
+                (merged_range.min_row, merged_range.max_row, merged_range.min_col, merged_range.max_col)
+            )
+    for min_row, max_row, min_col, max_col in saved:
+        ws.unmerge_cells(
+            start_row=min_row,
+            start_column=min_col,
+            end_row=max_row,
+            end_column=max_col,
+        )
+    return saved
+
+
+def _apply_merge_ranges(ws, ranges: list[_MergeRange], *, row_offset: int = 0) -> None:
+    for min_row, max_row, min_col, max_col in ranges:
+        ws.merge_cells(
+            start_row=min_row + row_offset,
+            start_column=min_col,
+            end_row=max_row + row_offset,
+            end_column=max_col,
+        )
+
+
+def _insert_data_rows_before_total(
+    ws,
+    total_row_1based: int,
+    insert_count: int,
+    *,
+    style_row_1based: int | None = None,
+) -> int:
+    """
+    Insert blank data rows before the Total/footer block.
+
+    Footer merges (e.g. VANTSING C18:M18) must be removed before insert_rows; otherwise
+    openpyxl shifts them onto new data rows and quote columns become read-only MergedCells.
+    Returns the new 1-based Total row index.
+    """
+    if insert_count <= 0:
+        return total_row_1based
+
+    style_row = style_row_1based if style_row_1based is not None else total_row_1based - 1
+    footer_merges = _unmerge_ranges_from_row(ws, total_row_1based)
+
+    ws.insert_rows(total_row_1based, insert_count)
+
+    new_data_end = total_row_1based + insert_count - 1
+    _unmerge_ranges_touching_rows(ws, total_row_1based, new_data_end)
+
+    max_col = min(ws.max_column, 20)
+    for new_row in range(total_row_1based, new_data_end + 1):
+        for col in range(1, max_col + 1):
+            _copy_cell_style(ws.cell(row=style_row, column=col), ws.cell(row=new_row, column=col))
+
+    _apply_merge_ranges(ws, footer_merges, row_offset=insert_count)
+    return total_row_1based + insert_count
+
+
 def _ensure_data_rows_before_total(
     ws,
     layout: QuotationTemplateLayout,
@@ -87,19 +223,14 @@ def _ensure_data_rows_before_total(
     if max_target <= last_data_row:
         return total_row_1based
     insert_count = max_target - last_data_row
-    ws.insert_rows(total_row_1based, insert_count)
-    style_row = total_row_1based - 1
-    max_col = min(ws.max_column, 20)
-    for new_row in range(total_row_1based, total_row_1based + insert_count):
-        for col in range(1, max_col + 1):
-            _copy_cell_style(ws.cell(row=style_row, column=col), ws.cell(row=new_row, column=col))
+    new_total_row = _insert_data_rows_before_total(ws, total_row_1based, insert_count)
     logger.info(
         "Inserted %s data row(s) before Total (layout=%s, max_target=%s)",
         insert_count,
         layout.template_id,
         max_target,
     )
-    return total_row_1based + insert_count
+    return new_total_row
 
 
 def _normalize_sheet_view(ws) -> None:
@@ -798,12 +929,9 @@ def fill_template_with_inquiry_items(
         if len(items) > available:
             if allow_insert_rows:
                 insert_count = len(items) - available
-                ws.insert_rows(total_row_1based, insert_count)
-                # 新插入行从上一行复制样式，避免出现默认虚线/绿底
-                style_row = total_row_1based - 1
-                for new_row in range(total_row_1based, total_row_1based + insert_count):
-                    for col in range(1, min(ws.max_column + 1, 20)):
-                        _copy_cell_style(ws.cell(row=style_row, column=col), ws.cell(row=new_row, column=col))
+                total_row_1based = _insert_data_rows_before_total(
+                    ws, total_row_1based, insert_count
+                )
             else:
                 truncated_count = len(items) - available
                 items = items[:available]
@@ -1095,6 +1223,8 @@ def fill_quotation(
 
         filled = 0
         total_excluding_ppn = 0.0
+        filled_data_rows: list[int] = []
+        use_formulas = _use_excel_line_total_formulas(layout)
         for it in fill_items:
             row_num = _to_int_or_none(it.get("row"))
             if row_num is None or row_num <= 0:
@@ -1150,42 +1280,68 @@ def fill_quotation(
                 _set_cell_value_merged_safe(ws, row=row_num, col=layout.satuan_col, value=str(satuan_val))
             if layout.brand_col and it.get("brand"):
                 _set_cell_value_merged_safe(ws, row=row_num, col=layout.brand_col, value=str(it["brand"]))
+            remark = str(it.get("remark") or it.get("catatan") or "").strip()
+            if layout.remark_col and remark:
+                _set_cell_value_merged_safe(ws, row=row_num, col=layout.remark_col, value=remark)
             if up is not None and q is not None and code and str(code) != "无货":
                 row_total = up * q
-                _set_cell_value_merged_safe(ws, row=row_num, col=layout.total_col, value=round(row_total, 2))
+                if use_formulas:
+                    _set_cell_value_merged_safe(
+                        ws,
+                        row=row_num,
+                        col=layout.total_col,
+                        value=_row_line_total_formula(layout, row_num),
+                    )
+                else:
+                    _set_cell_value_merged_safe(
+                        ws, row=row_num, col=layout.total_col, value=round(row_total, 2)
+                    )
                 total_excluding_ppn += row_total
+                filled_data_rows.append(row_num)
             elif up is not None and q is not None and (not code or str(code) == "无货"):
                 _set_cell_value_merged_safe(ws, row=row_num, col=layout.total_col, value=0)
+                filled_data_rows.append(row_num)
             if delivery_col:
                 _set_cell_value_merged_safe(ws, row=row_num, col=delivery_col, value=ddate_str)
 
         ppn = round(total_excluding_ppn * 0.11, 2)
         total_including = round(total_excluding_ppn + ppn + freight_value, 2)
         if total_row_1based is not None:
-            _set_cell_value_merged_safe(
-                ws,
-                row=total_row_1based,
-                col=layout.totals_value_col,
-                value=round(total_excluding_ppn, 2),
-            )
-            _set_cell_value_merged_safe(
-                ws,
-                row=total_row_1based + 1,
-                col=layout.totals_value_col,
-                value=ppn,
-            )
-            _set_cell_value_merged_safe(
-                ws,
-                row=total_row_1based + 2,
-                col=layout.totals_value_col,
-                value=freight_value,
-            )
-            _set_cell_value_merged_safe(
-                ws,
-                row=total_row_1based + 3,
-                col=layout.totals_value_col,
-                value=total_including,
-            )
+            if use_formulas:
+                last_data_row = max(filled_data_rows) if filled_data_rows else total_row_1based - 1
+                _apply_footer_total_formulas(
+                    ws,
+                    layout,
+                    total_row_1based,
+                    layout.data_start_row,
+                    last_data_row,
+                    freight_value,
+                )
+            else:
+                _set_cell_value_merged_safe(
+                    ws,
+                    row=total_row_1based,
+                    col=layout.totals_value_col,
+                    value=round(total_excluding_ppn, 2),
+                )
+                _set_cell_value_merged_safe(
+                    ws,
+                    row=total_row_1based + 1,
+                    col=layout.totals_value_col,
+                    value=ppn,
+                )
+                _set_cell_value_merged_safe(
+                    ws,
+                    row=total_row_1based + 2,
+                    col=layout.totals_value_col,
+                    value=freight_value,
+                )
+                _set_cell_value_merged_safe(
+                    ws,
+                    row=total_row_1based + 3,
+                    col=layout.totals_value_col,
+                    value=total_including,
+                )
         if quotation_date_cell:
             qr, qc = quotation_date_cell
             _set_cell_value_merged_safe(ws, row=qr, col=qc, value=qdate_str)

@@ -1,0 +1,46 @@
+{
+  "id": "ppr-reducer-compound-spec-fix",
+  "name": "07-01-ppr-reducer-compound-spec-fix",
+  "title": "万鼎管件 DN 规格匹配修复（异径套 compound + 裸 DN 40→50）",
+  "description": "Two wanding_fuzzy_matcher bugs from learn-by-data: (A) reducer 40x32 compound thread_side mis-parse → not-in-candidates; (B) bare DN 40 in Coupling/Elbow not in _diameter_values + MM_TO_INCH expands 40→1-1/2\" boosting dn50 over dn40. Fixes in _compound_specs, _diameter_values, tie-break + tests.",
+  "status": "completed",
+  "dev_type": "bugfix",
+  "scope": "quotation-matcher",
+  "package": "python",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-01",
+  "completedAt": "2026-07-02",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "D:\\Projects\\claude-code-best\\python\\inventory\\services\\wanding_fuzzy_matcher.py",
+    "D:\\Projects\\claude-code-best\\python\\inventory\\services\\match_and_inventory.py",
+    "D:\\Projects\\claude-code-best\\python\\test_wanding_matcher_compat.py",
+    "D:\\Projects\\claude-code-best\\python\\tests\\test_lesso_dn_spec_fix.py",
+    "D:\\Projects\\claude-code-best\\ccb-installer\\scripts\\sync-dev-wanding-vendor.ps1",
+    "D:\\Projects\\claude-code-best\\.trellis\\tasks\\06-30-quotation-learn-by-data-skill\\prd.md"
+  ],
+  "notes": "Delivered 2026-07-02. Workstream A: _compound_sub_thread_side for reducer DN×DN. Workstream B: _bare_nominal_dn_values + exact dn bonus. code-review PASS; python test_wanding_matcher_compat.py + pytest 33 passed; live union smoke AC-A1/B1/B2 met.",
+  "meta": {
+    "workstreams": ["A-reducer-compound", "B-bare-dn-40"],
+    "verification": {
+      "code_review": "PASS",
+      "test_wanding_matcher_compat": "18/18 PASS",
+      "pytest": "33 passed (test_lesso_dn_spec_fix + dispatch + registry)",
+      "live_smoke": {
+        "LPPR Coupling 40 直接": "8010071380",
+        "PPR 90 elbow 40 弯头": "8010071404",
+        "PPR Reducing 40x32 大小头": "8010071450",
+        "PPR Reducing 40x25 大小头": "8010071449"
+      }
+    }
+  }
+}

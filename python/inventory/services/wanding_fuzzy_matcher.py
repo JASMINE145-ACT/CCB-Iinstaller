@@ -1008,6 +1008,98 @@ def _sub_size_equivalents(value: str, thread_side: bool = False) -> set[str]:
     return equivalents
 
 
+_SINGLE_DN_FITTINGS = frozenset({
+    "coupling",
+    "elbow",
+    "cap",
+    "tee",
+    "valve",
+    "triangle_valve",
+    "angle_valve",
+    "faucet",
+})
+
+
+def _has_thread_compound_context(norm_text: str) -> bool:
+    if _thread_gender(norm_text):
+        return True
+    return _contains_any(norm_text, [r"\bfemale\b", r"\bmale\b", r"内丝", r"外丝", r"\bthread\b"])
+
+
+def _is_dn_dn_reducer_compound(norm_text: str, sub_raw: str) -> bool:
+    """PPR Reducing 40x32 style: both sides are metric DN, not inch thread sub."""
+    if _has_thread_compound_context(norm_text):
+        return False
+    if _query_fitting(norm_text) == "reducer":
+        return True
+    if _contains_any(norm_text, [r"\breducing\b", r"大小头", r"异径套", r"异径直通"]):
+        return True
+    sub = _canon_size_component(sub_raw)
+    return sub.isdigit() and int(sub) >= 20
+
+
+def _compound_sub_thread_side(norm_text: str, prefix: str, sub_raw: str) -> bool:
+    if prefix:
+        return False
+    if _is_dn_dn_reducer_compound(norm_text, sub_raw):
+        return False
+    return True
+
+
+def _bare_nominal_dn_values(norm_text: str) -> set[str]:
+    """Extract bare DN numbers from VANTSING-style fitting queries (e.g. Coupling 40)."""
+    if _compound_specs_without_bare_scan(norm_text):
+        return set()
+    q_fit = _query_fitting(norm_text)
+    if q_fit not in _SINGLE_DN_FITTINGS:
+        return set()
+
+    angle_nums = {_canon_numeric_token(str(a)) for a in _angle_values(norm_text)}
+    values: set[str] = set()
+    for match in re.finditer(r"\b([0-9]+(?:\.[0-9]+)?)\b", norm_text):
+        raw = match.group(1)
+        token = _canon_numeric_token(raw)
+        if token in angle_nums:
+            continue
+        tail = norm_text[match.end() :]
+        if re.match(r"\s*[x×*]", tail):
+            continue
+        head = norm_text[max(0, match.start() - 3) : match.start()]
+        if re.search(r"pn\s*$", head, re.IGNORECASE):
+            continue
+        if re.match(r"\s*m(?![a-z])", tail):
+            continue
+        if token.isdigit() and 10 <= int(token) <= 400:
+            values.add(token)
+    return values
+
+
+def _compound_specs_without_bare_scan(text: str) -> set[tuple[str, frozenset[str]]]:
+    """Compound specs only (used by _bare_nominal_dn_values to avoid recursion)."""
+    norm_text = _normalize(text)
+    specs: set[tuple[str, frozenset[str]]] = set()
+    side_pattern = r'([0-9]+(?:\.[0-9]+)?(?:\s*-\s*[0-9]+)?(?:/[0-9]+)?\s*(?:"|＂|in|inch)?)'
+    for match in re.finditer(
+        rf"\b(dn|de|od)?\s*([0-9]+(?:\.[0-9]+)?)\s*[x×*]\s*{side_pattern}",
+        norm_text,
+    ):
+        prefix = (match.group(1) or "").strip()
+        main = _canon_numeric_token(match.group(2))
+        sub = _sub_size_equivalents(
+            match.group(3),
+            thread_side=_compound_sub_thread_side(norm_text, prefix, match.group(3)),
+        )
+        if main and sub:
+            specs.add((main, frozenset(sub)))
+
+    for match in re.finditer(r"\b([1-9][0-9])([1-9][0-9])(?=[\u4e00-\u9fff]|$)", norm_text):
+        main = _canon_numeric_token(match.group(1))
+        sub = _sub_size_equivalents(match.group(2), thread_side=True)
+        if main and sub:
+            specs.add((main, frozenset(sub)))
+    return specs
+
+
 def _compound_specs(text: str) -> set[tuple[str, frozenset[str]]]:
     norm_text = _normalize(text)
     specs: set[tuple[str, frozenset[str]]] = set()
@@ -1018,7 +1110,10 @@ def _compound_specs(text: str) -> set[tuple[str, frozenset[str]]]:
     ):
         prefix = (match.group(1) or "").strip()
         main = _canon_numeric_token(match.group(2))
-        sub = _sub_size_equivalents(match.group(3), thread_side=not bool(prefix))
+        sub = _sub_size_equivalents(
+            match.group(3),
+            thread_side=_compound_sub_thread_side(norm_text, prefix, match.group(3)),
+        )
         if main and sub:
             specs.add((main, frozenset(sub)))
 
@@ -1040,6 +1135,7 @@ def _diameter_values(text: str) -> set[str]:
         values.add(_canon_numeric_token(match.group(1)))
     for match in re.finditer(r"\b([0-9]+(?:/[0-9]+)?|[0-9]+(?:\.[0-9]+)?)\s*(?:in|inch|英寸|寸|[\"＂])", norm_text):
         values.add(match.group(1).strip().lower())
+    values |= _bare_nominal_dn_values(norm_text)
     return values
 
 
@@ -1225,6 +1321,10 @@ def _hard_filter_and_bonus(
         if q_diameters.isdisjoint(p_diameters):
             return False, 0.0
         bonus += 0.1
+        for dn in q_diameters:
+            if re.search(rf"\bdn\s*{re.escape(dn)}\b", product_norm):
+                bonus += 0.12
+                break
 
     q_pressure = _extract_query_pressure(norm_kw)
     p_pressures = _product_pressure_values(product_norm)
@@ -1367,6 +1467,9 @@ def search_fuzzy(
                     row_dict["unit_price"] = getattr(row, "unit_price", 0.0)
                 if hasattr(row, "Product_Type"):
                     row_dict["Product_Type"] = product_type_text.strip()
+                supplier = str(getattr(row, "supplier", "") or getattr(row, "Supplier", "") or "").strip()
+                if supplier:
+                    row_dict["supplier"] = supplier
                 desc_en = str(getattr(row, "Describrition_English", "") or "").strip()
                 if desc_en:
                     row_dict["description_english"] = desc_en
@@ -1402,6 +1505,9 @@ def search_fuzzy(
                     row_dict["unit_price"] = getattr(row, "unit_price", 0.0)
                 if hasattr(row, "Product_Type"):
                     row_dict["Product_Type"] = product_type_text.strip()
+                supplier = str(getattr(row, "supplier", "") or getattr(row, "Supplier", "") or "").strip()
+                if supplier:
+                    row_dict["supplier"] = supplier
                 desc_en = str(getattr(row, "Describrition_English", "") or "").strip()
                 if desc_en:
                     row_dict["description_english"] = desc_en
@@ -1607,6 +1713,7 @@ def _load_new_price_library_sheet(ws, customer_level: str) -> list[dict]:
                 "Describrition_CN": desc_cn,
                 "Describrition_English": desc_en,
                 "Product_Type": str(cell(row, "product_type") or "").strip(),
+                "supplier": str(cell(row, "supplier") or "").strip(),
                 "unit_price": unit_price,
                 "source_file": str(cell(row, "source_file") or "").strip(),
                 "source_sheet": str(cell(row, "source_sheet") or "").strip(),
@@ -2132,6 +2239,9 @@ def match_fuzzy(
         if desc_en:
             out["description_english"] = desc_en[:500]
             out["indonesian_name"] = desc_en[:500]
+        supplier = str(hit.get("supplier") or "").strip()
+        if supplier:
+            out["supplier"] = supplier
         return out
     keywords = _apply_knowledge_expansion(keywords)
     keywords = _apply_pressure_expansion(keywords)
@@ -2169,6 +2279,9 @@ def match_fuzzy(
     if desc_en:
         out["description_english"] = desc_en[:500]
         out["indonesian_name"] = desc_en[:500]
+    supplier = str(row_dict.get("supplier") or "").strip()
+    if supplier:
+        out["supplier"] = supplier
     if use_remote:
         level = _normalize_price_level(customer_level)
         meta = get_remote_price_meta(level)
@@ -2212,6 +2325,9 @@ def match_fuzzy_candidates(
         desc_en = str(hit.get("description_english") or "").strip()
         if desc_en:
             item["description_english"] = desc_en
+        supplier = str(hit.get("supplier") or "").strip()
+        if supplier:
+            item["supplier"] = supplier
         return [item]
     keywords = _apply_knowledge_expansion(keywords)
     keywords = _apply_pressure_expansion(keywords)
@@ -2284,6 +2400,9 @@ def match_fuzzy_candidates(
         desc_en = str(row_dict.get("description_english") or "").strip()
         if desc_en:
             item["description_english"] = desc_en[:500]
+        supplier = str(row_dict.get("supplier") or "").strip()
+        if supplier:
+            item["supplier"] = supplier
         if remote_meta:
             item["price_source"] = remote_meta.get("price_source")
             item["price_stale"] = remote_meta.get("price_stale", False)
@@ -2351,6 +2470,7 @@ def match_english_candidates(
                 "matched_name": str(getattr(row, "Describrition", "")).strip(),
                 "description_english": str(getattr(row, "Describrition_English", "")).strip(),
                 "Product_Type": str(getattr(row, "Product_Type", "")).strip(),
+                "supplier": str(getattr(row, "supplier", "") or getattr(row, "Supplier", "") or "").strip(),
                 "unit_price": float(getattr(row, "unit_price", 0) or 0),
                 "source": "英文字段匹配",
             }
@@ -2402,6 +2522,9 @@ def get_wanding_price_by_code(
     }
     if desc_en:
         result["description_english"] = desc_en[:500]
+    supplier = str(r.get("supplier", "") or r.get("Supplier", "") or "").strip()
+    if supplier:
+        result["supplier"] = supplier
     if use_remote:
         level_key = _normalize_price_level(customer_level)
         meta = get_remote_price_meta(level_key)

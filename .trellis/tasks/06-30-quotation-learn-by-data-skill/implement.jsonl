@@ -1,0 +1,13 @@
+{"file": ".trellis/tasks/06-30-quotation-learn-by-data-skill/prd.md", "reason": "Revised PRD: skill wiring, VANTSING col map, show_candidates, membership algorithm, smoke fixture"}
+{"file": "ccb-installer/config/skills/ccb-subagent-gate/SKILL.md", "reason": "Reference skill structure + frontmatter pattern"}
+{"file": "ccb-installer/vendor/ppt-master-src/skills/ppt-master/SKILL.md", "reason": "Reference frontmatter name/description/trigger phrases for slash skill discovery"}
+{"file": "ccb-installer/config/agents/quotation-agent.md", "reason": "Add skills frontmatter + /learn-by-data exception in tool table"}
+{"file": "ccb-installer/config/agents/ppt-creator.md", "reason": "Reference skills: [ppt-master] frontmatter wiring pattern"}
+{"file": "ccb-installer/scripts/deploy-ccb-skills.ps1", "reason": "Extend to deploy quotation-learn-by-data (mirror deploy-subagent-gate-skill.ps1)"}
+{"file": "ccb-installer/scripts/deploy-subagent-gate-skill.ps1", "reason": "Copy-tree deploy pattern for new skill script"}
+{"file": "python/quotation/layout.py", "reason": "VANTSING_LAYOUT — inquiry cols 2/3, product_no col 6, data_start_row 8"}
+{"file": "python/quotation/selection_payloads.py", "reason": "MATCH_QUOTATION_BATCH_LIMIT, candidate caps, payload fields (no product_type)"}
+{"file": "python/quotation/match_dispatch.py", "reason": "match_quotation_batch truncation + remaining_keywords continuation"}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "Add § learn-by-data after implementation"}
+{"file": ".trellis/spec/integration/org-knowledge.md", "reason": "append_business_rule preview/confirm flow; memory vs org routing"}
+{"file": "data/ccb-wanding-quotation.md", "reason": "customer_level mapping; match tool preferences"}

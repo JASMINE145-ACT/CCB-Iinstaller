@@ -3,7 +3,7 @@
 > **加载要求（2026-06-28 瘦身）**：本文件是**维护源 + 参考文档**（完整 §价格口径映射、历史细节）。运行时 L1 已精简为 `agents/quotation-agent.md`（决策表 + 触发器 + 硬禁止）；agent **不要**每轮 Read 全文，非 A–E 常见映射时 **Read §价格口径映射**。改 L1 后 `deploy-seed-agents.ps1 -ForceMd`；改本文件后 sync 到 `vendor/wanding/data/`。
 >
 > **与 `wanding_business_knowledge.md` 的分工**：
-> - **L1 `quotation-agent.md`**：工具决策表、按需 Read 触发、出单默认值、ROE、多候选回复形态。
+> - **L1 `quotation-agent.md`**：工具决策表、查价 Read 硬约束（会话一次）、出单默认值、ROE、多候选回复形态。
 > - **本文件**：完整价格口径映射表、Path 参考、回复表格模板。
 > - **业务知识库**：多候选怎么选、品类默认、纠偏、§9 澄清场景。
 
@@ -55,19 +55,23 @@
 
 ## 报价匹配规则
 
-报价匹配与选型**必须**结合业务知识库。调用顺序：
+报价匹配与选型**必须**结合业务知识库。调用顺序（**2026-06-30 硬约束**）：
 
-1. **先** `match_quotation`（常规短询价不要在查价前 Read 知识库）。
-2. **若返回多候选**：**再** Read `wanding_business_knowledge.md`（路径见 `selection_context.knowledge_source`），选出 1 条推荐后回复。
-3. **若返回单候选**：直接报价，无需 Read。
+1. **本会话第一次查价前** Read `wanding_business_knowledge.md`（`PreToolUse` 拦截未 Read 的 `match_quotation`）。
+2. 然后 `match_quotation` / `match_quotation_batch`。
+3. **同会话后续查价** — 不再 Read 知识库，直接 match。
+4. 多候选：同条回复 **1 推荐价 + ≤4 bullet「其他可能」**（`post-match-knowledge-nudge.py` 仅约束回复形态）。
 
-**以下情况必须 Read 知识库后再给最终答案**（通常发生在 match 之后）：
+**以下情况除会话 Read 外，还须 Read `data.Md`：**
 
-- 工具返回多个候选且需推荐/选型
-- 需要 `show_candidates=true`
-- 候选之间来源不同（历史报价 vs 字段匹配）且需判断孰优
-- 用户纠正过选型，或会话中已有可复用的业务默认
-- 用户明确「阅读知识库帮我选」
+- `get_product_price_tiers` / 多档一览（`post-price-tiers-nudge.py`）
+
+**以下情况在已 Read 知识库后按规则选型即可**（不必重复 Read）：
+
+- 单候选或多候选查价
+- `show_candidates=true`
+- 候选来源不同（历史报价 vs 字段匹配）
+- 用户纠正过选型
 
 ```text
 data/wanding_business_knowledge.md
@@ -120,7 +124,7 @@ data/wanding_business_knowledge.md
 | `candidates_returned` | 本次 JSON 附带的候选条数（默认 ≤7） |
 | `candidates_truncated` | 为 `true` 时表示还有更多候选未返回 |
 | `candidates` | 候选列表（`code` / `matched_name` / `unit_price` / `source`） |
-| `selection_context.knowledge_source` | 业务知识库文件路径 — **按需 Read**，不在工具 JSON 内联全文 |
+| `selection_context.knowledge_source` | 业务知识库路径 — **本会话首次查价前 Read 一次**（`PreToolUse` 强制）；不在 JSON 内联全文 |
 
 **batch 顶层**：`{ batch_limit, items_requested, items_processed, items_truncated, results[], remaining_keywords? }`（每批 ≤10 行，**故意截断**）。
 
@@ -249,7 +253,7 @@ data/wanding_business_knowledge.md
 执行要求：
 - **禁止** `AskUserQuestion`；澄清用 assistant 正文 + 用户下一条。
 - **查前**（match 前缺压力/档位等）：A/B/C 选项，可 `1A 2C`。
-- **查后多候选**：**先 match → Read 知识库 → 同条回复先给 1 推荐价 + ≤4 bullet「其他可能」**；**禁止**「用途 A/B/C / 按 1A 格式 / 请选序号」阻塞；「直接50」默认推荐 PVC-U 排水 8020020755。
+- **查后多候选**：**先 Read 知识库（本会话仅一次）→ match → 同条回复 1 推荐价 + ≤4 bullet「其他可能」**；**禁止**「用途 A/B/C / 按 1A 格式 / 请选序号」阻塞；「直接50」默认推荐 PVC-U 排水 8020020755。
 - 仅 §9 强制澄清或用户要看全部候选时才请用户选编码。
 - `candidates_truncated` → 单独 `match_quotation` + `show_candidates:true`。
 - 替代品：**出单写死编码前**确认；查价回复仍先给推荐 + bullet。

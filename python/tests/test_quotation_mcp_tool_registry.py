@@ -33,6 +33,13 @@ class TestQuotationMcpToolRegistry(unittest.TestCase):
             f"MCP index.js missing tools: {sorted(missing)}; found={sorted(names)}",
         )
 
+    def test_fill_quotation_sheet_exposes_path_c_fill_items(self) -> None:
+        text = MCP_INDEX.read_text(encoding="utf-8")
+        fill_block = text.split('name: "fill_quotation_sheet"', 1)[1].split("name:", 1)[0]
+        self.assertIn("fill_items", fill_block)
+        self.assertIn("require_exact_codes", fill_block)
+        self.assertNotIn('required: ["file_path"]', fill_block)
+
 
 if __name__ == "__main__":
     unittest.main()

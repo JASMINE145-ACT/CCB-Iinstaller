@@ -146,6 +146,7 @@ def load_price_dataframe(
             or item.get("Product_Type")
             or ""
         ).strip()
+        supplier = str(item.get("supplier") or item.get("Supplier") or "").strip()
 
         # Determine unit_price.  Products from the org API carry explicit fields
         # (price_a, price_b, etc.) while rows from the bundled seed loader
@@ -167,6 +168,7 @@ def load_price_dataframe(
                 "Describrition": desc,
                 "Describrition_English": desc_en,
                 "Product_Type": product_type,
+                "supplier": supplier,
                 "unit_price": unit_price,
                 "search_text": search_text,
             }

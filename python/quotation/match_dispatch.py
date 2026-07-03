@@ -25,6 +25,7 @@ def handle_match_quotation(params: dict[str, Any]) -> Any:
         keywords,
         candidates,
         show_candidates=bool(params.get("show_candidates", False)),
+        customer_level=str(params.get("customer_level", "B")),
     )
 
 
@@ -59,6 +60,7 @@ def handle_match_quotation_batch(params: dict[str, Any]) -> Any:
             keyword_text,
             candidates,
             show_candidates=bool(params.get("show_candidates", False)),
+            customer_level=str(params.get("customer_level", "B")),
         ))
     truncated = total_requested > len(batch_keywords)
     payload: dict[str, Any] = {

@@ -25,6 +25,7 @@ class QuotationTemplateLayout:
     indonesian_name_col: int | None = None
     satuan_col: int | None = None
     brand_col: int | None = None
+    remark_col: int | None = None
     inquiry_unit_col: int | None = None
 
 
@@ -65,5 +66,6 @@ VANTSING_LAYOUT = QuotationTemplateLayout(
     indonesian_name_col=8,
     satuan_col=10,
     brand_col=12,
+    remark_col=15,
     inquiry_unit_col=4,
 )

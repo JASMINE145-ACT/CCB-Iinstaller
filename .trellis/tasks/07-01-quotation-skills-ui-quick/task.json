@@ -1,0 +1,36 @@
+{
+  "id": "quotation-skills-ui-quick",
+  "name": "07-01-quotation-skills-ui-quick",
+  "title": "万鼎报价专家技能 UI 快修（A + 部分 B）",
+  "description": "让 quotation-learn-by-data 在 Guid「本会话技能」可观测；种子 sidecar 对齐 ppt-creator；最小 aionui 交集逻辑修复。 unblock learn-by-data 人工 smoke。",
+  "status": "pending",
+  "dev_type": "feature",
+  "scope": "frontend-integration",
+  "package": "ccb-installer,aionui-src",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-01",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "ccb-installer/config/agents/quotation-agent.aionui.json",
+    "ccb-installer/config/agents/quotation-agent.md",
+    "ccb-installer/scripts/deploy-seed-agents.mjs",
+    "aionui-src/packages/desktop/src/renderer/pages/guid/utils/guidCapabilitiesCatalog.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/guid/components/GuidActionRow.tsx",
+    ".trellis/spec/integration/agents-unified-model.md"
+  ],
+  "notes": "Fast path for learn-by-data smoke. Superseded in part by 07-01-ccb-agent-skills-ui-unified (session FileAttachButton + all agents). Blocks: none. Related: 06-30-quotation-learn-by-data-skill, 07-01-quotation-slash-discovery.",
+  "meta": {
+    "tier": "A+partial-B",
+    "followUp": "07-01-ccb-agent-skills-ui-unified"
+  }
+}

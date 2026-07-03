@@ -1,0 +1,37 @@
+{
+  "id": "quotation-slash-discovery",
+  "name": "07-01-quotation-slash-discovery",
+  "title": "万鼎 /learn-by-data slash 与推荐 prompt 发现性",
+  "description": "在 / 菜单或 Guid 推荐 prompt 暴露 learn-by-data 触发；CCB capability manifest 或 recommended_prompts；不替代 Skill 运行时。",
+  "status": "pending",
+  "dev_type": "feature",
+  "scope": "frontend-integration",
+  "package": "ccb-installer,aionui-src",
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-01",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "ccb-installer/config/agents/quotation-agent.aionui.json",
+    "ccb-installer/config/agents/quotation-agent.md",
+    "ccb-installer/src/services/acp/capabilities.ts",
+    ".trellis/spec/frontend/chat-acp-flow.md",
+    ".trellis/spec/backend/acp-session-flow.md",
+    ".trellis/spec/integration/agents-unified-model.md"
+  ],
+  "notes": "Parallel to skills UI tasks. User need not guess 按数据学习. Prefer recommended_prompts (low risk) OR capability ready slash (higher parity with 06-13 manifest).",
+  "meta": {
+    "tier": "discovery",
+    "relatedSkill": "quotation-learn-by-data",
+    "dependsOnSmoke": "07-01-quotation-skills-ui-quick"
+  }
+}

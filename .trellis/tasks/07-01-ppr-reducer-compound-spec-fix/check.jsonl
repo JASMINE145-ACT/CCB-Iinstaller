@@ -1,0 +1,2 @@
+{"ts":"2026-07-01T00:00:00Z","type":"check","summary":"Pending: _compound_specs reducer DN×DN branch; test_wanding_matcher_compat regression; manual match_quotation 8010071450/8010071449 top; vendor sync smoke"}
+{"ts":"2026-07-02T01:00:00Z","type":"check","summary":"code-review PASS; test_wanding_matcher_compat 18/18; pytest 33 passed; live match_quotation_union all AC met"}

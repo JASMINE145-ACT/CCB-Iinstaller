@@ -1,0 +1,65 @@
+{
+  "id": "quotation-template-insert-rows-merge-fix",
+  "name": "06-30-quotation-template-insert-rows-merge-fix",
+  "title": "报价单插行 + 金额公式 — merge 修复与 Excel 公式回填",
+  "description": "P0–P2：超 10 行插行 footer merge 修复（已完成）。P3：VANTSING 填表写入 Excel 公式（行 =M×K、footer 动态 SUM/PPN/含税）（已完成）。",
+  "status": "completed",
+  "dev_type": "implementation",
+  "scope": "python quotation fill_quotation insert_rows merge",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-30",
+  "completedAt": "2026-06-30",
+  "relatedFiles": [
+    "data/空白标准报价单.xlsx",
+    "python/quotation/quote_tools.py",
+    "python/quotation/layout.py",
+    "python/quotation/fill_row_guard.py",
+    "python/tests/test_quote_tools_insert_rows.py",
+    "python/tests/test_quote_tools_formulas.py",
+    "ccb-installer/config/agents/quotation-agent.md",
+    ".trellis/spec/integration/agents-unified-model.md",
+    ".trellis/spec/backend/mcp-business.md"
+  ],
+  "notes": "业务来源：企微 lian —「报价单格式是十行，ai还不能自动增加」。P0–P3 已完成 2026-06-30。Spec: mcp-business.md § VANTSING fill insert-rows & formulas; agents-unified-model.md § VANTSING sheet capacity & formulas.",
+  "meta": {
+    "approach": "A-fix-insert-rows-merge",
+    "rejected_approach": "B-expand-template-rows",
+    "template": {
+      "file": "data/空白标准报价单.xlsx",
+      "layout": "vantsing",
+      "data_start_row": 8,
+      "default_data_capacity": 10,
+      "total_row_default": 18
+    },
+    "root_cause": "openpyxl insert_rows shifts footer merged ranges onto new data rows; quote columns inside C:M merge become read-only MergedCell",
+    "repro": {
+      "fill_items_count": 12,
+      "symptom_rows": "18-19 partial fill; F/G/I empty",
+      "function": "_ensure_data_rows_before_total in quote_tools.py"
+    },
+    "phases": [
+      "P0-unmerge-and-style",
+      "P1-tests-and-smoke",
+      "P2-deploy-vendor-sync",
+      "P3-excel-formulas-row-and-footer"
+    ],
+    "phase_P3_formulas": {
+      "status": "completed",
+      "difficulty": "medium-low",
+      "template_formulas": {
+        "N18": "=SUM(N8:N17)",
+        "N19": "=N18*0.11",
+        "N21": "=SUM(N18:N20)"
+      },
+      "current_behavior": "fill_quotation writes Excel formulas for VANTSING row/footer totals; insert_rows restores footer merges",
+      "row_formula": "=M{row}*K{row}",
+      "footer_dynamic": "SUM range must follow data_start..last_data_row after insert"
+    },
+    "related_tasks": [
+      "06-30-quotation-supplier-remark"
+    ]
+  }
+}

@@ -184,6 +184,12 @@ def enrich_fill_item(
         if brand:
             out["brand"] = brand
 
+    supplier = _first_str(out.get("supplier"), matched.get("supplier"), price_row.get("supplier"))
+    if supplier and not out.get("supplier"):
+        out["supplier"] = supplier
+    if supplier and not out.get("remark"):
+        out["remark"] = supplier
+
     if not out.get("satuan"):
         satuan = (
             extract_satuan_from_text(quote_name, description_english)

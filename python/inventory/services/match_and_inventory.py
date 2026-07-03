@@ -112,6 +112,9 @@ def enrich_quotation_candidate(
             )
             if price_row is not None:
                 desc = str(price_row.get("description_english") or "").strip()
+                supplier = str(price_row.get("supplier") or "").strip()
+                if supplier and not row.get("supplier"):
+                    row["supplier"] = supplier
         except Exception as e:
             logger.debug("按 code 查万鼎英文描述失败: %s", e)
     if desc:
@@ -143,6 +146,9 @@ def _merge_candidates_by_code(
         desc = _candidate_description_english(c)
         if desc:
             by_code[code]["description_english"] = desc[:500]
+        supplier = str(c.get("supplier") or "").strip()
+        if supplier:
+            by_code[code]["supplier"] = supplier
     for c in wanding_candidates:
         code = (c.get("code") or "").strip()
         if not code:
@@ -155,6 +161,9 @@ def _merge_candidates_by_code(
                 by_code[code]["matched_name"] = (c.get("matched_name") or "")[:200]
             if desc:
                 by_code[code]["description_english"] = desc[:500]
+            supplier = str(c.get("supplier") or "").strip()
+            if supplier:
+                by_code[code]["supplier"] = supplier
             by_code[code]["source"] = "共同"
         else:
             entry: dict[str, Any] = {
@@ -165,6 +174,9 @@ def _merge_candidates_by_code(
             }
             if desc:
                 entry["description_english"] = desc[:500]
+            supplier = str(c.get("supplier") or "").strip()
+            if supplier:
+                entry["supplier"] = supplier
             by_code[code] = entry
     return list(by_code.values())
 
@@ -291,6 +303,9 @@ def match_quotation_union(
                 )
                 if price_row is not None:
                     c["unit_price"] = float(price_row.get("unit_price", 0) or 0)
+                    supplier = str(price_row.get("supplier") or "").strip()
+                    if supplier and not c.get("supplier"):
+                        c["supplier"] = supplier
             except Exception as e:
                 logger.debug("按 code 查万鼎价格失败: %s", e)
     ranked = _rank_compatible_candidates(keywords, merged)

@@ -163,6 +163,58 @@ ROWS = [
     },
 ]
 
+LESSO_DN_ROWS = [
+    {
+        "Material": "LESSO-CPL-40",
+        "Describrition": "直通(PPR 管件)印尼绿色 dn40 (1-1/4\") 联塑",
+        "Describrition_English": "PPR Coupling dn40 Green(INA) - LESSO",
+        "Product_Type": "PPR fitting",
+        "unit_price": 1.1,
+    },
+    {
+        "Material": "LESSO-CPL-50",
+        "Describrition": "直通(PPR 管件)印尼绿色 dn50 (1-1/2\") 联塑",
+        "Describrition_English": "PPR Coupling dn50 Green(INA) - LESSO",
+        "Product_Type": "PPR fitting",
+        "unit_price": 1.2,
+    },
+    {
+        "Material": "LESSO-ELBOW-40",
+        "Describrition": "90度弯头(PPR 管件)印尼绿色 dn40 (1-1/4\") 联塑",
+        "Describrition_English": "PPR 90 elbow dn40 Green(INA) - LESSO",
+        "Product_Type": "PPR fitting",
+        "unit_price": 1.3,
+    },
+    {
+        "Material": "LESSO-ELBOW-50",
+        "Describrition": "90度弯头(PPR 管件)印尼绿色 dn50 (1-1/2\") 联塑",
+        "Describrition_English": "PPR 90 elbow dn50 Green(INA) - LESSO",
+        "Product_Type": "PPR fitting",
+        "unit_price": 1.4,
+    },
+    {
+        "Material": "LESSO-RED-40X32",
+        "Describrition": "异径套(PPR 管件)印尼绿色 dn40x32 (1-1/4\"x1\") 联塑",
+        "Describrition_English": "PPR Reducer dn40x32 Green(INA) - LESSO",
+        "Product_Type": "PPR fitting",
+        "unit_price": 1.5,
+    },
+    {
+        "Material": "LESSO-RED-40X25",
+        "Describrition": "异径套(PPR 管件)印尼绿色 dn40x25 (1-1/4\"x3/4\") 联塑",
+        "Describrition_English": "PPR Reducer dn40x25 Green(INA) - LESSO",
+        "Product_Type": "PPR fitting",
+        "unit_price": 1.6,
+    },
+    {
+        "Material": "LESSO-RED-40X20",
+        "Describrition": "异径套(PPR 管件)印尼绿色 dn40x20 (1-1/4\"x1/2\") 联塑",
+        "Describrition_English": "PPR Reducer dn40x20 Green(INA) - LESSO",
+        "Product_Type": "PPR fitting",
+        "unit_price": 1.7,
+    },
+]
+
 
 def build_df() -> pd.DataFrame:
     df = pd.DataFrame(ROWS)
@@ -173,14 +225,36 @@ def build_df() -> pd.DataFrame:
     return df
 
 
+def build_lesso_df() -> pd.DataFrame:
+    df = pd.DataFrame(LESSO_DN_ROWS)
+    df["norm_text"] = df["Describrition"].apply(_normalize)
+    df["spec_tokens"] = df["Describrition"].apply(
+        lambda value: frozenset(t for t in _split_tokens(str(value)) if any(ch.isdigit() for ch in t))
+    )
+    return df
+
+
+def top_codes_on(df: pd.DataFrame, query: str) -> list[str]:
+    return [row["code"] for row, _score in search_fuzzy(df, query)]
+
+
 def top_codes(query: str) -> list[str]:
-    return [row["code"] for row, _score in search_fuzzy(build_df(), query)]
+    return top_codes_on(build_df(), query)
+
+
+def assert_top_on(df: pd.DataFrame, query: str, expected: str) -> None:
+    codes = top_codes_on(df, query)
+    assert codes, f"{query!r} returned no candidates"
+    assert codes[0] == expected, f"{query!r}: expected {expected}, got {codes[:5]}"
+
+
+def assert_absent_on(df: pd.DataFrame, query: str, unwanted: str) -> None:
+    codes = top_codes_on(df, query)
+    assert unwanted not in codes, f"{query!r}: unexpected {unwanted} in {codes[:5]}"
 
 
 def assert_top(query: str, expected: str) -> None:
-    codes = top_codes(query)
-    assert codes, f"{query!r} returned no candidates"
-    assert codes[0] == expected, f"{query!r}: expected {expected}, got {codes[:5]}"
+    assert_top_on(build_df(), query, expected)
 
 
 def assert_absent(query: str, unwanted: str) -> None:
@@ -284,6 +358,30 @@ def test_glue_query_is_glue_only() -> None:
     assert_absent("PVC glue 400g", "PVC-PIPE-400")
 
 
+def test_bare_dn_coupling_40_prefers_dn40_not_dn50() -> None:
+    df = build_lesso_df()
+    assert_top_on(df, "LPPR Coupling 40 直接", "LESSO-CPL-40")
+    assert_absent_on(df, "LPPR Coupling 40 直接", "LESSO-CPL-50")
+
+
+def test_bare_dn_elbow_40_prefers_dn40_not_dn50() -> None:
+    df = build_lesso_df()
+    assert_top_on(df, "PPR 90 elbow 40 弯头", "LESSO-ELBOW-40")
+    assert_absent_on(df, "PPR 90 elbow 40 弯头", "LESSO-ELBOW-50")
+
+
+def test_reducing_40x32_prefers_correct_lesso_reducer() -> None:
+    df = build_lesso_df()
+    assert_top_on(df, "PPR Reducing 40x32 大小头", "LESSO-RED-40X32")
+    assert_absent_on(df, "PPR Reducing 40x32 大小头", "LESSO-RED-40X25")
+
+
+def test_reducing_40x25_prefers_correct_lesso_reducer() -> None:
+    df = build_lesso_df()
+    assert_top_on(df, "PPR Reducing 40x25 大小头", "LESSO-RED-40X25")
+    assert_absent_on(df, "PPR Reducing 40x25 大小头", "LESSO-RED-40X20")
+
+
 if __name__ == "__main__":
     for test in (
         test_union_ranking_filters_incompatible_candidates,
@@ -300,6 +398,10 @@ if __name__ == "__main__":
         test_hot_and_cold_are_separate,
         test_pe_electrofusion_default_is_excluded,
         test_glue_query_is_glue_only,
+        test_bare_dn_coupling_40_prefers_dn40_not_dn50,
+        test_bare_dn_elbow_40_prefers_dn40_not_dn50,
+        test_reducing_40x32_prefers_correct_lesso_reducer,
+        test_reducing_40x25_prefers_correct_lesso_reducer,
     ):
         test()
     print("wanding matcher compatibility tests passed")

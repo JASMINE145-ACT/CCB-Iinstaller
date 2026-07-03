@@ -61,17 +61,61 @@ server.setRequestHandler(ListToolsRequestSchema, () => ({
         },
         {
             name: "fill_quotation_sheet",
-            description: "Fill a quotation Excel using migrated Python logic. Ambiguous rows are not auto-selected; they are returned with candidates for Claude Code/user review.",
+            description: "Write quotation lines to Excel. Path C (default after match in session): pass fill_items + require_exact_codes=true; omit file_path — server uses bundled VANTSING blank template. Path A: user supplied an existing inquiry Excel on disk — pass file_path only (no fill_items). Path B cold-start: items=[{keywords, quantity}]. Never pass placeholder file_path (blank, template) or future Wanding-Quotation_*.xlsx output names as input.",
             inputSchema: {
                 type: "object",
                 properties: {
-                    file_path: { type: "string", description: "Input quotation Excel absolute path." },
-                    output_path: { type: "string", description: "Optional output path." },
+                    fill_items: {
+                        type: "array",
+                        description: "Path C direct fill rows from session match. Each row: row, code, quote_name, unit_price, qty, inquiry_name, specification; optional indonesian_name, satuan, brand, supplier.",
+                        items: {
+                            type: "object",
+                            properties: {
+                                row: { type: "integer", description: "Excel row 1-based (VANTSING data starts at 8)." },
+                                code: { type: "string", description: "Product code (or product_code)." },
+                                product_code: { type: "string" },
+                                quote_name: { type: "string" },
+                                unit_price: { type: "number" },
+                                qty: { type: "integer" },
+                                inquiry_name: { type: "string", description: "User keywords from match (B column)." },
+                                specification: { type: "string" },
+                                indonesian_name: { type: "string" },
+                                satuan: { type: "string" },
+                                brand: { type: "string" },
+                                supplier: { type: "string", description: "VANTSING O Catatan when present on match." },
+                            },
+                            required: ["row"],
+                        },
+                    },
+                    items: {
+                        type: "array",
+                        description: "Path B cold-start: [{keywords, quantity}].",
+                        items: {
+                            type: "object",
+                            properties: {
+                                keywords: { type: "string" },
+                                quantity: { type: "integer" },
+                            },
+                        },
+                    },
+                    require_exact_codes: {
+                        type: "boolean",
+                        description: "Set true after user confirmed selection / post-match fill (Path C).",
+                    },
+                    locked_lines: { type: "boolean", description: "Alias for require_exact_codes." },
+                    file_path: {
+                        type: "string",
+                        description: "Path A only: absolute path to an existing inquiry Excel on disk. Omit for Path C.",
+                    },
+                    template_path: { type: "string", description: "Optional custom template override for Path C." },
+                    output_path: { type: "string", description: "Optional output path; relative paths need workspace_path." },
+                    workspace_path: { type: "string", description: "AionUI project temp dir when output_path omitted or relative." },
                     sheet_name: { type: "string", description: "Optional worksheet name." },
                     customer_level: customerLevelSchema,
                     price_library_path: { type: "string" },
+                    quotation_date: { type: "string" },
+                    delivery_date: { type: "string" },
                 },
-                required: ["file_path"],
             },
         },
         {

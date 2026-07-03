@@ -246,6 +246,8 @@ def normalize_fill_items(
         ).strip()
         satuan = str(raw.get("satuan") or nested.get("satuan") or "").strip()
         brand = str(raw.get("brand") or nested.get("brand") or "").strip()
+        supplier = str(raw.get("supplier") or nested.get("supplier") or "").strip()
+        remark = str(raw.get("remark") or raw.get("catatan") or nested.get("remark") or nested.get("catatan") or "").strip()
         specification = str(
             raw.get("specification") or raw.get("spec") or raw.get("model") or nested.get("specification") or ""
         ).strip()
@@ -267,6 +269,8 @@ def normalize_fill_items(
             "indonesian_name": indonesian_name,
             "satuan": satuan,
             "brand": brand,
+            "supplier": supplier,
+            "remark": remark,
         }
         normalized.append(
             enrich_fill_item(

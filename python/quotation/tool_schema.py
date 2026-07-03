@@ -9,11 +9,14 @@ def get_quote_tools_openai_format() -> list[dict]:
             "type": "function",
             "function": {
                 "name": "fill_quotation_sheet",
-                "description": "【报价单导向】将数据写入报价单 Excel 指定行。用户已确认选型、说“可以/没问题/直接填/按这个报”后，必须使用 fill_items 精确模式并设置 require_exact_codes=true；禁止再走 keywords/file 自动重匹配。output_path 省略或为相对路径时，runtime 必须注入 workspace_path（workspace_kind=aionui_project_temp），否则拒绝写入，避免文件落到 UI 看不到的隐藏目录。fill_items 每项含 row、code、quote_name、unit_price、qty、inquiry_name（询价名称/Nama Permintaan）、specification，以及可选的 indonesian_name（印尼名称/Nama Indonesia）、satuan（单位/Satuan）、brand（品牌/Brand）。Agent 须在同轮从本会话 match 上下文提取 inquiry_name、从 matched_name/description_english 提取 specification/satuan/brand；服务端可按 code 自动补全缺失的报价侧字段，不推断询价名称。写入列（VANTSING模板）：F=产品编号, G=报价名称, H=印尼名称, I=报价规格, J=单位, K=数量, L=品牌, M=单价, N=总额；并按表头自动填写「交货日期」「报价日期」（不传则用当天 YYYY/MM/DD）。",
+                "description": "【报价单导向】将数据写入报价单 Excel 指定行。Path C（查价后出单，默认）：fill_items + require_exact_codes=true，不传 file_path（服务端用内置 VANTSING 空白模板）。Path A：用户给了磁盘上已含询价行的 Excel 时传 file_path。用户已确认选型后禁止 keywords/file 自动重匹配。output_path 省略或为相对路径时 runtime 须注入 workspace_path。fill_items 每项含 row、code、quote_name、unit_price、qty、inquiry_name、specification，及可选 indonesian_name、satuan、brand、supplier。",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "file_path": {"type": "string", "description": "报价单 Excel 路径"},
+                        "file_path": {
+                            "type": "string",
+                            "description": "Path A only：磁盘上已存在的询价 Excel 绝对路径。Path C 禁止传占位路径（blank、Wanding-Quotation_*.xlsx 等）。",
+                        },
                         "fill_items": {
                             "type": "array",
                             "items": {
@@ -33,10 +36,22 @@ def get_quote_tools_openai_format() -> list[dict]:
                                     "indonesian_name": {"type": "string", "description": "印尼名称（Nama Indonesia）：通常直接取 match_quotation 返回的 description_english 原文"},
                                     "satuan": {"type": "string", "description": "单位（Satuan）：如 根、pcs、set、m，从 matched_name 或 description_english 中提取"},
                                     "brand": {"type": "string", "description": "品牌（Brand/Merk）：如 LESSO、VINILON，从 description_english 末尾 ' - ' 后面的词提取"},
+                                    "supplier": {"type": "string", "description": "供应商备注，写入 VANTSING O 列 Catatan"},
                                 },
                                 "required": ["row"],
                             },
-                            "description": "要回填的项列表",
+                            "description": "Path C 要回填的项列表",
+                        },
+                        "items": {
+                            "type": "array",
+                            "description": "Path B 冷启动：[{keywords, quantity}]",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "keywords": {"type": "string"},
+                                    "quantity": {"type": "integer"},
+                                },
+                            },
                         },
                         "require_exact_codes": {"type": "boolean", "description": "确认态/锁定态设为 true；要求每行有 code/product_code，并禁止 keywords 自动重匹配。"},
                         "locked_lines": {"type": "boolean", "description": "require_exact_codes 的别名；用户确认选型后可设为 true。"},
@@ -47,7 +62,6 @@ def get_quote_tools_openai_format() -> list[dict]:
                         "quotation_date": {"type": "string", "description": "报价日期，如 2026/03/11，不传用当天"},
                         "delivery_date": {"type": "string", "description": "交货日期（每行同一值），如 2026/03/20，不传用当天"},
                     },
-                    "required": ["file_path", "fill_items"],
                 },
                 "x_tool_meta": {"access_mode": "write", "risk_level": "medium", "deferred": True},
             },
