@@ -1,0 +1,25 @@
+{
+  "id": "task-system-governance",
+  "name": "06-30-task-system-governance",
+  "title": "Trellis task 体系治理 — report / dashboard / hygiene",
+  "description": "Reduce 45+ active task drift: task.py report + DASHBOARD.md + set-status + GOVERNANCE.md playbook; align status with code reality.",
+  "status": "in_progress",
+  "dev_type": "infrastructure",
+  "scope": "trellis-scripts",
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-06-30",
+  "completedAt": null,
+  "relatedFiles": [
+    ".trellis/scripts/task.py",
+    ".trellis/scripts/common/task_report.py",
+    ".trellis/scripts/common/task_store.py",
+    ".trellis/tasks/GOVERNANCE.md",
+    ".trellis/tasks/DASHBOARD.md",
+    ".trellis/workflow.md",
+    ".trellis/spec/index.md"
+  ],
+  "notes": "Triggered by task pool hygiene review 2026-06-30. report --write + set-status shipped in this task."
+}

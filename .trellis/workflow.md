@@ -50,6 +50,10 @@ python ./.trellis/scripts/task.py finish                # clear active task (tri
 python ./.trellis/scripts/task.py archive <name>        # move to archive/{year-month}/
 python ./.trellis/scripts/task.py list [--mine] [--status <s>]
 python ./.trellis/scripts/task.py list-archive
+python ./.trellis/scripts/task.py report [--write]   # hygiene dashboard → tasks/DASHBOARD.md
+python ./.trellis/scripts/task.py set-status <name> <status>  # update without archive
+
+# Governance playbook: .trellis/tasks/GOVERNANCE.md
 
 # Code-spec context (injected into implement/check agents via JSONL).
 # `implement.jsonl` / `check.jsonl` are seeded on `task create` for sub-agent-capable
@@ -251,6 +255,7 @@ When a user request matches one of these intents, load the corresponding skill (
 | User intent | Route |
 |---|---|
 | Wants a new feature / requirement unclear | `trellis-brainstorm` |
+| PRD ready; needs workstream→tool execution plan | `trellis-task-execution` → write **`execution-plan.md`** then approve (or `/trellis:plan-execution`) |
 | About to write code / start implementing | Dispatch the `trellis-implement` sub-agent per Phase 2.1 |
 | Finished writing / want to verify | Dispatch the `trellis-check` sub-agent per Phase 2.2 |
 | Stuck / fixed same bug several times | `trellis-break-loop` |
@@ -265,6 +270,7 @@ When a user request matches one of these intents, load the corresponding skill (
 | User intent | Skill |
 |---|---|
 | Wants a new feature / requirement unclear | `trellis-brainstorm` |
+| PRD ready; needs workstream→tool execution plan | `trellis-task-execution` → write **`execution-plan.md`** then approve (or `/trellis:plan-execution`) |
 | About to write code / start implementing | `trellis-before-dev` (then implement directly in the main session) |
 | Finished writing / want to verify | `trellis-check` |
 | Stuck / fixed same bug several times | `trellis-break-loop` |

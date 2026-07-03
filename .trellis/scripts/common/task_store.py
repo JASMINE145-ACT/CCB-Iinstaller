@@ -695,3 +695,63 @@ def cmd_set_scope(args: argparse.Namespace) -> int:
 
     print(colored(f"✓ Scope set to: {scope}", Colors.GREEN))
     return 0
+
+
+# =============================================================================
+# Command: set-status
+# =============================================================================
+
+_VALID_STATUSES = frozenset({
+    "planning",
+    "pending",
+    "open",
+    "in_progress",
+    "review",
+    "completed",
+    "done",
+})
+
+
+def cmd_set_status(args: argparse.Namespace) -> int:
+    """Update task.json status without archiving."""
+    repo_root = get_repo_root()
+    task_input = args.dir
+    new_status = args.status
+
+    if new_status not in _VALID_STATUSES:
+        print(
+            colored(f"Error: Invalid status '{new_status}'", Colors.RED),
+            file=sys.stderr,
+        )
+        print(f"Valid: {', '.join(sorted(_VALID_STATUSES))}", file=sys.stderr)
+        return 1
+
+    target_dir = resolve_task_dir(task_input, repo_root)
+    if not target_dir or not target_dir.is_dir():
+        print(colored(f"Error: Task not found: {task_input}", Colors.RED), file=sys.stderr)
+        return 1
+
+    task_json = target_dir / FILE_TASK_JSON
+    if not task_json.is_file():
+        print(colored(f"Error: task.json not found at {target_dir}", Colors.RED))
+        return 1
+
+    data = read_json(task_json)
+    if not data:
+        return 1
+
+    old_status = data.get("status", "unknown")
+    data["status"] = new_status
+    if new_status in ("completed", "done") and not data.get("completedAt"):
+        data["completedAt"] = datetime.now().strftime("%Y-%m-%d")
+    if new_status in ("planning", "pending", "open", "in_progress", "review"):
+        data.pop("completedAt", None)
+
+    write_json(task_json, data)
+    print(
+        colored(
+            f"✓ {target_dir.name}: {old_status} → {new_status}",
+            Colors.GREEN,
+        )
+    )
+    return 0

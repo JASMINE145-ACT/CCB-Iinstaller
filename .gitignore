@@ -47,6 +47,7 @@ ccb-installer/resources/settings/
 .mcp.json
 .env.accurate
 scripts/org-phase0/env.local
+scripts/org-phase0/.p0-rotation-staging.env
 
 # Large local artifacts
 AionCore/

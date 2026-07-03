@@ -55,7 +55,9 @@ from common.task_store import (
     cmd_set_scope,
     cmd_add_subtask,
     cmd_remove_subtask,
+    cmd_set_status,
 )
+from common.task_report import build_task_report, write_dashboard
 from common.task_context import (
     cmd_add_context,
     cmd_validate,
@@ -262,6 +264,41 @@ def cmd_list(args: argparse.Namespace) -> int:
 
 
 # =============================================================================
+# Command: report
+# =============================================================================
+
+def cmd_report(args: argparse.Namespace) -> int:
+    """Print or write task hygiene dashboard."""
+    repo_root = get_repo_root()
+    tasks_dir = get_tasks_dir(repo_root)
+    report = build_task_report(tasks_dir)
+
+    print(colored("Task hygiene report", Colors.BLUE))
+    print(f"  Active tasks: {report.total}")
+    print(f"  Archive candidates: {len(report.archive_candidates)}")
+    print(f"  P0/P1 open: {len(report.p0_p1_open)}")
+    print(f"  Hygiene issues: {len(report.issues)}")
+    print(f"  Stale parents: {len(report.stale_parents)}")
+    print()
+
+    if report.archive_candidates:
+        print(colored("Archive candidates:", Colors.YELLOW))
+        for t in report.archive_candidates[:10]:
+            print(f"  - {t.dir_name} ({t.status})")
+        if len(report.archive_candidates) > 10:
+            print(f"  ... +{len(report.archive_candidates) - 10} more")
+        print()
+
+    if args.write:
+        out = write_dashboard(repo_root, report)
+        print(colored(f"✓ Wrote {out.relative_to(repo_root)}", Colors.GREEN))
+    else:
+        print("Hint: run with --write to update .trellis/tasks/DASHBOARD.md")
+
+    return 0
+
+
+# =============================================================================
 # Command: list-archive
 # =============================================================================
 
@@ -319,8 +356,10 @@ Usage:
   python task.py archive <task-dir>                 Archive completed task
   python task.py add-subtask <parent> <child>       Link child task to parent
   python task.py remove-subtask <parent> <child>    Unlink child from parent
-  python task.py list [--mine] [--status <status>]  List tasks
-  python task.py list-archive [YYYY-MM]             List archived tasks
+    python task.py list [--mine] [--status <status>]  List tasks
+    python task.py list-archive [YYYY-MM]             List archived tasks
+    python task.py report [--write]                   Task hygiene dashboard
+    python task.py set-status <dir> <status>          Update status without archive
 
 Monorepo options:
   --package <pkg>      Package name (validated against config.yaml packages)
@@ -344,6 +383,9 @@ Examples:
   python task.py list                               # List all active tasks
   python task.py list --mine                        # List my tasks only
   python task.py list --mine --status in_progress   # List my in-progress tasks
+  python task.py report                             # Hygiene summary
+  python task.py report --write                     # Regenerate DASHBOARD.md
+  python task.py set-status <dir> completed         # Mark done without archive
 """)
 
 
@@ -465,6 +507,19 @@ def main() -> int:
     p_listarch = subparsers.add_parser("list-archive", help="List archived tasks")
     p_listarch.add_argument("month", nargs="?", help="Month (YYYY-MM)")
 
+    # report
+    p_report = subparsers.add_parser("report", help="Task hygiene report / dashboard")
+    p_report.add_argument(
+        "--write", "-w",
+        action="store_true",
+        help="Write .trellis/tasks/DASHBOARD.md",
+    )
+
+    # set-status
+    p_setstatus = subparsers.add_parser("set-status", help="Update task status")
+    p_setstatus.add_argument("dir", help="Task directory or name")
+    p_setstatus.add_argument("status", help="New status")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -487,6 +542,8 @@ def main() -> int:
         "remove-subtask": cmd_remove_subtask,
         "list": cmd_list,
         "list-archive": cmd_list_archive,
+        "report": cmd_report,
+        "set-status": cmd_set_status,
     }
 
     if args.command in commands:
