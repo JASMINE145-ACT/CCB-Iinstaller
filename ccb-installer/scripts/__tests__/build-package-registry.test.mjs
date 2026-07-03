@@ -59,6 +59,11 @@ async function testRegistrySnapshot() {
   const snapshot = await buildRegistry({ repoRoot });
 
   assert.equal(snapshot.schemaVersion, "1.0.0");
+  assert.equal(
+    Object.hasOwn(snapshot, "generatedAt"),
+    false,
+    "snapshot must not contain wall-clock data",
+  );
   assert.ok(snapshot.packages.some((item) => item.id === "com.wanding.trade"));
   assert.ok(snapshot.agents.some((item) => item.id === "quotation-agent"));
   assert.ok(snapshot.mcpServers.some((item) => item.id === "quotation"));

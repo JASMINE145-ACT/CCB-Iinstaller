@@ -304,7 +304,6 @@ export async function buildRegistry({ repoRoot }) {
 
   return {
     schemaVersion: "1.0.0",
-    generatedAt: new Date().toISOString(),
     readOnly: true,
     packages: manifests.map((manifest) => ({
       id: manifest.packageId,

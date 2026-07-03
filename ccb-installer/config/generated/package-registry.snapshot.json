@@ -1,0 +1,291 @@
+{
+  "schemaVersion": "1.0.0",
+  "readOnly": true,
+  "packages": [
+    {
+      "id": "com.wanding.trade",
+      "version": "0.1.0",
+      "displayName": "WanD Trade",
+      "capabilities": [
+        {
+          "id": "platform.agent.route",
+          "description": "Route a user request to an eligible specialist."
+        },
+        {
+          "id": "business.pricing.quote",
+          "description": "Match products, query inventory, and fill quotation workbooks."
+        },
+        {
+          "id": "business.accounting.analytics",
+          "description": "Read-only Accurate Online business analytics."
+        },
+        {
+          "id": "business.pricing.manage",
+          "description": "Administer organization price-library drafts and releases."
+        }
+      ],
+      "contributions": [
+        {
+          "id": "wanding-agent-catalog",
+          "kind": "agent-catalog",
+          "source": "config/agents"
+        },
+        {
+          "id": "wanding-mcp-health",
+          "kind": "health",
+          "source": "config/mcp-health-manifest.json"
+        }
+      ]
+    }
+  ],
+  "agents": [
+    {
+      "id": "accurate-agent",
+      "packageId": "com.wanding.trade",
+      "source": "ccb-installer/config/agents/accurate-agent.md",
+      "displayName": "万鼎账务专家",
+      "mcpServers": [
+        "accurate"
+      ],
+      "skills": [],
+      "requiredCapabilities": [
+        "business.accounting.analytics"
+      ]
+    },
+    {
+      "id": "excel-creator",
+      "packageId": null,
+      "source": "ccb-installer/config/agents/excel-creator.md",
+      "displayName": "Excel 表格助手",
+      "mcpServers": [
+        "excel"
+      ],
+      "skills": [],
+      "requiredCapabilities": []
+    },
+    {
+      "id": "ppt-creator",
+      "packageId": null,
+      "source": "ccb-installer/config/agents/ppt-creator.md",
+      "displayName": "PPT 演示助手",
+      "mcpServers": [],
+      "skills": [
+        "ppt-master"
+      ],
+      "requiredCapabilities": []
+    },
+    {
+      "id": "price-library-agent",
+      "packageId": "com.wanding.trade",
+      "source": "ccb-installer/config/agents/price-library-agent.md",
+      "displayName": "价格库管理",
+      "mcpServers": [
+        "price-library",
+        "excel"
+      ],
+      "skills": [],
+      "requiredCapabilities": [
+        "business.pricing.manage"
+      ]
+    },
+    {
+      "id": "quotation-agent",
+      "packageId": "com.wanding.trade",
+      "source": "ccb-installer/config/agents/quotation-agent.md",
+      "displayName": "万鼎报价专家",
+      "mcpServers": [
+        "quotation",
+        "excel"
+      ],
+      "skills": [
+        "quotation-learn-by-data"
+      ],
+      "requiredCapabilities": [
+        "business.pricing.quote"
+      ]
+    },
+    {
+      "id": "research-agent",
+      "packageId": null,
+      "source": "ccb-installer/config/agents/research-agent.md",
+      "displayName": "资料搜索助手",
+      "mcpServers": [
+        "exa"
+      ],
+      "skills": [],
+      "requiredCapabilities": []
+    },
+    {
+      "id": "wande-orchestrator",
+      "packageId": "com.wanding.trade",
+      "source": "ccb-installer/config/agents/wande-orchestrator.md",
+      "displayName": "全局路由",
+      "mcpServers": [],
+      "skills": [],
+      "requiredCapabilities": [
+        "platform.agent.route"
+      ]
+    },
+    {
+      "id": "word-creator",
+      "packageId": null,
+      "source": "ccb-installer/config/agents/word-creator.md",
+      "displayName": "Word 文档助手",
+      "mcpServers": [
+        "office-word"
+      ],
+      "skills": [],
+      "requiredCapabilities": []
+    }
+  ],
+  "mcpServers": [
+    {
+      "id": "accurate",
+      "packageId": "com.wanding.trade",
+      "source": "ccb-installer/config/mcp-health-manifest.json",
+      "providesCapabilities": [
+        "business.accounting.analytics"
+      ]
+    },
+    {
+      "id": "exa",
+      "packageId": null,
+      "source": "ccb-installer/config/mcp-health-manifest.json",
+      "providesCapabilities": []
+    },
+    {
+      "id": "excel",
+      "packageId": null,
+      "source": "ccb-installer/config/mcp-health-manifest.json",
+      "providesCapabilities": []
+    },
+    {
+      "id": "excel-mcp",
+      "packageId": null,
+      "source": "ccb-installer/config/mcp-health-manifest.json",
+      "providesCapabilities": []
+    },
+    {
+      "id": "office-word",
+      "packageId": null,
+      "source": "ccb-installer/config/mcp-health-manifest.json",
+      "providesCapabilities": []
+    },
+    {
+      "id": "price-library",
+      "packageId": "com.wanding.trade",
+      "source": "ccb-installer/config/mcp-health-manifest.json",
+      "providesCapabilities": [
+        "business.pricing.manage"
+      ]
+    },
+    {
+      "id": "quotation",
+      "packageId": "com.wanding.trade",
+      "source": "ccb-installer/config/mcp-health-manifest.json",
+      "providesCapabilities": [
+        "business.pricing.quote"
+      ]
+    },
+    {
+      "id": "scrapling",
+      "packageId": null,
+      "source": "ccb-installer/config/mcp-health-manifest.json",
+      "providesCapabilities": []
+    }
+  ],
+  "skills": [
+    {
+      "id": "ccb-subagent-gate",
+      "packageId": null,
+      "source": "ccb-installer/config/skills/ccb-subagent-gate/SKILL.md",
+      "providesCapabilities": []
+    },
+    {
+      "id": "quotation-learn-by-data",
+      "packageId": "com.wanding.trade",
+      "source": "ccb-installer/config/skills/quotation-learn-by-data/SKILL.md",
+      "providesCapabilities": [
+        "business.pricing.quote"
+      ]
+    }
+  ],
+  "aliases": [
+    {
+      "legacyId": "wande-orchestrator",
+      "kind": "agent",
+      "targetId": "wande-orchestrator",
+      "packageId": "com.wanding.trade"
+    },
+    {
+      "legacyId": "quotation-agent",
+      "kind": "agent",
+      "targetId": "quotation-agent",
+      "packageId": "com.wanding.trade"
+    },
+    {
+      "legacyId": "accurate-agent",
+      "kind": "agent",
+      "targetId": "accurate-agent",
+      "packageId": "com.wanding.trade"
+    },
+    {
+      "legacyId": "wanding_business_knowledge",
+      "kind": "knowledge",
+      "targetId": "wanding-business-knowledge",
+      "packageId": "com.wanding.trade"
+    }
+  ],
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "code": "orphan-agent",
+      "message": "Agent excel-creator is not assigned to a package"
+    },
+    {
+      "severity": "warning",
+      "code": "orphan-agent",
+      "message": "Agent ppt-creator is not assigned to a package"
+    },
+    {
+      "severity": "warning",
+      "code": "orphan-agent",
+      "message": "Agent research-agent is not assigned to a package"
+    },
+    {
+      "severity": "warning",
+      "code": "orphan-agent",
+      "message": "Agent word-creator is not assigned to a package"
+    },
+    {
+      "severity": "warning",
+      "code": "orphan-mcp-server",
+      "message": "MCP server exa is not assigned to a package"
+    },
+    {
+      "severity": "warning",
+      "code": "orphan-mcp-server",
+      "message": "MCP server excel is not assigned to a package"
+    },
+    {
+      "severity": "warning",
+      "code": "orphan-mcp-server",
+      "message": "MCP server excel-mcp is not assigned to a package"
+    },
+    {
+      "severity": "warning",
+      "code": "orphan-mcp-server",
+      "message": "MCP server office-word is not assigned to a package"
+    },
+    {
+      "severity": "warning",
+      "code": "orphan-mcp-server",
+      "message": "MCP server scrapling is not assigned to a package"
+    },
+    {
+      "severity": "warning",
+      "code": "orphan-skill",
+      "message": "Skill ccb-subagent-gate is not assigned to a package"
+    }
+  ]
+}
