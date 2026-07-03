@@ -4,5 +4,5 @@
     "edit_excel",
     "mcp__excel__write"
   ],
-  "execute_tools_hint": "Call fill_quotation_sheet or edit_excel with file_path and the requested rows/changes. Do not describe — execute."
+  "execute_tools_hint": "After match in session: call fill_quotation_sheet with fill_items + require_exact_codes=true (Path C; omit file_path). Path A only when user supplied an existing inquiry Excel on disk. Do not describe — execute."
 }

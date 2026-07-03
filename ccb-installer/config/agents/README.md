@@ -17,8 +17,10 @@ Each agent is stored as a pair:
 | `word-creator` | Word 文档助手 | yes | `office-word` | MCP-only Word creation; delivery gate blocks invalid output |
 | `excel-creator` | Excel 表格助手 | yes | `excel` | MCP-only Excel creation; delivery gate blocks invalid output |
 | `ppt-creator` | PPT 演示助手 | yes | `ppt-master` skill | Skill-only PPT creation; delivery gate blocks invalid output; avatar **📽️** (not 📊 — reserved for 账务) |
+| `research-agent` | 资料搜索助手 | yes | `exa` (+ optional `scrapling`) | Web research; evidence-first `research/*.md` + `.sources.jsonl`; Base=exa only |
+| `price-library-agent` | 价格库管理 | yes (price_admin) | `price-library`, `excel` | Org draft/import/publish; Guid-only (`delegatable: false`); avatar **🏷️** (not 📊 — reserved for 账务) |
 
-**Retired (2026-06-27):** `cowork`, `word-form-creator` removed from keep set and Guid cards — use `word-creator` / `ppt-creator` / `excel-creator` instead.
+**Retired (2026-06-27):** `cowork`, `word-form-creator` removed from keep set and Guid cards — use `word-creator` / `ppt-creator` / `excel-creator` instead. Live prune list: `retired-agent-ids.json` (deployed automatically by `deploy-seed-agents.mjs`).
 
 Runtime authority must stay aligned across:
 
@@ -52,6 +54,7 @@ Current `ccb-subagent-gate` policy:
 | Office deliverable agents (`word-*`, `ppt-creator`, `excel-creator`) | hook enabled; `block` |
 | `accurate-agent` | hook enabled; `warn` |
 | `quotation-agent` | hook enabled; MCP check **off**; knowledge Read gate **warn** (`quotation-agent:knowledge`) |
+| `research-agent` | hook enabled; **warn** (MD + sources.jsonl evidence) |
 | `wande-orchestrator` | off/no-op |
 
 Do not re-enable quotation gate without a delegated route-b smoke proving `Agent(quotation-agent)` returns to the orchestrator without timeout.
@@ -63,12 +66,18 @@ cd D:\Projects\claude-code-best
 .\ccb-installer\scripts\deploy-ccb-skills.ps1 -VendorPptMaster -InstallPipDeps
 .\ccb-installer\scripts\deploy-seed-agents.ps1
 .\ccb-installer\scripts\deploy-seed-agents.ps1 -ForceMd
+
+# Research toolstack (Base = exa only; Extended adds Scrapling)
+.\ccb-installer\scripts\install-research-toolstack.ps1
+.\ccb-installer\scripts\probe-research-capabilities.ps1
 ```
 
 Target: `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\`
 
 - Existing user `.md` files are not overwritten unless `-ForceMd` is used or GBK corruption is detected.
 - Sidecars are refreshed on each deploy.
+- **Retired agents** listed in `retired-agent-ids.json` are **removed** from the live agents directory on every deploy (pass `--no-prune` to skip).
+- **Dev mainline:** `start-dev-full.ps1` runs `deploy-seed-agents.ps1 -ForceMd` every launch (including `-SkipBootstrap`).
 
 ## Health
 
@@ -82,6 +91,7 @@ Expected essentials:
 - `accurate-agent expected=[accurate] actual=[accurate]`
 - `word-creator expected=[office-word] actual=[office-word]`
 - `excel-creator expected=[excel] actual=[excel]`
+- `research-agent expected=[exa] actual=[exa]` (Extended: `actual=[exa,scrapling]` when installed)
 - `wande-orchestrator expected=[] actual=[]`
 
 UTF-8 smoke:

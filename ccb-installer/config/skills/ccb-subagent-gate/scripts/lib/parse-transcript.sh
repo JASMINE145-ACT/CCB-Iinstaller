@@ -47,6 +47,25 @@ has_successful_mcp_call() {
   return 1
 }
 
+# Successful Write tool call whose path matches ext_pattern (e.g. research/.*\.md).
+has_successful_write_matching() {
+  local transcript_path="${1:-}"
+  local path_pattern="${2:-}"
+  if [[ ! -f "$transcript_path" ]] || [[ -z "$path_pattern" ]]; then
+    return 1
+  fi
+  local normalized
+  normalized="$(sed 's/\\\\/\\/g' "$transcript_path" 2>/dev/null || cat "$transcript_path")"
+  if echo "$normalized" | grep -qiE '"name"[[:space:]]*:[[:space:]]*"Write"' \
+    && echo "$normalized" | grep -qE "$path_pattern"; then
+    if echo "$normalized" | grep -E "$path_pattern" | grep -qiE '"is_error"[[:space:]]*:[[:space:]]*true'; then
+      return 1
+    fi
+    return 0
+  fi
+  return 1
+}
+
 # Window-scoped L2 write success — delegates to parse_transcript_roe.py evaluate (full 6-step).
 has_l2_write_success_in_window() {
   local transcript_path="${1:-}"
@@ -84,6 +103,9 @@ message_claims_business_output() {
       ;;
     accurate-agent)
       echo "$msg" | grep -qiE '销售|采购|汇总|合计|账务|accurate|vendor|purchase|revenue|总额' && return 0
+      ;;
+    research-agent)
+      echo "$msg" | grep -qiE '调研|来源|关键发现|政策|竞品|行业|摘要|research/|\.sources\.jsonl|\[S[0-9]+\]|已完成|整理如下|要点如下' && return 0
       ;;
   esac
   return 1

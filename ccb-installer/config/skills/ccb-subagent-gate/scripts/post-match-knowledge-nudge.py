@@ -84,8 +84,8 @@ def main() -> int:
 
     context_lines = [
         "【硬约束 — 多候选选型】",
-        "match_quotation 返回 candidate_count > 1。",
-        "等本轮所有 match 工具结果都返回后，Read 一次业务知识库（不要每个产品各 Read 一次）：",
+        "match_quotation 返回 candidate_count > 1（业务知识库应已在本会话首次查价前 Read 过）。",
+        "本轮不要再 Read 知识库，直接按已读规则选型：",
         f"  {kb_path}",
     ]
     if kw_hint:

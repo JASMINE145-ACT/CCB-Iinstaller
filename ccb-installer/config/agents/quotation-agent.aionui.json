@@ -8,6 +8,17 @@
   "enabled": true,
   "sort_order": 100,
   "source": "bundled",
+  "skills": {
+    "enabled": [
+      "quotation-learn-by-data"
+    ],
+    "disabled": []
+  },
+  "recommended_prompts": [
+    "按数据学习：上传已填写的 VANTSING 报价单，复盘每行料号与候选差异",
+    "查询三通 DN50 价格",
+    "帮我填写这份询价单"
+  ],
   "mcp_allowlist": [
     "quotation",
     "excel"

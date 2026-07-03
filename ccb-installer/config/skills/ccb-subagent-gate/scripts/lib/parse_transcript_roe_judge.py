@@ -38,7 +38,8 @@ JUDGE_MAX_BLOCKS = 5
 AGENT_EXECUTE_HINTS: dict[str, str] = {
     "quotation-agent": (
         "Do NOT repeat lookup tools already done above. "
-        "Call fill_quotation_sheet or edit_excel with file_path and fill_items now."
+        "Call fill_quotation_sheet with fill_items + require_exact_codes=true (Path C; omit file_path) "
+        "or edit_excel for single-cell patches."
     ),
     "word-creator": "Call the office-word MCP tool to create or update the document.",
     "ppt-creator": "Call the office/ppt MCP tool to produce or update the deck.",

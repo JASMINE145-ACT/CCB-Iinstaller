@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "description": "Research-agent capability profiles — Base/Extended/Experimental tool exposure for CCB-Wanding.",
+  "profiles": {
+    "base": {
+      "label": "Base",
+      "mcp_servers": ["exa"],
+      "upstream_tools": ["exa", "jina-reader-url", "github-cli", "rss"],
+      "notes": "Default employee bundle. Exa HTTP MCP in settings.json; Jina via Exa livecrawl or r.jina.ai probe only."
+    },
+    "extended": {
+      "label": "Extended",
+      "mcp_servers": ["exa", "scrapling"],
+      "requires": ["scrapling-mcp-registered", "scrapling-probe-ok"],
+      "notes": "Hard-page fallback. Install via install-research-toolstack.ps1 -Profile Extended."
+    },
+    "experimental": {
+      "label": "Experimental",
+      "mcp_servers": ["exa", "scrapling", "lightpanda"],
+      "requires": ["lightpanda-binary", "agpl-review"],
+      "notes": "Dev/WSL only. Not for default employee ship."
+    }
+  },
+  "probes": {
+    "exa": {
+      "kind": "settings_http",
+      "settings_key": "exa",
+      "url_field": "url",
+      "expected_url": "https://mcp.exa.ai/mcp"
+    },
+    "jina_reader": {
+      "kind": "http_head",
+      "url": "https://r.jina.ai/https://example.com",
+      "optional": true
+    },
+    "scrapling": {
+      "kind": "settings_stdio",
+      "settings_key": "scrapling",
+      "optional": true
+    },
+    "lightpanda": {
+      "kind": "command",
+      "command": "lightpanda",
+      "args": ["--version"],
+      "optional": true
+    },
+    "agent_reach_doctor": {
+      "kind": "command",
+      "command": "agent-reach",
+      "args": ["doctor"],
+      "optional": true,
+      "notes": "Install/health only — not a runtime MCP orchestrator."
+    }
+  },
+  "agent_frontmatter": {
+    "research-agent": {
+      "base_mcp_servers": ["exa"],
+      "extended_mcp_servers": ["exa", "scrapling"],
+      "experimental_mcp_servers": ["exa", "scrapling", "lightpanda"]
+    }
+  }
+}

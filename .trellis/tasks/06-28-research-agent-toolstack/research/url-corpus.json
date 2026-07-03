@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "description": "Phase 1 POC URL corpus — public sources only; no login/Cookie platforms.",
+  "samples": [
+    { "id": "static-1", "category": "static_html", "url": "https://example.com", "expect": "minimal_body" },
+    { "id": "static-2", "category": "static_html", "url": "https://www.w3.org/TR/html401/struct/text.html", "expect": "body" },
+    { "id": "github-1", "category": "github", "url": "https://github.com/anthropics/anthropic-sdk-python", "expect": "repo_readme" },
+    { "id": "github-2", "category": "github", "url": "https://github.com/Panniantong/Agent-Reach", "expect": "repo_readme" },
+    { "id": "policy-cn-1", "category": "chinese_policy", "url": "https://www.gov.cn/zhengce/zhengceku/index.htm", "expect": "index_list" },
+    { "id": "policy-cn-2", "category": "chinese_policy", "url": "https://www.customs.gov.cn/", "expect": "portal" },
+    { "id": "pdf-1", "category": "pdf", "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "expect": "pdf_or_error" },
+    { "id": "pdf-2", "category": "pdf", "url": "https://www.africau.edu/images/default/sample.pdf", "expect": "pdf_or_error" },
+    { "id": "404-1", "category": "not_found", "url": "https://example.com/this-page-does-not-exist-404-test", "expect": "no_upgrade" },
+    { "id": "404-2", "category": "not_found", "url": "https://httpstat.us/404", "expect": "no_upgrade" },
+    { "id": "timeout-1", "category": "timeout", "url": "https://httpstat.us/200?sleep=15000", "expect": "timeout_no_upgrade", "notes": "May skip in CI" },
+    { "id": "spa-1", "category": "js_spa", "url": "https://react.dev/", "expect": "needs_crawl_or_extended" }
+  ]
+}

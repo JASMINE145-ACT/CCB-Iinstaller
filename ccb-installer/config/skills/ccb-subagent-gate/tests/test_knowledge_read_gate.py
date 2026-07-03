@@ -16,7 +16,10 @@ SCRIPTS = SKILL_ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS / "lib"))
 
 from match_selection_payload import payload_is_multi_candidate, unwrap_tool_payload  # noqa: E402
-from parse_transcript_knowledge_gate import analyze_transcript  # noqa: E402
+from parse_transcript_knowledge_gate import (  # noqa: E402
+    analyze_transcript,
+    transcript_has_knowledge_read,
+)
 
 
 class TestMatchSelectionPayload(unittest.TestCase):
@@ -70,7 +73,7 @@ class TestPostMatchNudge(unittest.TestCase):
         output = json.loads(self._run_nudge(hook_input, fresh_session=True))
         self.assertIn("additionalContext", output["hookSpecificOutput"])
         ctx = output["hookSpecificOutput"]["additionalContext"]
-        self.assertIn("Read 一次", ctx)
+        self.assertIn("不要再 Read", ctx)
         self.assertIn("推荐价", ctx)
         self.assertIn("按 1A 格式", ctx)
         self.assertIn("8020020755", ctx)
@@ -144,20 +147,86 @@ class TestPostPriceTiersNudge(unittest.TestCase):
         self.assertEqual(output, "")
 
 
+class TestPreMatchKnowledgeGate(unittest.TestCase):
+    def _run_pre_gate(self, hook_input: dict[str, object], *, transcript_lines: list[str] | None = None) -> str:
+        with tempfile.TemporaryDirectory() as tmp:
+            if transcript_lines is not None:
+                transcript = Path(tmp) / "session.jsonl"
+                transcript.write_text("\n".join(transcript_lines) + "\n", encoding="utf-8")
+                hook_input = dict(hook_input)
+                hook_input["transcript_path"] = str(transcript)
+            proc = subprocess.run(
+                [sys.executable, str(SCRIPTS / "pre-match-knowledge-gate.py")],
+                input=json.dumps(hook_input),
+                text=True,
+                capture_output=True,
+                env=os.environ.copy(),
+                check=False,
+            )
+            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            return proc.stdout.strip()
+
+    def test_denies_match_without_session_read(self) -> None:
+        output = self._run_pre_gate(
+            {"tool_name": "mcp__quotation__match_quotation", "transcript_path": ""},
+            transcript_lines=[],
+        )
+        payload = json.loads(output)
+        self.assertEqual(payload["hookSpecificOutput"]["permissionDecision"], "deny")
+        self.assertIn("wanding_business_knowledge", payload["hookSpecificOutput"]["permissionDecisionReason"])
+
+    def test_allows_match_after_session_read(self) -> None:
+        read_line = json.dumps(
+            {
+                "type": "assistant",
+                "message": {
+                    "content": [
+                        {
+                            "type": "tool_use",
+                            "name": "Read",
+                            "input": {
+                                "file_path": r"D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md"
+                            },
+                        }
+                    ]
+                },
+            },
+            ensure_ascii=False,
+        )
+        output = self._run_pre_gate(
+            {"tool_name": "mcp__quotation__match_quotation"},
+            transcript_lines=[read_line],
+        )
+        self.assertEqual(output, "")
+
+    def test_allows_non_match_tools(self) -> None:
+        output = self._run_pre_gate({"tool_name": "mcp__quotation__get_inventory_by_code"})
+        self.assertEqual(output, "")
+
+
 class TestTranscriptKnowledgeGate(unittest.TestCase):
-    def test_warn_when_multi_match_without_read(self) -> None:
+    def test_block_when_multi_match_without_read(self) -> None:
         fixture = SKILL_ROOT / "tests/fixtures/transcripts/quotation-multi-no-read.jsonl"
         result = analyze_transcript(fixture)
+        self.assertTrue(result["price_match_in_turn"])
         self.assertTrue(result["multi_match"])
-        self.assertFalse(result["knowledge_read_after_match"])
-        self.assertTrue(result["should_warn"])
+        self.assertFalse(result["knowledge_read_in_session"])
+        self.assertTrue(result["should_block"])
 
     def test_pass_when_read_present(self) -> None:
         fixture = SKILL_ROOT / "tests/fixtures/transcripts/quotation-multi-with-read.jsonl"
         result = analyze_transcript(fixture)
+        self.assertTrue(result["price_match_in_turn"])
         self.assertTrue(result["multi_match"])
-        self.assertTrue(result["knowledge_read_after_match"])
-        self.assertFalse(result["should_warn"])
+        self.assertTrue(result["knowledge_read_in_session"])
+        self.assertFalse(result["should_block"])
+
+    def test_block_single_candidate_without_read(self) -> None:
+        fixture = SKILL_ROOT / "tests/fixtures/transcripts/quotation-single-no-read.jsonl"
+        result = analyze_transcript(fixture)
+        self.assertTrue(result["price_match_in_turn"])
+        self.assertFalse(result["multi_match"])
+        self.assertTrue(result["should_block"])
 
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@ session_id="${2:-}"
 agent_type="${3:-quotation-agent}"
 last_msg="${4:-}"
 mode="${5:-warn}"
+agent_transcript_path="${6:-}"
 
 if [[ "$mode" == "off" ]]; then
   exit 0
@@ -34,7 +35,11 @@ else
   exit 0
 fi
 
-check_output="$("$python_cmd" "$SCRIPT_DIR/../lib/parse_transcript_knowledge_gate.py" check "$transcript_path" 2>/dev/null || true)"
+check_args=("$python_cmd" "$SCRIPT_DIR/../lib/parse_transcript_knowledge_gate.py" check "$transcript_path")
+if [[ -n "$agent_transcript_path" ]] && [[ -f "$agent_transcript_path" ]]; then
+  check_args+=("$agent_transcript_path")
+fi
+check_output="$("${check_args[@]}" 2>/dev/null || true)"
 if [[ -z "$check_output" ]]; then
   exit 0
 fi
@@ -50,7 +55,7 @@ if [[ "$should_warn" != "true" ]] && [[ "$should_warn" != "True" ]]; then
   exit 0
 fi
 
-reason="multi-candidate match_quotation without Read(wanding_business_knowledge.md) before reply"
+reason="price match without session knowledge Read (must Read once before quoting)"
 if [[ "$mode" == "block" ]]; then
   "$SCRIPT_DIR/../lib/fail.sh" "$reason"
 fi

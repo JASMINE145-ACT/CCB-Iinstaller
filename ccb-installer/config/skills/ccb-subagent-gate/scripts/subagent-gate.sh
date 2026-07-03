@@ -27,9 +27,13 @@ hook_event="${hook_event:-Stop}"
 agent_type="$(json_field agent_type)"
 session_id="$(json_field session_id)"
 last_msg="$(json_field last_assistant_message)"
+agent_transcript_path="$(json_field agent_transcript_path)"
 
 if [[ "$hook_event" == "SubagentStop" ]]; then
   transcript_path="$(json_field agent_transcript_path)"
+  if [[ -z "$transcript_path" ]] || [[ ! -f "$transcript_path" ]]; then
+    transcript_path="$(json_field transcript_path)"
+  fi
 else
   transcript_path="$(json_field transcript_path)"
 fi
@@ -71,10 +75,14 @@ case "$agent_type" in
     bash "$SCRIPT_DIR/validators/quotation-mcp.sh" \
       "$transcript_path" "$session_id" "$agent_type" "$last_msg" "$(resolve_gate_mode "$agent_type")"
     bash "$SCRIPT_DIR/validators/quotation-knowledge-read.sh" \
-      "$transcript_path" "$session_id" "$agent_type" "$last_msg" "$(resolve_gate_mode "quotation-agent:knowledge")"
+      "$transcript_path" "$session_id" "$agent_type" "$last_msg" "$(resolve_gate_mode "quotation-agent:knowledge")" "$agent_transcript_path"
     ;;
   accurate-agent)
     bash "$SCRIPT_DIR/validators/accurate-mcp.sh" \
+      "$transcript_path" "$session_id" "$agent_type" "$last_msg" "$mode"
+    ;;
+  research-agent)
+    bash "$SCRIPT_DIR/validators/research-agent-mcp.sh" \
       "$transcript_path" "$session_id" "$agent_type" "$last_msg" "$mode"
     ;;
   *)

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "agent_id": "research-agent",
+  "display_name": "资料搜索助手",
+  "avatar": "🔍",
+  "guid_primary": true,
+  "delegatable": true,
+  "enabled": true,
+  "sort_order": 120,
+  "source": "bundled",
+  "created_at": "2026-06-28T12:00:00.000Z",
+  "updated_at": "2026-07-01T12:00:00.000Z",
+  "mcp_allowlist": [
+    "exa"
+  ],
+  "skills": {
+    "enabled": [],
+    "disabled": []
+  },
+  "recommended_prompts": [
+    "深度调研印尼 PVC 管材进口政策与关税（breadth 4 depth 2），写入 research 并给出来源摘要",
+    "搜集竞品 A 与 B 在东南亚市场的公开定价策略与渠道信息",
+    "查找 GB/T 相关管材标准最新修订要点，标注官方来源"
+  ]
+}

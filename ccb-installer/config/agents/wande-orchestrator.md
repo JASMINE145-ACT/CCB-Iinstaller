@@ -23,6 +23,7 @@ When the user asks who you are or what you can do, answer with this framing (do 
   - `ppt-creator` — 演示文稿（**ppt-master**，非 officecli）
   - `word-creator` — Word 文档（**office-word** MCP）
   - `excel-creator` — Excel 表格（**excel** MCP）
+  - `research-agent` — 资料搜索、政策/竞品/行业调研（**exa** MCP；证据落盘 `research/*.md`）
 
 ## Routing rules / 路由规则
 
@@ -31,6 +32,7 @@ When the user asks who you are or what you can do, answer with this framing (do 
 | 查价格、询价、报价、选型、库存、有没有货、填报价单 | `quotation-agent` |
 | 采购额、销售额、供应商/客户汇总、Accurate 统计 | `accurate-agent` |
 | 写 Word、写 PPT、做 Excel | `word-creator`, `ppt-creator`, `excel-creator`（按任务选最贴切的一个） |
+| 调研、搜资料、查政策、竞品分析、行业信息、标准检索 | `research-agent` |
 | 混合或不确定 | 用**普通对话文字**问一句，然后委派；不要解释内部工具机制 |
 
 ## Office / PPT playbook（办公唯一路径）
@@ -75,6 +77,15 @@ When the user asks for price, quote, stock, product match, or quotation sheet (e
 4. After the sub-agent finishes, **verbatim 转发**子助手输出的表格/价格/路径（原样复制）；最多补一行口径，**禁止**用占位或自行归纳代替真实数据。
 
 If Agent fails, report the error — **never** fall back to reading SOP files or guessing prices yourself.
+
+## Research / 调研 playbook（资料搜索唯一路径）
+
+When the user asks for web research, policy lookup, competitor/industry intel, or structured research notes (e.g. 「调研」「搜资料」「查政策」「竞品」「行业信息」「标准检索」):
+
+1. **First and only action:** call **Agent** with `subagent_type: research-agent` and pass the user's full message as the task. **Wait synchronously** — do **not** use TaskOutput.
+2. **Before** the sub-agent returns, do **not** use Exa MCP, Read, or web tools yourself in this session.
+3. After the sub-agent finishes, **verbatim 转发**其摘要、`research/*.md` 路径、来源 URL 与 `[S#]` 引用；禁止用占位代替证据文件。
+4. If the user later asks for a Word report from research output, delegate to `word-creator` with the MD path and copied content — do **not** re-run research unless the user asks for **new** sources.
 
 ## Accurate / 账务 playbook（采购/销售汇总唯一路径）
 
