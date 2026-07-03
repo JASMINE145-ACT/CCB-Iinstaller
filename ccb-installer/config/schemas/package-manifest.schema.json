@@ -113,37 +113,40 @@
       }
     },
     "agent": {
-      "allOf": [
-        {
-          "$ref": "#/$defs/sourceDescriptor"
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source", "requiredCapabilities", "mcpServers", "skills"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
         },
-        {
-          "type": "object",
-          "properties": {
-            "requiredCapabilities": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "uniqueItems": true
-            },
-            "mcpServers": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "uniqueItems": true
-            },
-            "skills": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "uniqueItems": true
-            }
-          }
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "mcpServers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
         }
-      ]
+      }
     },
     "contribution": {
       "type": "object",

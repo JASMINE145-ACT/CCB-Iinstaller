@@ -16,12 +16,25 @@ async function readJson(path) {
 }
 
 async function testPackageManifest() {
+  const schemaPath = resolve(
+    repoRoot,
+    "ccb-installer/config/schemas/package-manifest.schema.json",
+  );
   const manifestPath = resolve(
     repoRoot,
     "ccb-installer/config/packages/com.wanding.trade/package.json",
   );
+  const schema = await readJson(schemaPath);
   const manifest = await readJson(manifestPath);
 
+  assert.deepEqual(schema.$defs.agent.required, [
+    "id",
+    "source",
+    "requiredCapabilities",
+    "mcpServers",
+    "skills",
+  ]);
+  assert.equal(schema.$defs.agent.additionalProperties, false);
   assert.deepEqual(validatePackageManifest(manifest), []);
 }
 
