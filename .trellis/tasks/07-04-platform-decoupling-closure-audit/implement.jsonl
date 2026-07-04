@@ -1,0 +1,4 @@
+{"file":".trellis/spec/integration/platform-vertical-packages.md","reason":"Canonical architecture and implemented P0-P5 boundaries."}
+{"file":".trellis/spec/integration/platform-forbidden-coupling.md","reason":"Active §21 enforcement rules and review checklist."}
+{"file":".trellis/tasks/07-03-platform-business-decoupling/prd.md","reason":"Parent phase and epic acceptance criteria to reconcile."}
+{"file":".trellis/tasks/07-03-platform-business-decoupling/open-questions.md","reason":"Architecture §20 decisions requiring accepted/deferred disposition."}

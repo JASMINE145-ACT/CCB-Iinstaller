@@ -316,6 +316,7 @@ test("control plane publishes both packages and reaches zero drift", async () =>
 });
 
 test("P5 does not alter platform-core implementation", () => {
+  const p5Commit = "a73c43cf5966fe57df765671f44087d6db150601";
   const baseline = JSON.parse(
     execFileSync(
       process.execPath,
@@ -330,26 +331,20 @@ test("P5 does not alter platform-core implementation", () => {
       { encoding: "utf8" },
     ),
   );
-  const tracked = execFileSync(
+  execFileSync(
     "git",
-    ["diff", "--name-only", baseline.commit],
+    ["merge-base", "--is-ancestor", baseline.commit, p5Commit],
+    { cwd: repoRoot, encoding: "utf8" },
+  );
+  const attributable = execFileSync(
+    "git",
+    ["diff", "--name-only", baseline.commit, p5Commit],
     { cwd: repoRoot, encoding: "utf8" },
   )
     .trim()
     .split(/\r?\n/)
-    .filter(Boolean);
-  const untracked = execFileSync(
-    "git",
-    ["ls-files", "--others", "--exclude-standard"],
-    { cwd: repoRoot, encoding: "utf8" },
-  )
-    .trim()
-    .split(/\r?\n/)
-    .filter(Boolean);
-  const preExisting = new Set(baseline.preExistingPaths);
-  const attributable = [...new Set([...tracked, ...untracked])]
     .map((path) => path.replaceAll("\\", "/"))
-    .filter((path) => !preExisting.has(path));
+    .filter(Boolean);
   const allowedExact = new Set([
     "ccb-installer/config/generated/package-registry.snapshot.json",
     "ccb-installer/control-plane/__tests__/control-plane.test.mjs",

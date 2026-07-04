@@ -3,7 +3,7 @@
   "name": "07-03-platform-business-decoupling",
   "title": "Platform business decoupling — phased implementation",
   "description": "Epic: evolve CCB-Wanding into Platform Core + vertical packages per docs/platform-system-business-decoupling-optimization.md. Six phases P0–P5; preserve four-layer runtime chain; no big-bang rewrite.",
-  "status": "in_progress",
+  "status": "review",
   "dev_type": "architecture",
   "scope": "cross-layer",
   "package": "integration",
@@ -63,6 +63,12 @@
       "title": "P5 — Second company vertical pilot (non-quotation domain)",
       "status": "completed",
       "taskDir": "07-03-p5-manufacturing-scheduling-pilot"
+    },
+    {
+      "id": "closure-audit",
+      "title": "P0–P5 automated closure audit and human handoff",
+      "status": "completed",
+      "taskDir": "07-04-platform-decoupling-closure-audit"
     }
   ],
   "children": [
@@ -70,7 +76,8 @@
     "07-03-p2-config-compiler-v1",
     "07-03-p3-wanding-package-extract",
     "07-03-p4-control-plane-tenant-governance",
-    "07-03-p5-manufacturing-scheduling-pilot"
+    "07-03-p5-manufacturing-scheduling-pilot",
+    "07-04-platform-decoupling-closure-audit"
   ],
   "parent": null,
   "relatedFiles": [
@@ -91,7 +98,7 @@
     "ccb-installer/resources/install-health-manifest.json",
     "ccb-installer/scripts/ensure-wanding-settings.ps1"
   ],
-  "notes": "Epic approved 2026-07-03. P0 committed 6d81848f; ops credential rotation pending. P1 complete. P2 completed in 2ab9fdb2. P3 completed in 37b12091. P4 control-plane MVP completed in 8588abf0. P5 manufacturing pilot completed; stop after P5 per user request. Production cutovers remain human-gated.",
+  "notes": "P0-P5 automated implementation is complete. Closure regression: Node 16/16, package health 2/2, live MCP 5/5 after scoped Route-B runtime sync. Parent remains in review / awaiting_human_verification until credential rotation, live environment, production cutover, UI, and stakeholder checklist items are completed.",
   "meta": {
     "user_goal": "分 Phase 实现平台与万鼎业务解耦，可装配多垂直包",
     "execution_plan": "execution-plan.md",

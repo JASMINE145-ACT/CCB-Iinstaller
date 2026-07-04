@@ -1,0 +1,33 @@
+{
+  "id": "platform-decoupling-closure-audit",
+  "name": "platform-decoupling-closure-audit",
+  "title": "Platform decoupling epic closure audit",
+  "description": "Audit P0-P5 evidence, reconcile epic acceptance and ADR decisions, run cross-phase regression, and leave production/manual gates explicit.",
+  "status": "completed",
+  "dev_type": "documentation",
+  "scope": "P0-P5 evidence, architecture ADR disposition, cross-phase regression, parent epic reconciliation",
+  "package": "integration",
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-04",
+  "completedAt": "2026-07-04",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "07-03-platform-business-decoupling",
+  "relatedFiles": [
+    "prd.md",
+    "execution-plan.md",
+    "research/pre-closure-worktree.json"
+  ],
+  "notes": "Parent epic remains awaiting_human_verification until operations and live-environment checklist items are completed.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "Standard"
+  }
+}

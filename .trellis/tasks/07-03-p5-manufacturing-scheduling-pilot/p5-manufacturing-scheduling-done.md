@@ -70,10 +70,13 @@ exit code 0; the timeout is not counted as a passing command.
 Baseline commit:
 `16cff83f4305a102103459bfb2a671c5fd456353`.
 
-The integration gate combines committed diff and untracked worktree paths,
-subtracts the captured pre-P5 dirty-tree set, and rejects any path outside the
-documented P5 allowlist. Production implementation under registry, compiler,
-lifecycle, control-plane, ACP, route-b, and AionUI was unchanged.
+During P5 execution, the integration gate combined committed diff and
+untracked worktree paths, subtracted the captured pre-P5 dirty-tree set, and
+rejected paths outside the documented allowlist. At epic closure the durable
+regression was stabilized to compare the immutable commit range
+`16cff83f..a73c43cf`, so later legitimate work cannot be misattributed to P5.
+Production implementation under registry, compiler, lifecycle, control-plane,
+ACP, route-b, and AionUI was unchanged.
 
 The only existing-file code changes are test corrections:
 

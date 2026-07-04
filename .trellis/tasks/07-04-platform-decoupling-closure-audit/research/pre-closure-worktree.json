@@ -1,0 +1,44 @@
+{
+  "capturedAt": "2026-07-04T09:00:00+08:00",
+  "head": "614b6e28",
+  "porcelain": [
+    " M .agents/skills/trellis-task-execution/SKILL.md",
+    " M .agents/skills/trellis-task-execution/examples.md",
+    " M .claude/skills/trellis-task-execution/SKILL.md",
+    " M .claude/skills/trellis-task-execution/examples.md",
+    " M .gitignore",
+    " M .trellis/spec/backend/index.md",
+    " M .trellis/spec/frontend/chat-acp-flow.md",
+    " M .trellis/spec/frontend/dev-test-ship.md",
+    " M .trellis/spec/frontend/file-map.md",
+    " M .trellis/spec/integration/index.md",
+    "?? .trellis/spec/backend/quotation-matching-engine.md",
+    "?? ccb-installer/packaging-backlog-1.1.6.md",
+    "?? ccb-installer/vendor/mcp-servers/excel-mcp/mcp-excel.exe",
+    "?? docs/industrial-agent-interview-playbook.md"
+  ],
+  "preExistingFiles": [
+    {"path": ".agents/skills/trellis-task-execution/SKILL.md", "sha256": "31f248f6b7a6915d49cae75e715520d9ddb43a25123ac9c4bd72f8ea46279c3d"},
+    {"path": ".agents/skills/trellis-task-execution/examples.md", "sha256": "4ca7812cab745624d2399d97d3c7a0ced0f4e9f6999e8cd4b54e72cd755c01b5"},
+    {"path": ".claude/skills/trellis-task-execution/SKILL.md", "sha256": "31f248f6b7a6915d49cae75e715520d9ddb43a25123ac9c4bd72f8ea46279c3d"},
+    {"path": ".claude/skills/trellis-task-execution/examples.md", "sha256": "4ca7812cab745624d2399d97d3c7a0ced0f4e9f6999e8cd4b54e72cd755c01b5"},
+    {"path": ".gitignore", "sha256": "035697c0e3f9504ca33ea6d24471e6380f12fcf52c2aad6e4d8e27971b644209"},
+    {"path": ".trellis/spec/backend/index.md", "sha256": "cca1164e1c9db137e88d53f5fb61054311c2e4e48ce20a3895cc63b27cd62bdf"},
+    {"path": ".trellis/spec/backend/quotation-matching-engine.md", "sha256": "0c0d29241fecf966851746f732b670e33c7c618688aca25cb72cbd422928679f"},
+    {"path": ".trellis/spec/frontend/chat-acp-flow.md", "sha256": "71e29f1e7119669ed56286d850fa4c7c728959940b5297f3c47fb4910dcc99e2"},
+    {"path": ".trellis/spec/frontend/dev-test-ship.md", "sha256": "97f2c7c75c9f4677589b0f9582f3fccaf8997344c53cb29ec05ffd12ce0b3064"},
+    {"path": ".trellis/spec/frontend/file-map.md", "sha256": "59865a9bc368b9eadc8d7929f0654cf6ba959401d7d4cc37bec4e95f3e982361"},
+    {"path": ".trellis/spec/integration/index.md", "sha256": "db3b4a6c17962e8d8af605421d07443829e2a726a753bb7acbe4a2e784bd1399"},
+    {"path": "ccb-installer/packaging-backlog-1.1.6.md", "sha256": "eb083185dd170b971122e9214a1b70701f5c802bc8f64fe133b23680157eb22c"},
+    {"path": "ccb-installer/vendor/mcp-servers/excel-mcp/mcp-excel.exe", "sha256": "af8e63d0ebf52a395fe17b3ac7fedaabe4b62d391aa28f4dd25e885aed399d2b"},
+    {"path": "docs/industrial-agent-interview-playbook.md", "sha256": "a9bf521786da17efae1f063b9a86072e7c49ba62ee3430d0f44c6e90400f3a70"}
+  ],
+  "observedConcurrentChanges": [
+    {
+      "path": "ccb-installer/packaging-backlog-1.1.6.md",
+      "baselineSha256": "eb083185dd170b971122e9214a1b70701f5c802bc8f64fe133b23680157eb22c",
+      "observedSha256": "cce1879faeb53a36bebde0e20f9d682826bc0b39f678025f939d7b3a4a83229e",
+      "disposition": "External concurrent edit; excluded from closure staging and preserved."
+    }
+  ]
+}

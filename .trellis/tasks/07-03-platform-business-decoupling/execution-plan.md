@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | in_progress |
+| **Status** | review |
 | **Scenario** | B（大型规格 + 多 Phase epic） |
 | **Plan depth** | Full |
 | **Verification profile** | Standard |
-| **Active phase** | P5 — planning |
+| **Active phase** | automated closure audit; human verification pending |
 | **Approved** | 2026-07-03 (user) |
 | **Parent doc** | `docs/platform-system-business-decoupling-optimization.md` |
 
@@ -19,7 +19,8 @@
 | P2 Config compiler & single source | **completed** | `2ab9fdb2` · tests 6/6 · parity 0 · MCP 5/5 · staging PASS |
 | P3 Extract `com.wanding.trade` | **completed** | `37b12091` · lifecycle 3/3 · platform 2/2 · MCP 5/5 · staging PASS |
 | P4 Control plane & tenant governance | **completed** | `8588abf0` · control 2/2 · JWKS 2/2 · secret/CLI PASS · MCP 5/5 |
-| P5 Second vertical pilot | pending | — |
+| P5 Second vertical pilot | **completed** | `a73c43cf` · connector 3/3 · full chain 5/5 · independent review PASS |
+| Epic closure audit | **in progress** | `07-04-platform-decoupling-closure-audit` · cross-phase tests 16/16 · live MCP 5/5 |
 
 ---
 

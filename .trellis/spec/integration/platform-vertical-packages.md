@@ -307,8 +307,9 @@ Executable acceptance is
 `ccb-installer/scripts/__tests__/p5-manufacturing-pilot.test.mjs`; connector
 protocol tests live beside the package. Together they cover registry,
 compilation, lifecycle/rollback, control-plane convergence, MCP behavior, and
-a tracked-plus-untracked changed-path gate. P5 changed no platform-core
-implementation.
+an immutable `16cff83f..a73c43cf` commit-range allowlist gate. P5 changed no
+platform-core implementation, and later unrelated commits do not invalidate
+the historical proof.
 
 ---
 

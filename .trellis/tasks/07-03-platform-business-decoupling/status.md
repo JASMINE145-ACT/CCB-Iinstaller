@@ -1,8 +1,9 @@
 # Status — `07-03-platform-business-decoupling`
 
-**Epic status:** approved · in_progress  
-**Last updated:** 2026-07-03  
-**Active phase:** paused after P5 (per user request)
+**Epic status:** review
+**Lifecycle:** automated implementation complete · awaiting_human_verification
+**Last updated:** 2026-07-04
+**Active phase:** closure audit and human handoff
 
 ## Phase tracker
 
@@ -17,15 +18,27 @@
 
 ## Active subtasks
 
-- `07-03-p5-manufacturing-scheduling-pilot` — completed; commit pending final gate.
+- None. `07-04-platform-decoupling-closure-audit` completed automated closure;
+  parent remains in human review.
 
 ## Blockers
 
 - P0-A 凭据轮换（人工 ops，见 `07-03-p0-security-boundary/research/p0-credential-rotation-runbook.md`）
-- §20 ADR 部分项未决议（见 `open-questions.md`）— 不阻塞 P1 开工
+- P2–P5 真实环境、生产切换和业务验收（见
+  `manual-verification-checklist.md`）。
+- §20 ADR 已逐项 accepted/deferred；deferred 决策按触发条件阻塞对应生产动作，
+  不阻塞自动化实现收口。
 
 ## Next action
 
-1. 完成 P0 凭据轮换（独立 ops blocker，不影响 P1 artifact）。
-2. Stop after P5 as requested; do not begin epic closure until the user resumes.
-3. Keep P2–P5 production cutovers opt-in until the human checklist is completed.
+1. 由用户/运维按 `manual-verification-checklist.md` 完成人工项。
+2. 重启 AionUI，使已同步的 Route-B runtime 在新进程中生效。
+3. 人工证据齐全后，才可将 parent task 从 `review` 改为 `completed`。
+
+## Current runtime evidence
+
+- Cross-phase Node regression: PASS 16/16.
+- Package health split: PASS 2/2.
+- Live MCP stdio probe: PASS 5/5.
+- Route-B runtime drift was repaired by the scoped sync script; bundled,
+  AionUI, and AionUI-Dev runtime targets now contain the required marker.

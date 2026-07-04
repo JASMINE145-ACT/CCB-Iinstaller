@@ -3,6 +3,28 @@
 Complete these checks after automated phases finish. Do not record secrets,
 tokens, or private business data in this file.
 
+## Automated closure baseline (already complete)
+
+- Cross-phase Node regression: `16/16` PASS.
+- Package health split: `2/2` PASS.
+- Registry: 2 packages, 0 errors (known ownership warnings remain).
+- Live MCP stdio probe: `5/5` PASS.
+- Route-B runtime drift was repaired with
+  `sync-aionui-ccb-route-b.ps1`; no process restart was forced.
+
+These results prove the current automated implementation baseline. They do not
+replace the human checks below.
+
+## Final operator handoff
+
+- [ ] Restart AionUI after the Route-B runtime sync, then open a fresh session.
+- [ ] Store private evidence for each completed item without copying secrets,
+  tokens, customer data, or private keys into Git.
+- [ ] Confirm no production cutover was performed implicitly by the automated
+  closure commands.
+- [ ] After every applicable section below is complete, approve changing the
+  parent Trellis task from `review` to `completed`.
+
 ## P0 — Security operations
 
 - [ ] Rotate all credentials listed in

@@ -58,9 +58,9 @@ P5  Phase 5 — 第二家公司试点
 ### Acceptance
 
 - [ ] 已知暴露凭据已轮换（有证据，不写入 spec）
-- [ ] CI 或等效 gate 拦截 secret 模式入库
-- [ ] 平台目录新增代码 review 清单：禁止万鼎固定身份
-- [ ] P0 完成记录写入 `p0-security-boundary-done.md`
+- [x] CI 或等效 gate 拦截 secret 模式入库
+- [x] 平台目录新增代码 review 清单：禁止万鼎固定身份
+- [x] P0 完成记录写入 `p0-security-boundary-done.md`
 
 ### Spec entry
 
@@ -122,11 +122,11 @@ P5  Phase 5 — 第二家公司试点
 
 ### Acceptance
 
-- [ ] **同一 Agent–MCP 关系只声明一次**（在 manifest 或 generated 源）
-- [ ] 生成 `settings.json` 与当前手工结果 **diff 可解释**（允许过渡期 alias）
-- [ ] Drift 检测：改生成文件 → lint 失败
-- [ ] 单测覆盖 merge、secret ref 解析、invalid schema 拒绝
-- [ ] `p2-config-compiler-done.md` 含编译命令与样例 provenance
+- [x] **同一 Agent–MCP 关系只声明一次**（在 manifest 或 generated 源）
+- [x] 生成 `settings.json` 与当前手工结果 **diff 可解释**（允许过渡期 alias）
+- [x] Drift 检测：改生成文件 → lint 失败
+- [x] 单测覆盖 merge、secret ref 解析、invalid schema 拒绝
+- [x] `p2-config-compiler-done.md` 含编译命令与样例 provenance
 
 ### Spec entry
 
@@ -160,8 +160,8 @@ P5  Phase 5 — 第二家公司试点
 
 - [ ] **空平台**（不装万鼎包）可启动并通过 **平台级** 健康检查
 - [ ] 安装 `com.wanding.trade` 后恢复 **现有万鼎能力**（回归 smoke）
-- [ ] 平台代码无 `quotation-agent` / `wanding_business_knowledge` 等 **硬编码分支**（允许 registry alias）
-- [ ] `p3-wanding-package-done.md` 含装卸命令与证据
+- [x] 平台代码无新增 `quotation-agent` / `wanding_business_knowledge` 等 **硬编码分支**（允许 registry alias）
+- [x] `p3-wanding-package-done.md` 含装卸命令与证据
 
 ### Spec entry
 
@@ -194,10 +194,10 @@ P5  Phase 5 — 第二家公司试点
 
 ### Acceptance
 
-- [ ] 管理员可查看 **desired vs observed** 与 drift
+- [x] 管理员可查看 **desired vs observed** 与 drift
 - [ ] 业务凭据 **不落** 员工机器（仅 secret ref）
 - [ ] Token 验证走 JWKS；客户端无签发秘密
-- [ ] `p4-control-plane-done.md`
+- [x] `p4-control-plane-done.md`
 
 ### 依赖
 
@@ -266,7 +266,7 @@ P5  Phase 5 — 第二家公司试点
 
 ## Epic acceptance
 
-- [ ] Phase 0–5 各有 `pN-*-done.md` 证据文件
-- [ ] `.trellis/spec/integration/platform-vertical-packages.md` 与实现对齐更新
-- [ ] 设计文档 §20 待确认 ADR 逐项有记录或明确 defer
-- [ ] §21 强制规则写入 spec + 至少一条 CI/lint  Enforcement
+- [x] Phase 0–5 各有 `pN-*-done.md` 证据文件
+- [x] `.trellis/spec/integration/platform-vertical-packages.md` 与实现对齐更新
+- [x] 设计文档 §20 待确认 ADR 逐项有记录或明确 defer
+- [x] §21 强制规则写入 spec + 至少一条 CI/lint Enforcement

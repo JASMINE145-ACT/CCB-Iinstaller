@@ -1,0 +1,3 @@
+{"file":".trellis/tasks/07-04-platform-decoupling-closure-audit/prd.md","reason":"Closure acceptance and truthful status model."}
+{"file":".trellis/tasks/07-04-platform-decoupling-closure-audit/execution-plan.md","reason":"Regression, review, recovery, and handoff gates."}
+{"file":".trellis/tasks/07-03-platform-business-decoupling/manual-verification-checklist.md","reason":"Human-only operations and live-environment handoff."}
