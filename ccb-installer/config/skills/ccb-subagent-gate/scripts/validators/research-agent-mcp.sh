@@ -17,9 +17,9 @@ if ! message_claims_business_output "$agent_type" "$last_msg"; then
   exit 0
 fi
 
-tool_pattern='mcp__(exa|scrapling)__'
+tool_pattern='mcp__(exa|tavily|scrapling)__'
 if ! has_successful_mcp_call "$transcript_path" "$tool_pattern"; then
-  reason="claimed research output but no successful mcp__exa__* or mcp__scrapling__* in transcript"
+  reason="claimed research output but no successful mcp__exa__*, mcp__tavily__*, or mcp__scrapling__* in transcript"
   if [[ "$mode" == "block" ]]; then
     "$SCRIPT_DIR/../lib/fail.sh" "$reason"
   fi

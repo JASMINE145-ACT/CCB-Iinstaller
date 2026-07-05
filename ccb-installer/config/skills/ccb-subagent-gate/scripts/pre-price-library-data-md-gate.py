@@ -12,7 +12,7 @@ sys.path.insert(0, str(SCRIPT_DIR / "lib"))
 from parse_transcript_data_md_gate import (  # noqa: E402
     DATA_MD_FALLBACK_PATH,
     WRITE_TOOL_NAMES,
-    transcript_has_data_md_read,
+    hook_input_has_data_md_read,
 )
 
 DENY_REASON_TEMPLATE = (
@@ -20,15 +20,6 @@ DENY_REASON_TEMPLATE = (
     "  {data_md_path}\n"
     "完成 Read 后再调用 upsert / apply_price_library_import。"
 )
-
-
-def _transcript_candidates(hook_input: dict[str, object]) -> list[Path]:
-    paths: list[Path] = []
-    for key in ("transcript_path", "agent_transcript_path"):
-        raw = str(hook_input.get(key) or "").strip()
-        if raw:
-            paths.append(Path(raw))
-    return paths
 
 
 def main() -> int:
@@ -41,7 +32,7 @@ def main() -> int:
     if tool_name not in WRITE_TOOL_NAMES:
         return 0
 
-    if transcript_has_data_md_read(*_transcript_candidates(hook_input)):
+    if hook_input_has_data_md_read(hook_input):
         return 0
 
     data_md_path = (os.environ.get("WANDING_DATA_MD_PATH") or "").strip() or DATA_MD_FALLBACK_PATH

@@ -39,6 +39,9 @@ check_args=("$python_cmd" "$SCRIPT_DIR/../lib/parse_transcript_knowledge_gate.py
 if [[ -n "$agent_transcript_path" ]] && [[ -f "$agent_transcript_path" ]]; then
   check_args+=("$agent_transcript_path")
 fi
+if [[ -n "$session_id" ]]; then
+  check_args+=("$session_id")
+fi
 check_output="$("${check_args[@]}" 2>/dev/null || true)"
 if [[ -z "$check_output" ]]; then
   exit 0

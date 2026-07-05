@@ -8,8 +8,19 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from hook_transcript import (  # noqa: E402
+    READ_TOOL_NAMES,
+    derive_agent_transcript_path,
+    mark_session_flag,
+    read_tool_file_path,
+    resolve_hook_transcript_paths,
+    session_flag_dir,
+    session_has_flag,
+)
+
 KNOWLEDGE_MARK = "wanding_business_knowledge"
 KNOWLEDGE_FALLBACK_PATH = r"D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md"
+KNOWLEDGE_READ_FLAG_SUBDIR = "knowledge-read-gate"
 MATCH_TOOL_MARKERS = (
     "mcp__quotation__match_quotation",
     "mcp__quotation__match_quotation_batch",
@@ -21,6 +32,49 @@ MATCH_TOOL_NAMES = frozenset(
         "mcp__quotation__match_quotation_batch",
     }
 )
+
+
+def _normalize_path_text(text: str) -> str:
+    return text.replace("\\", "/").lower()
+
+
+def _payload_has_knowledge_mark(text: str) -> bool:
+    return KNOWLEDGE_MARK in _normalize_path_text(text)
+
+
+def _read_tool_file_path(block: dict[str, Any]) -> str:
+    return read_tool_file_path(block)
+
+
+def knowledge_read_flag_dir() -> Path:
+    return session_flag_dir(KNOWLEDGE_READ_FLAG_SUBDIR)
+
+
+def _safe_session_id(session_id: str) -> str:
+    from hook_transcript import safe_session_id
+
+    return safe_session_id(session_id)
+
+
+def knowledge_read_flag_path(session_id: str) -> Path:
+    from hook_transcript import session_flag_path
+
+    return session_flag_path(session_id, KNOWLEDGE_READ_FLAG_SUBDIR)
+
+
+def mark_session_knowledge_read(session_id: str) -> None:
+    mark_session_flag(session_id, KNOWLEDGE_READ_FLAG_SUBDIR)
+
+
+def session_has_knowledge_read_flag(session_id: str) -> bool:
+    return session_has_flag(session_id, KNOWLEDGE_READ_FLAG_SUBDIR)
+
+
+def hook_input_has_knowledge_read(hook_input: dict[str, Any]) -> bool:
+    session_id = str(hook_input.get("session_id") or "").strip()
+    if session_id and session_has_knowledge_read_flag(session_id):
+        return True
+    return transcript_has_knowledge_read(*resolve_hook_transcript_paths(hook_input))
 
 
 def _loads_maybe(value: Any) -> Any:
@@ -104,16 +158,25 @@ def _line_has_read_knowledge(obj: dict[str, Any]) -> bool:
     for block in _iter_content_blocks(obj):
         block_type = block.get("type")
         name = str(block.get("name") or block.get("toolName") or "")
-        if block_type == "tool_use" and name == "Read":
+        if block_type == "tool_use" and name in READ_TOOL_NAMES:
+            file_path = _read_tool_file_path(block)
+            if file_path and _payload_has_knowledge_mark(file_path):
+                return True
             payload = json.dumps(block.get("input") or block, ensure_ascii=False)
-            if KNOWLEDGE_MARK in payload:
+            if _payload_has_knowledge_mark(payload):
                 return True
         if block_type == "tool_result":
             payload = str(block.get("content") or "")
-            if KNOWLEDGE_MARK in payload and "Read" in json.dumps(obj, ensure_ascii=False):
+            if _payload_has_knowledge_mark(payload) and "Read" in json.dumps(
+                obj, ensure_ascii=False
+            ):
                 return True
     text = json.dumps(obj, ensure_ascii=False)
-    return KNOWLEDGE_MARK in text and "Read" in text and "file_path" in text
+    return (
+        _payload_has_knowledge_mark(text)
+        and "Read" in text
+        and ("file_path" in text or "filePath" in text)
+    )
 
 
 def _line_has_match_tool_use(obj: dict[str, Any]) -> bool:
@@ -166,12 +229,15 @@ def analyze_transcript(
     transcript_path: Path,
     *,
     agent_transcript_path: Path | None = None,
+    session_id: str | None = None,
 ) -> dict[str, Any]:
     paths = [transcript_path]
     if agent_transcript_path is not None:
         paths.append(agent_transcript_path)
 
     knowledge_read_in_session = transcript_has_knowledge_read(*paths)
+    if session_id and session_has_knowledge_read_flag(session_id):
+        knowledge_read_in_session = True
 
     if not transcript_path.is_file():
         return {
@@ -224,10 +290,24 @@ def analyze_transcript(
 
 def main(argv: list[str]) -> int:
     if len(argv) < 3 or argv[1] != "check":
-        print("usage: parse_transcript_knowledge_gate.py check <transcript_path> [agent_transcript_path]", file=sys.stderr)
+        print("usage: parse_transcript_knowledge_gate.py check <transcript_path> [agent_transcript_path] [session_id]", file=sys.stderr)
         return 2
-    agent_path = Path(argv[3]) if len(argv) > 3 else None
-    result = analyze_transcript(Path(argv[2]), agent_transcript_path=agent_path)
+    transcript_path = Path(argv[2])
+    agent_path: Path | None = None
+    session_id = ""
+    if len(argv) > 3:
+        third = argv[3]
+        if third.endswith(".jsonl") or Path(third).is_file():
+            agent_path = Path(third)
+            if len(argv) > 4:
+                session_id = argv[4]
+        else:
+            session_id = third
+    result = analyze_transcript(
+        transcript_path,
+        agent_transcript_path=agent_path,
+        session_id=session_id or None,
+    )
     print(json.dumps(result, ensure_ascii=False))
     return 10 if result.get("should_block") else 0
 

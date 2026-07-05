@@ -18,6 +18,10 @@ sys.path.insert(0, str(SCRIPTS / "lib"))
 from match_selection_payload import payload_is_multi_candidate, unwrap_tool_payload  # noqa: E402
 from parse_transcript_knowledge_gate import (  # noqa: E402
     analyze_transcript,
+    derive_agent_transcript_path,
+    hook_input_has_knowledge_read,
+    mark_session_knowledge_read,
+    session_has_knowledge_read_flag,
     transcript_has_knowledge_read,
 )
 
@@ -203,6 +207,104 @@ class TestPreMatchKnowledgeGate(unittest.TestCase):
         output = self._run_pre_gate({"tool_name": "mcp__quotation__get_inventory_by_code"})
         self.assertEqual(output, "")
 
+    def test_allows_match_after_session_flag(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            env = os.environ.copy()
+            env["SUBAGENT_GATE_LOG_DIR"] = tmp
+            proc = subprocess.run(
+                [sys.executable, str(SCRIPTS / "pre-match-knowledge-gate.py")],
+                input=json.dumps(
+                    {
+                        "tool_name": "mcp__quotation__match_quotation",
+                        "session_id": "sess-flag-1",
+                        "transcript_path": "",
+                    }
+                ),
+                text=True,
+                capture_output=True,
+                env=env,
+                check=False,
+            )
+            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            self.assertNotEqual(proc.stdout.strip(), "")
+            mark_proc = subprocess.run(
+                [sys.executable, str(SCRIPTS / "post-knowledge-read-mark.py")],
+                input=json.dumps(
+                    {
+                        "tool_name": "Read",
+                        "session_id": "sess-flag-1",
+                        "tool_input": {
+                            "file_path": r"D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md"
+                        },
+                    }
+                ),
+                text=True,
+                capture_output=True,
+                env=env,
+                check=False,
+            )
+            self.assertEqual(mark_proc.returncode, 0, msg=mark_proc.stderr)
+            allow_proc = subprocess.run(
+                [sys.executable, str(SCRIPTS / "pre-match-knowledge-gate.py")],
+                input=json.dumps(
+                    {
+                        "tool_name": "mcp__quotation__match_quotation",
+                        "session_id": "sess-flag-1",
+                        "transcript_path": "",
+                    }
+                ),
+                text=True,
+                capture_output=True,
+                env=env,
+                check=False,
+            )
+            self.assertEqual(allow_proc.returncode, 0, msg=allow_proc.stderr)
+            self.assertEqual(allow_proc.stdout.strip(), "")
+
+    def test_derives_agent_transcript_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            session_id = "main-session"
+            agent_id = "agent-abc"
+            agent_dir = root / session_id / "subagents"
+            agent_dir.mkdir(parents=True)
+            agent_file = agent_dir / f"agent-{agent_id}.jsonl"
+            read_line = json.dumps(
+                {
+                    "type": "assistant",
+                    "message": {
+                        "content": [
+                            {
+                                "type": "tool_use",
+                                "name": "Read",
+                                "input": {
+                                    "file_path": r"D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md"
+                                },
+                            }
+                        ]
+                    },
+                },
+                ensure_ascii=False,
+            )
+            agent_file.write_text(read_line + "\n", encoding="utf-8")
+            derived = derive_agent_transcript_path(
+                {
+                    "session_id": session_id,
+                    "agent_id": agent_id,
+                    "transcript_path": str(root / f"{session_id}.jsonl"),
+                }
+            )
+            self.assertEqual(derived, agent_file)
+            self.assertTrue(
+                hook_input_has_knowledge_read(
+                    {
+                        "session_id": session_id,
+                        "agent_id": agent_id,
+                        "transcript_path": str(root / f"{session_id}.jsonl"),
+                    }
+                )
+            )
+
 
 class TestTranscriptKnowledgeGate(unittest.TestCase):
     def test_block_when_multi_match_without_read(self) -> None:
@@ -227,6 +329,25 @@ class TestTranscriptKnowledgeGate(unittest.TestCase):
         self.assertTrue(result["price_match_in_turn"])
         self.assertFalse(result["multi_match"])
         self.assertTrue(result["should_block"])
+
+    def test_stop_check_honors_session_flag(self) -> None:
+        fixture = SKILL_ROOT / "tests/fixtures/transcripts/quotation-single-no-read.jsonl"
+        with tempfile.TemporaryDirectory() as tmp:
+            old = os.environ.get("SUBAGENT_GATE_LOG_DIR")
+            os.environ["SUBAGENT_GATE_LOG_DIR"] = tmp
+            try:
+                mark_session_knowledge_read("stop-flag-session")
+                result = analyze_transcript(
+                    fixture,
+                    session_id="stop-flag-session",
+                )
+            finally:
+                if old is None:
+                    os.environ.pop("SUBAGENT_GATE_LOG_DIR", None)
+                else:
+                    os.environ["SUBAGENT_GATE_LOG_DIR"] = old
+            self.assertTrue(result["knowledge_read_in_session"])
+            self.assertFalse(result["should_block"])
 
 
 if __name__ == "__main__":

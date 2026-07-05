@@ -12,7 +12,7 @@ sys.path.insert(0, str(SCRIPT_DIR / "lib"))
 from parse_transcript_knowledge_gate import (  # noqa: E402
     KNOWLEDGE_FALLBACK_PATH,
     MATCH_TOOL_NAMES,
-    transcript_has_knowledge_read,
+    hook_input_has_knowledge_read,
 )
 
 DENY_REASON_TEMPLATE = (
@@ -20,15 +20,6 @@ DENY_REASON_TEMPLATE = (
     "  {kb_path}\n"
     "完成 Read 后再调用 match_quotation。"
 )
-
-
-def _transcript_candidates(hook_input: dict[str, object]) -> list[Path]:
-    paths: list[Path] = []
-    for key in ("transcript_path", "agent_transcript_path"):
-        raw = str(hook_input.get(key) or "").strip()
-        if raw:
-            paths.append(Path(raw))
-    return paths
 
 
 def main() -> int:
@@ -41,7 +32,7 @@ def main() -> int:
     if tool_name not in MATCH_TOOL_NAMES:
         return 0
 
-    if transcript_has_knowledge_read(*_transcript_candidates(hook_input)):
+    if hook_input_has_knowledge_read(hook_input):
         return 0
 
     kb_path = (os.environ.get("WANDING_BUSINESS_KNOWLEDGE_PATH") or "").strip() or KNOWLEDGE_FALLBACK_PATH
