@@ -1,0 +1,59 @@
+{
+  "id": "orchestrator-dispatch-hardening",
+  "name": "07-04-orchestrator-dispatch-hardening",
+  "title": "Orchestrator 委派路径加固与 eval 基线",
+  "description": "Harden wande-orchestrator → specialist Agent() dispatch: smoke matrix (default vs Guid direct), idle-resume regression, orchestrator-delegatable bypass in CCB, eval scenario for delegation vs direct, spec/docs sync. Spawned from 2026-07-04 explore + packaging-backlog Issue 3. Does not block 1.1.5; target 1.1.6 checklist.",
+  "status": "in_progress",
+  "dev_type": "implementation",
+  "scope": "CCB agentSessionProfile + AionUI smoke + eval + integration spec",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-04",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "ccb-installer/claude-code-b-src/src/services/acp/agentSessionProfile.ts",
+    "ccb-installer/claude-code-b-src/src/services/acp/agent.ts",
+    "ccb-installer/claude-code-b-src/src/services/acp/mcpToolRepeatGuard.ts",
+    "ccb-installer/claude-code-b-src/src/services/acp/wanDEnvBootstrap.ts",
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md",
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md",
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/accurate-agent.md",
+    "ccb-installer/packaging-backlog-1.1.6.md",
+    ".trellis/spec/integration/agents-unified-model.md",
+    ".trellis/spec/backend/acp-session-flow.md",
+    "docs/industrial-agent-interview-playbook.md"
+  ],
+  "notes": "2026-07-04: User requested separate Trellis task after explore-only /trellis:plan-execution. Guid direct path OK; orchestrator delegation erratic vs direct — no quantified eval yet. Related: 06-29-specialist-session-resume-profile-drift (idle profile drift subset).",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "UI",
+    "workstreams": [
+      "A-smoke-matrix-baseline",
+      "B-idle-resume-regression",
+      "C-delegatable-orchestrator-bypass",
+      "D-eval-orchestrator-vs-direct",
+      "E-spec-and-packaging-backlog"
+    ],
+    "phases": {
+      "P0": ["A", "B"],
+      "P1": ["C", "D"],
+      "P2": ["E"]
+    },
+    "related_tasks": [
+      "06-29-specialist-session-resume-profile-drift",
+      "06-30-full-system-review",
+      "06-19-fix-eval-cases-agent-eval"
+    ],
+    "packaging_backlog": "ccb-installer/packaging-backlog-1.1.6.md#issue-3"
+  }
+}

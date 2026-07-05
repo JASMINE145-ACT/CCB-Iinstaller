@@ -1,0 +1,12 @@
+{"check": "Explore dual-source + single MiniMax", "evidence": "research/explore-2026-07-04-dual-source-deep-framework.md — Approach A selected 2026-07-04"}
+{"check": "Execution plan", "evidence": "execution-plan.md Status=in_progress; user 继续 with API keys 2026-07-04"}
+{"check": "Packaging backlog Issue 4", "evidence": "ccb-installer/packaging-backlog-1.1.6.md — impl done; exe build deferred"}
+{"check": "P1 wanding-deep-research skill", "evidence": "ccb-installer/packages/vertical/com.wanding.trade/skills/wanding-deep-research/SKILL.md; .agents mirror; build-wanding seed; deploy script shipped"}
+{"check": "P1 research-agent L1 + sidecar", "evidence": "research-agent.md + research-agent.aionui.json deployed via deploy-seed-agents -ForceMd"}
+{"check": "P2 Tavily MCP platform + settings", "evidence": "platform.defaults.json secret refs; ensure-wanding-settings.ps1; gitignored ccb-installer/resources/research.env"}
+{"check": "P2 gate + probe + mcp-health", "evidence": "research-agent-mcp.sh mcp__tavily__*; probe-research-capabilities.ps1 PASS exa+exa_api_key+tavily 2026-07-04"}
+{"check": "P2 install ship path", "evidence": "install-ppt-master.ps1 deploys wanding-deep-research; build-wanding shipScripts includes probe/install/deploy scripts"}
+{"check": "P3 spec research-dual-source-deep-framework.md", "evidence": ".trellis/spec/backend/research-dual-source-deep-framework.md + mcp-business.md + index.md"}
+{"check": "code-review packaging", "evidence": "code-reviewer 09928b33 NOT PASS → fixes applied; 03849120 blocking items fixed (typo + ship wiring)"}
+{"check": "compile-runtime-config fixture", "evidence": "node compile-runtime-config.mjs --fixture OK 2026-07-04 (8 MCP projections)"}
+{"check": "P3 manual smoke dual-source", "evidence": "pending — Guid 资料搜索助手 depth prompt → research/*.md + .sources.jsonl; no Task in transcript"}

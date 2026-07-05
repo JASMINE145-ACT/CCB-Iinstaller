@@ -120,7 +120,7 @@ node "node_modules\.bun\electron@*\node_modules\electron\install.js"
 | Dev shows upstream Settings → 模型 / 助手 / Agents after **2026-06-26 Layer 2** | Old dev session (Ctrl+R) or CCB authority inactive (`D:\CCB-Wanding` missing) | Kill electron/aioncore → `start-dev-full.ps1` full restart; confirm `isAuthorityActive` in logs |
 | **Electron dev 白屏**（窗口空白，无 UI） | Renderer 打包了 `node:fs` 等 Node-only 模块 → Vite bundle 崩溃；或 Vite/Electron 缓存仍是旧 bundle | 见 **§8 White screen playbook**；优先用 `ccb-installer/scripts/start-dev-full.ps1`（已含杀进程 + 清缓存） |
 | **设置 → 能力扩展** 一点就白屏 | 懒加载 `SkillsHubSettings` 曾直接 import `ccbSkills.ts`（含 fs） | 已改 IPC `ccbSkillsService`；若复现，查 renderer 是否又 direct-import 了 `ccbSkills.ts` |
-| 多题 AskUserQuestion 答完 Q1 后一直 spinner | 点了 Cancel 但前端误设 `isAwaitingNextQuestion`；或 backend 未发下一题 permission | Cancel 应显示「已取消」；确认路径 30s 后显示超时警告。见 `chat-acp-flow.md` §3.5b |
+| 多题 AskUserQuestion 答完 Q1 后一直 spinner | **N/A on CCB** — AUQ disabled (backend deny); model uses chat text | If AUQ re-enabled: see `chat-acp-flow.md` §3.5b historical flow |
 | multiSelect 选了多项但 backend 只收到一项 | Backend dist 未部署 `auqm:` 解析 | Rebuild `claude-code-B` → deploy → route-b sync |
 | 侧栏仍显示 WanD/AionUi 而非 minimax-m3 | `ccbModelBridge` 未加载（main process 未重启） | `ccb-installer/scripts/start-dev-full.ps1` 整 app 重启 |
 | Guid 模型下拉全是 **Default (recommended) (default/low/…)** | ACP handshake 返回 effort tier，非 MiniMax 变体 | **2026-06-14 已修**：`mergeCcbMiniMaxAcpModelInfo` 用 CCB `available_variants` 替换列表 → 仅 **MiniMax M3** / **MiniMax M3 (Thinking)**；deploy + `start-dev-full.ps1` 重启 |
@@ -152,7 +152,7 @@ cd D:\Projects\claude-code-best\ccb-installer
 
 1. **Greeting dedup** — New CCB-Wanding session; first assistant message appears once only.
 2. **Thinking default collapsed** — Block starts collapsed (streaming and history); user can expand via header; no forced collapse on `isDone`.
-3. **AskUserQuestion** — Permission request shows options + confirm button (not blank).
+3. **AskUserQuestion** — **N/A on CCB-Wanding** (backend deny; use chat clarification). Skip unless AUQ re-enabled end-to-end.
 
 ---
 

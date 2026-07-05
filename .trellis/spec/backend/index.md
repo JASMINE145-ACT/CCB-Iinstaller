@@ -42,6 +42,8 @@ If the symptom is an ACP event bug, **do not thicken the AionUI frontend**. Fix 
 | [`build-deploy-verify.md`](./build-deploy-verify.md) | `bun run build`, deploy to `D:\CCB-Wanding\dist\`, smoke commands |
 | [`config-layer.md`](./config-layer.md) | `settings.json`, `CLAUDE.md`, Wanding data paths |
 | [`mcp-business.md`](./mcp-business.md) | Quotation MCP tools, Python layer, business data, smoke |
+| [`quotation-matching-engine.md`](./quotation-matching-engine.md) | **Core domain matcher** — `wanding_fuzzy_matcher` scoring, dual recall |
+| [`research-dual-source-deep-framework.md`](./research-dual-source-deep-framework.md) | **Research Exa+Tavily** — wanding-deep-research skill, single MiniMax, evidence contract |
 | [`route-b-status.md`](./route-b-status.md) | **Live snapshot**: what works today (dist `$buildMcp` patch, smoke evidence, open items) |
 | [`source-migration-mcp.md`](./source-migration-mcp.md) | Migrate `$buildMcp` from dist patch → `agent.ts` (step-by-step) |
 | [`../integration/aionui-ccb-boundary.md`](../integration/aionui-ccb-boundary.md) | 4-layer chain (read when touching AionUI + backend together) |

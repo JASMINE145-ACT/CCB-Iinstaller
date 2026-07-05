@@ -1,0 +1,4 @@
+{"ts":"2026-07-04","file":"aionui-src/packages/desktop/src/common/chat/normalizeToolCall.ts","reason":"resolveAcpToolDisplayName fallback chain for View Steps"}
+{"ts":"2026-07-04","file":"aionui-src/packages/desktop/src/common/chat/chatLib.ts","reason":"mergeAcpToolCallContent preserve title on empty incoming"}
+{"ts":"2026-07-04","file":"aionui-src/.../MessageToolGroupSummary.tsx","reason":"stepLabel UI fallback"}
+{"ts":"2026-07-04","file":"aionui-src/tests/unit/common/normalizeToolCall.test.ts","reason":"+4 tests title-less merge meta"}

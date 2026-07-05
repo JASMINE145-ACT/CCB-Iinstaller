@@ -327,13 +327,28 @@ Safe split pattern (two repos):
 
 ---
 
-## Reference example — `07-02-mcp-health-coverage-expansion`
+## Reference examples
 
-Proven mapping (adapt for similar integration tasks):
+### Primary — Step 3b compliant (`07-01-price-library-admin-agent`)
+
+Use when teaching **execution-plan.md + progress snapshot + `p*-done.md`**:
+
+- [`07-01-price-library-admin-agent/execution-plan.md`](../../.trellis/tasks/07-01-price-library-admin-agent/execution-plan.md)
+- Multiple `p0b-*-done.md` / `p1-*-done.md` phase evidence files
+
+### Integration — Scenario D-lite (`07-02-mcp-health-coverage-expansion`)
+
+Workstream→tool mapping for **two-repo** MCP health tasks. Plan was **retroactively backfilled** 2026-07-03 (original 2026-07-02 close used jsonl only).
+
+| Artifact | Path |
+|----------|------|
+| Execution plan | [`07-02-.../execution-plan.md`](../../.trellis/tasks/07-02-mcp-health-coverage-expansion/execution-plan.md) |
+| Done record | [`mcp-health-coverage-expansion-done.md`](../../.trellis/tasks/07-02-mcp-health-coverage-expansion/mcp-health-coverage-expansion-done.md) |
+| Live evidence | `implement.jsonl`, `check.jsonl`, commit `a83358b4`, `mcp-health.md` §2026-07-02 |
 
 | Phase | Priority | Workstream | Tool |
 |-------|----------|------------|------|
-| 0 | — | Activate | `task.py start` + `trellis-before-dev` → `mcp-health.md` + prd |
+| 0 | — | Activate | `task.py start` + `mcp-health.md` + prd |
 | 1 | P0 | A — UI agents + coverage | TDD → `ccbMcpHealth.ts` + `CcbMcpHealthPanel.tsx` → code-review |
 | 2 | P1 | C — manifest deep probe | `trellis-implement` (backend-leaning) |
 | 2 | P1 | E — diagnosis + MiniMax | TDD `ccbMcpHealthDiagnosis.test.ts` first |
@@ -354,6 +369,7 @@ More detail: [examples.md](./examples.md)
 | Parallel edit JSON + TS manifest | Serial merge after JSON lands |
 | Mark task complete without spec + jsonl | `trellis-update-spec` + implement/check jsonl |
 | `openspec-explore` then implement | User must exit explore or `/opsx:propose` |
+| Label task "Proven / as executed" without `execution-plan.md` on disk | Backfill retroactively or cite `07-01` as gold standard; see `07-02` compliance note |
 
 ---
 

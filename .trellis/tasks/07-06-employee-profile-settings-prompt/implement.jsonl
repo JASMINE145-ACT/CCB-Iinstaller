@@ -1,0 +1,2 @@
+{"ts":"2026-07-05","phase":"P8","summary":"addressName field + derivePreferredAddressName + stronger formatEmployeeProfileClaudeMd behavior contract (优先用嘉诚称呼)","files":["employeeProfileShared.ts","employeeProfile.ts","EmployeeProfileModalContent.tsx","i18n","configKeys"]}
+{"ts":"2026-07-05","phase":"P9","summary":"mergeEmployeeProfileIntoResolvedUserContext in runAgent after omitClaudeMd; sync script copies runAgent.ts","files":["employeeProfile.ts","employeeProfile.test.ts","runAgent.ts","sync-claude-code-b-mcp-prefetch.ps1"]}

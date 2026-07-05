@@ -1,0 +1,3 @@
+{"ts":"2026-07-07","type":"check","summary":"P0 isolation matrix layers 1-5 PASS; native ACP x4 PASS; P2 fix blocked pending failing upstream details"}
+{"ts":"2026-07-05","type":"check","phase":"P2-knowledge-read-gate","summary":"PreToolUse+PostToolUse session flag fix; Stop gate aligned; 17/17 unittest PASS; code-review PASS; deployed live; manual smoke pending"}
+{"ts":"2026-07-05","type":"check","phase":"P5-data-md-gate-parity","summary":"hook_transcript.py shared lib; data.Md PreToolUse parity+post-data-md-read-mark; 24/24 unittest PASS; code-review PASS; deployed; manual smoke pending"}

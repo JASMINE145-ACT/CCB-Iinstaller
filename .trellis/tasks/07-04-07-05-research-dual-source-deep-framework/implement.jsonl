@@ -1,0 +1,14 @@
+{"file": ".trellis/tasks/07-04-07-05-research-dual-source-deep-framework/prd.md", "reason": "Task PRD — Approach A scope + AC"}
+{"file": ".trellis/tasks/07-04-07-05-research-dual-source-deep-framework/execution-plan.md", "reason": "Execution plan draft — await approval"}
+{"file": ".trellis/tasks/07-04-07-05-research-dual-source-deep-framework/research/explore-2026-07-04-dual-source-deep-framework.md", "reason": "Explore record — Exa+Tavily + single MiniMax"}
+{"file": ".agents/skills/wanding-deep-research/SKILL.md", "reason": "Approach A procedure skill mirror"}
+{"file": "ccb-installer/packages/vertical/com.wanding.trade/skills/wanding-deep-research/SKILL.md", "reason": "Canonical wanding-deep-research skill"}
+{"file": "ccb-installer/config/agents/research-agent.md", "reason": "Slim L1 — skill + exa+tavily MCP"}
+{"file": "ccb-installer/config/agents/research-agent.aionui.json", "reason": "Sidecar mcp_allowlist + skills.enabled"}
+{"file": "ccb-installer/scripts/ensure-wanding-settings.ps1", "reason": "Seed exa headers + tavily URL from research.env"}
+{"file": "ccb-installer/scripts/probe-research-capabilities.ps1", "reason": "Dual-source probe + exa_api_key WARN"}
+{"file": "ccb-installer/scripts/build-wanding.ps1", "reason": "Seed skill + ship deploy/probe/install scripts"}
+{"file": "ccb-installer/scripts/install-ppt-master.ps1", "reason": "Install-time wanding-deep-research deploy"}
+{"file": "ccb-installer/scripts/deploy-wanding-deep-research-skill.ps1", "reason": "Skill deploy helper"}
+{"file": ".trellis/spec/backend/research-dual-source-deep-framework.md", "reason": "Architecture spec"}
+{"file": "ccb-installer/resources/research.env.example", "reason": "EXA/TAVILY key template (gitignored research.env for local)"}

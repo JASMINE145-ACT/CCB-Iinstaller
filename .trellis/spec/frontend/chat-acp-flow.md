@@ -112,6 +112,20 @@ Renders as: `MessageAcpToolCall.tsx` with running indicator.
 
 Same `tool_call_id` as the running event — `MessageAcpToolCall` updates the same component.
 
+### 3.4b View Steps (`tool_summary`) — title merge (2026-07-04)
+
+**View Steps** (`MessageToolGroupSummary`) normalizes `acp_tool_call` via `normalizeAcpToolCall` → `resolveAcpToolDisplayName`.
+
+aioncore **omits** `title` on `tool_call_update` (see `AionCore` test `session_tool_call_update_omits_missing_fields_for_frontend_merge`). Contract:
+
+| Layer | Rule |
+|-------|------|
+| Merge | `mergeAcpToolCallContent` — empty/missing incoming `title` must **not** clobber prior non-empty title |
+| Display | Fallback order: `title` → `_meta.claudeCode.toolName` → param summary → `Agent(subagent_type)` → kind label → `"Tool"` |
+| UI | `MessageToolGroupSummary` uses `name \|\| description \|\| kind \|\| "Tool"` as belt-and-suspenders |
+
+Task: `.trellis/tasks/07-04-acp-view-steps-empty-tool-title/`
+
 ### 3.5 Permission request (with tool_call)
 
 ```json
@@ -159,6 +173,12 @@ Task: `.trellis/tasks/07-01-aionui-full-auto-permission-sync/`
 
 ### 3.5b AskUserQuestion (candidate selection — not Allow/Reject)
 
+> **CCB-Wanding production (2026-07-02): AUQ disabled.** Backend `permissions.ts` calls `denyAskUserQuestionUseChat()` — the model must clarify in **normal chat text**. No `auq:`/`auqm:` permission rounds reach the renderer on Route B `--acp`. Align with [`../backend/acp-session-flow.md`](../backend/acp-session-flow.md) § AskUserQuestion.
+>
+> **Frontend:** `MessageAskUserQuestionCard` / `AskUserQuestionNavBar` exist but are **not mounted** (`MessageList.tsx` only renders `MessageAcpPermission`). Helpers + unit tests retained for future re-enable. **Do not** debug AUQ spinner/multi-question flows on CCB until Backend restores `handleAskUserQuestion`.
+
+**Historical design (2026-06-12, not active on CCB):**
+
 ```json
 {
   "type": "acp_permission",
@@ -185,7 +205,7 @@ Task: `.trellis/tasks/07-01-aionui-full-auto-permission-sync/`
 }
 ```
 
-Producer: `permissions.ts` `handleAskUserQuestion`. Consumer: `MessageAskUserQuestionCard.tsx` (via `MessageAcpPermission.tsx`) — table/radio UI, not generic Allow/Reject.
+Producer (historical): `permissions.ts` `handleAskUserQuestion`. Consumer (dormant): `MessageAskUserQuestionCard.tsx` (was via `MessageAcpPermission.tsx`) — table/radio UI, not generic Allow/Reject.
 
 #### Multi-question flow (2026-06-13)
 

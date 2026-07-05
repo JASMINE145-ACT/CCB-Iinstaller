@@ -1,0 +1,5 @@
+{"ts":"2026-07-04","ws":"A","file":".trellis/tasks/07-04-orchestrator-dispatch-hardening/delivery-smoke-matrix.md","reason":"P0 smoke baseline CLI cases 1,3 FAIL documented"}
+{"ts":"2026-07-04","ws":"D","file":"eval/scenarios/orchestrator-delegation-vs-direct-20260704.md","reason":"AC6 eval scenario 3 prompt pairs"}
+{"ts":"2026-07-04","ws":"C","file":"ccb-installer/claude-code-b-src/src/services/acp/agentSessionProfile.ts","reason":"orchestratorSession bypass for CCB_ROUTER_DELEGATABLE_AGENT_IDS"}
+{"ts":"2026-07-04","ws":"C","file":"ccb-installer/claude-code-b-src/src/services/acp/agent.ts","reason":"pass orchestratorSession to filterDelegatableCustomAgents"}
+{"ts":"2026-07-04","ws":"C","file":"ccb-installer/claude-code-b-src/src/services/acp/__tests__/agentSessionProfile.test.ts","reason":"+2 unit tests orchestrator bypass + guid-only exclusion"}

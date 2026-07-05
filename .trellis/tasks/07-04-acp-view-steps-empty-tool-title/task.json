@@ -1,0 +1,32 @@
+{
+  "id": "acp-view-steps-empty-tool-title",
+  "name": "07-04-acp-view-steps-empty-tool-title",
+  "title": "View Steps 首次工具调用名称为空（ACP tool_call title）",
+  "description": "Debug and fix intermittent empty tool name in MessageToolGroupSummary View Steps while tool actually executed. Likely normalizeAcpToolCall missing title fallback when aioncore omits title on tool_call_update merge path.",
+  "status": "completed",
+  "completedAt": "2026-07-04",
+  "dev_type": "bugfix",
+  "scope": "aionui-src normalizeToolCall + mergeAcpToolCallContent; optional aioncore/CCB title audit",
+  "package": "frontend",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-04",
+  "completedAt": null,
+  "relatedFiles": [
+    "aionui-src/packages/desktop/src/common/chat/normalizeToolCall.ts",
+    "aionui-src/packages/desktop/src/common/chat/chatLib.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/components/MessageToolGroupSummary.tsx",
+    "aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/acp/MessageAcpToolCall.tsx",
+    "AionCore/crates/aionui-ai-agent/src/protocol/events/translate.rs",
+    "AionCore/crates/aionui-ai-agent/src/protocol/events/mod.rs",
+    ".trellis/spec/frontend/chat-acp-flow.md"
+  ],
+  "notes": "2026-07-04: User report during price-library supplier edit — View Steps · 1 shows blank name, green completed, agent text confirms tool ran.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "UI",
+    "scenario": "C",
+    "symptom_screenshot": "assets/c__Users_m1774_AppData_Roaming_Cursor_User_workspaceStorage_1dea7d4fe18708612dc8abf17d4e0a1b_images_image-807dd74b-6b33-4156-8c78-02b2006ecf63.png"
+  }
+}

@@ -41,7 +41,13 @@ Model-facing names in session: `mcp__quotation__<tool>` (e.g. `mcp__quotation__m
 
 `match_quotation` recall + scoring is **not** implemented in `quotation-server` JS. Live path: MCP → `python/main.py` → `match_quotation_union` → `wanding_fuzzy_matcher.search_fuzzy` (+ mapping table parallel recall). Final SKU selection is **Claude Code** + `wanding_business_knowledge.md`, not an internal LLM selector.
 
-**Full architecture:** [`quotation-matching-engine.md`](./quotation-matching-engine.md) — token expansion, hard filters, score formula, legacy stub warning, test map.
+**Full architecture:** [`quotation-matching-engine.md`](./quotation-matching-engine.md)
+
+### Research dual-source (Exa + Tavily)
+
+`research-agent` uses skill **`wanding-deep-research`** + Base MCP **exa + tavily**; single MiniMax session; evidence `research/*.md` + `.sources.jsonl`.
+
+**Full architecture:** [`research-dual-source-deep-framework.md`](./research-dual-source-deep-framework.md)
 
 ### `fill_quotation_sheet` Path routing & MCP schema (2026-06-30)
 

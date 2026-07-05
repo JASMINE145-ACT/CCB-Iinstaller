@@ -1,0 +1,7 @@
+{"check": "Root cause main entry price-library MCP", "evidence": "ORCHESTRATOR_BLOCKED only quotation/accurate; resolveSessionMcpConfigs ACP param overlay bypassed empty orchestrator allowlist — user 2026-07-04"}
+{"check": "Fix filterMcpConfigsForOrchestratorSession", "evidence": "agentSessionProfile.ts ORCHESTRATOR_FORBIDDEN_MCP_SERVER_IDS + post-merge filter in resolveSessionMcpConfigs"}
+{"check": "Fix evaluateOrchestratorToolGuard price-library", "evidence": "mcp__price-library__ prefix blocked; message cites Agent(quotation-agent)"}
+{"check": "Unit tests", "evidence": "bun test agentSessionProfile.test.ts 13/13 pass on D:\\claude-code-B after overlay sync"}
+{"check": "Deploy live", "evidence": "bun run build + deploy-claude-code-b-to-wanding.ps1 → D:\\CCB-Wanding\\dist; deploy-seed-agents -ForceMd wande-orchestrator.md"}
+{"check": "code-review", "evidence": "code-reviewer 6f3e5c40 PASS (price-library fix); src mirror sync for delegatable bypass done"}
+{"check": "Manual re-smoke matrix #7", "evidence": "pending — user New Chat main entry 查直接50价格 → expect Agent(quotation-agent); log session mcp servers without price-library"}

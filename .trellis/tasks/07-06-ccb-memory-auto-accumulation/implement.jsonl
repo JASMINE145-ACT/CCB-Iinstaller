@@ -1,0 +1,8 @@
+{"ts":"2026-07-06T12:00:00+08:00","phase":"P4","step":"4a-seed","result":"pass","files":["ccb-installer/resources/memory/*","ccb-installer/scripts/ensure-wanding-settings.ps1"]}
+{"ts":"2026-07-06T12:05:00+08:00","phase":"P4","step":"4b-commands","result":"pass","files":["ccb-installer/resources/commands/记住.md","ccb-installer/scripts/deploy-wanding-commands.ps1"]}
+{"ts":"2026-07-06T12:10:00+08:00","phase":"P4","step":"4c-skill","result":"pass","files":["ccb-installer/config/skills/ccb-personal-memory/"],"tests":"9/9 unittest"}
+{"ts":"2026-07-06T12:15:00+08:00","phase":"P4","step":"4d-hooks","result":"pass","files":["patch-personal-memory-hooks.ps1","deploy-personal-memory-skill.ps1","agents wande-orchestrator/quotation/accurate"]}
+{"ts":"2026-07-06T12:20:00+08:00","phase":"P4","step":"4e-checklist","result":"pass","files":["ccb-installer/dev-test-checklist-1.1.7.md","seed/config-ship-manifest.json gen=5"]}
+{"ts":"2026-07-06T12:25:00+08:00","phase":"P4","step":"review-fixes","result":"pass","note":"business-exclude heuristic; bootstrap 记住.md probe; fail-open hook exit 0; CCB-MEMORY-RULES external template"}
+{"ts":"2026-07-06T12:55:00+08:00","phase":"P5","step":"thinking-async-ui","result":"pass","files":["personal-memory-worker.py","thinking_client.py","learning_status.py","aionui banner+IPC"],"tests":"12/12 python, 2/2 vitest"}
+{"ts":"2026-07-06T14:10:00+08:00","phase":"P6","step":"memory-sider-ui","result":"pass","files":["SiderMemoryEntry","MemoryPage","ccbMemoryFiles","IPC list/read/write"],"tests":"vitest 4/4 path jail"}

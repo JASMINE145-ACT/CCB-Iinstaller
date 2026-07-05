@@ -1,0 +1,12 @@
+{"ts":"2026-07-04T14:40:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/task.json","reason":"Rev2: extension-first scope, valid JSON, relatedFiles point to aionui-src"}
+{"ts":"2026-07-04T14:40:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/execution-plan.md","reason":"Rev2: rejected Rust wecom; SDK primary; security checklist"}
+{"ts":"2026-07-04T14:40:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/prd.md","reason":"Rev2: separated integration modes; v1 scope internal DM+group"}
+{"ts":"2026-07-04T14:40:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/research/gap-analysis-ext-wecom-bot.md","reason":"Gap analysis vs ext-wecom-bot + UI drift"}
+{"ts":"2026-07-04T14:50:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/research/gap-analysis-ext-wecom-bot.md","reason":"Rev3: runtime lifecycle, security register, group rules, go/no-go gate"}
+{"ts":"2026-07-04T14:50:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/research/external-review-chatgpt-2026-07-04.md","reason":"Archive ChatGPT review summary"}
+{"ts":"2026-07-04T14:50:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/execution-plan.md","reason":"Rev3 approval gate P0 before P1; P1a/P1b split"}
+{"ts":"2026-07-04T14:50:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/prd.md","reason":"Rev3 AC: runtime lifecycle, group pairing, security prod label"}
+{"ts":"2026-07-04T15:25:00+08:00","file":"D:/Projects/aionui-src/examples/ext-wecom-aibot/","reason":"P1a: extension scaffold + inbound + sdk-runtime (uncommitted in aionui-src)"}
+{"ts":"2026-07-04T15:25:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/research/p0-extension-channel-runtime-trace.md","reason":"P0 lifecycle trace + conditional go/no-go"}
+{"ts":"2026-07-04T15:25:00+08:00","file":".trellis/spec/integration/wecom-channel.md","reason":"Integration spec draft"}
+{"ts":"2026-07-04T16:00:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/execution-plan.md","reason":"Parked after P1a; resume checklist; assignee not urgent"}

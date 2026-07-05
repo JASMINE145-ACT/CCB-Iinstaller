@@ -1,0 +1,19 @@
+{"ts":"2026-07-06T10:35:00+08:00","phase":"P0","check":"explore-plan-created","result":"pass","note":"task 07-06-ccb-memory-auto-accumulation; gap-inventory initial; execution-plan rev1 draft Scenario E"}
+{"ts":"2026-07-06T10:40:00+08:00","phase":"P1","check":"mvp-scope-approved","result":"pass","note":"personal only; Stop/SubagentStop auto-inject; stop-hook-design.md; target 1.1.7; execution-plan approved rev2"}
+{"ts":"2026-07-06T11:00:00+08:00","phase":"P4-prep","check":"execution-plan-audit-fix","result":"pass","note":"trellis:plan-execution audit: fixed TDD contract stale conditional hook row + added concurrency race/timeout test rows (Stop+SubagentStop concurrent append to workflow.md; hook timeout failure-path). Deferred: deploy-ccb-skills.ps1 file-list gap, packaging recovery command, Release-lite profile naming, rev/plan_revision mismatch."}
+{"ts":"2026-07-06T11:20:00+08:00","phase":"P4-prep","check":"prd-cross-link-boundary","result":"pass","note":"Added Personal 两层边界 + link to 07-06-employee-profile-settings-prompt; workflow.md primary hook target; dedup vs employee-profile.json"}
+{"ts":"2026-07-06T12:30:00+08:00","gate":"code-review","result":"PASS","agent":"code-reviewer","note":"conditional fixes applied: business-exclude, bootstrap 记住, fail-open hook"}
+{"ts":"2026-07-06T12:30:00+08:00","gate":"unit-tests","result":"PASS","command":"python -m unittest discover -s ccb-installer/config/skills/ccb-personal-memory/tests","evidence":"9/9 OK"}
+{"ts":"2026-07-06T12:30:00+08:00","gate":"ensure-smoke","result":"PASS","note":"temp ConfigDir: memory/personal/workflow.md + CLAUDE CCB-MEMORY-RULES block"}
+{"ts":"2026-07-06T12:30:00+08:00","gate":"manual-smoke","result":"OPEN","note":"dev-test-checklist-1.1.7 P3 employee session"}
+{"ts":"2026-07-06T12:45:00+08:00","phase":"P5-plan","check":"plan-execution-rev4","result":"draft","note":"thinking-primary + async enqueue + learning banner; test-records seeded; await approval"}
+{"ts":"2026-07-06T12:55:00+08:00","gate":"unit-tests","result":"PASS","command":"python -m unittest discover -s ccb-installer/config/skills/ccb-personal-memory/tests","evidence":"12/12","artifact":"test-records/unit-20260706.md"}
+{"ts":"2026-07-06T12:55:00+08:00","gate":"unit-tests-ui","result":"PASS","command":"bunx vitest run tests/unit/ccbPersonalMemoryLearning.test.ts","evidence":"2/2","repo":"aionui-src"}
+{"ts":"2026-07-06T12:55:00+08:00","gate":"manual-smoke","result":"OPEN","note":"banner + non-blocking next chat + live thinking"}
+{"ts":"2026-07-06T13:00:00+08:00","gate":"code-review","result":"PASS","agent":"code-reviewer","note":"Important fixes applied: hook fail-open wrap; business filter on thinking entries"}
+{"ts":"2026-07-06T13:30:00+08:00","phase":"P6-plan","check":"memory-sider-ui","result":"draft","note":"Sider 记忆 + personal/business tabs; design memory-sider-ui-design.md; await approval"}
+{"ts":"2026-07-06T14:10:00+08:00","phase":"P6","gate":"unit-tests","result":"PASS","command":"bunx vitest run tests/unit/ccbMemoryFiles.test.ts","evidence":"4/4","repo":"aionui-src"}
+{"ts":"2026-07-06T14:10:00+08:00","phase":"P6","gate":"manual-smoke","result":"OPEN","note":"sider 记忆 + tabs + edit save"}
+
+
+

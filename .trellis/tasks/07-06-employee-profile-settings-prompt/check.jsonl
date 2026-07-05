@@ -1,0 +1,14 @@
+{"ts":"2026-07-05","gate":"code-review","result":"PASS","agent":"code-reviewer","notes":"merge append-only, IPC safe, BUILTIN_TAB_IDS synced, warmup order correct"}
+{"ts":"2026-07-05","gate":"deploy","result":"PASS","commands":["sync-claude-code-b-mcp-prefetch.ps1 -Build -Deploy","sync-aionui-ccb-route-b.ps1","start-dev-full.ps1"],"evidence":"47/47 backend tests; dist chunk-4gv588mk.js contains appendEmployeeProfileToUserContext; electron running"}
+{"ts":"2026-07-05","gate":"manual-smoke","result":"PASS","phase":"P5","ac":["AC3","AC4"],"profile":{"displayName":"祐嘉诚","department":"IP 部门","jobTitle":"Ai agent 开发","email":"jiacheny@umich.edu","phone":"17743135750","notes":"负责 Mixing 的维护"},"prompts":["我是谁"],"evidence":"Assistant listed all registered fields correctly; user message contained no profile JSON","artifact":"p5-dev-smoke-done.md","partial":"Proactive name address in casual turns not yet required (P8)"}
+{"ts":"2026-07-05","gate":"code-review","result":"PASS","phase":"P8","agent":"code-reviewer","notes":"addressName derivation + behavior contract; mirrors in sync"}
+{"ts":"2026-07-05","gate":"test","result":"PASS","phase":"P8","command":"vitest employeeProfileShared.test.ts + sync-claude-code-b-mcp-prefetch -Build -Deploy","evidence":"aionui 6/6; backend 47/47 on deploy"}
+{"ts":"2026-07-05","gate":"manual-smoke","result":"PASS","phase":"P8","ac":"AC8","notes":"user confirmed"}
+{"ts":"2026-07-05","gate":"plan-execution","result":"DRAFT","phase":"P9","ac":"AC9","artifact":"execution-plan.md#P9,research/explore-subagent-employee-profile-2026-07-05.md,test-records.md","notes":"Subagent injection Option A: runAgent post-resolvedUserContext merge; await approve"}
+{"ts":"2026-07-05","gate":"plan-execution","result":"APPROVED","phase":"P9","notes":"user said 执行"}
+{"ts":"2026-07-05","gate":"code-review","result":"PASS","phase":"P9","agent":"code-reviewer","id":"8bc319be"}
+{"ts":"2026-07-05","gate":"test","result":"PASS","phase":"P9","command":"sync-claude-code-b-mcp-prefetch.ps1 -Build -Deploy","evidence":"54/54; dist chunk-k80fbpva.js has mergeEmployeeProfileIntoResolvedUserContext"}
+{"ts":"2026-07-05","gate":"manual-smoke","result":"PASS","phase":"P9","ac":"AC9","notes":"user confirmed"}
+{"ts":"2026-07-05","gate":"task","result":"PASS","phase":"complete","notes":"AC1-AC9 all PASS; status completed"}
+{"ts":"2026-07-05","gate":"docs","result":"PASS","phase":"P9","spec":"acp-session-flow.md,agents-unified-model.md"}
+{"ts":"2026-07-06","gate":"docs","result":"PASS","note":"PRD cross-link Personal 两层边界 with 07-06-ccb-memory-auto-accumulation"}

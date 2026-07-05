@@ -1,0 +1,37 @@
+{
+  "id": "platform-business-architecture-separation",
+  "name": "platform-business-architecture-separation",
+  "title": "平台/业务架构边界地图与改动归类标准（Scenario E 审计，零行为变更）",
+  "description": "07-03 已完成产品装配层解耦；本 task 补代码/目录级缺口：A1 平台路径行级残留耦合审计（含 aionui-src 只读）+ A2 全目录归属表 + boundary-map spec（含 3-5 问改动归类决策树，用 5 类 curated commit 实测）+ 带 priority/transition-ok 的分离 backlog。不搬代码、不实现 lint 门禁。",
+  "status": "planning",
+  "dev_type": "docs",
+  "scope": "architecture-audit",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-05",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    ".trellis/spec/integration/platform-vertical-packages.md",
+    ".trellis/spec/integration/index.md",
+    "docs/platform-system-business-decoupling-optimization.md",
+    ".trellis/tasks/07-03-platform-business-decoupling/status.md",
+    ".trellis/tasks/06-25-architecture-business-system-boundaries"
+  ],
+  "notes": "上位任务链：06-25（早期目录边界）→ 07-03（产品装配层解耦 P0-P5）→ 本 task（代码级边界地图）。主交付物 .trellis/spec/integration/platform-business-boundary-map.md。",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "scenario": "E",
+    "verification_profile": "Fast",
+    "behavior_change": "none"
+  }
+}

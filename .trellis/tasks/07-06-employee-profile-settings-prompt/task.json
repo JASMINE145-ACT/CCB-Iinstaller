@@ -1,0 +1,31 @@
+{
+  "id": "employee-profile-settings-prompt",
+  "name": "07-06-employee-profile-settings-prompt",
+  "title": "Settings 个人信息 → AI System Prompt 注入",
+  "description": "Add Settings → 个人信息 page for employee name/department/title; persist via configService; sync to CCB config dir at warmup; merge into userContextOverride.claudeMd at session/new so AI knows current user without polluting chat input.",
+  "status": "completed",
+  "dev_type": "feature",
+  "scope": "aionui-src settings UI + CCB agentSessionProfile merge; cross-repo handoff file",
+  "package": "frontend",
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-05",
+  "relatedFiles": [
+    "aionui-src/packages/desktop/src/renderer/pages/settings/components/SettingsSider.tsx",
+    "aionui-src/packages/desktop/src/common/config/configKeys.ts",
+    "aionui-src/packages/desktop/src/common/config/ccbAssistantProfileSession.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/conversation/utils/warmupConversation.ts",
+    "claude-code-B/src/services/acp/agentSessionProfile.ts",
+    "claude-code-B/src/services/acp/agent.ts",
+    ".trellis/spec/frontend/file-map.md",
+    ".trellis/spec/backend/acp-session-flow.md"
+  ],
+  "notes": "2026-07-05: AC1–AC9 PASS (user smoke). Main + Agent-tool subagents get employee-profile.json. Dev-only; NSIS deferred.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "UI",
+    "scenario": "D"
+  },
+  "completedAt": "2026-07-05"
+}

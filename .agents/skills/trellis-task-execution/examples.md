@@ -1,27 +1,35 @@
 # Examples — trellis-task-execution
 
-## Example 0: Execution plan artifact (all tasks)
+## Example 0: Execution plan artifact (Step 3b gold standard)
 
-After `/trellis:plan-execution`, persist:
+After `/trellis:plan-execution`, persist **before** `执行 task` / coding:
 
 ```
-.trellis/tasks/<task-dir>/execution-plan.md   # Status: draft → approved → in_progress
-.trellis/tasks/<task-dir>/p0b-*-done.md     # Per-phase delivery notes (optional)
+.trellis/tasks/<task-dir>/execution-plan.md   # Status: draft → approved → in_progress → completed
+.trellis/tasks/<task-dir>/p0b-*-done.md     # Per-phase delivery notes (recommended)
 ```
 
 **Resume rule:** New agent session reads `execution-plan.md` **Active phase** row — not chat history.
 
-Reference: [`07-01-price-library-admin-agent/execution-plan.md`](../../.trellis/tasks/07-01-price-library-admin-agent/execution-plan.md)
+**Primary reference (plan written before implement):** [`07-01-price-library-admin-agent/execution-plan.md`](../../.trellis/tasks/07-01-price-library-admin-agent/execution-plan.md)
 
 ---
 
-## Example 1: MCP health coverage (`07-02`)
+## Example 1: MCP health coverage (`07-02`) — Scenario D-lite
 
-**Scenario:** D-lite (two repos)
-
+**Scenario:** D-lite (two repos)  
 **Spec:** `.trellis/spec/integration/mcp-health.md`
 
-### Full phase table (as executed)
+**Compliance note:** Task completed 2026-07-02 with jsonl + spec only. `execution-plan.md` and done record were **retroactively backfilled** 2026-07-03 — do not treat as the Step 3b gold path; use for integration phase mapping + merge rules.
+
+| Artifact | Path |
+|----------|------|
+| Plan (retroactive) | [`execution-plan.md`](../../.trellis/tasks/07-02-mcp-health-coverage-expansion/execution-plan.md) |
+| Done | [`mcp-health-coverage-expansion-done.md`](../../.trellis/tasks/07-02-mcp-health-coverage-expansion/mcp-health-coverage-expansion-done.md) |
+| Session trace | `implement.jsonl`, `check.jsonl` |
+| Code | commit `a83358b4` |
+
+### Phase table (reconstructed from artifacts — matches execution-plan.md)
 
 ```
 Phase 0  激活
@@ -40,7 +48,7 @@ Phase 3  P1 Workstream B（Session 探针 UI）
   spike：IPC 是否复用 test-mcp-session-health.mjs
   注意：串行、~30s，UI 要有 loading 态
 
-Phase 4  P2 Workstream D（exa / ppt skill）— 可 defer
+Phase 4  P2 Workstream D（exa / ppt skill）
   optional layer WARN 语义
   exa HTTP 不可达不阻塞 core 4
 

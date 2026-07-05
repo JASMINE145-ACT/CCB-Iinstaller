@@ -243,6 +243,44 @@ NSIS compresses ~2.66 GB staging to ~888 MB with zlib; the compression phase has
 
 ---
 
+## 5.3 Bootstrap failure: generation 4 resources missing from NSIS payload (1.1.6)
+
+**Symptom**: Same NSIS dialog as §5.1 — bootstrap exit code 1 on fresh 1.1.6 install. File copy succeeds; AionUi.exe is present.
+
+**Root cause (two layers)**:
+1. **Staging vs NSIS**: `build-wanding.ps1` staged generation-4 files, but `installer-wanding-v2.nsi` only copied `seed/skills/ccb-subagent-gate` — not `quotation-learn-by-data`, `price-library-edit`, `wanding-deep-research`, `resources/commands`, `config/`, or `packages/`.
+2. **Script fallback**: Deploy/probe scripts fall back to dev-repo paths (`D:\ccb-installer\...` or `...\packages\vertical\...`) when `$InstallDir\seed|config|resources` paths are missing → fails on employee PCs.
+
+**Log signature (install dir e.g. `D:\CCB-Wanding`)**:
+```
+FAIL apply-ship-config-reset / deploy-ccb-skills — Source skill not found: ...\seed\skills\quotation-learn-by-data
+FAIL deploy-wanding-commands — No WanD slash commands deployed (missing resources/commands/learn-by-data.md)
+FAIL install-research-toolstack — Missing manifest: ...\config\research-capability-manifest.json
+```
+
+**Fix** (1.1.6 repack 2026-07-05):
+1. `installer-wanding-v2.nsi` — copy all four seed skills + `$INSTDIR\resources` + `$INSTDIR\config` + `$INSTDIR\packages\vertical\com.wanding.trade`.
+2. `build-wanding.ps1` — `Test-NsisPayloadCoverage` before `makensis` (fail-closed).
+3. `probe-research-capabilities.ps1` — resolve manifest from `$InstallDir\config\` first (2026-07-04).
+4. `build-wanding.ps1` — ship manifest into staging `config\` (2026-07-04).
+
+**Post-install verify** (under `$INSTDIR`):
+```powershell
+@(
+  'seed\skills\quotation-learn-by-data\SKILL.md',
+  'resources\commands\learn-by-data.md',
+  'config\research-capability-manifest.json'
+) | ForEach-Object { Test-Path (Join-Path $env:INSTDIR $_) }
+```
+
+**Pre-ship smoke**:
+```powershell
+& "$InstallDir\scripts\run-wanding-bootstrap.ps1" -InstallDir $InstallDir -Mode Full
+# Must end with: bootstrap complete (marker written)
+```
+
+---
+
 ## 5.2 AionCore version mismatch: staging stale binary causes DB migration crash
 
 **Symptom**: After installing 1.1.3, AionUI shows "AionCore 无法启动" on machines that previously ran AionUI Dev or a newer AionCore build. AionCore log:
@@ -276,6 +314,22 @@ Or use the `-AioncorePath` flag on `build-wanding.ps1` to inject automatically:
 **Two-version invariant**: `staging bundled aioncore.exe` version **must equal** `AionCore\target\release\aioncore.exe` version before NSIS runs. A mismatch means the package downgrades AionCore on employee machines → DB migration forward-incompatibility → crash.
 
 **Fixed in 1.1.3 repack (2026-06-29 20:27)**: injected `0.1.29` into staging before NSIS; EXE grew from 847.4 MB → 850.1 MB.
+
+**Recurred in 1.1.6 (2026-07-05)**: incremental repacks used `-SkipAionUiBuild` without `-AioncorePath`, so NSIS shipped aioncore **0.1.28** (mtime 2026-06-11, ~68 MB) from stale `aionui-src\out\win-unpacked`. Employee machines that previously ran Dev / 0.1.29+ had `aionui-backend.db` with migration **12+** applied → same `Migration failed: migration 12 was previously applied but is missing` → UI misreports「AionUi 安装不完整 / AionCore 无法启动」(misleading: files are present; DB schema is newer than the bundled binary).
+
+**Workaround on employee PC** (loses local chat / login cache): quit AionUi + aioncore, delete `%APPDATA%\AionUi` (or only `aionui\aionui-backend.db`), relaunch.
+
+**Proper fix**: always inject self-built aioncore before NSIS:
+
+```powershell
+.\ccb-installer\scripts\build-wanding.ps1 -Version 1.1.6 `
+  -SkipBuild -SkipAionUiBuild -SkipPipMcp -SkipStagingClear `
+  -AioncorePath D:\Projects\claude-code-best\AionCore\target\release\aioncore.exe
+```
+
+**1.1.6 repack (2026-07-05)**: injected `0.1.29` (migrations through `018_price_library_supplier.sql`). Pre-ship check: staging `aioncore.exe --version` must print `aioncore 0.1.29`.
+
+**UI note**: the dialog is **not** incomplete install and **not** antivirus quarantine — it is AionCore bootstrap failing at `database.migration` after a version downgrade.
 
 ---
 

@@ -516,7 +516,7 @@ quotation MCP (match_fuzzy, try_remote=True)
 
 - Sidecar `requires_price_admin: true`, `delegatable: false`
 - Skill `price-library-edit` — bulk 三分法 + prepare script SOP (P2-Edit)
-- Hooks (P2-Edit): PreToolUse `data.Md` gate on upsert/apply; PostToolUse confirm nudge; Stop warn if draft applied without publish
+- Hooks (P2-Edit): PreToolUse `data.Md` gate on upsert/apply; PostToolUse `post-data-md-read-mark.py` on Read (subagent + flush race, 2026-07-05); confirm nudge; Stop warn if draft applied without publish
 - AionUI catalog probes `GET /api/price-library/draft` — non-admin **no**「价格库管理」card
 - `CCB_GUID_ONLY_AGENT_IDS` excludes price-library from orchestrator delegation index
 - Deploy: `deploy-seed-agents.ps1 -ForceMd` → `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\`

@@ -1,0 +1,60 @@
+{
+  "id": "07-05-research-dual-source-deep-framework",
+  "name": "07-05-research-dual-source-deep-framework",
+  "title": "Research 双源深度调研框架 (Exa+Tavily)",
+  "description": "Approach A: wanding-deep-research skill + research-agent L1; Exa+Tavily dual MCP; deep-research phase framework; single MiniMax process (no Task/sub-LLM). Explore done 2026-07-04; target 1.1.6 packaging backlog, no exe until approved.",
+  "status": "in_progress",
+  "dev_type": "implementation",
+  "scope": "ccb-installer agents + skills + platform MCP + subagent-gate + mcp-health; child of 06-28 research toolstack",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-04",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "06-28-research-agent-toolstack",
+  "relatedFiles": [
+    ".agents/skills/wanding-deep-research/SKILL.md",
+    "ccb-installer/config/agents/research-agent.md",
+    "ccb-installer/config/agents/research-agent.aionui.json",
+    "ccb-installer/config/research-capability-manifest.json",
+    "ccb-installer/config/runtime/platform.defaults.json",
+    "ccb-installer/config/mcp-health-manifest.json",
+    "ccb-installer/scripts/install-research-toolstack.ps1",
+    "ccb-installer/scripts/probe-research-capabilities.ps1",
+    "ccb-installer/config/skills/ccb-subagent-gate/scripts/validators/research-agent-mcp.sh",
+    "ccb-installer/packaging-backlog-1.1.6.md",
+    ".trellis/spec/backend/mcp-business.md"
+  ],
+  "notes": "2026-07-04: Approach A implemented. Keys in gitignored research.env. Probe PASS (exa+tavily). Packaging ship path wired (build-wanding seed + install-ppt-master). Guid manual smoke pending.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "Release+UI",
+    "approach": "A-wanding-deep-research-skill",
+    "workstreams": [
+      "A-wanding-deep-research-skill",
+      "B-research-agent-l1",
+      "C-tavily-mcp-platform",
+      "D-gate-probe-health",
+      "E-spec-backlog",
+      "F-tests-smoke"
+    ],
+    "phases": {
+      "P0": ["read-spec-baseline"],
+      "P1": ["A", "B"],
+      "P2": ["C", "D"],
+      "P3": ["E", "F"]
+    },
+    "related_tasks": [
+      "06-28-research-agent-toolstack"
+    ],
+    "packaging_backlog": "ccb-installer/packaging-backlog-1.1.6.md#issue-4"
+  }
+}

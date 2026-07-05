@@ -1,0 +1,36 @@
+{
+  "id": "quotation-match-acp-upstream-error",
+  "name": "07-07-quotation-match-acp-upstream-error",
+  "title": "Debug quotation match_quotation ACP -32603 upstream error",
+  "description": "Guid 万鼎报价专家: match_quotation → UNKNOWN_UPSTREAM_ERROR (Agent internal -32603); retry → AIONUI_INTERNAL_ERROR. MCP probe/session PASS; isolate ACP turn layer.",
+  "status": "in_progress",
+  "dev_type": "bugfix",
+  "scope": "ccb-installer + aionui-src (+ claude-code-B if runtime)",
+  "package": "integration",
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-07",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "relatedFiles": [
+    "ccb-installer/scripts/test-mcp-probe-layer.mjs",
+    "ccb-installer/test-native-acp-agent.mjs",
+    "ccb-installer/config/skills/ccb-subagent-gate/scripts/pre-match-knowledge-gate.py",
+    "aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/hooks.ts",
+    "python/quotation/match_dispatch.py"
+  ],
+  "notes": "User screenshot 2026-07-05. Plan-only until 执行.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "Standard+UI",
+    "scenario": "C",
+    "plan_revision": 2,
+    "phase": "P4-done-P5-pending-approval",
+    "tracks": {
+      "A": "ACP -32603 upstream (blocked)",
+      "B": "hook transcript parity (P5-P7)"
+    }
+  }
+}

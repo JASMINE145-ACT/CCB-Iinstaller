@@ -56,6 +56,25 @@ Cross-layer contract: [`../integration/aionui-ccb-boundary.md`](../integration/a
 
 ---
 
+## Employee profile at `session/new` + Agent-tool subagents (2026-07-05)
+
+When the user fills **Settings → 个人信息**, AionUI persists `user.employeeProfile` (client settings) and syncs `%LOCALAPPDATA%\CCB-Wanding\.claude\employee-profile.json` on **save** and before **warmup**.
+
+| Source | Location | Notes |
+|--------|----------|-------|
+| Settings UI | aionui-src `EmployeeProfileModalContent.tsx` | Prefills `displayName` from auth `username` when empty |
+| Persist | `configService` → `user.employeeProfile` | Not written into chat input |
+| Sync handoff | `ccbEmployeeProfileSession.ts` → `employee-profile.json` | Cleared profile writes `{ cleared_at }` tombstone |
+| Warmup order | `warmupConversation.ts` | assistant profile → employee profile → `/warmup` |
+| Main agent merge | `employeeProfile.ts` → `appendEmployeeProfileToUserContext` | End of `resolveSessionUserContextOverride` — **append**, never replace assistant `claudeMd` |
+| Subagent merge (P9) | `runAgent.ts` → `mergeEmployeeProfileIntoResolvedUserContext` | After `omitClaudeMd`; reads same JSON; **idempotent** on marker `# 当前用户 / Current user` |
+
+**Does not** pass parent orchestrator / specialist `claudeMd` into subagents (avoids L0 bleed). Identity only.
+
+Task: `.trellis/tasks/07-06-employee-profile-settings-prompt/`
+
+---
+
 ## MCP registration (source — verified 2026-06-12)
 
 Task `06-12-buildmcp-source-migration` completed. `agent.ts createSession()` now:

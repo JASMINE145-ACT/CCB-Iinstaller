@@ -173,6 +173,23 @@ Base path: `D:\CCB-Wanding\vendor\wanding\data\` (install `vendor\wanding\data\`
 L0 CLAUDE.md 只保留写入规则和路径说明；强制预读指令已移除（2026-06-17）。 
 各 agent L1 文件维护自己的触发规则和写入指引。Office agent（word/excel/ppt）不读 business memory。
 
+### Personal memory Stop hook (1.1.7)
+
+**Task:** `07-06-ccb-memory-auto-accumulation`
+
+| Layer | Source | When |
+|-------|--------|------|
+| Structured identity | Settings → `employee-profile.json` | Session start (`userContextOverride`) **and** Agent-tool `runAgent` merge (P9, 2026-07-05) |
+| Work habits | `memory/personal/workflow.md` | Stop/SubagentStop → **background** minimax-m3-thinking extract |
+
+- Skill: `ccb-personal-memory` — `post-personal-memory-stop.py` **enqueues only** (before `subagent-gate.sh`); `personal-memory-worker.py` runs detached.
+- Primary: Anthropic-compatible Messages API (`minimax-m3-thinking`); fallback: keyword heuristics inside worker.
+- Status: `.claude/memory/.learning-status.json` → AionUI banner「Agent 正在学习记录您的习惯」while `learning` (stale 90s).
+- Agents: `wande-orchestrator` (Stop), `quotation-agent`, `accurate-agent` (SubagentStop via same Stop hooks).
+- Seed: `ensure-wanding-settings.ps1` → `memory/personal/*` only (no `business/` seed in 1.1.7).
+- Manual: `/记住` → personal paths only. Business/org rules stay on `append_business_rule`.
+- **UI (P6):** AionUI sider **记忆** → `/memory` tabs personal \| business; browse/edit files under `.claude/memory/` (path-jailed IPC).
+
 ### Fast path vs delivery path (2026-06-18g)
 
 High-frequency chat agents should load the smallest MCP set that can produce a valid answer. Artifact delivery or post-processing should be a separate entry when it needs heavier tools.

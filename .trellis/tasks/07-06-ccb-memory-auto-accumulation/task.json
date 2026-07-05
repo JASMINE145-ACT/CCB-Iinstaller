@@ -1,0 +1,31 @@
+{
+  "id": "ccb-memory-auto-accumulation",
+  "name": "07-06-ccb-memory-auto-accumulation",
+  "title": "CCB personal memory thinking-primary auto-learn (1.1.7)",
+  "description": "Stop enqueues background minimax-m3-thinking extract; appends workflow.md; AionUI learning banner. Pure auto, non-blocking.",
+  "status": "in_progress",
+  "dev_type": "implementation",
+  "scope": "ccb-installer + aionui-src",
+  "package": "integration",
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-06",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "relatedFiles": [
+    "ccb-installer/config/skills/ccb-personal-memory/",
+    "aionui-src packages/desktop personal memory banner"
+  ],
+  "notes": "P6 implemented: sider 记忆, /memory personal|business, path-jail IPC. Manual smoke open.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "UI",
+    "scenario": "D",
+    "plan_revision": 5,
+    "phase": "P6-manual-smoke-open",
+    "target_release": "1.1.7",
+    "mvp": "thinking-primary-async-ui"
+  }
+}

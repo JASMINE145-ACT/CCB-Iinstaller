@@ -10,11 +10,11 @@
 |---|---|---|
 | Message list / dedup / merge | `packages/desktop/src/common/chat/chatLib.ts` (`composeMessage` exported, base impl) + `packages/desktop/src/renderer/pages/conversation/Messages/hooks.ts` (`composeMessageWithIndex` local, O(1)-indexed) | Entry: `hooks.ts#useAddOrUpdateMessage`; `rg "^export const composeMessage" chatLib.ts` |
 | Thinking block (collapse/expand) | `packages/desktop/src/renderer/pages/conversation/Messages/components/MessageThinking.tsx` | `useState(false)` default collapsed; user toggles via header |
-| AskUserQuestion permission UI | `packages/desktop/src/renderer/pages/conversation/Messages/acp/MessageAcpPermission.tsx` | Orchestrates single vs AskUserQuestion; see `chat-acp-flow.md` §3.5b |
-| AskUserQuestion card (table, multiSelect) | `…/acp/MessageAskUserQuestionCard.tsx` | Table layout, price column, awaiting-next / cancelled / success states |
-| AskUserQuestion nav (1/3 progress) | `…/acp/AskUserQuestionNavBar.tsx` | Multi-question chips + progress counter |
-| AskUserQuestion option id encode | `…/acp/askUserQuestionIds.ts` | `auq:` / `auqm:` — must match `permissions.ts` |
-| AskUserQuestion option parsing | `…/acp/askUserQuestionFormat.ts` | Code/price column parsing for quotation tables |
+| AskUserQuestion permission UI | `packages/desktop/src/renderer/pages/conversation/Messages/acp/MessageAcpPermission.tsx` | Generic Allow/Reject only on CCB; **AUQ routing dormant** — see `chat-acp-flow.md` §3.5b |
+| AskUserQuestion card (table, multiSelect) | `…/acp/MessageAskUserQuestionCard.tsx` | **Dormant** — zero imports; kept for future AUQ re-enable |
+| AskUserQuestion nav (1/3 progress) | `…/acp/AskUserQuestionNavBar.tsx` | **Dormant** — multi-question chips (historical) |
+| AskUserQuestion option id encode | `…/acp/askUserQuestionIds.ts` | `auq:` / `auqm:` — helpers + tests; backend deny on CCB today |
+| AskUserQuestion option parsing | `…/acp/askUserQuestionFormat.ts` | Code/price column parsing (dormant UI) |
 | Slash capability merge | `packages/desktop/src/common/chat/slash/merge.ts` + `types.ts` | CCB authoritative; shell `aionui-shell` fills gaps |
 | Slash command load (ACP) | `platforms/acp/useAcpMessage.ts` + `hooks/chat/useSlashCommands.ts` | warmup → `getSlashCommands`; stream `available_commands` |
 | Tool-call result UI | `packages/desktop/src/renderer/pages/conversation/Messages/acp/MessageAcpToolCall.tsx` | Tool result rendering, file changes display |
@@ -101,6 +101,7 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Sidebar entry + pending badge | `packages/desktop/src/renderer/components/layout/Sider/SiderNav/SiderWorkTasksEntry.tsx` |
 | Sidebar org data entries (知识库 + 价格库) | `Sider/index.tsx` — flat peers after 「任务」; same row style as `SiderScheduledEntry` / `SiderWorkTasksEntry` (`h-34px`, icon + text); gated by `isOrgServerConfigured()` |
 | Org knowledge sidebar entry | `SiderNav/SiderOrgKnowledgeEntry.tsx` → `#/org-knowledge` |
+| Memory sidebar entry (personal/business files) | `SiderNav/SiderMemoryEntry.tsx` → `#/memory` · page `pages/memory/MemoryPage` · IPC `ccbPersonalMemoryService.listFiles/readFile/writeFile` · path jail `ccbMemoryFiles.ts` — task `07-06-ccb-memory-auto-accumulation` P6 |
 | Price library sidebar entry | `SiderNav/SiderPriceLibraryEntry.tsx` → `#/price-library` |
 | **Wiring status (2026-06-26)** | Routes + sider entry + `AuthContext` desktop SSO **wired** (uncommitted). API needs self-built aioncore (`/api/work-tasks` 404 on bundled 0.1.27). |
 | Auth user `work_task_role` + session token | `packages/desktop/src/common/auth/authSession.ts`, `packages/desktop/src/renderer/hooks/context/AuthContext.tsx` |
@@ -108,7 +109,8 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Team members admin (manager) | `packages/desktop/src/renderer/pages/settings/TeamMembersPage.tsx`, route `#/settings/team-members` |
 | Auth IPC (`listUsers`, `createUser`, `updateWorkTaskRole`) | `packages/desktop/src/common/adapter/ipcBridge.ts` → `auth.*` |
 | Settings builtin tab ids (keep Sider + Wrapper in sync) | `SettingsSider.tsx` `BUILTIN_TAB_IDS` + `SettingsPageWrapper.tsx` `getBuiltinSettingsNavItems` — see [`coding-rules.md`](./coding-rules.md) §7 |
-| Routes | `packages/desktop/src/renderer/components/layout/Router.tsx` — `/tasks`, `/tasks/:task_id`, `#/settings/team-members` |
+| **Employee profile (Settings → 个人信息)** | `SettingsSider` tab `profile` · `EmployeeProfileSettings/` · `EmployeeProfileModalContent.tsx` · `configKeys` `user.employeeProfile` · IPC `ccbEmployeeProfileService.syncProfile` · warmup `stageEmployeeProfileForSession.ts` — task `07-06-employee-profile-settings-prompt` |
+| Routes | `packages/desktop/src/renderer/components/layout/Router.tsx` — `/tasks`, `/tasks/:task_id`, `#/settings/team-members`, `#/settings/profile` |
 | i18n strings | `packages/desktop/src/renderer/services/i18n/locales/{zh-CN,en-US}/workTasks.json` |
 | File upload (attachments) | `packages/desktop/src/renderer/services/FileService.ts` → `uploadFileViaHttp` |
 | Attachment download helper | `packages/desktop/src/renderer/utils/file/download.ts` → `downloadFileFromPath` |

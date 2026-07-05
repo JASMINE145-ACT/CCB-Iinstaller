@@ -1,0 +1,4 @@
+{"file": ".trellis/tasks/07-05-platform-business-architecture-separation/prd.md", "reason": "对照 AC1-AC6 逐条验收"}
+{"file": ".trellis/tasks/07-05-platform-business-architecture-separation/execution-plan.md", "reason": "核对各 Phase 交付物与证据行是否齐全、TDD N/A 理由与零行为变更证据"}
+{"file": ".trellis/spec/integration/platform-vertical-packages.md", "reason": "核对 boundary-map 归属结论与 ADR §3/§17 无冲突；冲突须有 open-question 回写"}
+{"file": ".trellis/spec/integration/index.md", "reason": "AC6：确认 boundary-map 入口行已加"}

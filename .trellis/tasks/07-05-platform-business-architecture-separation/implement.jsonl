@@ -1,0 +1,7 @@
+{"file": ".trellis/tasks/07-05-platform-business-architecture-separation/prd.md", "reason": "本 task 目标、文档关系、AC1-AC6 验收标准"}
+{"file": ".trellis/tasks/07-05-platform-business-architecture-separation/execution-plan.md", "reason": "分阶段执行计划：A1/A2 审计 → B 边界地图 → C backlog → D 门禁"}
+{"file": ".trellis/spec/integration/platform-vertical-packages.md", "reason": "目标架构 ADR：分层（§3）、九大改造域（§4）、P0 禁止清单（§10）——审计与归属判定的上位依据"}
+{"file": "docs/platform-system-business-decoupling-optimization.md", "reason": "权威设计文档：§17 抽取边界清单是 mixed/business 判据来源"}
+{"file": ".trellis/tasks/07-03-platform-business-decoupling/prd.md", "reason": "前情：P0-P5 已完成范围，避免重复审计已解耦项"}
+{"file": ".trellis/tasks/07-03-platform-business-decoupling/status.md", "reason": "前情：各 Phase 证据与遗留人工验收项，backlog 需与之去重"}
+{"file": ".trellis/spec/integration/index.md", "reason": "AC6：需新增 boundary-map 入口行"}
