@@ -32,6 +32,7 @@ import {
   resolveAssistantProfileIdFromMeta,
   type CcbAssistantProfile,
 } from './assistantProfiles.js'
+import { appendEmployeeProfileToUserContext } from './employeeProfile.js'
 
 export type AgentSessionProfileSource = 'agent' | 'assistant'
 
@@ -135,9 +136,12 @@ export function resolveSessionUserContextOverride(args: {
   assistantProfile: CcbAssistantProfile | null | undefined
   sessionProfileId: string | undefined
   presetContext?: string
+  configDir?: string
 }): { [k: string]: string } | undefined {
-  const { assistantProfile, sessionProfileId, presetContext } = args
+  const { assistantProfile, sessionProfileId, presetContext, configDir } = args
   const currentDate = `Today's date is ${new Date().toISOString().slice(0, 10)}.`
+
+  let base: { [k: string]: string } | undefined
 
   if (assistantProfile) {
     const systemPrompt = assistantProfile.instructions.system_prompt?.trim()
@@ -145,48 +149,45 @@ export function resolveSessionUserContextOverride(args: {
     if (systemPrompt) {
       if (isSpecialistDirectSession(sessionProfileId, assistantProfile)) {
         const id = normalizeAgentId(sessionProfileId!)
-        return {
+        base = {
           claudeMd: `# 专家会话 / Specialist session\n\n本会话已绑定 **${id}**。你是该领域专家，**直接调用专属 MCP**；勿委派给其他 agent，勿套用全局路由（wande-orchestrator）规则。`,
           currentDate,
         }
+      } else {
+        base = { currentDate }
       }
-      return { currentDate }
-    }
-
-    const fromSidecar = buildAssistantClaudeMdContext(assistantProfile)
-    if (fromSidecar?.claudeMd) return fromSidecar
-
-    if (
-      sessionProfileId &&
-      normalizeAgentId(sessionProfileId) === CCB_DEFAULT_SESSION_AGENT_ID
-    ) {
-      return { claudeMd: WANDE_ORCHESTRATOR_ROUTER_CLAUDE_MD, currentDate }
-    }
-
-    if (isSpecialistDirectSession(sessionProfileId, assistantProfile)) {
-      const id = normalizeAgentId(sessionProfileId!)
-      return {
-        claudeMd: `# 专家会话 / Specialist session\n\n本会话已绑定 **${id}**。你是该领域专家，**直接调用专属 MCP**；勿委派给其他 agent，勿套用全局路由（wande-orchestrator）规则。`,
-        currentDate,
+    } else {
+      const fromSidecar = buildAssistantClaudeMdContext(assistantProfile)
+      if (fromSidecar?.claudeMd) {
+        base = fromSidecar
+      } else if (
+        sessionProfileId &&
+        normalizeAgentId(sessionProfileId) === CCB_DEFAULT_SESSION_AGENT_ID
+      ) {
+        base = { claudeMd: WANDE_ORCHESTRATOR_ROUTER_CLAUDE_MD, currentDate }
+      } else if (isSpecialistDirectSession(sessionProfileId, assistantProfile)) {
+        const id = normalizeAgentId(sessionProfileId!)
+        base = {
+          claudeMd: `# 专家会话 / Specialist session\n\n本会话已绑定 **${id}**。你是该领域专家，**直接调用专属 MCP**；勿委派给其他 agent，勿套用全局路由（wande-orchestrator）规则。`,
+          currentDate,
+        }
+      } else {
+        base = { currentDate }
       }
     }
-
-    return { currentDate }
-  }
-
-  if (sessionProfileId?.trim()) {
+  } else if (sessionProfileId?.trim()) {
     const id = normalizeAgentId(sessionProfileId)
-    return {
+    base = {
       claudeMd: `# 会话 agent: ${id}\n\nagents/${id} profile 未找到；请检查 live agents 目录或重新 deploy 种子。`,
       currentDate,
     }
+  } else if (presetContext?.trim()) {
+    base = { claudeMd: presetContext.trim(), currentDate }
+  } else {
+    base = undefined
   }
 
-  if (presetContext?.trim()) {
-    return { claudeMd: presetContext.trim(), currentDate }
-  }
-
-  return undefined
+  return appendEmployeeProfileToUserContext(base, configDir)
 }
 
 export function resolveDefaultSessionAgentId(
@@ -500,15 +501,27 @@ export function repairAgentMarkdownBomIfNeeded(
   return repaired
 }
 
+export type FilterDelegatableCustomAgentsOptions = {
+  /** When true, router-delegatable specialists stay available even if sidecar delegatable:false */
+  orchestratorSession?: boolean
+}
+
 export function filterDelegatableCustomAgents(
   agents: AgentDefinition[],
   configDir = getClaudeConfigHomeDir(),
+  options?: FilterDelegatableCustomAgentsOptions,
 ): AgentDefinition[] {
   return agents.filter(agent => {
     if (isBuiltInAgent(agent) || isPluginAgent(agent)) {
       return true
     }
     const lookupId = agent.filename ?? agent.agentType
+    if (
+      options?.orchestratorSession &&
+      CCB_ROUTER_DELEGATABLE_AGENT_IDS.has(lookupId)
+    ) {
+      return true
+    }
     return isAgentDelegatable(lookupId, configDir)
   })
 }
@@ -568,7 +581,36 @@ export function appendWanDDelegationIndex(
 const ORCHESTRATOR_BLOCKED_MCP_PREFIXES = [
   'mcp__quotation__',
   'mcp__accurate__',
+  'mcp__price-library__',
 ] as const
+
+/** Business MCP server ids — must not appear on wande-orchestrator sessions (incl. ACP param overlay). */
+export const ORCHESTRATOR_FORBIDDEN_MCP_SERVER_IDS = new Set([
+  'quotation',
+  'accurate',
+  'price-library',
+  'excel',
+  'excel-mcp',
+  'exa',
+  'tavily',
+  'scrapling',
+  'office-word',
+])
+
+export function filterMcpConfigsForOrchestratorSession<T>(
+  configs: Record<string, T>,
+  sessionProfileId: string | undefined,
+): Record<string, T> {
+  if (!isWandeOrchestratorSession(sessionProfileId)) {
+    return configs
+  }
+  return Object.fromEntries(
+    Object.entries(configs).filter(([name]) => {
+      const normalized = name.trim().toLowerCase()
+      return !ORCHESTRATOR_FORBIDDEN_MCP_SERVER_IDS.has(normalized)
+    }),
+  )
+}
 
 const WANDING_BUSINESS_SOP_MARKERS = [
   'ccb-wanding-quotation',
@@ -656,7 +698,7 @@ export function evaluateOrchestratorToolGuard(
     return {
       blocked: true,
       message:
-        'wande-orchestrator 不得直接调用业务 MCP。请使用 Agent 工具委派 quotation-agent 或 accurate-agent。',
+        'wande-orchestrator 不得直接调用业务 MCP。查价/询价请使用 Agent(quotation-agent)；账务请使用 Agent(accurate-agent)。',
     }
   }
 
@@ -677,8 +719,10 @@ export function evaluateOrchestratorToolGuard(
     if (
       query.includes('mcp__quotation') ||
       query.includes('mcp__accurate') ||
+      query.includes('mcp__price-library') ||
       query.includes('quotation') ||
-      query.includes('accurate')
+      query.includes('accurate') ||
+      query.includes('price-library')
     ) {
       return {
         blocked: true,

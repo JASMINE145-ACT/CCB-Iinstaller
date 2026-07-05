@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import {
   evaluateOrchestratorToolGuard,
+  filterDelegatableCustomAgents,
   ORCHESTRATOR_AGENT_TOOL_NAME,
   ORCHESTRATOR_TASK_OUTPUT_TOOL_NAME,
   orchestratorAgentWantsBackground,
@@ -12,6 +13,59 @@ import {
   sanitizeOrchestratorAgentInput,
 } from '../agentSessionProfile.js'
 import type { CcbAssistantProfile } from '../assistantProfiles.js'
+
+describe('filterDelegatableCustomAgents orchestrator bypass', () => {
+  it('keeps router-delegatable agents when orchestratorSession despite delegatable:false sidecar', () => {
+    const configDir = mkdtempSync(join(tmpdir(), 'ccb-delegatable-'))
+    const agentsPath = join(configDir, 'agents')
+    mkdirSync(agentsPath, { recursive: true })
+    writeFileSync(
+      join(agentsPath, 'word-creator.aionui.json'),
+      JSON.stringify({
+        schema_version: 1,
+        agent_id: 'word-creator',
+        delegatable: false,
+      }),
+      'utf8',
+    )
+
+    const agents = [
+      { agentType: 'word-creator', filename: 'word-creator' },
+    ] as Parameters<typeof filterDelegatableCustomAgents>[0]
+
+    const strict = filterDelegatableCustomAgents(agents, configDir)
+    expect(strict.map(a => a.filename)).toEqual([])
+
+    const orchestrator = filterDelegatableCustomAgents(agents, configDir, {
+      orchestratorSession: true,
+    })
+    expect(orchestrator.map(a => a.filename)).toEqual(['word-creator'])
+  })
+
+  it('does not bypass Guid-only agents outside router delegatable set', () => {
+    const configDir = mkdtempSync(join(tmpdir(), 'ccb-delegatable-guid-'))
+    const agentsPath = join(configDir, 'agents')
+    mkdirSync(agentsPath, { recursive: true })
+    writeFileSync(
+      join(agentsPath, 'price-library-agent.aionui.json'),
+      JSON.stringify({
+        schema_version: 1,
+        agent_id: 'price-library-agent',
+        delegatable: false,
+      }),
+      'utf8',
+    )
+
+    const agents = [
+      { agentType: 'price-library-agent', filename: 'price-library-agent' },
+    ] as Parameters<typeof filterDelegatableCustomAgents>[0]
+
+    const orchestrator = filterDelegatableCustomAgents(agents, configDir, {
+      orchestratorSession: true,
+    })
+    expect(orchestrator.map(a => a.filename)).toEqual([])
+  })
+})
 
 describe('orchestrator Agent delegation guard', () => {
   it('detects run_in_background on Agent input', () => {
@@ -63,6 +117,45 @@ describe('evaluateOrchestratorToolGuard', () => {
       expect(result.message).toContain('TaskOutput')
       expect(result.message).toContain('同步等待')
     }
+  })
+
+  it('blocks price-library MCP on orchestrator (must delegate quotation-agent)', () => {
+    const result = evaluateOrchestratorToolGuard(
+      'mcp__price-library__get_price_library_active',
+      { confirmed: false },
+    )
+    expect(result.blocked).toBe(true)
+    if (result.blocked) {
+      expect(result.message).toContain('Agent(quotation-agent)')
+    }
+  })
+})
+
+describe('filterMcpConfigsForOrchestratorSession', () => {
+  it('strips business MCP from ACP param overlay on default router session', async () => {
+    const { filterMcpConfigsForOrchestratorSession } = await import(
+      '../agentSessionProfile.js'
+    )
+    const configs = {
+      guide_mcp: { scope: 'dynamic' },
+      quotation: { scope: 'dynamic' },
+      'price-library': { scope: 'dynamic' },
+    }
+    const filtered = filterMcpConfigsForOrchestratorSession(
+      configs,
+      'wande-orchestrator',
+    )
+    expect(Object.keys(filtered).sort()).toEqual(['guide_mcp'])
+  })
+
+  it('does not strip specialist MCP on quotation-agent session', async () => {
+    const { filterMcpConfigsForOrchestratorSession } = await import(
+      '../agentSessionProfile.js'
+    )
+    const configs = { quotation: { scope: 'user' } }
+    expect(
+      filterMcpConfigsForOrchestratorSession(configs, 'quotation-agent'),
+    ).toEqual(configs)
   })
 })
 

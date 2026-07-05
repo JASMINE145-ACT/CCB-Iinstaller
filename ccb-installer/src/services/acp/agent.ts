@@ -77,6 +77,7 @@ import {
   appendWanDDelegationIndex,
   CCB_DEFAULT_SESSION_AGENT_ID,
   filterDelegatableCustomAgents,
+  filterMcpConfigsForOrchestratorSession,
   isSpecialistDirectSession,
   isWandeOrchestratorSession,
   repairAgentMarkdownBomIfNeeded,
@@ -183,15 +184,17 @@ function loadMcpConfigsFromParams(
 export function resolveSessionMcpConfigs(
   params: Pick<NewSessionRequest, 'mcpServers'>,
   assistantProfile?: CcbAssistantProfile | null,
+  sessionProfileId?: string,
 ): Record<string, ScopedMcpServerConfig> {
   const paramServers = (params.mcpServers ?? []) as AcpParamMcpServer[]
-  return {
+  const merged = {
     ...filterMcpConfigsForAssistantProfile(
       loadMcpConfigsFromSettings(),
       assistantProfile ?? null,
     ),
     ...loadMcpConfigsFromParams(paramServers),
   }
+  return filterMcpConfigsForOrchestratorSession(merged, sessionProfileId)
 }
 
 // ── Agent class ───────────────────────────────────────────────────
@@ -811,7 +814,7 @@ export class AcpAgent implements Agent {
       // (~5s) blocked session/new. Lazy servers connect on first tool use via
       // memoized connectToServer. Sub-agents prefetch their own mcpServers on spawn.
       const mcpConfigs = omitLazySessionMcpServers(
-        resolveSessionMcpConfigs(params, assistantProfile),
+        resolveSessionMcpConfigs(params, assistantProfile, sessionProfileId),
         { keepForProfile: assistantProfile?.defaults.mcp.enabled ?? [] },
       )
       const { clients: mcpClients, tools: mcpTools } =
@@ -888,6 +891,10 @@ export class AcpAgent implements Agent {
       ])
       const delegatableActiveAgents = filterDelegatableCustomAgents(
         agentDefinitionsResult.activeAgents,
+        undefined,
+        {
+          orchestratorSession: isWandeOrchestratorSession(sessionProfileId),
+        },
       )
       const specialistDirectSession = isSpecialistDirectSession(
         sessionProfileId,
