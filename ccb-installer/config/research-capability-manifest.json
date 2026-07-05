@@ -4,19 +4,19 @@
   "profiles": {
     "base": {
       "label": "Base",
-      "mcp_servers": ["exa"],
-      "upstream_tools": ["exa", "jina-reader-url", "github-cli", "rss"],
-      "notes": "Default employee bundle. Exa HTTP MCP in settings.json; Jina via Exa livecrawl or r.jina.ai probe only."
+      "mcp_servers": ["exa", "tavily"],
+      "upstream_tools": ["exa", "tavily", "jina-reader-url"],
+      "notes": "Default employee bundle. Exa + Tavily HTTP MCP; Tavily optional WARN when API key missing."
     },
     "extended": {
       "label": "Extended",
-      "mcp_servers": ["exa", "scrapling"],
+      "mcp_servers": ["exa", "tavily", "scrapling"],
       "requires": ["scrapling-mcp-registered", "scrapling-probe-ok"],
-      "notes": "Hard-page fallback. Install via install-research-toolstack.ps1 -Profile Extended."
+      "notes": "Hard-page fallback after extract/livecrawl fail. Install via install-research-toolstack.ps1 -Profile Extended."
     },
     "experimental": {
       "label": "Experimental",
-      "mcp_servers": ["exa", "scrapling", "lightpanda"],
+      "mcp_servers": ["exa", "tavily", "scrapling", "lightpanda"],
       "requires": ["lightpanda-binary", "agpl-review"],
       "notes": "Dev/WSL only. Not for default employee ship."
     }
@@ -27,6 +27,13 @@
       "settings_key": "exa",
       "url_field": "url",
       "expected_url": "https://mcp.exa.ai/mcp"
+    },
+    "tavily": {
+      "kind": "settings_http",
+      "settings_key": "tavily",
+      "url_field": "url",
+      "expected_url_prefix": "https://mcp.tavily.com/mcp",
+      "optional": true
     },
     "jina_reader": {
       "kind": "http_head",
@@ -54,9 +61,9 @@
   },
   "agent_frontmatter": {
     "research-agent": {
-      "base_mcp_servers": ["exa"],
-      "extended_mcp_servers": ["exa", "scrapling"],
-      "experimental_mcp_servers": ["exa", "scrapling", "lightpanda"]
+      "base_mcp_servers": ["exa", "tavily"],
+      "extended_mcp_servers": ["exa", "tavily", "scrapling"],
+      "experimental_mcp_servers": ["exa", "tavily", "scrapling", "lightpanda"]
     }
   }
 }

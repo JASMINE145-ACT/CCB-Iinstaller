@@ -17,7 +17,7 @@ Each agent is stored as a pair:
 | `word-creator` | Word 文档助手 | yes | `office-word` | MCP-only Word creation; delivery gate blocks invalid output |
 | `excel-creator` | Excel 表格助手 | yes | `excel` | MCP-only Excel creation; delivery gate blocks invalid output |
 | `ppt-creator` | PPT 演示助手 | yes | `ppt-master` skill | Skill-only PPT creation; delivery gate blocks invalid output; avatar **📽️** (not 📊 — reserved for 账务) |
-| `research-agent` | 资料搜索助手 | yes | `exa` (+ optional `scrapling`) | Web research; evidence-first `research/*.md` + `.sources.jsonl`; Base=exa only |
+| `research-agent` | 资料搜索助手 | yes | `exa`, `tavily` (+ optional `scrapling`) | Dual-source web research; skill `wanding-deep-research`; evidence `research/*.md` + `.sources.jsonl` |
 | `price-library-agent` | 价格库管理 | yes (price_admin) | `price-library`, `excel` | Org draft/import/publish; Guid-only (`delegatable: false`); avatar **🏷️** (not 📊 — reserved for 账务) |
 
 **Retired (2026-06-27):** `cowork`, `word-form-creator` removed from keep set and Guid cards — use `word-creator` / `ppt-creator` / `excel-creator` instead. Live prune list: `retired-agent-ids.json` (deployed automatically by `deploy-seed-agents.mjs`).

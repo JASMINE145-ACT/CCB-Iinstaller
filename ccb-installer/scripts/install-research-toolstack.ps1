@@ -334,7 +334,7 @@ try {
 
 
 
-    $targetMcp = @("exa")
+    $targetMcp = @("exa", "tavily")
 
 
 
@@ -434,7 +434,7 @@ try {
 
 
 
-            $targetMcp = @("exa", "scrapling")
+            $targetMcp = @("exa", "tavily", "scrapling")
 
         }
 

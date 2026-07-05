@@ -17,14 +17,16 @@
   "commit": null,
   "pr_url": null,
   "subtasks": [],
-  "children": [],
+  "children": [
+    "07-04-07-05-research-dual-source-deep-framework"
+  ],
   "parent": null,
   "relatedFiles": [
     ".trellis/tasks/06-28-research-agent-toolstack/research/decisions.md",
     ".trellis/tasks/06-28-research-agent-toolstack/research/toolstack-complementarity.md",
     ".trellis/tasks/06-28-research-agent-toolstack/prd.md"
   ],
-  "notes": "2026-06-28: 探索结论 — 三工具可并存互补。2026-07-01 review 修订：capability profile + 证据合同。2026-06-29: Phase 2 落地 — research-agent 种子、probe/install 脚本、orchestrator 路由、delivery gate warn、eval 用例。",
+  "notes": "2026-06-28: 探索结论 — 三工具可并存互补。2026-07-01 review 修订：capability profile + 证据合同。2026-06-29: Phase 2 落地 — research-agent 种子、probe/install 脚本、orchestrator 路由、delivery gate warn、eval 用例。2026-07-04: child 07-04-07-05-research-dual-source-deep-framework — Base 演进为 Exa+Tavily + wanding-deep-research skill（Approach A）；Scrapling 仍 Extended。",
   "meta": {
     "tool_profiles": [
       "base-exa-jina",

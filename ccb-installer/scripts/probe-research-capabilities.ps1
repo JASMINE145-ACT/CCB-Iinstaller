@@ -12,8 +12,25 @@ param(
 $ErrorActionPreference = "Stop"
 $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
-$repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$manifestPath = Join-Path $repoRoot "ccb-installer\config\research-capability-manifest.json"
+function Resolve-ResearchCapabilityManifest {
+    param(
+        [string]$Install
+    )
+    $fromInstall = Join-Path $Install 'config\research-capability-manifest.json'
+    if (Test-Path -LiteralPath $fromInstall) {
+        return $fromInstall
+    }
+    $fromScriptRoot = Join-Path (Split-Path $PSScriptRoot -Parent) 'config\research-capability-manifest.json'
+    if (Test-Path -LiteralPath $fromScriptRoot) {
+        return $fromScriptRoot
+    }
+    $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+    $fromRepo = Join-Path $repoRoot 'ccb-installer\config\research-capability-manifest.json'
+    if (Test-Path -LiteralPath $fromRepo) {
+        return $fromRepo
+    }
+    return $fromInstall
+}
 
 function Write-ProbeLine {
     param([string]$Message, [string]$Level = "INFO")
@@ -95,9 +112,10 @@ function Test-CommandExists {
 $install = Resolve-CcbInstallDir -Override $InstallDir
 $config = Resolve-CcbConfigDir -Override $ConfigDir -Install $install
 $settingsPath = Join-Path $config "settings.json"
+$manifestPath = Resolve-ResearchCapabilityManifest -Install $install
 
 if (-not (Test-Path -LiteralPath $manifestPath)) {
-    throw "Missing manifest: $manifestPath"
+    throw "Missing manifest: $manifestPath (expected under install dir config\ or dev repo ccb-installer\config\)"
 }
 $capManifest = Get-Content -Raw -LiteralPath $manifestPath -Encoding UTF8 | ConvertFrom-Json
 
@@ -106,14 +124,43 @@ $activeProfile = "base"
 
 # --- exa in settings ---
 $exaOk = $false
+$exaKeyOk = $false
 if (Test-Path -LiteralPath $settingsPath) {
     $settings = Get-Content -Raw -LiteralPath $settingsPath -Encoding UTF8 | ConvertFrom-Json
     $exa = $settings.mcpServers.exa
     if ($exa -and $exa.url -eq "https://mcp.exa.ai/mcp") {
         $exaOk = $true
+        $key = $null
+        if ($exa.headers) {
+            $key = [string]$exa.headers.'x-api-key'
+        }
+        if ($key -and $key.Trim().Length -gt 0) {
+            $exaKeyOk = $true
+        }
     }
 }
 $results.Add([pscustomobject]@{ probe = "exa"; ok = $exaOk; detail = $(if ($exaOk) { "settings.json exa → mcp.exa.ai" } else { "exa MCP missing or wrong URL" }) })
+$results.Add([pscustomobject]@{ probe = "exa_api_key"; ok = $exaKeyOk; optional = $true; detail = $(if ($exaKeyOk) { "exa x-api-key present in settings" } else { "exa x-api-key missing — set EXA_API_KEY in research.env and run ensure-wanding-settings" }) })
+
+# --- tavily in settings (optional Base enhancement) ---
+$tavilyOk = $false
+$tavilyDetail = "tavily MCP not registered"
+if (Test-Path -LiteralPath $settingsPath) {
+    if (-not $settings) {
+        $settings = Get-Content -Raw -LiteralPath $settingsPath -Encoding UTF8 | ConvertFrom-Json
+    }
+    $tavily = $settings.mcpServers.tavily
+    if ($tavily -and $tavily.url -and ([string]$tavily.url).StartsWith("https://mcp.tavily.com/mcp")) {
+        $tavilyOk = $true
+        if ([string]$tavily.url -match 'tavilyApiKey=') {
+            $tavilyDetail = "settings.json tavily → mcp.tavily.com (API key in URL)"
+        }
+        else {
+            $tavilyDetail = "settings.json tavily → mcp.tavily.com (OAuth / no key in URL)"
+        }
+    }
+}
+$results.Add([pscustomobject]@{ probe = "tavily"; ok = $tavilyOk; optional = $true; detail = $tavilyDetail })
 
 # --- jina reader (optional upstream) ---
 $jinaOk = Test-HttpOk -Url "https://r.jina.ai/https://example.com"
@@ -188,7 +235,7 @@ else {
         Write-ProbeLine "Base profile FAIL — research-agent cannot start with search tools" "FAIL"
         exit 1
     }
-    Write-ProbeLine "Base profile OK — research-agent can run with exa MCP" "PASS"
+    Write-ProbeLine "Base profile OK — research-agent can run with exa MCP$(if ($tavilyOk) { ' + tavily' } else { ' (tavily WARN — exa-only degraded)' })" "PASS"
 }
 
 if (-not $exaOk) { exit 1 }

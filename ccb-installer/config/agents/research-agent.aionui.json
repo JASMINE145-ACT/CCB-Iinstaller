@@ -9,12 +9,15 @@
   "sort_order": 120,
   "source": "bundled",
   "created_at": "2026-06-28T12:00:00.000Z",
-  "updated_at": "2026-07-01T12:00:00.000Z",
+  "updated_at": "2026-07-04T02:46:00.000Z",
   "mcp_allowlist": [
-    "exa"
+    "exa",
+    "tavily"
   ],
   "skills": {
-    "enabled": [],
+    "enabled": [
+      "wanding-deep-research"
+    ],
     "disabled": []
   },
   "recommended_prompts": [
