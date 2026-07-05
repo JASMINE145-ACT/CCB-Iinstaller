@@ -15,6 +15,11 @@ hooks:
           command: python "$LOCALAPPDATA/CCB-Wanding/.claude/skills/ccb-subagent-gate/scripts/pre-price-library-data-md-gate.py"
           timeout: 30
   PostToolUse:
+    - matcher: "Read|read_file"
+      hooks:
+        - type: command
+          command: python "$LOCALAPPDATA/CCB-Wanding/.claude/skills/ccb-subagent-gate/scripts/post-data-md-read-mark.py"
+          timeout: 15
     - matcher: "mcp__price-library__upsert_price_library_item|mcp__price-library__delete_price_library_item|mcp__price-library__restore_price_library_item|mcp__price-library__publish_price_library_draft|mcp__price-library__apply_price_library_import|mcp__price-library__revert_price_library_version"
       hooks:
         - type: command

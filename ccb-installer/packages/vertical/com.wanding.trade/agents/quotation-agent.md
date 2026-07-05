@@ -15,6 +15,11 @@ hooks:
           command: python "$LOCALAPPDATA/CCB-Wanding/.claude/skills/ccb-subagent-gate/scripts/pre-match-knowledge-gate.py"
           timeout: 30
   PostToolUse:
+    - matcher: "Read|read_file"
+      hooks:
+        - type: command
+          command: python "$LOCALAPPDATA/CCB-Wanding/.claude/skills/ccb-subagent-gate/scripts/post-knowledge-read-mark.py"
+          timeout: 15
     - matcher: "mcp__quotation__match_quotation|mcp__quotation__match_quotation_batch"
       hooks:
         - type: command
@@ -27,6 +32,9 @@ hooks:
           timeout: 30
   Stop:
     - hooks:
+        - type: command
+          command: python "$LOCALAPPDATA/CCB-Wanding/.claude/skills/ccb-personal-memory/scripts/post-personal-memory-stop.py"
+          timeout: 30
         - type: command
           command: bash "$LOCALAPPDATA/CCB-Wanding/.claude/skills/ccb-subagent-gate/scripts/subagent-gate.sh"
           timeout: 120

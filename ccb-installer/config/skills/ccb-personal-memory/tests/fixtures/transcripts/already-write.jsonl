@@ -1,0 +1,2 @@
+{"type":"user","message":{"role":"user","content":"我习惯先查库存再报价，以后都这样。"}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"tool_use","name":"Write","input":{"file_path":"D:/AppData/Local/CCB-Wanding/.claude/memory/personal/workflow.md","content":"- [2026-07-06] 我习惯先查库存再报价，以后都这样。"}}]}}

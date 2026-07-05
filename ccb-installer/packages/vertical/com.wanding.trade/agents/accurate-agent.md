@@ -8,6 +8,9 @@ hooks:
   Stop:
     - hooks:
         - type: command
+          command: python "$LOCALAPPDATA/CCB-Wanding/.claude/skills/ccb-personal-memory/scripts/post-personal-memory-stop.py"
+          timeout: 30
+        - type: command
           command: bash "$LOCALAPPDATA/CCB-Wanding/.claude/skills/ccb-subagent-gate/scripts/subagent-gate.sh"
           timeout: 120
 ---
