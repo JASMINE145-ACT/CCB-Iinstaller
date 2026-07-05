@@ -33,6 +33,10 @@ try {
     New-FixtureFile (Join-Path $configDir 'settings.json') '{}'
     New-FixtureFile (Join-Path $configDir '.bootstrap-ok')
     New-FixtureFile (Join-Path $env:APPDATA 'AionUi\aionui\org-server.json') '{}'
+    foreach ($entry in @($manifest.config_files)) {
+        $configPath = ([string]$entry).Replace('%LOCALAPPDATA%', $env:LOCALAPPDATA).Replace('%APPDATA%', $env:APPDATA).Replace('/', '\')
+        New-FixtureFile $configPath
+    }
 
     $platformLog = Join-Path $fixtureRoot 'platform.log'
     $platform = Start-Process -FilePath $powerShellExe -ArgumentList @(

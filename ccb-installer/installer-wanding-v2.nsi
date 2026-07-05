@@ -52,6 +52,10 @@ Var REPAIR_ORPHAN
     RMDir /r "${ROOT}\vendor"
     RMDir /r "${ROOT}\scripts"
     RMDir /r "${ROOT}\seed"
+    RMDir /r "${ROOT}\config"
+    RMDir /r "${ROOT}\resources"
+    RMDir /r "${ROOT}\packages"
+    RMDir /r "${ROOT}\lib"
     RMDir /r "${ROOT}\bin"
 !macroend
 
@@ -147,6 +151,10 @@ install_root_ok:
     RMDir /r "$INSTDIR\vendor"
     RMDir /r "$INSTDIR\scripts"
     RMDir /r "$INSTDIR\seed"
+    RMDir /r "$INSTDIR\config"
+    RMDir /r "$INSTDIR\resources"
+    RMDir /r "$INSTDIR\packages"
+    RMDir /r "$INSTDIR\lib"
 
     SetOutPath "$INSTDIR"
     File "staging\ccb.ico"
@@ -185,6 +193,27 @@ install_root_ok:
 
     SetOutPath "$INSTDIR\seed\skills\ccb-subagent-gate"
     File /r /x "tests" "staging\seed\skills\ccb-subagent-gate\*.*"
+
+    SetOutPath "$INSTDIR\seed\skills\ccb-personal-memory"
+    File /r /x "tests" /x "__pycache__" "staging\seed\skills\ccb-personal-memory\*.*"
+
+    SetOutPath "$INSTDIR\seed\skills\quotation-learn-by-data"
+    File /r /x "tests" /x "__pycache__" "staging\seed\skills\quotation-learn-by-data\*.*"
+
+    SetOutPath "$INSTDIR\seed\skills\price-library-edit"
+    File /r /x "tests" /x "__pycache__" "staging\seed\skills\price-library-edit\*.*"
+
+    SetOutPath "$INSTDIR\seed\skills\wanding-deep-research"
+    File /r /x "tests" /x "__pycache__" "staging\seed\skills\wanding-deep-research\*.*"
+
+    SetOutPath "$INSTDIR\resources"
+    File /r "staging\resources\*.*"
+
+    SetOutPath "$INSTDIR\config"
+    File /r "staging\config\*.*"
+
+    SetOutPath "$INSTDIR\packages\vertical\com.wanding.trade"
+    File /r "staging\packages\vertical\com.wanding.trade\*.*"
 
     !insertmacro WriteInstallLog "Files copied from staging."
 

@@ -23,7 +23,15 @@
       "exa": {
         "type": "http",
         "url": "https://mcp.exa.ai/mcp",
+        "headers": {
+          "x-api-key": "secret://platform/research/exa-api-key"
+        },
         "description": "Exa neural web search and page fetch MCP"
+      },
+      "tavily": {
+        "type": "http",
+        "url": "secret://platform/research/tavily-mcp-url",
+        "description": "Tavily web search and extract MCP (remote)"
       },
       "excel-mcp": {
         "command": "${installDir}/vendor/mcp-servers/excel-mcp/mcp-excel.exe",
@@ -65,7 +73,9 @@
     "/env/ANTHROPIC_AUTH_TOKEN"
   ],
   "secretPaths": [
-    "/env/ANTHROPIC_AUTH_TOKEN"
+    "/env/ANTHROPIC_AUTH_TOKEN",
+    "/mcpServers/exa/headers/x-api-key",
+    "/mcpServers/tavily/url"
   ],
   "userOverridablePaths": [
     "/theme"

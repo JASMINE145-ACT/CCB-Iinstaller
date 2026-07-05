@@ -13,18 +13,26 @@ param(
 $ErrorActionPreference = "Stop"
 $RepoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $Overlay = Join-Path $RepoRoot "ccb-installer\claude-code-b-src\src\services\acp"
+$OverlayRoot = Join-Path $RepoRoot "ccb-installer\claude-code-b-src"
 
 if (-not (Test-Path $ClaudeCodeBRoot)) {
   Write-Error "claude-code-B not found at $ClaudeCodeBRoot. Clone/build tree required for source rebuild; live dist hotfix may already be applied under D:\CCB-Wanding\dist."
 }
 
 $DestAcp = Join-Path $ClaudeCodeBRoot "src\services\acp"
-foreach ($file in @("agent.ts", "agentSessionProfile.ts", "mcpSessionPrefetch.ts", "mcpToolRepeatGuard.ts", "wanDEnvBootstrap.ts", "wanDMcpWarmup.ts", "permissions.ts", "askUserQuestionPermissionResolve.ts", "workspacePointer.ts", "promptConversion.ts", "sessionTranscript.ts")) {
+foreach ($file in @("agent.ts", "agentSessionProfile.ts", "employeeProfile.ts", "mcpSessionPrefetch.ts", "mcpToolRepeatGuard.ts", "wanDEnvBootstrap.ts", "wanDMcpWarmup.ts", "permissions.ts", "askUserQuestionPermissionResolve.ts", "workspacePointer.ts", "promptConversion.ts", "sessionTranscript.ts")) {
   $src = Join-Path $Overlay $file
   if (-not (Test-Path $src)) { Write-Error "Missing overlay file: $src" }
   Copy-Item $src (Join-Path $DestAcp $file) -Force
   Write-Host "Copied $file -> $DestAcp"
 }
+
+# P9: Agent-tool subagent employee profile merge
+$runAgentSrc = Join-Path $OverlayRoot "packages\builtin-tools\src\tools\AgentTool\runAgent.ts"
+$runAgentDest = Join-Path $ClaudeCodeBRoot "packages\builtin-tools\src\tools\AgentTool\runAgent.ts"
+if (-not (Test-Path $runAgentSrc)) { Write-Error "Missing overlay file: $runAgentSrc" }
+Copy-Item $runAgentSrc $runAgentDest -Force
+Write-Host "Copied runAgent.ts -> $runAgentDest"
 
 $testSrc = Join-Path $Overlay "__tests__\promptConversion.test.ts"
 $testDest = Join-Path $DestAcp "__tests__\promptConversion.test.ts"
@@ -58,6 +66,14 @@ if (Test-Path $profileTestSrc) {
   Write-Host "Copied agentSessionProfile.test.ts"
 }
 
+$employeeProfileTestSrc = Join-Path $Overlay "__tests__\employeeProfile.test.ts"
+$employeeProfileTestDest = Join-Path $DestAcp "__tests__\employeeProfile.test.ts"
+if (Test-Path $employeeProfileTestSrc) {
+  New-Item -ItemType Directory -Force -Path (Split-Path $employeeProfileTestDest -Parent) | Out-Null
+  Copy-Item $employeeProfileTestSrc $employeeProfileTestDest -Force
+  Write-Host "Copied employeeProfile.test.ts"
+}
+
 $transcriptTestSrc = Join-Path $Overlay "__tests__\sessionTranscript.test.ts"
 $transcriptTestDest = Join-Path $DestAcp "__tests__\sessionTranscript.test.ts"
 if (Test-Path $transcriptTestSrc) {
@@ -86,7 +102,7 @@ if ($Build) {
   Push-Location $ClaudeCodeBRoot
   try {
     if ($env:BUN_JSC_forceRAMSize -lt 3500000000) { $env:BUN_JSC_forceRAMSize = "3500000000" }
-    bun test src/services/acp/__tests__/mcpSessionPrefetch.test.ts src/services/acp/__tests__/mcpToolRepeatGuard.test.ts src/services/acp/__tests__/agentSessionProfile.test.ts src/services/acp/__tests__/promptConversion.test.ts src/services/acp/__tests__/sessionTranscript.test.ts src/services/acp/__tests__/sessionMcpConfigMerge.test.ts src/services/acp/__tests__/askUserQuestionPermissions.test.ts
+    bun test src/services/acp/__tests__/mcpSessionPrefetch.test.ts src/services/acp/__tests__/mcpToolRepeatGuard.test.ts src/services/acp/__tests__/agentSessionProfile.test.ts src/services/acp/__tests__/promptConversion.test.ts src/services/acp/__tests__/sessionTranscript.test.ts src/services/acp/__tests__/sessionMcpConfigMerge.test.ts src/services/acp/__tests__/askUserQuestionPermissions.test.ts src/services/acp/__tests__/employeeProfile.test.ts
     bun run build
   } finally {
     Pop-Location

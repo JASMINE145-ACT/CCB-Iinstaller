@@ -120,6 +120,40 @@ if (Test-Path -LiteralPath $patchScript) {
     Write-ResetLog 'patch-subagent-gate-hooks OK'
 }
 
+$patchMemoryScript = Join-Path $PSScriptRoot 'patch-personal-memory-hooks.ps1'
+if (Test-Path -LiteralPath $patchMemoryScript) {
+    & $patchMemoryScript -AgentsDir $agentsDir
+    if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+        throw "patch-personal-memory-hooks.ps1 failed with exit code $LASTEXITCODE"
+    }
+    Write-ResetLog 'patch-personal-memory-hooks OK'
+}
+
+$skillsDir = Join-Path $ConfigDir 'skills'
+$deploySkillsScript = Join-Path $PSScriptRoot 'deploy-ccb-skills.ps1'
+if (Test-Path -LiteralPath $deploySkillsScript) {
+    & $deploySkillsScript -SkillsDir $skillsDir -InstallDir $InstallDir
+    if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+        throw "deploy-ccb-skills.ps1 failed with exit code $LASTEXITCODE"
+    }
+    Write-ResetLog "deploy-ccb-skills OK -> $skillsDir"
+}
+else {
+    Write-ResetLog 'WARNING: deploy-ccb-skills.ps1 missing — seed skills not deployed on config reset'
+}
+
+$deployCommandsScript = Join-Path $PSScriptRoot 'deploy-wanding-commands.ps1'
+if (Test-Path -LiteralPath $deployCommandsScript) {
+    & $deployCommandsScript -InstallDir $InstallDir -ConfigDir $ConfigDir
+    if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+        throw "deploy-wanding-commands.ps1 failed with exit code $LASTEXITCODE"
+    }
+    Write-ResetLog "deploy-wanding-commands OK -> $(Join-Path $ConfigDir 'commands')"
+}
+else {
+    Write-ResetLog 'WARNING: deploy-wanding-commands.ps1 missing — slash commands not deployed on config reset'
+}
+
 $null = New-Item -ItemType Directory -Force -Path $ConfigDir
 $marker = [ordered]@{
     config_generation = $shipGen

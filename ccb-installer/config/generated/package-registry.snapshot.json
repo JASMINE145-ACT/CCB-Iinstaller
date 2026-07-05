@@ -112,9 +112,12 @@
       "source": "ccb-installer/config/agents/research-agent.md",
       "displayName": "资料搜索助手",
       "mcpServers": [
-        "exa"
+        "exa",
+        "tavily"
       ],
-      "skills": [],
+      "skills": [
+        "wanding-deep-research"
+      ],
       "requiredCapabilities": []
     },
     {
@@ -194,9 +197,21 @@
       "packageId": null,
       "source": "ccb-installer/config/mcp-health-manifest.json",
       "providesCapabilities": []
+    },
+    {
+      "id": "tavily",
+      "packageId": null,
+      "source": "ccb-installer/config/mcp-health-manifest.json",
+      "providesCapabilities": []
     }
   ],
   "skills": [
+    {
+      "id": "ccb-personal-memory",
+      "packageId": null,
+      "source": "ccb-installer/config/skills/ccb-personal-memory/SKILL.md",
+      "providesCapabilities": []
+    },
     {
       "id": "ccb-subagent-gate",
       "packageId": null,
@@ -218,6 +233,12 @@
       "providesCapabilities": [
         "business.pricing.quote"
       ]
+    },
+    {
+      "id": "wanding-deep-research",
+      "packageId": "com.wanding.trade",
+      "source": "packages/vertical/com.wanding.trade/skills/wanding-deep-research/SKILL.md",
+      "providesCapabilities": []
     }
   ],
   "aliases": [
@@ -291,6 +312,16 @@
       "severity": "warning",
       "code": "orphan-mcp-server",
       "message": "MCP server scrapling is not assigned to a package"
+    },
+    {
+      "severity": "warning",
+      "code": "orphan-mcp-server",
+      "message": "MCP server tavily is not assigned to a package"
+    },
+    {
+      "severity": "warning",
+      "code": "orphan-skill",
+      "message": "Skill ccb-personal-memory is not assigned to a package"
     },
     {
       "severity": "warning",

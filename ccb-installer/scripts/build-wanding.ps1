@@ -182,6 +182,66 @@ function Test-OptionalFile([string]$Path, [string]$Label) {
     return $true
 }
 
+function Test-NsisPayloadCoverage {
+    param(
+        [string]$NsiPath,
+        [string]$StagingRoot
+    )
+
+    $requiredStagingRefs = @(
+        'staging\seed\skills\quotation-learn-by-data',
+        'staging\seed\skills\price-library-edit',
+        'staging\seed\skills\wanding-deep-research',
+        'staging\seed\skills\ccb-personal-memory',
+        'staging\resources',
+        'staging\config',
+        'staging\packages\vertical\com.wanding.trade'
+    )
+    # ASCII-only paths here — Chinese filenames are verified via codepoints below
+    # (avoids .ps1 encoding mismatches on Windows PowerShell 5.1).
+    $requiredOnDisk = @(
+        'seed\skills\quotation-learn-by-data\SKILL.md',
+        'seed\skills\price-library-edit\SKILL.md',
+        'seed\skills\wanding-deep-research\SKILL.md',
+        'seed\skills\ccb-personal-memory\SKILL.md',
+        'resources\commands\learn-by-data.md',
+        'resources\memory\MEMORY.md',
+        'resources\memory\personal\workflow.md',
+        'resources\memory\CCB-MEMORY-RULES.md',
+        'config\research-capability-manifest.json',
+        'packages\vertical\com.wanding.trade\package.json'
+    )
+
+    if (-not (Test-Path -LiteralPath $NsiPath)) {
+        throw "NSIS payload check: missing script $NsiPath"
+    }
+    $nsiText = Get-Content -Raw -LiteralPath $NsiPath -Encoding UTF8
+
+    foreach ($rel in $requiredOnDisk) {
+        $path = Join-Path $StagingRoot ($rel -replace '/', '\')
+        Test-RequiredFile $path "NSIS payload staging file $rel"
+    }
+
+    # /记住 command: filename is U+8BB0 U+4F4F (记住).md — do not embed CJK in this script.
+    $commandsDir = Join-Path $StagingRoot 'resources\commands'
+    $rememberCharJi = [char]0x8BB0
+    $rememberCharZhu = [char]0x4F4F
+    $rememberCmd = Get-ChildItem -LiteralPath $commandsDir -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name.Contains($rememberCharJi) -and $_.Name.Contains($rememberCharZhu) -and $_.Extension -eq '.md' } |
+        Select-Object -First 1
+    if (-not $rememberCmd) {
+        throw "NSIS payload staging file missing: resources\commands\<记住>.md under $commandsDir"
+    }
+
+    foreach ($ref in $requiredStagingRefs) {
+        $alt = $ref -replace '\\', '/'
+        if (($nsiText -notlike "*$ref*") -and ($nsiText -notlike "*$alt*")) {
+            throw "NSIS payload gap: installer-wanding-v2.nsi does not copy $ref (generation 5 bootstrap requires it)"
+        }
+    }
+    Write-Host '  NSIS payload coverage OK (generation 5 seed/config/resources/packages)' -ForegroundColor DarkGray
+}
+
 function Copy-FileIfExists([string]$Source, [string]$Dest) {
     if (Test-Path -LiteralPath $Source) {
         $parent = Split-Path $Dest -Parent
@@ -415,15 +475,18 @@ if (-not $SkipAionUiBuild) {
     try {
         $packArgs = @('scripts/build-with-builder.js', 'auto', '--win', '--pack-only')
         if ($SkipVite) { $packArgs += '--skip-vite' }
-        & node @packArgs
-        if ($LASTEXITCODE -ne 0) { throw "build-with-builder --pack-only failed" }
+        Invoke-NativeBuildCommand -Label 'AionUI build-with-builder --pack-only' -Command {
+            & node @packArgs
+        }
         # --pack-only only runs Vite; separately run electron-builder --dir to create win-unpacked
         $ebConfig = Join-Path $AionUiSrc 'packages\desktop\electron-builder.yml'
         $env:ELECTRON_CACHE = "$env:LOCALAPPDATA\electron\Cache"
-        & bunx electron-builder --config $ebConfig --win --x64 --dir --publish=never
-        if ($LASTEXITCODE -ne 0) { throw "electron-builder --dir failed" }
-        & node (Join-Path $AionUiSrc 'scripts\prepareHubResources.js')
-        if ($LASTEXITCODE -ne 0) { throw 'prepareHubResources failed' }
+        Invoke-NativeBuildCommand -Label 'electron-builder --dir' -Command {
+            & bunx electron-builder --config $ebConfig --win --x64 --dir --publish=never
+        }
+        Invoke-NativeBuildCommand -Label 'prepareHubResources' -Command {
+            & node (Join-Path $AionUiSrc 'scripts\prepareHubResources.js')
+        }
     } finally {
         Pop-Location
     }
@@ -619,6 +682,9 @@ Test-RequiredFile $registrySnapshotSrc 'P1 package registry snapshot'
 $registrySnapshotDest = Join-Path $runtimeConfigDest 'generated'
 New-Item -ItemType Directory -Force -Path $registrySnapshotDest | Out-Null
 Copy-Item -LiteralPath $registrySnapshotSrc -Destination (Join-Path $registrySnapshotDest 'package-registry.snapshot.json') -Force
+$researchManifestSrc = Join-Path $installerRoot 'config\research-capability-manifest.json'
+Test-RequiredFile $researchManifestSrc 'research-capability-manifest.json'
+Copy-Item -LiteralPath $researchManifestSrc -Destination (Join-Path $runtimeConfigDest 'research-capability-manifest.json') -Force
 $packageSource = Join-Path $installerRoot 'packages\vertical\com.wanding.trade'
 $packageDest = Join-Path $StagingDir 'packages\vertical\com.wanding.trade'
 Test-RequiredFile (Join-Path $packageSource 'package.json') 'com.wanding.trade package manifest'
@@ -628,6 +694,10 @@ $seedSkillSrc = Join-Path $installerRoot 'config\skills\ccb-subagent-gate'
 $seedSkillDest = Join-Path $StagingDir 'seed\skills\ccb-subagent-gate'
 Invoke-RobocopyMirror $seedSkillSrc $seedSkillDest @('/XD', 'tests', '__pycache__', '/XF', '*.pyc')
 
+$personalMemorySkillSrc = Join-Path $installerRoot 'config\skills\ccb-personal-memory'
+$personalMemorySkillDest = Join-Path $StagingDir 'seed\skills\ccb-personal-memory'
+Invoke-RobocopyMirror $personalMemorySkillSrc $personalMemorySkillDest @('/XD', 'tests', '__pycache__', '/XF', '*.pyc')
+
 $learnSkillSrc = Join-Path $installerRoot 'packages\vertical\com.wanding.trade\skills\quotation-learn-by-data'
 $learnSkillDest = Join-Path $StagingDir 'seed\skills\quotation-learn-by-data'
 Invoke-RobocopyMirror $learnSkillSrc $learnSkillDest
@@ -635,6 +705,10 @@ Invoke-RobocopyMirror $learnSkillSrc $learnSkillDest
 $priceEditSkillSrc = Join-Path $installerRoot 'packages\vertical\com.wanding.trade\skills\price-library-edit'
 $priceEditSkillDest = Join-Path $StagingDir 'seed\skills\price-library-edit'
 Invoke-RobocopyMirror $priceEditSkillSrc $priceEditSkillDest
+
+$deepResearchSkillSrc = Join-Path $installerRoot 'packages\vertical\com.wanding.trade\skills\wanding-deep-research'
+$deepResearchSkillDest = Join-Path $StagingDir 'seed\skills\wanding-deep-research'
+Invoke-RobocopyMirror $deepResearchSkillSrc $deepResearchSkillDest
 
 # Scripts (shipped set — whitelist §7)
 # Clear first so stale build-only helpers from a previous build (or a partial
@@ -660,14 +734,19 @@ $shipScripts = @(
     # build if they are not shipped. (vendor-ppt-master.ps1 stays dev-only.)
     'deploy-ppt-master-skill.ps1',
     'deploy-subagent-gate-skill.ps1',
+    'deploy-personal-memory-skill.ps1',
     'deploy-quotation-learn-by-data-skill.ps1',
     'deploy-price-library-edit-skill.ps1',
+    'deploy-wanding-deep-research-skill.ps1',
+    'deploy-ccb-skills.ps1',
+    'deploy-wanding-commands.ps1',
     'sync-ppt-master-agents.ps1',
     'ensure-ppt-master-deps.ps1',
     'install-excel-mcp-server.ps1',
     'deploy-seed-agents.ps1',
     'deploy-seed-agents.mjs',
     'patch-subagent-gate-hooks.ps1',
+    'patch-personal-memory-hooks.ps1',
     'sync-aionui-ccb-route-b.ps1',
     'test-install-health.ps1',
     'run-wanding-bootstrap.ps1',
@@ -680,7 +759,9 @@ $shipScripts = @(
     'verify-update-server.ps1',
     'internal-upgrade.ps1',
     'repair-wanding-install-dir.ps1',
-    'rollback-last-update.ps1'
+    'rollback-last-update.ps1',
+    'probe-research-capabilities.ps1',
+    'install-research-toolstack.ps1'
 )
 foreach ($s in $shipScripts) {
     $src = Join-Path $installerRoot "scripts\$s"
@@ -729,8 +810,12 @@ $devOnlyScripts = @(
     'smoke-hot-update-trial.ps1',
     'publish-update-bundle.ps1',
     'build-wanding-lib.ps1',
-    'deploy-ccb-skills.ps1',
     'ensure-mcp-settings.ps1',
+    'start-dev-full.ps1',
+    'smoke-roe-deploy.ps1',
+    'smoke-roe-judge-deploy.ps1',
+    'recover-aionui-new-ui.ps1',
+    'sync-dev-aioncore.ps1',
     'scan-i18n-gaps.ps1',
     'vendor-ppt-master.ps1',
     'verify-installer.ps1',
@@ -910,6 +995,7 @@ if ($SkipNsis) {
     if (-not (Test-Path -LiteralPath $nsi)) {
         throw "Missing NSIS script: $nsi"
     }
+    Test-NsisPayloadCoverage -NsiPath $nsi -StagingRoot $StagingDir
     Push-Location $installerRoot
     try {
         & $makensis "/DAPP_VERSION=$Version" $nsi

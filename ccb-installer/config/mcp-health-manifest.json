@@ -54,6 +54,11 @@
       "lazy": true,
       "optional": true
     },
+    "tavily": {
+      "kind": "http",
+      "lazy": true,
+      "optional": true
+    },
     "scrapling": {
       "kind": "stdio",
       "lazy": true,
@@ -64,6 +69,10 @@
   "optional_checks": {
     "exa": {
       "expected_url": "https://mcp.exa.ai/mcp",
+      "http_probe_timeout_sec": 8
+    },
+    "tavily": {
+      "expected_url_prefix": "https://mcp.tavily.com/mcp",
       "http_probe_timeout_sec": 8
     },
     "skills": {
@@ -102,12 +111,14 @@
         "exa"
       ],
       "tool_prefixes": [
-        "mcp__exa__"
+        "mcp__exa__",
+        "mcp__tavily__"
       ],
       "optional_mcp": [
+        "tavily",
         "scrapling"
       ],
-      "notes": "Base profile: exa only. Extended adds scrapling when registered."
+      "notes": "Base profile: exa + tavily (tavily optional WARN). Extended adds scrapling when registered."
     }
   }
 }

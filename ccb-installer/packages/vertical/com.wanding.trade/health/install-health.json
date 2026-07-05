@@ -15,7 +15,11 @@
     "packages/vertical/com.wanding.trade/package.json"
   ],
   "configFiles": [
+    "%LOCALAPPDATA%/CCB-Wanding/.claude/agents/wande-orchestrator.md",
     "%LOCALAPPDATA%/CCB-Wanding/.claude/agents/quotation-agent.md",
-    "%LOCALAPPDATA%/CCB-Wanding/.claude/agents/quotation-agent.aionui.json"
+    "%LOCALAPPDATA%/CCB-Wanding/.claude/agents/quotation-agent.aionui.json",
+    "%LOCALAPPDATA%/CCB-Wanding/.claude/agents/research-agent.md",
+    "%LOCALAPPDATA%/CCB-Wanding/.claude/agents/research-agent.aionui.json",
+    "%LOCALAPPDATA%/CCB-Wanding/.claude/commands/learn-by-data.md"
   ]
 }

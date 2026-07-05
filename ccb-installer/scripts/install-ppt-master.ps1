@@ -61,6 +61,20 @@ if (Test-Path -LiteralPath $priceEditSource) {
     Write-Warning "[ppt-master] price-library-edit source not found; skipping price-library-edit skill deploy."
 }
 
+$deepResearchSource = Join-Path $InstallDir "seed\skills\wanding-deep-research"
+if (-not (Test-Path -LiteralPath $deepResearchSource)) {
+    $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+    $deepResearchSource = Join-Path $repoRoot "ccb-installer\packages\vertical\com.wanding.trade\skills\wanding-deep-research"
+}
+if (Test-Path -LiteralPath $deepResearchSource) {
+    Write-Host "[ppt-master] Deploy wanding-deep-research ..."
+    & (Join-Path $PSScriptRoot "deploy-wanding-deep-research-skill.ps1") `
+        -SkillsDir $skillsDir `
+        -SourceDir $deepResearchSource
+} else {
+    Write-Warning "[ppt-master] wanding-deep-research source not found; skipping wanding-deep-research skill deploy."
+}
+
 $seedAgents = Join-Path $InstallDir "seed\agents"
 if (-not (Test-Path -LiteralPath $seedAgents)) {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent

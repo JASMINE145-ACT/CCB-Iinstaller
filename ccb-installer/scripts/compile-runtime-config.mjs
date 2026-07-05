@@ -29,6 +29,8 @@ function argValue(name) {
 function fixtureSecrets() {
   return {
     "secret://platform/llm/auth-token": "TEST_ONLY_LLM_TOKEN",
+    "secret://platform/research/exa-api-key": "TEST_ONLY_EXA_KEY",
+    "secret://platform/research/tavily-mcp-url": "https://mcp.tavily.com/mcp/?tavilyApiKey=TEST_ONLY_TAVILY",
     "secret://tenant/tn_wanding_prod/aol/access-token":
       "TEST_ONLY_AOL_ACCESS_TOKEN",
     "secret://tenant/tn_wanding_prod/aol/signature-secret":

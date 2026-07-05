@@ -1,6 +1,6 @@
 {
-  "config_generation": 3,
-  "description": "Price library edit skill + agent hooks — refresh agent seeds and AionUI ACP runtime on install/upgrade",
+  "config_generation": 5,
+  "description": "Personal memory Stop hook (ccb-personal-memory) + memory seed + /记住 command — refresh agents, skills, commands, CLAUDE memory rules on install/upgrade",
   "reset_targets": [
     "agents",
     "aionui_runtime"

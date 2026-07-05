@@ -324,6 +324,44 @@ function Remove-MarkedSection {
     }
 }
 
+function Ensure-MemoryTemplates {
+    param(
+        [Parameter(Mandatory = $true)] [string] $ConfigDir,
+        [string] $InstallDir
+    )
+
+    $resourcesRoot = $null
+    $candidates = @(
+        $(if ($InstallDir) { Join-Path $InstallDir 'resources\memory' }),
+        (Join-Path (Split-Path $PSScriptRoot -Parent) 'resources\memory')
+    )
+    foreach ($candidate in $candidates) {
+        if ($candidate -and (Test-Path -LiteralPath $candidate)) {
+            $resourcesRoot = $candidate
+            break
+        }
+    }
+    if (-not $resourcesRoot) {
+        Write-Warning 'Memory template resources not found — skip memory seed'
+        return
+    }
+
+    $memoryRoot = Join-Path $ConfigDir 'memory'
+    $null = New-Item -ItemType Directory -Force -Path $memoryRoot
+
+    Get-ChildItem -LiteralPath $resourcesRoot -Recurse -File | ForEach-Object {
+        $relative = $_.FullName.Substring($resourcesRoot.Length).TrimStart('\', '/')
+        $dest = Join-Path $memoryRoot $relative
+        $destParent = Split-Path $dest -Parent
+        if (-not (Test-Path -LiteralPath $destParent)) {
+            $null = New-Item -ItemType Directory -Force -Path $destParent
+        }
+        if (-not (Test-Path -LiteralPath $dest)) {
+            Copy-Item -LiteralPath $_.FullName -Destination $dest -Force
+        }
+    }
+}
+
 function ConvertTo-ClaudeProjectKey {
     param([string]$Path)
 
@@ -444,10 +482,37 @@ if (-not $settings.PSObject.Properties["mcpServers"]) {
     Set-JsonProperty -Object $settings -Name "mcpServers" -Value ([pscustomobject]@{})
 }
 
+$exaApiKey = Get-FirstLocalSecret @(
+    $env:EXA_API_KEY,
+    (Get-JsonPathValue -Object $settings -Path @('mcpServers', 'exa', 'headers', 'x-api-key')),
+    (Read-SsoEnvVars -Path (Join-Path $wandingRoot ".env.research"))['EXA_API_KEY'],
+    (Read-SsoEnvVars -Path (Join-Path $InstallDir "resources\research.env"))['EXA_API_KEY'],
+    (Read-SsoEnvVars -Path (Join-Path (Split-Path -Parent $PSScriptRoot) "resources\research.env"))['EXA_API_KEY']
+)
+$tavilyApiKey = Get-FirstLocalSecret @(
+    $env:TAVILY_API_KEY,
+    (Read-SsoEnvVars -Path (Join-Path $wandingRoot ".env.research"))['TAVILY_API_KEY'],
+    (Read-SsoEnvVars -Path (Join-Path $InstallDir "resources\research.env"))['TAVILY_API_KEY'],
+    (Read-SsoEnvVars -Path (Join-Path (Split-Path -Parent $PSScriptRoot) "resources\research.env"))['TAVILY_API_KEY']
+)
+
 $exa = [pscustomobject]@{
     type        = "http"
     url         = "https://mcp.exa.ai/mcp"
     description = "Exa neural web search and page fetch MCP"
+}
+if ($exaApiKey) {
+    $exa | Add-Member -NotePropertyName headers -NotePropertyValue ([pscustomobject]@{ "x-api-key" = $exaApiKey }) -Force
+}
+
+$tavilyUrl = "https://mcp.tavily.com/mcp/"
+if ($tavilyApiKey) {
+    $tavilyUrl = "https://mcp.tavily.com/mcp/?tavilyApiKey=$tavilyApiKey"
+}
+$tavily = [pscustomobject]@{
+    type        = "http"
+    url         = $tavilyUrl
+    description = "Tavily web search and extract MCP (remote)"
 }
 
 $excel = [pscustomobject]@{
@@ -573,6 +638,7 @@ $excelFile = [pscustomobject]@{
 }
 
 Set-JsonProperty -Object $settings.mcpServers -Name "exa" -Value $exa
+Set-JsonProperty -Object $settings.mcpServers -Name "tavily" -Value $tavily
 Set-JsonProperty -Object $settings.mcpServers -Name "excel-mcp" -Value $excel
 Set-JsonProperty -Object $settings.mcpServers -Name "quotation" -Value $quotation
 Set-JsonProperty -Object $settings.mcpServers -Name "price-library" -Value $priceLibrary
@@ -621,6 +687,7 @@ else {
     $mcpConfig = [pscustomobject]@{
         mcpServers = [pscustomobject]@{
             exa = $exa
+            tavily = $tavily
             "excel-mcp" = $excel
             quotation = $quotation
             "price-library" = $priceLibrary
@@ -681,3 +748,25 @@ Set-MarkedSection -Path $claudePath -StartMarker $toolingStart -EndMarker $tooli
 Remove-MarkedSection -Path $claudePath -StartMarker "<!-- CCB-WANDING-QUOTATION:START -->" -EndMarker "<!-- CCB-WANDING-QUOTATION:END -->"
 Remove-MarkedSection -Path $claudePath -StartMarker "<!-- CCB-WANDING-ACCURATE:START -->" -EndMarker "<!-- CCB-WANDING-ACCURATE:END -->"
 Remove-MarkedSection -Path $claudePath -StartMarker "<!-- CCB-WANDING-KNOWLEDGE:START -->" -EndMarker "<!-- CCB-WANDING-KNOWLEDGE:END -->"
+
+Ensure-MemoryTemplates -ConfigDir $ConfigDir -InstallDir $InstallDir
+
+$memoryStart = "<!-- CCB-MEMORY-RULES:START -->"
+$memoryEnd = "<!-- CCB-MEMORY-RULES:END -->"
+$memoryRulesCandidates = @(
+    $(if ($InstallDir) { Join-Path $InstallDir 'resources\memory\CCB-MEMORY-RULES.md' }),
+    (Join-Path (Split-Path $PSScriptRoot -Parent) 'resources\memory\CCB-MEMORY-RULES.md')
+)
+$memoryBody = $null
+foreach ($candidate in $memoryRulesCandidates) {
+    if ($candidate -and (Test-Path -LiteralPath $candidate)) {
+        $memoryBody = Get-Content -Raw -LiteralPath $candidate -Encoding UTF8
+        break
+    }
+}
+if (-not $memoryBody) {
+    Write-Warning 'CCB-MEMORY-RULES template missing — skip CLAUDE memory block'
+}
+elseif ($memoryBody) {
+    Set-MarkedSection -Path $claudePath -StartMarker $memoryStart -EndMarker $memoryEnd -Body $memoryBody.TrimEnd()
+}

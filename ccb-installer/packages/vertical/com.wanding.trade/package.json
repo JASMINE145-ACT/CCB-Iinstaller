@@ -185,6 +185,11 @@
       "providesCapabilities": [
         "business.pricing.manage"
       ]
+    },
+    {
+      "id": "wanding-deep-research",
+      "source": "packages/vertical/com.wanding.trade/skills/wanding-deep-research/SKILL.md",
+      "providesCapabilities": []
     }
   ],
   "knowledge": [
