@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | draft |
+| **Status** | completed |
 | **Scenario** | E（探索/审计，零代码行为变更） |
 | **Plan depth** | Standard |
 | **Verification profile** | Fast |
-| **Active phase** | — (awaiting approval) |
+| **Active phase** | closed |
 | **Repos** | claude-code-best（主）；aionui-src 只读参照 |
 | **Spec entry** | `.trellis/spec/integration/platform-vertical-packages.md` · `docs/platform-system-business-decoupling-optimization.md` |
 
@@ -14,11 +14,11 @@
 
 | Phase | State | Delivery / evidence |
 |-------|-------|---------------------|
-| P0 前情对齐 | pending | — |
-| P1 残留耦合审计（A1 行级 + A2 归属表） | pending | — |
-| P2 边界地图 + 决策树 | pending | — |
-| P3 分离 backlog | pending | — |
-| P4 门禁 | pending | — |
+| P0 前情对齐 | done | `research/prior-work-summary.md` |
+| P1 残留耦合审计（A1 行级 + A2 归属表） | done | `research/residual-coupling-audit.md` |
+| P2 边界地图 + 决策树 | done | `platform-business-boundary-map.md` · `decision-tree-curated-commits.md` |
+| P3 分离 backlog | done | `research/separation-backlog.md` |
+| P4 门禁 | done | `test-records/scenario-e-gate-20260705.md` |
 
 ---
 

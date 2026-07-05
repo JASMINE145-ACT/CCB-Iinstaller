@@ -3,7 +3,7 @@
   "name": "platform-business-architecture-separation",
   "title": "平台/业务架构边界地图与改动归类标准（Scenario E 审计，零行为变更）",
   "description": "07-03 已完成产品装配层解耦；本 task 补代码/目录级缺口：A1 平台路径行级残留耦合审计（含 aionui-src 只读）+ A2 全目录归属表 + boundary-map spec（含 3-5 问改动归类决策树，用 5 类 curated commit 实测）+ 带 priority/transition-ok 的分离 backlog。不搬代码、不实现 lint 门禁。",
-  "status": "planning",
+  "status": "completed",
   "dev_type": "docs",
   "scope": "architecture-audit",
   "package": "integration",

@@ -26,6 +26,7 @@
 | **Quotation 模糊匹配 / 评分引擎**（字段匹配核心算法、双路召回） | [`../backend/quotation-matching-engine.md`](../backend/quotation-matching-engine.md) |
 | **Quotation 多档查价 / 档位含义**（`get_product_price_tiers` + Read `data.Md`） | [`price-library.md`](./price-library.md) § Multi-tier query + `data.Md` read hook; agent SOP `ccb-installer/config/agents/quotation-agent.md` |
 | **Platform vs vertical packages** (tenant, `com.wanding.trade`, P0–P4) | [`platform-vertical-packages.md`](./platform-vertical-packages.md); design [`../../../docs/platform-system-business-decoupling-optimization.md`](../../../docs/platform-system-business-decoupling-optimization.md); epic `.trellis/tasks/07-03-platform-business-decoupling` |
+| **Daily dev: path ownership + change classification** (platform / business / mixed) | [`platform-business-boundary-map.md`](./platform-business-boundary-map.md) — decision tree + directory map; audit `.trellis/tasks/07-05-platform-business-architecture-separation/research/` |
 | **P0 forbidden coupling / no WanD in platform src** | [`platform-forbidden-coupling.md`](./platform-forbidden-coupling.md) |
 | **Package / tenant / capability IDs** | [`platform-identity-schema.md`](./platform-identity-schema.md) |
 | **Package manifest / read-only registry** | [`package-manifest-schema.md`](./package-manifest-schema.md) |

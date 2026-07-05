@@ -1,6 +1,6 @@
 # Platform / Business Architecture Separation — Boundary Map & Classification Guide
 
-**Status:** draft（待用户确认）
+**Status:** completed（2026-07-05，Scenario E 零行为变更）
 **Created:** 2026-07-05
 
 ## 背景与痛点
@@ -44,9 +44,9 @@
 
 ## Acceptance criteria
 
-- [ ] AC1 残留耦合审计落盘 `research/residual-coupling-audit.md`，每条含文件路径 + 证据
-- [ ] AC2 `platform-business-boundary-map.md` 覆盖仓库全部一级目录（含 ccb-installer 二级）
-- [ ] AC3 决策树可用：挑选 **5 类 curated commit**（平台脚本 / 业务 Agent / UI / 配置 manifest / 文档 各 1）逐一试归类，全部可判定
-- [ ] AC4 分离 backlog 每项含目标位置 + 成本估计（S/M/L）+ 风险 + priority + transition-ok
-- [ ] AC5 现有 registry lint / 平台健康检查照常通过（证明零行为变更）
-- [ ] AC6 `integration/index.md` 新增 boundary-map 入口行
+- [x] AC1 残留耦合审计落盘 `research/residual-coupling-audit.md`，每条含文件路径 + 证据
+- [x] AC2 `platform-business-boundary-map.md` 覆盖仓库全部一级目录（含 ccb-installer 二级）
+- [x] AC3 决策树可用：挑选 **5 类 curated commit**（平台脚本 / 业务 Agent / UI / 配置 manifest / 文档 各 1）逐一试归类，全部可判定
+- [x] AC4 分离 backlog 每项含目标位置 + 成本估计（S/M/L）+ 风险 + priority + transition-ok
+- [x] AC5 现有 registry lint / 平台健康检查照常通过（证明零行为变更）
+- [x] AC6 `integration/index.md` 新增 boundary-map 入口行
