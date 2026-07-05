@@ -45,11 +45,10 @@ ccb-installer/vendor/windows-terminal/
 
 # Secrets
 ccb-installer/resources/settings/
-!ccb-installer/resources/settings/
-ccb-installer/resources/settings/*
-!ccb-installer/resources/settings/settings.example.json
 .mcp.json
 .env.accurate
+ccb-installer/resources/research.env
+vendor/wanding/.env.research
 scripts/org-phase0/env.local
 scripts/org-phase0/.p0-rotation-staging.env
 
@@ -79,5 +78,7 @@ python/test_*_report.json
 .trellis/tasks/*/oracle-extract/
 .trellis/tasks/*/oracle-full-extract/
 
-# Local ROE gate pytest log fixtures (not repo artifacts)
+# Third-party learning references (clone locally, not tracked)
+docs/reference/rudder/
+
 ccb-installer/config/skills/ccb-subagent-gate/tests/fixtures/.roe-*/
