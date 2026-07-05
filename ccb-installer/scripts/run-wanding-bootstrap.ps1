@@ -13,6 +13,8 @@ param(
 
 $ErrorActionPreference = 'Continue'
 
+. (Join-Path $PSScriptRoot 'build-wanding-lib.ps1')
+
 if (-not $InstallDir) {
     $InstallDir = Split-Path -Parent $PSScriptRoot
 }
@@ -70,6 +72,19 @@ $firstBootstrap = -not (Test-Path -LiteralPath $bootstrapMarker)
 
 $failures += Invoke-BootstrapStep -Name 'sync-aionui-ccb-route-b' -ScriptRel 'sync-aionui-ccb-route-b.ps1' -BoundArgs @{
     InstallDir = $InstallDir
+}
+
+$distVersion = Ensure-WandingDistVersion -InstallDir $InstallDir
+if ($distVersion.ok) {
+    if ($distVersion.created) {
+        Write-BootstrapLog "OK ensure-dist-version created dist/VERSION=$($distVersion.version)"
+    }
+    else {
+        Write-BootstrapLog "OK ensure-dist-version $($distVersion.version) ($($distVersion.reason))"
+    }
+}
+else {
+    Write-BootstrapLog "WARN ensure-dist-version skipped — $($distVersion.reason)"
 }
 
 $configResetApplied = $false
@@ -154,23 +169,79 @@ if (-not $configResetApplied) {
     $failures += Invoke-BootstrapStep -Name 'patch-subagent-gate-hooks' -ScriptRel 'patch-subagent-gate-hooks.ps1' -BoundArgs @{
         AgentsDir = $agentsDir
     }
+    $failures += Invoke-BootstrapStep -Name 'patch-personal-memory-hooks' -ScriptRel 'patch-personal-memory-hooks.ps1' -BoundArgs @{
+        AgentsDir = $agentsDir
+    }
 }
 else {
     Write-BootstrapLog 'SKIP patch-subagent-gate-hooks (already applied by ship config reset)'
+    Write-BootstrapLog 'SKIP patch-personal-memory-hooks (already applied by ship config reset)'
 }
 
-$marker = $bootstrapMarker
-if ($failures -eq 0) {
-    Set-Content -LiteralPath $marker -Value (Get-Date -Format o) -Encoding UTF8
-    Write-BootstrapLog 'bootstrap complete (marker written)'
+$skillsDir = Join-Path $ConfigDir 'skills'
+$requiredSeedSkills = @(
+    'ccb-subagent-gate',
+    'ccb-personal-memory',
+    'quotation-learn-by-data',
+    'price-library-edit',
+    'wanding-deep-research'
+)
+$missingSeedSkill = $false
+foreach ($skillId in $requiredSeedSkills) {
+    if (-not (Test-Path -LiteralPath (Join-Path $skillsDir "$skillId\SKILL.md"))) {
+        $missingSeedSkill = $true
+        break
+    }
+}
+$needSkillDeploy = ($Mode -eq 'Full') -or $configResetApplied -or $missingSeedSkill -or (-not (Test-Path -LiteralPath $pptSkillMarker))
+if ($needSkillDeploy) {
+    $failures += Invoke-BootstrapStep -Name 'deploy-ccb-skills' -ScriptRel 'deploy-ccb-skills.ps1' -BoundArgs @{
+        SkillsDir  = $skillsDir
+        InstallDir = $InstallDir
+    }
 }
 else {
-    Write-BootstrapLog "bootstrap finished with $failures failure(s)"
-    exit 1
+    Write-BootstrapLog 'SKIP deploy-ccb-skills (all seed skills present)'
 }
-exit 0
 
-if ($Mode -eq 'Full') {
+$learnByDataCmd = Join-Path $ConfigDir 'commands\learn-by-data.md'
+$rememberCmd = Join-Path $ConfigDir 'commands\记住.md'
+$needCommandsDeploy = ($Mode -eq 'Full') -or $configResetApplied -or (-not (Test-Path -LiteralPath $learnByDataCmd)) -or (-not (Test-Path -LiteralPath $rememberCmd))
+if ($needCommandsDeploy) {
+    $failures += Invoke-BootstrapStep -Name 'deploy-wanding-commands' -ScriptRel 'deploy-wanding-commands.ps1' -BoundArgs @{
+        InstallDir = $InstallDir
+        ConfigDir  = $ConfigDir
+    }
+}
+else {
+    Write-BootstrapLog 'SKIP deploy-wanding-commands (learn-by-data present)'
+}
+
+$researchSidecar = Join-Path $agentsDir 'research-agent.aionui.json'
+$researchStackCurrent = $false
+if (Test-Path -LiteralPath $researchSidecar) {
+    try {
+        $sidecar = Get-Content -Raw -LiteralPath $researchSidecar -Encoding UTF8 | ConvertFrom-Json
+        $allow = @($sidecar.mcp_allowlist)
+        $researchStackCurrent = ($allow -contains 'exa') -and ($allow -contains 'tavily')
+    }
+    catch {
+        $researchStackCurrent = $false
+    }
+}
+$needResearchStack = ($Mode -eq 'Full') -or $configResetApplied -or (-not $researchStackCurrent)
+if ($needResearchStack) {
+    $failures += Invoke-BootstrapStep -Name 'install-research-toolstack' -ScriptRel 'install-research-toolstack.ps1' -BoundArgs @{
+        InstallDir = $InstallDir
+        ConfigDir  = $ConfigDir
+        Profile    = 'Base'
+    }
+}
+else {
+    Write-BootstrapLog 'SKIP install-research-toolstack (research-agent exa+tavily sidecar current)'
+}
+
+if ($Mode -eq 'Full' -and $failures -eq 0) {
     $authResetMarker = Join-Path $ConfigDir '.auth-reset-required'
     $installedVersion = 'unknown'
     $versionFile = Join-Path $InstallDir 'dist\VERSION'
@@ -181,4 +252,12 @@ if ($Mode -eq 'Full') {
     Write-BootstrapLog "auth-reset marker written for $installedVersion (next launch clears stale JWT)"
 }
 
-exit $failures
+$marker = $bootstrapMarker
+if ($failures -eq 0) {
+    Set-Content -LiteralPath $marker -Value (Get-Date -Format o) -Encoding UTF8
+    Write-BootstrapLog 'bootstrap complete (marker written)'
+    exit 0
+}
+
+Write-BootstrapLog "bootstrap finished with $failures failure(s)"
+exit 1

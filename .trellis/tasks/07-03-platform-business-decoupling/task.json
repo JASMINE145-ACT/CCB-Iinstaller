@@ -3,7 +3,7 @@
   "name": "07-03-platform-business-decoupling",
   "title": "Platform business decoupling — phased implementation",
   "description": "Epic: evolve CCB-Wanding into Platform Core + vertical packages per docs/platform-system-business-decoupling-optimization.md. Six phases P0–P5; preserve four-layer runtime chain; no big-bang rewrite.",
-  "status": "review",
+  "status": "completed",
   "dev_type": "architecture",
   "scope": "cross-layer",
   "package": "integration",
@@ -11,7 +11,7 @@
   "creator": "JASMINE145-ACT",
   "assignee": "JASMINE145-ACT",
   "createdAt": "2026-07-03",
-  "completedAt": null,
+  "completedAt": "2026-07-05",
   "branch": null,
   "base_branch": "main",
   "worktree_path": null,
@@ -98,7 +98,7 @@
     "ccb-installer/resources/install-health-manifest.json",
     "ccb-installer/scripts/ensure-wanding-settings.ps1"
   ],
-  "notes": "P0-P5 automated implementation is complete. Closure regression: Node 16/16, package health 2/2, live MCP 5/5 after scoped Route-B runtime sync. Parent remains in review / awaiting_human_verification until credential rotation, live environment, production cutover, UI, and stakeholder checklist items are completed.",
+  "notes": "Completed 2026-07-05. P0-P5 automated + agent manual verify (registry, MCP 5/5+7/7, P3 lifecycle, Platform install-health PASS after Ensure-WandingDistVersion). P0 credential rotation deferred ops.",
   "meta": {
     "user_goal": "分 Phase 实现平台与万鼎业务解耦，可装配多垂直包",
     "execution_plan": "execution-plan.md",

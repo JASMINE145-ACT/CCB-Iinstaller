@@ -144,6 +144,12 @@ if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
     throw "sync-aionui-ccb-route-b failed (exit $LASTEXITCODE)"
 }
 
+. (Join-Path $repoRoot 'ccb-installer\scripts\build-wanding-lib.ps1')
+$distVersion = Ensure-WandingDistVersion -InstallDir $InstallDir
+if ($distVersion.created) {
+    Write-Host "[ok] Stamped missing dist/VERSION = $($distVersion.version)" -ForegroundColor Green
+}
+
 if ($SkipVendorSync) {
     Write-Host '[skip] Vendor sync (-SkipVendorSync) — live vendor python/data may be stale.' -ForegroundColor Yellow
 } else {
@@ -178,12 +184,11 @@ if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
 Write-Host '[ok] Agent keep-set deployed, retired agents pruned from live' -ForegroundColor Green
 
 $commandsDir = Join-Path $configDir 'commands'
-$learnByDataCmd = Join-Path $repoRoot 'ccb-installer\resources\commands\learn-by-data.md'
-if (Test-Path -LiteralPath $learnByDataCmd) {
-    New-Item -ItemType Directory -Force -Path $commandsDir | Out-Null
-    Copy-Item -LiteralPath $learnByDataCmd -Destination (Join-Path $commandsDir 'learn-by-data.md') -Force
-    Write-Host "[ok] Slash command learn-by-data -> $commandsDir" -ForegroundColor Green
+& (Join-Path $repoRoot 'ccb-installer\scripts\deploy-wanding-commands.ps1') -InstallDir $InstallDir -ConfigDir $configDir -CommandsDir $commandsDir
+if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+    throw "deploy-wanding-commands failed (exit $LASTEXITCODE)"
 }
+Write-Host "[ok] Slash command learn-by-data -> $commandsDir" -ForegroundColor Green
 
 $skillsDir = Join-Path $configDir 'skills'
 Write-Host 'Deploying CCB skills (subagent-gate + quotation-learn-by-data)...' -ForegroundColor Cyan
@@ -195,6 +200,11 @@ $patchHooks = Join-Path $repoRoot 'ccb-installer\scripts\patch-subagent-gate-hoo
 & $patchHooks -AgentsDir $agentsDir
 if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
     throw "patch-subagent-gate-hooks failed (exit $LASTEXITCODE)"
+}
+$patchMemoryHooks = Join-Path $repoRoot 'ccb-installer\scripts\patch-personal-memory-hooks.ps1'
+& $patchMemoryHooks -AgentsDir $agentsDir
+if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+    throw "patch-personal-memory-hooks failed (exit $LASTEXITCODE)"
 }
 Write-Host '[ok] CCB skills + Stop hooks patched' -ForegroundColor Green
 

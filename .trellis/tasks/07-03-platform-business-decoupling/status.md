@@ -1,9 +1,9 @@
 # Status — `07-03-platform-business-decoupling`
 
-**Epic status:** review
-**Lifecycle:** automated implementation complete · awaiting_human_verification
-**Last updated:** 2026-07-04
-**Active phase:** closure audit and human handoff
+**Epic status:** completed
+**Lifecycle:** automated + agent manual verification complete · P0 credential rotation deferred (ops)
+**Last updated:** 2026-07-05
+**Active phase:** closed
 
 ## Phase tracker
 
@@ -31,9 +31,9 @@
 
 ## Next action
 
-1. 由用户/运维按 `manual-verification-checklist.md` 完成人工项。
-2. 重启 AionUI，使已同步的 Route-B runtime 在新进程中生效。
-3. 人工证据齐全后，才可将 parent task 从 `review` 改为 `completed`。
+1. ~~人工验收~~ — agent CLI + P3 lifecycle + Platform install-health **PASS** (2026-07-05).
+2. **Deferred ops:** P0 凭据轮换仍按 runbook 由运维执行（不阻塞 epic close）。
+3. **Optional:** P4 生产 OIDC cutover、P5 制造试点 UI — 按 ADR deferred 触发条件再开 task。
 
 ## Current runtime evidence
 

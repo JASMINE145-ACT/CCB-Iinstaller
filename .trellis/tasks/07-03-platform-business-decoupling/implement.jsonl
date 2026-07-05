@@ -1,4 +1,3 @@
-{"file": "docs/platform-system-business-decoupling-optimization.md", "reason": "Primary design source for P0-P5 scope and acceptance"}
-{"file": ".trellis/spec/integration/platform-vertical-packages.md", "reason": "ADR baseline for platform vs com.wanding.trade"}
-{"file": ".trellis/spec/integration/platform-identity-schema.md", "reason": "P1 identifier and schemaVersion contract"}
-{"file": ".trellis/spec/integration/platform-forbidden-coupling.md", "reason": "P1 registry must not introduce platform customer hardcoding"}
+{"file": "ccb-installer/scripts/build-wanding-lib.ps1", "reason": "Ensure-WandingDistVersion stamps dist/VERSION when cli.js present but VERSION missing"}
+{"file": "ccb-installer/scripts/run-wanding-bootstrap.ps1", "reason": "Call Ensure-WandingDistVersion after route-b sync"}
+{"file": "ccb-installer/scripts/start-dev-full.ps1", "reason": "Ensure dist/VERSION on dev start even with -SkipBootstrap"}

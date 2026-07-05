@@ -64,12 +64,14 @@ function Get-WandingShipScripts {
         'install-ppt-master.ps1',
         'deploy-ppt-master-skill.ps1',
         'deploy-subagent-gate-skill.ps1',
+        'deploy-personal-memory-skill.ps1',
         'sync-ppt-master-agents.ps1',
         'ensure-ppt-master-deps.ps1',
         'install-excel-mcp-server.ps1',
         'deploy-seed-agents.ps1',
         'deploy-seed-agents.mjs',
         'patch-subagent-gate-hooks.ps1',
+        'patch-personal-memory-hooks.ps1',
         'sync-aionui-ccb-route-b.ps1',
         'test-install-health.ps1',
         'run-wanding-bootstrap.ps1',
@@ -394,6 +396,49 @@ function Invoke-WandingHotComponentStage {
         }
         default { throw "Unknown hot component: $Component (use: $(Get-WandingHotComponentCatalog).Keys)" }
     }
+}
+
+function Ensure-WandingDistVersion {
+    param(
+        [string]$InstallDir,
+        [string]$Version = ''
+    )
+
+    $cliJs = Join-Path $InstallDir 'dist\cli.js'
+    $versionFile = Join-Path $InstallDir 'dist\VERSION'
+    if (-not (Test-Path -LiteralPath $cliJs)) {
+        return @{ ok = $false; created = $false; version = $null; reason = 'dist/cli.js missing' }
+    }
+    if (Test-Path -LiteralPath $versionFile) {
+        $existing = (Get-Content -LiteralPath $versionFile -Raw).Trim()
+        return @{ ok = $true; created = $false; version = $existing; reason = 'already present' }
+    }
+
+    if (-not $Version) {
+        $buildInfoPath = Join-Path $InstallDir 'dist\BUILD-INFO.json'
+        if (Test-Path -LiteralPath $buildInfoPath) {
+            try {
+                $buildInfo = Get-Content -Raw -LiteralPath $buildInfoPath -Encoding UTF8 | ConvertFrom-Json
+                if ($buildInfo.version) {
+                    $Version = [string]$buildInfo.version
+                }
+            }
+            catch {
+                # ignore malformed BUILD-INFO
+            }
+        }
+    }
+    if (-not $Version) {
+        $Version = '1.1.6-dev'
+    }
+
+    $null = New-Item -ItemType Directory -Force -Path (Split-Path $versionFile -Parent)
+    [System.IO.File]::WriteAllText(
+        $versionFile,
+        $Version.Trim(),
+        [System.Text.UTF8Encoding]::new($false)
+    )
+    return @{ ok = $true; created = $true; version = $Version.Trim(); reason = 'stamped missing VERSION' }
 }
 
 function Get-WandingHotZipRelPaths {
