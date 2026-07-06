@@ -1,0 +1,22 @@
+{
+  "id": "smoke",
+  "description": "Unified packaging gate (~35-45 min live): routing/delegation (9) + quotation workflow (7). Replaces separate smoke + quotation-smoke for release.",
+  "case_ids": [
+    "orchestrator-quote-delegates",
+    "orchestrator-accurate-delegates",
+    "orchestrator-research-delegates",
+    "orchestrator-no-price-library-mcp",
+    "direct-quotation-card-no-delegation",
+    "quote-tool-all-prices-direct50",
+    "session-greet-hello",
+    "quote-direct50-b",
+    "quote-ambiguous-short",
+    "quote-direct50-post-hook-golden",
+    "quote-smoke-direct50-then-inventory",
+    "quote-smoke-fill-direct50-draft",
+    "quote-smoke-tee50-inventory-fill",
+    "quote-smoke-learn-by-data-vantsing",
+    "quote-smoke-learn-by-data-section-d",
+    "quote-smoke-lingwei-batch-query"
+  ]
+}

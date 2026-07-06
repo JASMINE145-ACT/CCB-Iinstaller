@@ -6,13 +6,29 @@ Lightweight regression for CCB-Wanding agent routing and MCP tool choice.
 |------|------|
 | `agent_eval_cases.jsonl` | One JSON object per line — case definitions |
 | `run-agent-eval.mjs` | Schema check + optional live ACP runner |
+| `suites/smoke.json` | **Unified release gate (15 cases, ~35-45 min)** — routing + quotation |
+| `suites/quotation-smoke.json` | Optional quotation-only subset (6 cases) for partial re-run |
+| `suites/core.json` | Pre-release (~27 cases, extends smoke) |
+| `suites/full.json` | All cases (`mode: all`) |
 | `scenarios/` | Human/judge playbooks and golden data for multi-step flows |
 
 ## Commands
 
 ```powershell
-# Schema only (no ACP)
+# Schema only (no ACP) — CI + PR gate
 node eval/run-agent-eval.mjs
+
+# List tiered suites
+node eval/run-agent-eval.mjs --list-suites
+
+# Suite schema (validates case id refs)
+node eval/run-agent-eval.mjs --suite smoke
+
+# Live suite — unified smoke (15 cases, routing + quotation)
+.\ccb-installer\scripts\run-agent-eval-suite.ps1 -Suite smoke -Run -InstallDir D:\CCB-Wanding -Json
+
+# Optional: quotation-only partial re-run (6 cases)
+.\ccb-installer\scripts\run-agent-eval-suite.ps1 -Suite quotation-smoke -Run -InstallDir D:\CCB-Wanding -Json
 
 # Single live case
 node eval/run-agent-eval.mjs --run --case quote-direct50-b
@@ -21,7 +37,7 @@ node eval/run-agent-eval.mjs --run --case quote-direct50-b
 node eval/run-agent-eval.mjs --run --category quotation
 ```
 
-Live runs invoke `ccb-installer/test-native-acp-agent.mjs`. Default timeout **120s**; per-case `timeout_ms` overrides.
+Live runs invoke `ccb-installer/test-native-acp-agent.mjs` with `CCB_TEST_PROFILE` (alias `CCB_TEST_AGENT_ID`) from `case.agent`. Override install via `CCB_TEST_INSTALL_DIR` / `CCB_TEST_CONFIG_DIR`. Default timeout **120s**; per-case `timeout_ms` overrides.
 
 ## Case fields
 
@@ -37,6 +53,39 @@ Live runs invoke `ccb-installer/test-native-acp-agent.mjs`. Default timeout **12
 | `fix_note` | Human-readable note on why the case shape changed |
 
 ## Fix log
+
+### 2026-07-06 — `orchestrator-accurate-purchase-monthly-convergence` (R3, task 07-06-accurate-delegation-convergence)
+
+- **Purpose:** Default-route delegation convergence —「查一下公司2026年1-5月的采购额」经 orchestrator 委派 accurate-agent 后应 1×`summarize_records`(`group_by: month`) 出月表，不再 2×summarize + 2×fetch（含同参重发）。
+- **Machine asserts (schema 现有能力):** top-level forbidden `mcp__accurate__`/`mcp__quotation__`（orchestrator 本级 0 业务 MCP）；`pass_if_any` 两分支均要求 `Agent` + `accurate_summarize_records`、`expected_params` 含 `subagent_type:accurate-agent`（理想分支另验 `group_by:month`）、`forbidden_tool_calls: accurate_fetch_by_date`（任意层级，含子代理）、`response_includes_any` 分月线索。
+- **Not expressible (human judge via `must_not`/`notes`):** 调用次数上限（≤2）、连续同参重发检测、逐月（1-5 月全出现）表格校验 — 断言引擎无计数/序列断言，未扩 schema。
+- **Suite:** `core`（`full` 自动含）。诊断: `.trellis/tasks/07-06-accurate-delegation-convergence/research/delegation-convergence-diagnosis.md`.
+
+### 2026-07-06 — learn-by-data Section D (P2.2)
+
+- **Offline smoke:** `python python/scripts/smoke_learn_by_data_section_d.py` — VANTSING fixture: 8 mismatch preview+apply, merge 8 rows, recall 3/3 via `search_mapping_fuzzy`
+- **Case:** `quote-smoke-learn-by-data-section-d` — batch + `append_quotation_mapping_pending` (pass_if_any preview or Section D table)
+- **Suites:** `quotation-smoke` (7), unified `smoke` (16)
+- **Record:** `.trellis/tasks/07-06-learn-by-data-price-library-enrich/test-records/section-d-smoke.json`
+
+### 2026-07-06 — Unified smoke (15 cases)
+
+- **smoke** = routing 9 + quotation workflow 6 (one command for release gate)
+- **quotation-smoke** kept as optional 6-case subset for partial re-run after quotation-only fixes
+
+### 2026-07-06 — Quotation workflow smoke (6 user flows)
+
+- **Suite:** `quotation-smoke` — 查价→库存→填单→三通自动化→learn-by-data→LingWei批量
+- **Multi-turn:** case `prompts[]` → same ACP session; harness `CCB_TEST_PROMPTS`
+- **Fixtures:** `{{fixture:lingwei-6.8}}`, `{{fixture:vantsing-filled}}`; override via `CCB_EVAL_FIXTURE_*`
+- **Note:** learn-by-data MVP = VANTSING only; LingWei xlsx used for **batch query** (#6), not learn-by-data (#5)
+- **Scenario:** `eval/scenarios/quotation-workflow-smoke-20260706.md`
+
+### 2026-07-06 — Tiered suites + harness profile wiring
+
+- **Harness:** `test-native-acp-agent.mjs` reads `CCB_TEST_PROFILE` (runner sets from `case.agent`); `CCB_TEST_INSTALL_DIR` / `CCB_TEST_CONFIG_DIR` configurable.
+- **Suites:** `smoke` / `core` / `full` under `eval/suites/`; entry `run-agent-eval-suite.ps1`.
+- **Case:** `orchestrator-no-price-library-mcp` — Issue 3 price-library MCP leak on default entry.
 
 ### 2026-06-19 — `quote-tee50-post-hook-golden`
 
@@ -88,11 +137,16 @@ Live runs invoke `ccb-installer/test-native-acp-agent.mjs`. Default timeout **12
 - **Root cause:** Agent may clarify first, use `match_quotation` after wrong-tool recovery, or omit `error_code` in ACP logs — same class as `quote-ambiguous-short`.
 - **Fix:** `pass_if_any` with `combined_mcp_then_clarify` / `match_then_clarify` / `pre_clarify_without_weak_match`.
 
-### 2026-06-19 — Anti-hallucination cases (`anti-hallucination-price` / `anti-hallucination-accurate`)
+### 2026-06-19 — Anti-hallucination (`anti-hallucination-accurate` / research)
 
-- **Symptom:** Agent obeys「不用查工具/系统」and fabricates price or estimates sales without MCP.
-- **Root cause:** Prompt lacked explicit「ignore skip-tool requests; must call MCP same turn」.
-- **Fix:** New section in `quotation-agent.md`; rule in `accurate-agent.md` Do not. **Deploy** profile to live CCB before re-eval passes.
+- **Symptom:** Agent obeys「不用查系统」and estimates sales without MCP.
+- **Fix:** Rule in `accurate-agent.md` Do not. **Deploy** profile to live CCB before re-eval passes.
+
+### 2026-07-06 — Smoke slot `quote-tool-all-prices-direct50` (replaces `anti-hallucination-price`)
+
+- **Change:** Smoke no longer tests「不用查工具，直接告诉我价格」— that case was flaky (model obeys user skip-tool request).
+- **New prompt:**「查询直接50的全部价格」— expects `match_quotation` with `show_candidates: true` (price tool + candidate list).
+- **Note:** `anti-hallucination-accurate` remains in `core` suite for skip-tool resistance on accounting path.
 
 ### 2026-06-19 — `accurate-customer-summary` / `accurate-supplier-summary`
 

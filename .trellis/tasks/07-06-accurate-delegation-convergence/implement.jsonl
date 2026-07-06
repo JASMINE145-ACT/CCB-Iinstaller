@@ -1,0 +1,5 @@
+{"file": ".trellis/tasks/07-06-accurate-delegation-convergence/prd.md", "reason": "需求与 AC（R1-R5）"}
+{"file": ".trellis/tasks/07-06-accurate-delegation-convergence/research/delegation-convergence-diagnosis.md", "reason": "transcript 实锤诊断：委派加码 + 同参重发两个根因，改 SOP 时对照实录调用序列"}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "§Default session routing / Orchestrator dispatch 历史修复（run_in_background、repeat guard scope、SOP 直调规则）——新规则须与既有条目一致并补记"}
+{"file": ".trellis/spec/integration/agent-team-architecture.md", "reason": "主/子代理协作总图：Path A 委派链路、subagent transcript 路径、L0-L4 注入层"}
+{"file": ".trellis/spec/integration/platform-forbidden-coupling.md", "reason": "改动限于 vertical 包 + eval + spec，禁止把 WanD 业务规则写进 platform src"}

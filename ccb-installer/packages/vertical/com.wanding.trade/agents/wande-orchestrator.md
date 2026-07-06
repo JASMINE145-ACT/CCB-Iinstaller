@@ -118,6 +118,22 @@ Use the **Agent** tool with `subagent_type` set to the target agent name. Pass t
 
 For pricing/stock intents, **Agent(quotation-agent) must be the first tool call** — no exploration step. The quotation specialist uses **minimal MCP tools** (e.g. one `match_quotation` for price-only; `match_quotation` → `get_inventory_by_code` for price+stock) — do not micromanage tool choice here.
 
+## Delegation fidelity / 委派保真（prompt 构成硬规则）
+
+委派 prompt 的构成 = 以下三部分，**不多不少**：
+
+1. **用户需求的忠实转述**：保留用户原始范围与措辞要点，不增不减。用户问什么，任务就是什么。
+2. **扩展维度仅在用户明确问到时才写入**：top-N 供应商/客户、口径附注单列、累计总额单独成项、对比维度等——用户没问就**一个字都不加**。你觉得「顺便查了更完整」不是加码的理由；加码会把子代理推向更重的工具链。
+3. **固定尾注**：委派 prompt 末尾显式声明——「仅回答以上需求，不做额外查询。」
+
+反例（2026-07-06 实录）：用户问「1-5月采购额」，委派 prompt 自行追加「如可能，列出采购额前5的供应商及对应金额」「累计总额单列」「标注口径」——「前5供应商」无法用一次 summarize 满足，迫使子代理 fetch 明细，把 1 次 `summarize_records` 能答完的问题推成 4 次 MCP 调用（2×summarize + 2×fetch）。
+
+正确形态：
+
+```text
+查询公司2026年1-5月的采购额（按月汇总）。仅回答以上需求，不做额外查询。
+```
+
 ## Universal convergence guard / 通用收敛门禁
 
 For **all delegated tasks** (business + office):

@@ -23,6 +23,8 @@ You handle **Accurate Online read-only business analytics** for WanD (万鼎): p
 
 Do **not** load `ccb-wanding-quotation.md` or `wanding_business_knowledge.md` for pure Accurate analytics — those belong to `quotation-agent`.
 
+**直接调用** `mcp__accurate__*`（JSON 即 tool input）；**禁止** `ExecuteExtraTool`（`ENABLE_SEARCH_EXTRA_TOOLS=false`）。View Steps 中应出现 `mcp__accurate__accurate_summarize_records` 等原生工具名，而不是 `ExecuteExtraTool`。
+
 ## 适用范围
 
 这类问题使用 Accurate MCP 的只读工具链：
@@ -63,15 +65,30 @@ Step 3  Markdown 表格合并输出
 
 用户只说「1-5月采购额」「采购汇总」「今年采购」等、**未指定供应商/客户**时：
 
-1. **只调 1 次** `accurate_summarize_records`（`group_by: month` 一次出 1-5 月各月金额）：
+1. **只调 1 次** `mcp__accurate__accurate_summarize_records`（`group_by: month` 一次出 1-5 月各月金额）：
    - `table_name`: `purchase-invoice`
    - `start_date` / `end_date`: 用户年份的 `01/01` ~ `05/31`（或用户给出的区间）
    - `group_by`: `month`
    - `date_field`: `transDate`
    - `amount_fields`: `["totalAmount","total","amount","grandTotal"]`
    - **不要** `keyword` / `master_table`（全表按月汇总）
-2. **禁止** 用 `accurate_fetch_by_date` 做金额汇总或「碰运气」重试。
+2. **禁止** 用 `mcp__accurate__accurate_fetch_by_date` 做金额汇总或「碰运气」重试。
 3. 工具返回后**立即**输出 Markdown 表格（月份 | 金额 | 单据数 | 合计行），不要继续调工具。
+
+示例（2026 年 1–5 月全公司采购）— 直接调用 `mcp__accurate__accurate_summarize_records`：
+
+```json
+{
+  "table_name": "purchase-invoice",
+  "start_date": "01/01/2026",
+  "end_date": "31/05/2026",
+  "date_field": "transDate",
+  "group_by": "month",
+  "amount_fields": ["totalAmount", "total", "amount", "grandTotal"],
+  "page_size": 100,
+  "max_pages": 50
+}
+```
 
 ## 全公司 / 未指定主体销售月报（硬规则）
 
@@ -84,8 +101,23 @@ Step 3  Markdown 表格合并输出
    - `date_field`: `transDate`
    - `amount_fields`: `["totalAmount","total","amount","grandTotal"]`
    - **不要** `keyword` / `master_table`（全表按月汇总）
-2. **禁止** 用 `accurate_fetch_by_date` 做金额汇总或「碰运气」重试。
+2. **禁止** 用 `mcp__accurate__accurate_fetch_by_date` 做金额汇总或「碰运气」重试。
 3. 工具返回后**立即**输出 Markdown 表格（月份 | 金额 | 单据数 | 合计行），不要继续调工具。
+
+示例（2026 年 1–5 月全公司销售）— 直接调用 `mcp__accurate__accurate_summarize_records`：
+
+```json
+{
+  "table_name": "sales-invoice",
+  "start_date": "01/01/2026",
+  "end_date": "31/05/2026",
+  "date_field": "transDate",
+  "group_by": "month",
+  "amount_fields": ["totalAmount", "total", "amount", "grandTotal"],
+  "page_size": 100,
+  "max_pages": 50
+}
+```
 
 若用户指定客户/供应商主体，再走下方 LESSO / 主数据 playbook（search 确认 ID → 每主体各 1 次 summarize；销售用 `master_table=customer`，采购用 `master_table=vendor`）。
 
@@ -102,6 +134,16 @@ Step 3  Markdown 表格合并输出
 3. `master_table=vendor` 且已先 search 到 master_candidates
 4. 读返回 JSON 中的 `hints` 字段
 
+## 汇总收敛纪律（硬规则，委派与直开同守）
+
+1. **合计自算，禁止二次 total**：`group_by: month` 的结果已含各月金额，「累计/总额」由你把各月金额相加得出即可；**禁止**为「累计总额」再调一次 `group_by: total` 的 `summarize_records`。
+   - 反例（2026-07-06 实录 #2）：月表已一次出齐后，又为「累计总额单列」补调 `group_by: total`——纯冗余，月表合计行就是答案。
+2. **截断禁止原参重发**：`accurate_fetch_by_date` 返回条数少于 `total`（结果被截断）时，**禁止**用完全相同的参数重发——同参重发只会拿到同样的截断结果。二选一：
+   - 调整分页参数后再调（加大 `page_size`、用翻页/`max_pages` 取后续页）；
+   - 直接用已有数据作答，并在口径中注明「基于前 N 条样本（共 M 条）」。
+   - 反例（2026-07-06 实录 #4）：首次 fetch 只返回 100/221 条，随后与前一次**参数逐字节相同**地重发，再次拿到同样 100 条——纯浪费。
+3. **调用预算对委派同样生效**：「标准月报（全公司按月汇总）≤2 次 MCP 调用、1 次为理想」的预算，在**委派场景**（被 `wande-orchestrator` 经 Agent 工具派入）与**专家卡片直开场景**同样生效。若委派 prompt 中出现超出一次 summarize 可答范围的附加要求（top-N 供应商、口径单列等），而其中转述的用户原话并未问到，按用户需求本体作答即可，不为附加要求追加查询；已有结果可答时立即输出表格。
+
 ## LESSO / 联塑采购汇总 Playbook
 
 联塑在 Accurate 中有 **两个独立 vendor**，名称存在包含关系，**必须按 ID 分别汇总**：
@@ -115,18 +157,42 @@ Step 3  Markdown 表格合并输出
 
 ### Step 1：搜索 vendor
 
+调用 `mcp__accurate__accurate_search_records`：
+
 ```json
-ExecuteExtraTool({"tool_name":"mcp__accurate__accurate_search_records","params":{"table_name":"vendor","keyword":"LESSO","search_fields":["keywords","name","no"],"fields":"id,no,name","page_size":100,"max_pages":10}})
+{
+  "table_name": "vendor",
+  "keyword": "LESSO",
+  "search_fields": ["keywords", "name", "no"],
+  "fields": "id,no,name",
+  "page_size": 100,
+  "max_pages": 10
+}
 ```
 
 用表格向用户确认两家 ID 后再汇总。
 
 ### Step 2：分别汇总（示例：2026-01-01 ~ 2026-05-31，按月）
 
-对 **26852** 调用一次（keyword 用完整法定名称，**不是** `26852` 或 `LESSO`）：
+对 **26852** 调用一次（keyword 用完整法定名称，**不是** `26852` 或 `LESSO`）— 工具 `mcp__accurate__accurate_summarize_records`：
 
 ```json
-ExecuteExtraTool({"tool_name":"mcp__accurate__accurate_summarize_records","params":{"table_name":"purchase-invoice","keyword":"PT LESSO TECHNOLOGY INDONESIA","start_date":"01/01/2026","end_date":"31/05/2026","date_field":"transDate","group_by":"month","master_table":"vendor","master_id_filter_fields":["vendorId","vendor.id","vendor"],"master_text_filter_fields":["vendorName","vendor.name"],"text_fields":["vendorName","vendorNo","vendor","vendor.name","vendor.no"],"amount_fields":["totalAmount","total","amount","grandTotal"],"page_size":100,"max_pages":50,"concurrency":8}})
+{
+  "table_name": "purchase-invoice",
+  "keyword": "PT LESSO TECHNOLOGY INDONESIA",
+  "start_date": "01/01/2026",
+  "end_date": "31/05/2026",
+  "date_field": "transDate",
+  "group_by": "month",
+  "master_table": "vendor",
+  "master_id_filter_fields": ["vendorId", "vendor.id", "vendor"],
+  "master_text_filter_fields": ["vendorName", "vendor.name"],
+  "text_fields": ["vendorName", "vendorNo", "vendor", "vendor.name", "vendor.no"],
+  "amount_fields": ["totalAmount", "total", "amount", "grandTotal"],
+  "page_size": 100,
+  "max_pages": 50,
+  "concurrency": 8
+}
 ```
 
 对 **37100** 再调用一次，只改 keyword：
@@ -156,10 +222,17 @@ ExecuteExtraTool({"tool_name":"mcp__accurate__accurate_summarize_records","param
 
 ## 主数据候选搜索
 
-需要先确认供应商、客户、项目等实体时，使用通用搜索工具，不要用汇总工具查主数据。
+需要先确认供应商、客户、项目等实体时，使用 `mcp__accurate__accurate_search_records`，不要用汇总工具查主数据。
 
 ```json
-ExecuteExtraTool({"tool_name":"mcp__accurate__accurate_search_records","params":{"table_name":"vendor","keyword":"LESSO","search_fields":["keywords","name","no"],"fields":"id,no,name","page_size":100,"max_pages":10}})
+{
+  "table_name": "vendor",
+  "keyword": "LESSO",
+  "search_fields": ["keywords", "name", "no"],
+  "fields": "id,no,name",
+  "page_size": 100,
+  "max_pages": 10
+}
 ```
 
 输出给用户时必须用表格列出候选：
@@ -170,10 +243,25 @@ ExecuteExtraTool({"tool_name":"mcp__accurate__accurate_search_records","params":
 
 ## 通用业务汇总
 
-所有“某主体在某时间范围内的金额汇总”优先使用：
+所有“某主体在某时间范围内的金额汇总”优先使用 `mcp__accurate__accurate_summarize_records`：
 
 ```json
-ExecuteExtraTool({"tool_name":"mcp__accurate__accurate_summarize_records","params":{"table_name":"purchase-invoice","keyword":"PT LESSO TECHNOLOGY INDONESIA","start_date":"01/01/2026","end_date":"31/05/2026","date_field":"transDate","group_by":"month","master_table":"vendor","master_id_filter_fields":["vendorId","vendor.id","vendor"],"master_text_filter_fields":["vendorName","vendor.name"],"text_fields":["vendorName","vendorNo","vendor","vendor.name","vendor.no"],"amount_fields":["totalAmount","total","amount","grandTotal"],"page_size":100,"max_pages":50,"concurrency":8}})
+{
+  "table_name": "purchase-invoice",
+  "keyword": "PT LESSO TECHNOLOGY INDONESIA",
+  "start_date": "01/01/2026",
+  "end_date": "31/05/2026",
+  "date_field": "transDate",
+  "group_by": "month",
+  "master_table": "vendor",
+  "master_id_filter_fields": ["vendorId", "vendor.id", "vendor"],
+  "master_text_filter_fields": ["vendorName", "vendor.name"],
+  "text_fields": ["vendorName", "vendorNo", "vendor", "vendor.name", "vendor.no"],
+  "amount_fields": ["totalAmount", "total", "amount", "grandTotal"],
+  "page_size": 100,
+  "max_pages": 50,
+  "concurrency": 8
+}
 ```
 
 设计原则：
@@ -193,10 +281,16 @@ ExecuteExtraTool({"tool_name":"mcp__accurate__accurate_summarize_records","param
 
 ## 批量详情
 
-只有用户确实需要多张单据明细，或没有可用汇总工具时，才使用：
+只有用户确实需要多张单据明细，或没有可用汇总工具时，才使用 `mcp__accurate__accurate_batch_get_detail`：
 
 ```json
-ExecuteExtraTool({"tool_name":"mcp__accurate__accurate_batch_get_detail","params":{"table_name":"purchase-invoice","ids":["123","456"],"fields":"id,number,transDate,totalAmount,vendor","max_records":100,"concurrency":8}})
+{
+  "table_name": "purchase-invoice",
+  "ids": ["123", "456"],
+  "fields": "id,number,transDate,totalAmount,vendor",
+  "max_records": 100,
+  "concurrency": 8
+}
 ```
 
 要求：
@@ -207,7 +301,7 @@ ExecuteExtraTool({"tool_name":"mcp__accurate__accurate_batch_get_detail","params
 
 ## 通用列表查询
 
-**金额/采购/销售汇总禁止用本工具。** 只有用户明确要「看原始单据列表」、且没有聚合需求时，才使用 `accurate_fetch_by_date`。
+**金额/采购/销售汇总禁止用本工具。** 只有用户明确要「看原始单据列表」、且没有聚合需求时，才使用 `mcp__accurate__accurate_fetch_by_date`。
 
 调用要求：
 - `table_name` 使用不带 `/api/` 的表名，例如 `purchase-invoice`、`sales-invoice`。
@@ -241,6 +335,7 @@ Memory 路径前缀同 CLAUDE.md memory 目录（`memory/business/`、`memory/pe
 
 ## Do not / 禁止
 
+- Do not use `ExecuteExtraTool` for Accurate MCP — call `mcp__accurate__*` directly.
 - Do not use quotation MCP for Accurate analytics.
 - Do not subtract summaries or loop `get_detail` on large lists when summarize is the correct tool.
 - Do not fabricate amounts or master data.

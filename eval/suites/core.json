@@ -1,0 +1,20 @@
+{
+  "id": "core",
+  "description": "Pre-release regression (~50-60 min). extends smoke (15) + inventory/accurate/permission extras.",
+  "extends": "smoke",
+  "case_ids": [
+    "quote-no-data",
+    "quote-show-candidates",
+    "inventory-code",
+    "price-and-stock-single",
+    "accurate-sales-jan-may",
+    "direct-accurate-card-no-delegation",
+    "direct-research-card-no-delegation",
+    "anti-hallucination-accurate",
+    "permission-write-file",
+    "knowledge-read-trigger",
+    "session-open-no-accurate-mcp",
+    "quote-stock-selected-code-no-selected-list",
+    "orchestrator-accurate-purchase-monthly-convergence"
+  ]
+}

@@ -1,0 +1,3 @@
+{"file": ".trellis/tasks/07-06-accurate-delegation-convergence/prd.md", "reason": "对照 AC R1-R5 逐条核验"}
+{"file": ".trellis/tasks/07-06-accurate-delegation-convergence/research/delegation-convergence-diagnosis.md", "reason": "核验 SOP 新规则确实堵住实录中的 #2 冗余调用与 #4 同参重发"}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "核验 spec 补记与既有 dispatch hardening 条目无冲突"}

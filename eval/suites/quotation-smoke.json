@@ -1,0 +1,13 @@
+{
+  "id": "quotation-smoke",
+  "description": "Optional subset — quotation workflow only (7 cases). Full release gate uses unified smoke (16).",
+  "case_ids": [
+    "quote-direct50-post-hook-golden",
+    "quote-smoke-direct50-then-inventory",
+    "quote-smoke-fill-direct50-draft",
+    "quote-smoke-tee50-inventory-fill",
+    "quote-smoke-learn-by-data-vantsing",
+    "quote-smoke-learn-by-data-section-d",
+    "quote-smoke-lingwei-batch-query"
+  ]
+}

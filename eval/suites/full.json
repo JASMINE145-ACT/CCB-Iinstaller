@@ -1,0 +1,5 @@
+{
+  "id": "full",
+  "description": "All cases in agent_eval_cases.jsonl (2–4 h live).",
+  "mode": "all"
+}

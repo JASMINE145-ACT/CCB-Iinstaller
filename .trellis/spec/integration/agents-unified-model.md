@@ -1,7 +1,8 @@
 # CCB Agents Unified Model
 
 > Canonical storage for CCB assistant/agent configuration in AionUI + CCB-Wanding.  
-> Read this when changing assistant catalog I/O, migration, session handoff, or dual-read bridges.
+> Read this when changing assistant catalog I/O, migration, session handoff, or dual-read bridges.  
+> **Team / routing overview (shorter):** [`agent-team-architecture.md`](./agent-team-architecture.md) — main vs subagent paths, delegation, hooks map.
 
 ---
 
@@ -95,6 +96,23 @@ cd D:\Projects\claude-code-best
 2. Sidebar: open **万鼎报价专家** → new chat → row icon **💰** (not Claude star).
 3. Repeat for 账务 **📊**, PPT **📽️**, Excel **📈**, Word **📝**.
 4. Old sessions with `ccb_agent_id` in DB should pick up emoji after renderer reload (no re-login).
+5. **Default Guid send (no card):** sidebar row shows **🧭** (wande-orchestrator), not Claude star — requires aionui `useGuidSend` + `resolveSidebarPresetLookupId` (2026-07-06).
+
+### Sidebar default-route icon fix (2026-07-06)
+
+**Symptom:** Guid 默认会话（未选助手卡片）创建的「你好」等在侧边栏显示 Claude / Gemini / Aion 混用 logo，而非全局路由 🧭。
+
+**Root cause:** `useGuidSend` 未写入 `ccb_agent_id`；`usePresetAssistantInfo` 无 legacy 推断 → 回退 `getAgentLogo(backend)`.
+
+**Shipped (aionui-src):**
+
+| File | Change |
+|------|--------|
+| `renderer/pages/guid/hooks/useGuidSend.ts` | CCB + Claude execution engine → `buildCcbPresetConversationExtra(wande-orchestrator)` + stage profile |
+| `renderer/hooks/agent/usePresetAssistantInfo.ts` | `resolveSidebarPresetLookupId` — legacy claude ACP + CCB authority → 🧭 via `ccbAgentsService.getAgent` |
+| Tests | `useGuidSend.dom.test.ts`, `usePresetAssistantInfo.test.ts` — **25/25 PASS** (with `ccbPresetConversationExtra.test.ts`) |
+
+**Verify:** restart dev → Guid 直接发「你好」→ 侧边栏 🧭；点「万鼎报价专家」→ 💰；旧 claude 会话（无 ccb_agent_id）→ 🧭。
 
 ### Team / conversation catalog unification (2026-06-29)
 
@@ -242,8 +260,12 @@ Run modes:
 # Schema only; no live ACP/API call.
 node eval/run-agent-eval.mjs
 
-# Live ACP single case. The runner passes case.agent as CCB_TEST_AGENT_ID.
+# Live ACP single case. The runner passes case.agent as CCB_TEST_PROFILE (alias CCB_TEST_AGENT_ID).
 node eval/run-agent-eval.mjs --run --case quote-direct50-b
+
+# Live ACP suite (smoke / core / full)
+node eval/run-agent-eval.mjs --run --suite smoke
+.\ccb-installer\scripts\run-agent-eval-suite.ps1 -Suite smoke -Run -InstallDir D:\CCB-Wanding
 
 # Live ACP category.
 node eval/run-agent-eval.mjs --run --category quotation
@@ -547,7 +569,7 @@ Detail: [`../backend/mcp-business.md`](../backend/mcp-business.md) § VANTSING f
 
 ### learn-by-data skill (2026-06-30)
 
-**Goal:** From a human-filled **VANTSING** Excel, re-run `match_quotation_batch` per inquiry line, compare agent top code vs human `product_no` (col F), output knowledge snippets or severe flags.
+**Goal:** From a human-filled **VANTSING** Excel, re-run `match_quotation_batch` per inquiry line, compare **agent_pick_code** (same knowledge-based selection as quotation-agent §选型) vs human `product_no` (col F), output knowledge snippets or severe flags.
 
 | Item | Path / contract |
 |------|-----------------|
@@ -555,11 +577,21 @@ Detail: [`../backend/mcp-business.md`](../backend/mcp-business.md) § VANTSING f
 | Agent wiring | `quotation-agent.md` `skills: [quotation-learn-by-data]` + §工具决策表 `/learn-by-data` row |
 | Live deploy | `%LOCALAPPDATA%\CCB-Wanding\.claude\skills\quotation-learn-by-data\` via `deploy-ccb-skills.ps1` |
 | MVP scope | VANTSING only — fixed cols B/C keywords, F actual code, rows 8..Total-1 |
-| Match | `match_quotation_batch` with **`show_candidates=true`** (≤10/batch); not the default parallel single-match path |
+| Match | `match_quotation_batch` with **`show_candidates=true`** (≤10/batch); selection uses **same SOP as quotation-agent §选型** — **not** `candidates[0]` |
 | Outputs | Section A: in-candidates mismatch → `append_business_rule` preview; Section B: not-in-candidates / 0-candidate |
 | Smoke fixture | `data/smoke/learn-by-data-vantsing-filled.xlsx` — regen: `python python/scripts/generate_learn_by_data_smoke_fixture.py` |
 
 Task: `.trellis/tasks/06-30-quotation-learn-by-data-skill`
+
+**Phase 2 — price library enrich (2026-07-06):** Task `07-06-learn-by-data-price-library-enrich`
+
+| Change | Detail |
+|--------|--------|
+| Section B oracle | `get_product_price_tiers(actual_code)` — in PL → `人工核查`; not in PL → `实际料号无效` |
+| Section C | Agent `top_code` missing from PL → `upsert_price_library_item` (`confirmed=false` first); **no tier prices** on learn-by-data path |
+| Agent MCP | `quotation-agent` allowlist + `price-library` (org API still gates `price_admin`) |
+| MCP schema | `upsert` exposes `source_file`, `source_sheet`, `source_row`, `superseded_by_source` |
+| Helper | `python/quotation/learn_by_data_price_library.py` |
 
 **UI observability (2026-07-01):** Tasks `07-01-quotation-skills-ui-quick`, `07-01-ccb-agent-skills-ui-unified`, `07-01-quotation-slash-discovery`, `07-01-agent-attention-notifications`.
 
@@ -1051,7 +1083,7 @@ When `listCcbAgents()` returns empty (CCB not installed), list falls back entire
 - CCB: `resolveDefaultSessionAgentId()` in `createSession` when handoff + meta are empty
 - Orchestrator `mcp_allowlist: []` → main session has no quotation/accurate MCP; delegation via `Agent(quotation-agent|accurate-agent)`
 - **Subagent MCP:** `Agent()` spawn reads md frontmatter `mcpServers` (not sidecar `mcp_allowlist`). Seeds/migration must set `mcpServers: [quotation|accurate]` on specialist `.md` files. String-reference specs (e.g. `mcpServers: [quotation]`) are resolved via `getMcpConfigByName()` in `runAgent.ts`. **Config path split (fixed 2026-06-16):** `getMcpConfigByName` reads `.claude.json` via `getGlobalConfig()`; CCB-Wanding MCPs live in `settings.json`. Fix: `settings.json` fallback added at end of `getMcpConfigByName` in `D:\claude-code-B\src\services\mcp\config.ts` — calls `loadMcpConfigsFromSettings()` before returning `null`.
-- **SOP tool examples (fixed 2026-06-18):** `quotation-agent.md` + `data/ccb-wanding-quotation.md` must show **direct** `mcp__quotation__*` tool calls (params JSON only). **Do not** document `ExecuteExtraTool({tool_name:…})` — Wanding ACP sets `ENABLE_SEARCH_EXTRA_TOOLS=false`; indirect calls fail and mislead the model. See [`route-b-status.md`](../backend/route-b-status.md) Update 2026-06-18.
+- **SOP tool examples (fixed 2026-06-18; accurate extended 2026-07-06):** `quotation-agent.md` + `data/ccb-wanding-quotation.md` and **`accurate-agent.md`** must show **direct** `mcp__quotation__*` / `mcp__accurate__*` tool calls (params JSON only). **Do not** document `ExecuteExtraTool({tool_name:…})` — Wanding ACP sets `ENABLE_SEARCH_EXTRA_TOOLS=false`; indirect calls fail and mislead the model. Accurate smoke: Guid 万鼎账务专家 →「1-5月采购额」→ 1× `mcp__accurate__accurate_summarize_records` on `purchase-invoice`, not `ExecuteExtraTool` or per-month `fetch_by_date`. See [`route-b-status.md`](../backend/route-b-status.md) Update 2026-06-18.
 - **Knowledge base path doubling (fixed 2026-06-17):** `quotation-agent.md` 业务知识库 section previously specified only `Base path: D:\CCB-Wanding\vendor\wanding\data\` (no filename), causing the model to double-concatenate path + filename in its Read call (garbled path). Additionally, the model would preemptively probe with `ls`/`dir` bash commands before Read — these always fail on Windows absolute paths. Fix: section now specifies the full absolute path `D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md` with explicit constraints: Read tool only, no bash probing, no re-concatenation.
 - **Office preset Agent id (fixed 2026-06-18b):** frontmatter `name` on office agents must equal `agent_id` (`word-creator`, `ppt-creator`, …) for `Agent(subagent_type)`; Guid display title goes in sidecar `display_name`. Migration: `migration.ccbWandingOfficeAgentTypeIds_v1` in `ccbAgentMigration.ts`.
 - **Word Creator MCP-only (2026-06-18c):** `word-creator` uses **only** `office-word` MCP — no `officecli-docx` skill. Seed: `ccb-installer/config/agents/word-creator.md` + `.aionui.json` (`mcp_allowlist: ["office-word"]`, `skills.enabled: []`, frontmatter `mcpServers: [office-word]`). Tools: direct `mcp__office-word__*` (same contract as quotation SOP — no `ExecuteExtraTool`). Migration: `repairWordCreatorOfficeWordMcp` (`migration.ccbWandingWordCreatorOfficeWord_v1`). `ccbAgents.serializeAgentMarkdown` persists `mcpServers` from `mcp_allowlist`. **Not changed:** `word-form-creator` still uses `officecli-word-form` skill. **Stale:** legacy `assistants/word-creator.json` may still list `officecli-docx` — runtime reads `agents/word-creator.*` first via `getProfileWithAgentDelegation`. **Old conversations** opened before switch may still inject officecli rules in first message; model may fall back to Bash `officecli` — use **new Guid session** after restart. See [`route-b-status.md`](../backend/route-b-status.md) Update 2026-06-18c.
@@ -1073,6 +1105,16 @@ When `listCcbAgents()` returns empty (CCB not installed), list falls back entire
 
 - Flag: `migration.ccbWandingMcpServers_v1`
 - Action: `repairWanDSubagentMcpServersWithFlag()` — injects `mcpServers` into live `quotation-agent.md` / `accurate-agent.md` when user md blocks seed deploy
+
+**Delegation fidelity + subagent convergence (2026-07-06):**
+
+- **Symptom:** default route (orchestrator → `Agent(accurate-agent)`) answered「1-5月采购额」with **4 business MCP calls** (2× summarize + 2× fetch) while the expert-card direct path converged in 1× summarize. Dispatch isolation itself was **correct** — parent transcript had 0 business MCP calls; all 4 lived in `subagents/agent-*.jsonl`.
+- **Root cause A — dispatch prompt scope inflation:** orchestrator's delegation prompt added requirements the user never asked (top-5 vendors, 累计单列, 口径标注); vendor grouping is unsupported by `summarize_records`, forcing `fetch_by_date` detail pulls.
+- **Root cause B — subagent retry discipline missing:** redundant `group_by: total` after the month table (already contains all months), and a **byte-identical** `fetch_by_date` resend after a 100/221 truncation. Runtime side: `wrapCanUseToolForWandeOrchestrator` passes through on `context.agentId`, so subagent scope has **zero runtime enforcement** — convergence is prompt-discipline only.
+- **Fix (prompt layer, seeds):** `wande-orchestrator.md` new「Delegation fidelity / 委派保真」section — delegation prompt = faithful restatement of user ask (不增不减) + extensions only when explicitly asked + fixed footer「仅回答以上需求，不做额外查询」. `accurate-agent.md` new「汇总收敛纪律」— (a) totals derived from month rows, never a second `group_by: total`; (b) on truncation never resend identical params (adjust paging or answer from sample with 口径注明); (c) ≤2-call budget applies equally to delegated and direct sessions.
+- **Regression:** eval case `orchestrator-accurate-purchase-monthly-convergence` (suite `core`) — machine asserts: orchestrator 0 business MCP (top-level `forbidden_tools`), subagent 0× `fetch_by_date`, reply contains month breakdown; call-count ≤2 and identical-param-resend remain human-judge `must_not` items (runner has no count/sequence assertions — extending that belongs to 07-09).
+- **Deferred:** runtime identical-args/call-budget guard at the `context.agentId` passthrough (CCB source, two mirrors + tests) — pending explicit user decision.
+- Diagnosis with full transcript evidence: `.trellis/tasks/07-06-accurate-delegation-convergence/research/delegation-convergence-diagnosis.md`. Smoke: new Guid default session →「1-5月采购额」→ 1× `accurate_summarize_records` (`purchase-invoice`, `group_by: month`), 0× fetch, monthly table in reply.
 
 **Office preset delegatable boundary:**
 

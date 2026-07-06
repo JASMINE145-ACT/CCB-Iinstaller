@@ -5,19 +5,27 @@
  * Alternative success paths: pass_if_any[] with per-branch expected_tools / response_includes_any.
  */
 import { spawn } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const defaultCasesPath = resolve(repoRoot, 'eval', 'agent_eval_cases.jsonl')
+const suitesDir = resolve(repoRoot, 'eval', 'suites')
 
 const args = process.argv.slice(2)
 const runLive = args.includes('--run')
 const route = args.includes('--route')
+const listSuites = args.includes('--list-suites')
 const casesPath = valueAfter('--cases') || defaultCasesPath
 const onlyId = valueAfter('--case')
 const onlyCategory = valueAfter('--category')
+const suiteName = valueAfter('--suite')
+const suiteFlagIndex = args.indexOf('--suite')
+if (suiteFlagIndex >= 0 && !suiteName) {
+  console.error('[agent-eval] --suite requires a name (smoke | core | full). Use --list-suites.')
+  process.exit(1)
+}
 
 function valueAfter(flag) {
   const idx = args.indexOf(flag)
@@ -38,10 +46,102 @@ function readCases(path) {
     })
 }
 
+function loadSuiteDefinition(suiteId, seen = new Set()) {
+  if (seen.has(suiteId)) {
+    throw new Error(`suite cycle detected: ${suiteId}`)
+  }
+  seen.add(suiteId)
+  const suitePath = resolve(suitesDir, `${suiteId}.json`)
+  if (!existsSync(suitePath)) {
+    throw new Error(`suite not found: ${suiteId} (${suitePath})`)
+  }
+  const suite = JSON.parse(readFileSync(suitePath, 'utf8'))
+  if (suite.mode === 'all') {
+    return { id: suiteId, mode: 'all', caseIds: null }
+  }
+  const caseIds = new Set(suite.case_ids || [])
+  if (suite.extends) {
+    const parent = loadSuiteDefinition(suite.extends, seen)
+    if (parent.mode === 'all') {
+      throw new Error(`suite ${suiteId} cannot extend all-mode suite ${suite.extends}`)
+    }
+    for (const id of parent.caseIds) caseIds.add(id)
+  }
+  return { id: suiteId, mode: 'subset', caseIds }
+}
+
+function validateSuites(allCaseIds) {
+  if (!existsSync(suitesDir)) return
+  const files = readdirSync(suitesDir).filter((name) => name.endsWith('.json'))
+  for (const file of files) {
+    const suiteId = file.replace(/\.json$/, '')
+    const suite = loadSuiteDefinition(suiteId)
+    if (suite.mode === 'all') continue
+    for (const caseId of suite.caseIds) {
+      if (!allCaseIds.has(caseId)) {
+        throw new Error(`suite ${suiteId} references unknown case id: ${caseId}`)
+      }
+    }
+  }
+}
+
+function listAvailableSuites() {
+  if (!existsSync(suitesDir)) {
+    console.log('[agent-eval] no suites directory')
+    return
+  }
+  for (const file of readdirSync(suitesDir).filter((name) => name.endsWith('.json')).sort()) {
+    const suiteId = file.replace(/\.json$/, '')
+    const suite = loadSuiteDefinition(suiteId)
+    const count = suite.mode === 'all' ? 'all' : suite.caseIds.size
+    const description = JSON.parse(readFileSync(resolve(suitesDir, file), 'utf8')).description || ''
+    console.log(`${suiteId}\t${count} cases\t${description}`)
+  }
+}
+
+function resolveFixturePath(key) {
+  const map = {
+    'lingwei-6.8': resolve(repoRoot, 'data', 'smoke', 'lingwei-6.8-quotation.xlsx'),
+    'vantsing-filled': resolve(repoRoot, 'data', 'smoke', 'learn-by-data-vantsing-filled.xlsx'),
+  }
+  if (key === 'lingwei-6.8' && process.env.CCB_EVAL_FIXTURE_LINGWEI) {
+    return process.env.CCB_EVAL_FIXTURE_LINGWEI
+  }
+  if (key === 'vantsing-filled' && process.env.CCB_EVAL_FIXTURE_VANTSING) {
+    return process.env.CCB_EVAL_FIXTURE_VANTSING
+  }
+  return map[key] || ''
+}
+
+function substituteFixtures(text) {
+  if (typeof text !== 'string') return text
+  return text.replace(/\{\{fixture:([a-z0-9.-]+)\}\}/gi, (_, key) => resolveFixturePath(key) || `{{fixture:${key}}}`)
+}
+
+function resolveCasePrompts(testCase) {
+  if (Array.isArray(testCase.prompts) && testCase.prompts.length) {
+    return testCase.prompts.map((prompt) => substituteFixtures(String(prompt)))
+  }
+  return null
+}
+
+function resolveCaseInput(testCase) {
+  if (typeof testCase.input === 'string' && testCase.input.trim()) {
+    return substituteFixtures(testCase.input)
+  }
+  return ''
+}
+
 function validateCase(testCase, lineNo) {
   const errors = []
-  for (const field of ['id', 'category', 'agent', 'input', 'risk_level']) {
+  for (const field of ['id', 'category', 'agent', 'risk_level']) {
     if (typeof testCase[field] !== 'string' || !testCase[field].trim()) errors.push(`missing ${field}`)
+  }
+  const hasInput = typeof testCase.input === 'string' && testCase.input.trim()
+  const hasPrompts = Array.isArray(testCase.prompts) && testCase.prompts.length
+  if (!hasInput && !hasPrompts) errors.push('input or prompts is required')
+  if (testCase.prompts !== undefined && !Array.isArray(testCase.prompts)) {
+    errors.push('prompts must be an array')
   }
   for (const field of ['expected_tools', 'forbidden_tools', 'must_not']) {
     if (testCase[field] !== undefined && !Array.isArray(testCase[field])) errors.push(`${field} must be an array`)
@@ -118,6 +218,14 @@ function topLevelToolAppeared(events, toolName) {
   return events.some((event) => event.toolName === toolName && !event.parentToolUseId)
 }
 
+function topLevelMcpForbiddenAppeared(events, forbiddenTool) {
+  return events.some((event) => {
+    if (event.parentToolUseId) return false
+    if (forbiddenTool.endsWith('__')) return event.toolName.startsWith(forbiddenTool)
+    return event.toolName === forbiddenTool
+  })
+}
+
 function agentDelegationSubagents(events) {
   const subagents = []
   for (const event of events) {
@@ -151,7 +259,10 @@ function forbiddenBuiltinToolAppeared(toolEvents, toolName) {
 
 function forbiddenMcpToolAppeared(testCase, combined, toolEvents, tool) {
   if (usesTopLevelForbiddenScope(testCase)) {
-    return topLevelToolAppeared(toolEvents, tool)
+    return topLevelMcpForbiddenAppeared(toolEvents, tool)
+  }
+  if (tool.endsWith('__')) {
+    return toolEvents.some((event) => event.toolName.startsWith(tool))
   }
   return toolCallAppeared(combined, tool, toolEvents)
 }
@@ -277,17 +388,24 @@ function runNativeAcpOnce(testCase) {
     testCase.timeout_ms?.toString() ||
     process.env.CCB_TEST_TIMEOUT_MS ||
     '120000'
+  const multiPrompts = resolveCasePrompts(testCase)
+  const singleInput = resolveCaseInput(testCase)
 
   return new Promise((resolveCase) => {
     const child = spawn(process.execPath, [resolve(repoRoot, 'ccb-installer', 'test-native-acp-agent.mjs')], {
       cwd: repoRoot,
       env: {
         ...process.env,
-        CCB_TEST_PROMPT: testCase.input,
+        ...(multiPrompts
+          ? { CCB_TEST_PROMPTS: JSON.stringify(multiPrompts), CCB_TEST_PROMPT: '' }
+          : { CCB_TEST_PROMPT: singleInput }),
+        CCB_TEST_PROFILE: testCase.agent,
         CCB_TEST_AGENT_ID: testCase.agent,
         CCB_TEST_DUMP_UPDATES: 'all',
         CCB_TEST_TIMEOUT_MS: timeoutMs,
         CCB_TEST_ROUTE_ENTRY: route ? '1' : process.env.CCB_TEST_ROUTE_ENTRY || '',
+        CCB_TEST_INSTALL_DIR: process.env.CCB_TEST_INSTALL_DIR || '',
+        CCB_TEST_CONFIG_DIR: process.env.CCB_TEST_CONFIG_DIR || '',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     })
@@ -328,20 +446,39 @@ function runNativeAcp(testCase) {
 }
 
 const loaded = readCases(casesPath)
+const allCaseIds = new Set(loaded.map(({ value }) => value.id))
+
+if (listSuites) {
+  listAvailableSuites()
+  process.exit(0)
+}
+
+validateSuites(allCaseIds)
+
+let suiteFilter = null
+if (suiteName) {
+  const suite = loadSuiteDefinition(suiteName)
+  if (suite.mode !== 'all') {
+    suiteFilter = suite.caseIds
+  }
+}
+
 const selected = loaded
   .map(({ lineNo, value }) => {
     validateCase(value, lineNo)
     return value
   })
+  .filter(testCase => !suiteFilter || suiteFilter.has(testCase.id))
   .filter(testCase => !onlyId || testCase.id === onlyId)
   .filter(testCase => !onlyCategory || testCase.category === onlyCategory)
 
 if (!selected.length) {
-  console.error(`No cases selected from ${casesPath}`)
+  console.error(`No cases selected from ${casesPath}${suiteName ? ` (suite=${suiteName})` : ''}`)
   process.exit(1)
 }
 
-console.log(`[agent-eval] loaded=${loaded.length} selected=${selected.length} mode=${runLive ? 'live' : 'validate'}`)
+const suiteLabel = suiteName ? ` suite=${suiteName}` : ''
+console.log(`[agent-eval] loaded=${loaded.length} selected=${selected.length} mode=${runLive ? 'live' : 'validate'}${suiteLabel}`)
 
 if (!runLive) {
   console.log('[agent-eval] schema ok')
