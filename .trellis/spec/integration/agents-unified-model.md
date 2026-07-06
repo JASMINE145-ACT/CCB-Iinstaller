@@ -2,7 +2,7 @@
 
 > Canonical storage for CCB assistant/agent configuration in AionUI + CCB-Wanding.  
 > Read this when changing assistant catalog I/O, migration, session handoff, or dual-read bridges.  
-> **Team / routing overview (shorter):** [`agent-team-architecture.md`](./agent-team-architecture.md) — main vs subagent paths, delegation, hooks map.
+> **Team / routing overview (shorter):** [`agent-team-architecture.md`](./agent-team-architecture.md) — main vs subagent paths, delegation, hooks map, **UI observability (flat View Steps)**.
 
 ---
 
@@ -207,6 +207,18 @@ L0 CLAUDE.md 只保留写入规则和路径说明；强制预读指令已移除�
 - Seed: `ensure-wanding-settings.ps1` → `memory/personal/*` only (no `business/` seed in 1.1.7).
 - Manual: `/记住` → personal paths only. Business/org rules stay on `append_business_rule`.
 - **UI (P6):** AionUI sider **记忆** → `/memory` tabs personal \| business; browse/edit files under `.claude/memory/` (path-jailed IPC).
+
+**Trigger gate + extraction quality redesign (2026-07-06, task `07-06-memory-trigger-extraction-quality`):**
+
+User complaint「不知道什么时候触发 / 提取一些没用信息」traced to real defects (diagnosis with file:line: `.trellis/tasks/07-06-memory-trigger-extraction-quality/research/trigger-extraction-diagnosis.md`). Contracts now in force:
+
+- **Hook decision chain (sync, regex-only, single transcript read, no network):** `cooldown → no-new-lines → no-signal → enqueue`. Every skip is logged with reason (`skip: cooldown|no-new-lines|no-signal`); a skip writes **no** status (would clobber a concurrent worker's `learning` banner) and spawns nothing — banner appears only when the LLM is actually called.
+- **State file** `.claude/memory/.learning-state.json` (new): `{"sessions": {"<sessionId>|<transcript-filename>": {"processedLines": int, "lastRunAt": ISO-8601}}}`. Composite key because SubagentStop transcripts have independent line counts. Whole decide→advance sequence runs under one `_FileLock` (`learning_state.claim_window`) — optimistic watermark pre-write at enqueue so concurrent Stop/SubagentStop can't double-extract (trade-off: a crashed worker's window is not retried; 宁少勿重). Cooldown = 60s per sessionId (prefix match over composite keys). Corrupt state → fail-open (full scan); >50 sessions pruned oldest-first.
+- **Status file additive fields** (`.learning-status.json`): `skippedReason: str|null`, `lastEntries: [str] (≤3)`. The legacy 7 fields (status/startedAt/finishedAt/sessionId/agentType/entriesAppended/error) keep name+semantics — AionUI banner depends on `status=learning` + 90s stale; never rename.
+- **Extraction validation matrix** (worker, both thinking + heuristic paths): entry must be `(target ∈ {workflow, profile}, text 6–120 chars, evidence)`; `evidence` must locate in the incremental transcript window (substring either way, or `SequenceMatcher.ratio ≥ 0.6`) else reject; near-duplicate vs full normalized bullet list of the target file (`ratio ≥ 0.85`) reject; business veto tiers: `BUSINESS_STRONG` (折扣/打折/含税/利润率/`\d折`…) vetoes alone, weak terms (客户/供应商/知识库/口径) need ≥2 distinct hits — so「我习惯先查供应商库存再报价」is captured while「折扣按9折」is blocked. Profile target is live end-to-end (was dead code pre-redesign).
+- **Hygiene:** worker deletes its job manifest in `finally`; hook prunes jobs older than 7 days.
+- **Wrong vs correct:** wrong = gate on `transcript_has_user_content` (fires the LLM + banner on every session end); correct = heuristic signal pre-gate in the hook, LLM only after a candidate exists in the **new** lines. Wrong = trusting model-reported confidence; correct = evidence grounding checked against the transcript.
+- **Tests:** `python -m pytest ccb-installer/config/skills/ccb-personal-memory/tests/ -q` → 30 passed (asserts: no-signal→no job/status, incremental watermark, cooldown, evidence rejects, supplier-habit regression, discount veto, near-dup reject, profile e2e, job cleanup).
 
 ### Fast path vs delivery path (2026-06-18g)
 
@@ -1124,10 +1136,23 @@ When `listCcbAgents()` returns empty (CCB not installed), list falls back entire
 - **Applied then reverted (2026-06-17):** `delegatable: false` was initially set on all office presets to prevent non-WanD sessions from using them. **Reverted to `delegatable: true`** because `filterDelegatableCustomAgents` applies uniformly to ALL sessions — including the orchestrator itself — causing `Agent(word-creator)` / `Agent(ppt-creator)` etc. to fail with runtime rejection ("连续 2 次拒绝"). The migration flag `ccbWandingOfficeDelegatable_v1` should NOT be applied. Proper fix requires CCB source change: `filterDelegatableCustomAgents` should bypass `delegatable` check when `isWandeOrchestratorSession(sessionProfileId)` and `CCB_ROUTER_DELEGATABLE_AGENT_IDS.has(lookupId)`.
 - **Current state (2026-06-17):** all office preset sidecars (`cowork`, `word-creator`, `word-form-creator`, `ppt-creator`, `excel-creator`) have `delegatable: true` in both live sidecars and source `ccb-installer/config/agents/*.aionui.json`.
 
-**Subagent UI (AionUI):**
+**Subagent UI (AionUI) — runtime vs renderer (2026-07-06):**
 
-- ACP `Agent` tool maps to `kind: think` with `rawInput.subagent_type` (see `bridge.ts` `toolInfoFromToolUse`)
-- `MessageAcpToolCall` + `SubagentDrawer` — MVP shows task prompt + tool_call content; nested child tool timeline is follow-up
+Path A **delegation works at runtime** (`runAgent.ts` → child `agentId`, `subagents/agent-*.jsonl`, orchestrator sync-wait + forward). The renderer **does not yet mirror** that hierarchy.
+
+| Layer | Status |
+|-------|--------|
+| CCB `Agent()` spawn + child MCP | ✅ Shipped (overlay `runAgent.ts`, guards bypass on `context.agentId`) |
+| ACP `Agent` → UI | `kind: think` + `rawInput.subagent_type` (`bridge.ts` `toolInfoFromToolUse`) |
+| Agent tool card + `SubagentDrawer` | ✅ MVP —「查看执行」shows task prompt / tool_call body |
+| **View Steps** (`MessageToolGroupSummary`) | ⚠️ **Flat list** — child Read/MCP rows appear sibling to `Agent()`, not nested |
+| Nested child tool timeline | ❌ **Follow-up** — product gap, not a missing backend delegate |
+
+**Misread symptom:** User on default orchestrator sees `Read wanding_business_knowledge.md` then `mcp__quotation__match_quotation` in View Steps and assumes orchestrator violated「不直连 MCP」. If a top-level `Agent(quotation-agent)` row exists (check `subagent_type`, `tool_uses`, `agentId`), those steps are **subagent-internal** — see [`agent-team-architecture.md`](./agent-team-architecture.md) § UI observability.
+
+**Eval contract:** `eval/run-agent-eval.mjs` — orchestrator `forbidden_tools` apply only when `parentToolUseId` is absent; delegated child MCP is OK.
+
+Detail: [`../frontend/chat-acp-flow.md`](../frontend/chat-acp-flow.md) §3.4c.
 
 **Markdown parsing:** `ccbAgents.ts` supports YAML block scalars (`description: |`) so seed agent descriptions do not render as a lone `|` in Guid cards.
 

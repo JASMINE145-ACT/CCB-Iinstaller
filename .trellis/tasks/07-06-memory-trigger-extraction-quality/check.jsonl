@@ -1,0 +1,4 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".trellis/tasks/07-06-memory-trigger-extraction-quality/prd.md", "reason": "对照 AC R1-R10 逐条核验"}
+{"file": ".trellis/tasks/07-06-memory-trigger-extraction-quality/research/trigger-extraction-diagnosis.md", "reason": "核验修复确实堵住 T1-T4/E1-E4 每条缺陷"}
+{"file": "ccb-installer/config/skills/ccb-personal-memory/tests/test_personal_memory_stop.py", "reason": "现有 6 fixture 回归 + 新 fixture 覆盖核验"}

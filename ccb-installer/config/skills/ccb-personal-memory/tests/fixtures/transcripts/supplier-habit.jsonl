@@ -1,0 +1,2 @@
+{"type":"user","message":{"role":"user","content":"我习惯先查供应商库存再报价"}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"好的，先查供应商库存。"}]}}

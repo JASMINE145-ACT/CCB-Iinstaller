@@ -99,49 +99,49 @@ class TestPersonalMemoryStop(unittest.TestCase):
         self.assertFalse(self._workflow.is_file())
 
     def test_thinking_mock_appends(self) -> None:
+        # Signal transcript required since the hook now pre-screens (R1); mock
+        # entries must carry evidence locatable in the transcript (R3).
         self._env.pop("CCB_PERSONAL_MEMORY_FORCE_FALLBACK", None)
         mock = Path(self._tmpdir) / "mock.json"
         mock.write_text(
             json.dumps(
                 {
                     "entries": [
-                        {"target": "workflow", "text": "先核对行数再导出", "confidence": 0.95},
-                        {"target": "workflow", "text": "客户九折", "confidence": 0.9},
+                        {
+                            "target": "workflow",
+                            "text": "报价之前先查一次库存",
+                            "evidence": "我习惯先查库存再报价",
+                            "confidence": 0.95,
+                        }
                     ]
                 },
                 ensure_ascii=False,
             ),
             encoding="utf-8",
         )
-        # business text in mock still accepted by parse_entries — filter is prompt-side;
-        # low-confidence / non-workflow filtered; we only assert high-confidence workflow lands
         self._env["CCB_PERSONAL_MEMORY_THINKING_MOCK"] = str(mock)
-        # Fix mock to only personal
-        mock.write_text(
-            json.dumps(
-                {"entries": [{"target": "workflow", "text": "先核对行数再导出", "confidence": 0.95}]},
-                ensure_ascii=False,
-            ),
-            encoding="utf-8",
-        )
-        transcript = FIXTURES / "no-signal.jsonl"
+        transcript = FIXTURES / "workflow-signal.jsonl"
         proc = self._run_hook({"transcript_path": str(transcript), "hook_event_name": "Stop"})
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         text = self._workflow.read_text(encoding="utf-8")
-        self.assertIn("先核对行数再导出", text)
+        self.assertIn("报价之前先查一次库存", text)
 
     def test_parse_entries_filters(self) -> None:
         entries = parse_entries(
             {
                 "entries": [
-                    {"target": "workflow", "text": "ok", "confidence": 0.9},
-                    {"target": "workflow", "text": "low", "confidence": 0.2},
-                    {"target": "profile", "text": "name", "confidence": 0.99},
-                    {"target": "workflow", "text": "客户永远九折", "confidence": 0.99},
+                    {"target": "workflow", "text": "ok entry", "evidence": "ev", "confidence": 0.9},
+                    {"target": "workflow", "text": "low", "evidence": "ev", "confidence": 0.2},
+                    {"target": "workflow", "text": "no evidence", "confidence": 0.99},
+                    {"target": "other", "text": "bad target", "evidence": "ev", "confidence": 0.9},
+                    {"target": "profile", "text": "称呼陈工", "evidence": "叫我陈工", "confidence": 0.99},
                 ]
             }
         )
-        self.assertEqual(entries, [("workflow", "ok")])
+        self.assertEqual(
+            entries,
+            [("workflow", "ok entry", "ev"), ("profile", "称呼陈工", "叫我陈工")],
+        )
 
     def test_enqueue_async_returns_fast(self) -> None:
         env = self._env.copy()

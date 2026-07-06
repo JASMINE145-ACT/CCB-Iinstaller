@@ -1,0 +1,2 @@
+{"type":"user","message":{"role":"user","content":"我是采购部的老陈，以后叫我陈工就行"}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"好的，陈工。"}]}}

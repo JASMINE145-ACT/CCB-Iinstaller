@@ -23,7 +23,13 @@ def write_status(
     entries_appended: int = 0,
     error: str | None = None,
     started_at: str | None = None,
+    skipped_reason: str | None = None,
+    last_entries: list[str] | None = None,
 ) -> Path:
+    """Write banner status. Legacy fields (status/startedAt/finishedAt/sessionId/
+    agentType/entriesAppended/error) keep name + semantics — the AionUI banner
+    depends on status=learning + 90s stale logic. skippedReason / lastEntries are
+    backward-compatible additions (R7)."""
     path = learning_status_path(config_dir)
     path.parent.mkdir(parents=True, exist_ok=True)
     existing: dict[str, Any] = {}
@@ -43,6 +49,8 @@ def write_status(
         "agentType": agent_type or existing.get("agentType") or "",
         "entriesAppended": entries_appended,
         "error": error,
+        "skippedReason": skipped_reason,
+        "lastEntries": list(last_entries or [])[:3],
     }
     if status == "learning":
         payload["startedAt"] = _now_iso()
@@ -51,6 +59,8 @@ def write_status(
         payload["error"] = None
         payload["sessionId"] = session_id
         payload["agentType"] = agent_type
+        payload["skippedReason"] = None
+        payload["lastEntries"] = []
 
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return path

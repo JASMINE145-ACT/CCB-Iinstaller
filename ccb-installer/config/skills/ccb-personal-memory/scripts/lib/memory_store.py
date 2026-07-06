@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 from datetime import date
+from difflib import SequenceMatcher
 from pathlib import Path
 
 from personal_memory_paths import (
@@ -19,6 +21,9 @@ from personal_memory_paths import (
 MAX_APPENDS_PER_STOP = 3
 LOCK_TIMEOUT_SEC = 25.0
 LOCK_POLL_SEC = 0.05
+NEAR_DUPLICATE_RATIO = 0.85
+
+_BULLET_DATE_PREFIX = re.compile(r"^-\s*(?:\[\d{4}-\d{2}-\d{2}\]\s*)?")
 
 
 class MemoryStoreError(Exception):
@@ -59,6 +64,41 @@ def _target_path(target: str, config_dir: Path | None) -> Path:
 def _line_exists(file_text: str, bullet_body: str) -> bool:
     norm = normalize_compare(bullet_body)
     return norm in normalize_compare(file_text)
+
+
+def bullet_bodies(file_text: str) -> list[str]:
+    """Bullet texts with the '- [YYYY-MM-DD] ' prefix stripped (normalized list)."""
+    bodies: list[str] = []
+    for raw in file_text.splitlines():
+        line = raw.strip()
+        if not line.startswith("-"):
+            continue
+        body = _BULLET_DATE_PREFIX.sub("", line).strip()
+        if body:
+            bodies.append(body)
+    return bodies
+
+
+def read_bullets(target: str, config_dir: Path | None = None) -> list[str]:
+    """All existing bullet bodies for a target file — full dedup hint (R4)."""
+    path = _target_path(target, config_dir)
+    if not path.is_file():
+        return []
+    return bullet_bodies(path.read_text(encoding="utf-8", errors="replace"))
+
+
+def is_near_duplicate(candidate_text: str, existing_bodies: list[str]) -> bool:
+    """Semantic near-dup (R4): SequenceMatcher ratio >= 0.85 vs any existing bullet."""
+    norm = normalize_compare(candidate_text)
+    if not norm:
+        return False
+    for body in existing_bodies:
+        other = normalize_compare(body)
+        if not other:
+            continue
+        if SequenceMatcher(None, norm, other).ratio() >= NEAR_DUPLICATE_RATIO:
+            return True
+    return False
 
 
 def _format_bullet(body: str, *, day: date | None = None) -> str:
@@ -114,6 +154,8 @@ def should_skip_candidate(
     norm = normalize_compare(candidate_text)
     if _line_exists(existing_file_text, candidate_text):
         return True
+    if is_near_duplicate(candidate_text, bullet_bodies(existing_file_text)):
+        return True
     employee = employee_values if employee_values is not None else _read_employee_profile_values(config_dir)
     if target == "profile":
         for value in employee:
@@ -164,13 +206,13 @@ def append_candidates(
     candidates: list[tuple[str, str]],
     *,
     config_dir: Path | None = None,
-) -> int:
-    """Append up to MAX_APPENDS_PER_STOP candidates. Returns count appended."""
-    appended = 0
+) -> list[tuple[str, str]]:
+    """Append up to MAX_APPENDS_PER_STOP candidates. Returns the appended pairs."""
+    appended: list[tuple[str, str]] = []
     for target, body in candidates[:MAX_APPENDS_PER_STOP]:
         try:
             if append_candidate(target, body, config_dir=config_dir):
-                appended += 1
+                appended.append((target, body))
         except MemoryStoreError:
             raise
         except OSError as exc:

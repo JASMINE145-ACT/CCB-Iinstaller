@@ -19,6 +19,10 @@ WORKFLOW_MARKERS = (
     "会话惯例",
     "我通常",
     "我一般",
+    "下次",
+    "以后记得",
+    "按我的习惯",
+    "每次都",
 )
 
 PROFILE_MARKERS = (
@@ -29,13 +33,18 @@ PROFILE_MARKERS = (
     "我所在",
 )
 
-PERSONAL_REMEMBER = re.compile(r"记住.*偏好|记住偏好|记住这个偏好")
+# Explicit "remember this" instructions must always pass the hook pre-screen (R1).
+PERSONAL_REMEMBER = re.compile(r"记住|别忘了")
 
-BUSINESS_DOMINANT = re.compile(
-    r"客户|折扣|口径|供应商|利润率|知识库|"
-    r"append_business_rule|含税",
+# Tiered business veto (R5): one STRONG hit vetoes; WEAK terms need >= 2 distinct
+# hits so personal habits that merely mention a business noun survive
+# (e.g. 「我习惯先查供应商库存再报价」 stays; 「给这个客户的折扣按9折」 is vetoed).
+BUSINESS_STRONG = re.compile(
+    r"折扣|打折|含税|利润率|报价纠偏|append_business_rule|"
+    r"[0-9０-９一二两三四五六七八九十]\s*折",
     re.IGNORECASE,
 )
+BUSINESS_WEAK_TERMS: tuple[str, ...] = ("客户", "供应商", "知识库", "口径")
 
 WRITE_WORKFLOW_MARK = re.compile(r"memory[/\\]personal[/\\]workflow\.md", re.IGNORECASE)
 WRITE_PROFILE_MARK = re.compile(r"memory[/\\]personal[/\\]profile\.md", re.IGNORECASE)
@@ -81,10 +90,18 @@ def _extract_user_text(obj: dict[str, Any]) -> str:
     return ""
 
 
-def iter_user_messages(transcript_path: Path) -> Iterable[str]:
+def read_transcript_lines(transcript_path: Path) -> list[str]:
+    """Raw transcript lines; the length is the incremental watermark unit (R2)."""
     if not transcript_path.is_file():
-        return
-    for line in transcript_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        return []
+    return transcript_path.read_text(encoding="utf-8", errors="replace").splitlines()
+
+
+def iter_user_texts(lines: list[str], *, start_line: int = 0) -> Iterable[str]:
+    """User message texts from already-read lines (lets callers read the file once)."""
+    for index, line in enumerate(lines):
+        if index < start_line:
+            continue
         obj = _loads_line(line)
         if not obj:
             continue
@@ -93,13 +110,24 @@ def iter_user_messages(transcript_path: Path) -> Iterable[str]:
             yield text
 
 
+def iter_user_messages(transcript_path: Path, *, start_line: int = 0) -> Iterable[str]:
+    yield from iter_user_texts(read_transcript_lines(transcript_path), start_line=start_line)
+
+
 def _contains_any(text: str, markers: tuple[str, ...]) -> bool:
     return any(marker in text for marker in markers)
 
 
 def is_business_dominant(text: str) -> bool:
-    """True when text is primarily a business/pricing rule, not a personal habit."""
-    return bool(BUSINESS_DOMINANT.search(text))
+    """True when text is primarily a business/pricing rule, not a personal habit.
+
+    Strong terms (pricing/discount/tax) veto alone; weak terms (customer,
+    supplier, knowledge base, caliber) only veto when >= 2 distinct hits.
+    """
+    if BUSINESS_STRONG.search(text):
+        return True
+    weak_hits = {term for term in BUSINESS_WEAK_TERMS if term in text}
+    return len(weak_hits) >= 2
 
 
 def _summarize_for_bullet(text: str, *, max_len: int = 120) -> str:
@@ -113,25 +141,25 @@ def classify_message(text: str) -> MemoryCandidate | None:
     if not text.strip():
         return None
     summary = _summarize_for_bullet(text)
-    if _contains_any(text, WORKFLOW_MARKERS):
-        if BUSINESS_DOMINANT.search(text):
+    if _contains_any(text, WORKFLOW_MARKERS) or PERSONAL_REMEMBER.search(text):
+        if is_business_dominant(text):
             return None
         return MemoryCandidate(target="workflow", text=summary, source_message=text)
-    if PERSONAL_REMEMBER.search(text):
-        if BUSINESS_DOMINANT.search(text):
-            return None
-        return MemoryCandidate(target="workflow", text=summary, source_message=text)
-    if BUSINESS_DOMINANT.search(text):
+    if is_business_dominant(text):
         return None
     if _contains_any(text, PROFILE_MARKERS):
         return MemoryCandidate(target="profile", text=summary, source_message=text)
     return None
 
 
-def extract_candidates(transcript_path: Path) -> list[MemoryCandidate]:
+def extract_candidates(
+    transcript_path: Path,
+    *,
+    start_line: int = 0,
+) -> list[MemoryCandidate]:
     seen: set[tuple[str, str]] = set()
     out: list[MemoryCandidate] = []
-    for message in iter_user_messages(transcript_path):
+    for message in iter_user_messages(transcript_path, start_line=start_line):
         candidate = classify_message(message)
         if candidate is None:
             continue
@@ -182,19 +210,29 @@ def _extract_assistant_text(obj: dict[str, Any]) -> str:
     return ""
 
 
-def transcript_has_user_content(transcript_path: Path) -> bool:
-    for _ in iter_user_messages(transcript_path):
-        return True
+def lines_have_new_signal(lines: list[str], *, start_line: int = 0) -> bool:
+    """Millisecond regex pre-screen (R1): any classifiable user message after watermark."""
+    for message in iter_user_texts(lines, start_line=start_line):
+        if classify_message(message) is not None:
+            return True
     return False
 
 
-def build_transcript_excerpt(transcript_path: Path, *, max_chars: int = 6000) -> str:
-    """User turns + last assistant texts for thinking input."""
+def build_transcript_excerpt(
+    transcript_path: Path,
+    *,
+    start_line: int = 0,
+    max_chars: int = 6000,
+) -> str:
+    """User turns + last assistant texts for thinking input (from watermark onward)."""
     if not transcript_path.is_file():
         return ""
     lines_out: list[str] = []
     assistant_tail: list[str] = []
-    for line in transcript_path.read_text(encoding="utf-8", errors="replace").splitlines():
+    raw_lines = transcript_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    for index, line in enumerate(raw_lines):
+        if index < start_line:
+            continue
         obj = _loads_line(line)
         if not obj:
             continue

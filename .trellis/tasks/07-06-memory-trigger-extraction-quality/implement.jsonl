@@ -1,0 +1,7 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".trellis/tasks/07-06-memory-trigger-extraction-quality/prd.md", "reason": "AC R1-R10 与 Non-goals"}
+{"file": ".trellis/tasks/07-06-memory-trigger-extraction-quality/research/trigger-extraction-diagnosis.md", "reason": "缺陷 T1-T4/E1-E5 file:line 实锤 + 修复方向裁定"}
+{"file": "ccb-installer/config/skills/ccb-personal-memory/scripts/post-personal-memory-stop.py", "reason": "触发 hook — WS-A 前置预筛落点"}
+{"file": "ccb-installer/config/skills/ccb-personal-memory/scripts/personal-memory-worker.py", "reason": "worker — WS-B 校验/WS-C hygiene 落点"}
+{"file": "ccb-installer/config/skills/ccb-personal-memory/scripts/lib/thinking_client.py", "reason": "prompt v2 + entry 校验落点"}
+{"file": "ccb-installer/config/skills/ccb-personal-memory/scripts/lib/parse_transcript_personal_memory.py", "reason": "启发式/业务过滤/增量 excerpt 落点"}

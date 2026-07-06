@@ -1,0 +1,32 @@
+{
+  "id": "memory-trigger-extraction-quality",
+  "name": "memory-trigger-extraction-quality",
+  "title": "Personal memory trigger gating and extraction quality redesign",
+  "description": "Redesign ccb-personal-memory Stop-hook trigger (signal pre-gate, incremental, cooldown, observability) and extraction quality (kill useless entries, fix profile dead code, semantic dedup, business-filter false positives)",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-06",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "2026-07-06: trellis-check PASS — R1-R9 all pass; 2 MEDIUM fixed in-check (atomic claim_window gate, single transcript read); pytest 30/30 green (12 legacy + 18 new). 2026-07-06: spec updated — .trellis/spec/integration/agents-unified-model.md §Personal memory Stop hook: added 'Trigger gate + extraction quality redesign (2026-07-06)' block (hook decision chain, .learning-state.json contract, status additive fields, extraction validation matrix, business veto tiers). R10 manual smoke pending (deploy + real-session skip/capture/no-repeat).",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "Standard+manual-smoke",
+    "scenario": "C",
+    "phase": "R10-manual-smoke-open",
+    "target_release": "1.1.7"
+  }
+}
