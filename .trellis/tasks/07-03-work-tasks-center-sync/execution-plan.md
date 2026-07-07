@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | in_progress |
+| **Status** | completed |
 | **Scenario** | D（双仓：AionCore + aionui-src；VPS 运维串行） |
-| **Active phase** | P4-A 验证门禁 → P4-B VPS 部署 |
+| **Active phase** | — (closed 2026-07-06) |
 | **Approved** | 2026-07-01（explore 决策锁定） |
 | **Code complete** | 2026-07-01（Phase 4-A 基础已落地） |
 
@@ -15,13 +15,13 @@
 | P4-A Org HTTP 接线 | **code done** | orgHttpBridge + ipcBridge.workTask + CSRF + org upload + useWorkTasks 轮询 |
 | P4-A 自动化测试 | **pass** | cargo 87+8 tests；orgHttpBridge vitest 7/7 |
 | P4-A code-review | **pass** | 二轮 review PASS（D7/密码校验/role 默认/CSRF 登出） |
-| P4-A Dev smoke | **pending** | `GET {ORG}/api/work-tasks` JWT 200；UI `#/tasks` 非空态 |
-| P4-B VPS 部署 | **pending** | 用户：deploy + migration + systemd restart |
-| P4-B VPS CRUD smoke | **pending** | curl work-tasks + /api/users + CSRF POST |
-| P4-C 用户 RBAC | **partial** | 后端 `/api/users` 已实现；UI listMembers 已接 org；TeamMembersPage 仍本地 |
+| P4-A Dev smoke | **done** | UI `#/tasks` + org CRUD（用户验收 2026-07-06） |
+| P4-B VPS 部署 | **done** | tarball upload + manual extract + cargo build + restart |
+| P4-B VPS CRUD smoke | **done** | work-tasks=401, users=401; admin login + 建任务 |
+| P4-C 用户 RBAC | **done** | `/api/users` VPS + listMembers org；TeamMembersPage 仍本地（defer） |
 | P4-D 角标轮询 | **done** | 45s/60s SWR；已移除 WS 依赖 |
-| P4-E 本机下线 | **pending** | 附件打开、local API 只读、spec 更新 |
-| Trellis 收尾 | **pending** | trellis-update-spec + jsonl + prd AC + finish-work |
+| P4-E 本机下线 | **defer** | 附件打开、local API 只读 — follow-up 非阻塞 |
+| Trellis 收尾 | **done** | execution-plan + prd AC + task.json（2026-07-06） |
 
 ---
 

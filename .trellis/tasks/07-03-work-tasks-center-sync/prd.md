@@ -2,7 +2,7 @@
 
 > **Task:** `07-03-work-tasks-center-sync`  
 > **Parent:** [`06-15-aionui-work-tasks`](../06-15-aionui-work-tasks/prd.md)  
-> **Status:** `planning` — **产品决策已锁定**（见 [`research/decisions.md`](./research/decisions.md)）
+> **Status:** `completed` (2026-07-06) — VPS + dev UI 验收 PASS；P4-E 部分 defer
 > **Priority:** P1  
 > **Decisions:** [`research/decisions.md`](./research/decisions.md)
 
@@ -51,35 +51,36 @@
 
 ### Phase 4-A — Org HTTP 接线（P0）
 
-- [ ] `ipcBridge.workTask.*` 改走 org HTTP（照 `orgKnowledge` 模式）
-- [ ] `useWorkTasks` / 附件 upload 路径对齐 org（或明确附件策略 O6）
-- [ ] Dev smoke：`GET {ORG}/api/work-tasks` 带 JWT → 200
-- [ ] 本机 `/api/work-tasks` 对 UI **停用或只读降级**（避免双写）
+- [x] `ipcBridge.workTask.*` 改走 org HTTP（照 `orgKnowledge` 模式）
+- [x] `useWorkTasks` / 附件 upload 路径对齐 org（或明确附件策略 O6）
+- [x] Dev smoke：`GET {ORG}/api/work-tasks` 带 JWT → 200
+- [ ] 本机 `/api/work-tasks` 对 UI **停用或只读降级**（避免双写）— **defer P4-E**
 
 ### Phase 4-B — VPS 数据与部署（P0）
 
-- [ ] 确认 org DB 已跑 migration 013/014
-- [ ] `deploy-org-aioncore-vps.ps1` smoke：work-tasks CRUD
-- [ ] `work_task_role` 在 VPS 用户上可管理（经理 bootstrap）
+- [x] 确认 org DB 已跑 migration 013/014
+- [x] `deploy-org-aioncore-vps.ps1` smoke：work-tasks CRUD
+- [x] `work_task_role` 在 VPS 用户上可管理（经理 bootstrap）
 
 ### Phase 4-C — 用户与 RBAC（P0）
 
-- [ ] 指派下拉：`GET /api/users` 来自 **org**（非本机）
-- [ ] 员工 scope 不变（visible/mine）；经理 assigned + query 全员
-- [ ] 文档：admin 与 manager 关系（待 O4）
+- [x] 指派下拉：`GET /api/users` 来自 **org**（非本机）
+- [x] 员工 scope 不变（visible/mine）；经理 assigned + query 全员
+- [x] 文档：admin 与 manager 关系（D7 + `effective_work_task_role`）
 
 ### Phase 4-D — 实时与角标（P1）
 
-- [ ] `pending_accept` 侧栏角标：**SWR 轮询 30–60s** + `revalidateOnFocus`（**不接 org WebSocket 首版**）
-- [ ] 移除对本机 `workTask.onTaskCreated` WS 的跨设备依赖（仅作本机优化可选）
+- [x] `pending_accept` 侧栏角标：**SWR 轮询 30–60s** + `revalidateOnFocus`（**不接 org WebSocket 首版**）
+- [x] 移除对本机 `workTask.onTaskCreated` WS 的跨设备依赖（仅作本机优化可选）
 
 ### Phase 4-E — 下线本机（P1）
 
-- [ ] 本机历史任务 **不迁移**（丢弃）
-- [ ] 离线：org 不可达 → 明确空态/错误（无 shadow）
-- [ ] admin → `work_task_role=manager` bootstrap
-- [ ] 附件：org 中心 upload + link
-- [ ] 更新 `aioncore-work-tasks.md` + `org-knowledge.md` 架构表
+- [x] 本机历史任务 **不迁移**（丢弃）
+- [x] 离线：org 不可达 → 明确空态/错误（无 shadow）
+- [x] admin → `work_task_role=manager` bootstrap
+- [x] 附件：org 中心 upload + link
+- [ ] 附件 **打开/下载** 经 org（VPS 路径）— **defer**
+- [ ] 更新 `aioncore-work-tasks.md` 架构表 — **follow-up**
 
 ---
 

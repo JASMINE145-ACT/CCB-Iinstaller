@@ -3,7 +3,7 @@
   "name": "07-03-work-tasks-center-sync",
   "title": "工作任务中心化 — 云端存储 + 经理全员可见",
   "description": "Extend 06-15：work_tasks 从本机 SQLite 迁到中心 org aioncore（VPS）；/tasks UI 改走 orgHttpBridge；经理 query 组织全员任务。",
-  "status": "planning",
+  "status": "completed",
   "dev_type": "feature",
   "scope": "aionui-src + AionCore + org VPS deploy",
   "package": "aionui+aioncore",
@@ -11,7 +11,7 @@
   "creator": "JASMINE145-ACT",
   "assignee": "JASMINE145-ACT",
   "createdAt": "2026-07-01",
-  "completedAt": null,
+  "completedAt": "2026-07-06",
   "branch": null,
   "base_branch": "main",
   "worktree_path": null,
@@ -32,7 +32,9 @@
     "aionui-src/packages/desktop/src/common/adapter/ipcBridge.ts",
     "scripts/org-phase0/vps-org-api-deploy-checklist.md"
   ],
-  "notes": "2026-07-01 explore 立项 + 决策锁定：云端权威、经理全公司、丢本机数据、必须在线、admin=manager、轮询刷新、中心附件。可进 Phase 4-A 实现。",
+  "notes": "2026-07-01 决策锁定 + P4-A 代码；2026-07-06 VPS deploy/build/restart + 401 smoke + admin CRUD + dev UI 验收 PASS。P4-E（附件打开、本机 API 下线、TeamMembersPage org）defer。见 p4-vps-done.md。",
+  "meta": {
+    "execution_plan": "execution-plan.md",
   "meta": {
     "user_decisions": {
       "storage": "center_org_aioncore_vps",
