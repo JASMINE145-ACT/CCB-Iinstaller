@@ -8,8 +8,8 @@
 | **Plan depth** | Full |
 | **Verification profile** | Cross-repo |
 | **Repos** | `aionui-src` (primary) + `claude-code-best` (Trellis/spec) |
-| **Parked** | 2026-07-04 — P1a complete; resume when AionCore runtime host or WeCom credentials needed |
-| **Active phase** | **Parked after P1a** — next: P1b (AionCore extension channel host) |
+| **Parked** | 2026-07-04 — resumed 2026-07-06 for P1b |
+| **Active phase** | **P1b in progress** — AionCore extension channel JS host |
 
 **PRD:** [`prd.md`](./prd.md) · **Gap:** [`research/gap-analysis-ext-wecom-bot.md`](./research/gap-analysis-ext-wecom-bot.md)
 
@@ -135,9 +135,18 @@ See gap doc §5. Highlights:
 
 ---
 
-## Verification gate (unchanged chain)
+## Verification gate (unchanged chain + Layer B for renderer UI)
 
-code-reviewer → bun test + e2e → manual smoke → trellis-update-spec → jsonl → finish-work
+```
+Layer A: code-reviewer | trellis-check  (logic, spec, UX)
+Layer B: smoke-renderer-imports.mjs     (icon exports default; optional --full-module) — mandatory for P1a UI / settings changes
+         See .trellis/spec/frontend/layer-b-renderer-review.md
+Tests:   bun test + e2e as applicable
+Manual:  manual smoke (8 scenarios below)
+Docs:    trellis-update-spec → jsonl → finish-work
+```
+
+Full chain: **Layer A PASS + Layer B PASS** → bun test → manual smoke → trellis-update-spec → jsonl → finish-work
 
 ---
 
@@ -150,7 +159,9 @@ code-reviewer → bun test + e2e → manual smoke → trellis-update-spec → js
 | Rev 3 plan | **draft** | This file + expanded gap/prd |
 | P0 G | **done (conditional)** | Runtime trace doc; **NO-GO** for live messaging until AionCore host |
 | P1a scaffold | **done** | ext-wecom-aibot + inbound + UI + 11 unit tests |
-| P1b bridge | **deferred** | AionCore extension channel runtime host — resume when prioritized |
+| P1a UI (Channels) | **done** | WecomAibotExtensionPanel + WebuiModalContent fix; icon import white-screen fixed 2026-07-07 |
+| P1b bridge | **done (uncommitted)** | AionCore extension channel JS host + Wecom PluginType; cargo test 206+ pass |
+| P1 manual smoke | **pending** | Bot ID + Secret + dev-ext / examples-wecom-dev |
 
 ---
 
@@ -159,10 +170,12 @@ code-reviewer → bun test + e2e → manual smoke → trellis-update-spec → js
 1. Read [`research/p0-extension-channel-runtime-trace.md`](./research/p0-extension-channel-runtime-trace.md)
 2. Implement or schedule AionCore extension channel JS host (`enable_extension_plugin` → `start()`)
 3. Obtain test BotID + Secret + internal group for manual smoke (PRD §Manual smoke)
-4. Run `just dev-ext` + enable `ext-wecom-aibot` → verify `authenticated` connection state
+4. Run dev with `AIONUI_EXTENSIONS_PATH=D:\Projects\aionui-src\examples-wecom-dev` (or `just dev-ext`) → Settings → 远程连接 → Channels → `ext-wecom-aibot`
 5. Wire P1b inbound → channel pairing / agent routing pipeline
 
-**Code location (uncommitted):** `D:/Projects/aionui-src/examples/ext-wecom-aibot/` + `ChannelModalContent.tsx` changes
+**Code location (uncommitted):** `D:/Projects/aionui-src/examples/ext-wecom-aibot/` + `ChannelModalContent.tsx` / `WecomAibotExtensionPanel.tsx` / `WebuiModalContent.tsx`
+
+**UI white-screen fix (2026-07-07):** `@icon-park/react` has no `PlugsConnected` or `Warning` exports; static import chain crashed Settings → 远程连接. Use `LinkOne` + `Caution` only.
 
 ---
 

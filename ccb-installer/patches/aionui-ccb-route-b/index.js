@@ -93,6 +93,33 @@ try {
   console.error(`[ccb-native-acp-route] settings load failed: ${error?.message || error}`)
 }
 
+try {
+  const conversationHandoffPath = join(
+    process.env.CLAUDE_CONFIG_DIR,
+    '.aionui-next-conversation-id.json',
+  )
+  if (existsSync(conversationHandoffPath)) {
+    const pending = JSON.parse(
+      readFileSync(conversationHandoffPath, 'utf8').replace(/^\uFEFF/, ''),
+    )
+    const conversationId = String(pending?.conversation_id ?? '').trim()
+    const stagedAt = Date.parse(String(pending?.staged_at ?? ''))
+    if (
+      conversationId &&
+      Number.isFinite(stagedAt) &&
+      Date.now() - stagedAt <= 300_000 &&
+      !process.env.CCB_CONVERSATION_ID
+    ) {
+      process.env.CCB_CONVERSATION_ID = conversationId
+      console.error(`[ccb-native-acp-route] CCB_CONVERSATION_ID=${conversationId}`)
+    }
+  }
+} catch (error) {
+  console.error(
+    `[ccb-native-acp-route] conversation handoff load failed: ${error?.message || error}`,
+  )
+}
+
 const vendorPath = [
   join(installDir, 'vendor', 'python-wanding'),
   join(installDir, 'vendor', 'python-wanding', 'Scripts'),

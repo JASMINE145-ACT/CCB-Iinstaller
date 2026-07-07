@@ -1,0 +1,3 @@
+{"phase":"code-review","agent":"code-reviewer","verdict":"PASS","date":"2026-07-06","notes":"ExecuteExtraTool examples removed; direct mcp__ pattern aligned with quotation-agent; purchase/sales monthly JSON added"}
+{"phase":"deploy-verify","command":"SHA256 seed vs live + grep checks","verdict":"PASS","evidence":"BD1532D1...753 match; 0 ExecuteExtraTool({; purchase-invoice+group_by:month present","date":"2026-07-06"}
+{"phase":"manual-smoke","item":"Guid 万鼎账务专家 → 1-5月采购额","verdict":"PENDING","evidence":"user must open new Guid session after deploy","date":"2026-07-06"}

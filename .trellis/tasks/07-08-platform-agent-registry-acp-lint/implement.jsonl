@@ -1,0 +1,12 @@
+{"file": ".trellis/tasks/07-08-platform-agent-registry-acp-lint/prd.md", "reason": "AC1-AC8, SB-01/SB-13 scope and non-goals"}
+{"file": ".trellis/tasks/07-08-platform-agent-registry-acp-lint/execution-plan.md", "reason": "Phased plan P1-P4, TDD contract, gate chain"}
+{"file": ".trellis/spec/integration/platform-forbidden-coupling.md", "reason": "Platform paths, forbidden identifiers, review checklist — lint rules source"}
+{"file": ".trellis/spec/integration/package-manifest-schema.md", "reason": "Agent descriptor fields, aliases, capabilities for registry derivation"}
+{"file": ".trellis/spec/integration/platform-business-boundary-map.md", "reason": "SB-01/SB-13 backlog context and platform path ownership"}
+{"file": ".trellis/tasks/07-05-platform-business-architecture-separation/research/separation-backlog.md", "reason": "SB-01 SB-13 definitions and follow-on Task B/C"}
+{"file": ".trellis/tasks/07-05-platform-business-architecture-separation/research/residual-coupling-audit.md", "reason": "A1 line evidence for lint baseline allowlist"}
+{"file": "ccb-installer/config/generated/package-registry.snapshot.json", "reason": "Runtime read-only registry source"}
+{"file": "ccb-installer/config/runtime/platform.defaults.json", "reason": "Primary package id and transition defaults for router resolution"}
+{"file": "ccb-installer/scripts/build-package-registry.mjs", "reason": "Registry build/lint; must stay 0 errors after changes"}
+{"file": "ccb-installer/src/services/acp/agentSessionProfile.ts", "reason": "Primary SB-01 migration target"}
+{"file": "ccb-installer/src/services/acp/__tests__/agentSessionProfile.test.ts", "reason": "Regression tests for orchestrator guards and specialist sessions"}

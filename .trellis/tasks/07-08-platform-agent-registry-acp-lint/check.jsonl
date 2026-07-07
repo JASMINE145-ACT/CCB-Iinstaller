@@ -1,0 +1,5 @@
+{"file": ".trellis/tasks/07-08-platform-agent-registry-acp-lint/prd.md", "reason": "Verify AC1-AC8 with command evidence"}
+{"file": ".trellis/tasks/07-08-platform-agent-registry-acp-lint/execution-plan.md", "reason": "Confirm P1-P4 complete, TDD RED/GREEN recorded"}
+{"file": ".trellis/spec/integration/platform-forbidden-coupling.md", "reason": "Lint rules match spec §1; changelog updated"}
+{"file": "ccb-installer/scripts/lint-platform-forbidden-coupling.mjs", "reason": "SB-13 script exists and passes on baseline"}
+{"file": ".github/workflows/forbidden-coupling.yml", "reason": "AC6 CI job present"}

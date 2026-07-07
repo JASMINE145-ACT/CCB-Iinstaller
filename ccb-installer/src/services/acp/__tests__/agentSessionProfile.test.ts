@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'bun:test'
+import { afterEach, describe, expect, it } from 'bun:test'
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
@@ -11,7 +11,13 @@ import {
   repairAgentMarkdownBomIfNeeded,
   resolveSessionUserContextOverride,
   sanitizeOrchestratorAgentInput,
+  getDefaultSessionAgentId,
 } from '../agentSessionProfile.js'
+import {
+  deriveAgentFleetPolicy,
+  resetAgentFleetPolicyCache,
+  setAgentFleetPolicyForTests,
+} from '../packageRegistry.js'
 import type { CcbAssistantProfile } from '../assistantProfiles.js'
 
 describe('filterDelegatableCustomAgents orchestrator bypass', () => {
@@ -234,5 +240,22 @@ describe('resolveSessionUserContextOverride L1 self-contained', () => {
       sessionProfileId: 'quotation-agent',
     })
     expect(result?.claudeMd).toBe('Legacy-only persona')
+  })
+})
+
+describe('registry-driven fleet policy', () => {
+  afterEach(() => {
+    resetAgentFleetPolicyCache()
+    setAgentFleetPolicyForTests(null)
+  })
+
+  it('default session agent matches WanD registry router', () => {
+    expect(getDefaultSessionAgentId()).toBe('wande-orchestrator')
+  })
+
+  it('uses legacy fallback when registry snapshot is empty', () => {
+    setAgentFleetPolicyForTests(deriveAgentFleetPolicy({ agents: [] }, {}))
+    expect(getDefaultSessionAgentId()).toBe('wande-orchestrator')
+    expect(getDefaultSessionAgentId()).toBe('wande-orchestrator')
   })
 })

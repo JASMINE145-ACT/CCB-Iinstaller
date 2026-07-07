@@ -103,6 +103,7 @@ function resolveFixturePath(key) {
   const map = {
     'lingwei-6.8': resolve(repoRoot, 'data', 'smoke', 'lingwei-6.8-quotation.xlsx'),
     'vantsing-filled': resolve(repoRoot, 'data', 'smoke', 'learn-by-data-vantsing-filled.xlsx'),
+    'section-d-eval': resolve(repoRoot, 'data', 'smoke', 'learn-by-data-section-d-eval.xlsx'),
   }
   if (key === 'lingwei-6.8' && process.env.CCB_EVAL_FIXTURE_LINGWEI) {
     return process.env.CCB_EVAL_FIXTURE_LINGWEI
@@ -165,11 +166,24 @@ function validateCase(testCase, lineNo) {
   } else if (
     !testCase.expected_tools?.length &&
     !testCase.expected_error_codes?.length &&
-    !testCase.allow_empty_tools
+    !testCase.allow_empty_tools &&
+    !testCase.offline_runner
   ) {
     errors.push('expected_tools, expected_error_codes, pass_if_any, or allow_empty_tools is required')
   }
   if (errors.length) throw new Error(`case ${testCase.id || `<line ${lineNo}>`}: ${errors.join(', ')}`)
+}
+
+function checkForbiddenParams(combined, forbiddenParams) {
+  if (!forbiddenParams || typeof forbiddenParams !== 'object') return []
+  const failures = []
+  for (const [key, value] of Object.entries(forbiddenParams)) {
+    const needle = `"${key}":${JSON.stringify(value)}`
+    if (combined.includes(needle)) {
+      failures.push(`forbidden param appeared ${key}=${JSON.stringify(value)}`)
+    }
+  }
+  return failures
 }
 
 function checkExpectedParams(combined, expectedParams) {
@@ -336,6 +350,7 @@ function evaluateOutcome(outcome, combined, testCase, toolEvents) {
     if (!combined.includes(errorCode)) failures.push(`missing expected error_code ${errorCode}`)
   }
   failures.push(...checkExpectedParams(combined, outcome.expected_params))
+  failures.push(...checkForbiddenParams(combined, outcome.forbidden_params))
   if (outcome.response_includes_any?.length) {
     const haystack = extractAssistantText(combined) || combined
     const hit = outcome.response_includes_any.some((pattern) => haystack.includes(pattern))
@@ -376,6 +391,7 @@ function evaluateCase(testCase, combined, code) {
       if (!combined.includes(errorCode)) failures.push(`missing expected error_code ${errorCode}`)
     }
     failures.push(...checkExpectedParams(combined, testCase.expected_params))
+    failures.push(...checkForbiddenParams(combined, testCase.forbidden_params))
     failures.push(...checkExpectedSubagent(testCase, toolEvents))
   }
 
@@ -445,6 +461,61 @@ function runNativeAcp(testCase) {
   return runCaseWithRetry(testCase)
 }
 
+const OFFLINE_RUNNERS = {
+  'section-d-offline': 'run-section-d-offline-eval.mjs',
+  'knowledge-effectiveness-offline': 'run-knowledge-effectiveness-offline-eval.mjs',
+}
+
+function runOfflineCase(testCase) {
+  return new Promise((resolveCase) => {
+    const scriptName = OFFLINE_RUNNERS[testCase.offline_runner]
+    if (!scriptName) {
+      resolveCase({
+        id: testCase.id,
+        failures: [`unknown offline_runner ${testCase.offline_runner}`],
+        matchedBranchId: null,
+        combined: '',
+        code: 1,
+      })
+      return
+    }
+    const script = resolve(repoRoot, 'eval', scriptName)
+    const env = { ...process.env }
+    if (testCase.offline_pytest_k) {
+      env.CCB_EVAL_PYTEST_K = testCase.offline_pytest_k
+    } else {
+      delete env.CCB_EVAL_PYTEST_K
+    }
+    const child = spawn(process.execPath, [script], {
+      cwd: repoRoot,
+      env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+    let stdout = ''
+    let stderr = ''
+    child.stdout.on('data', (chunk) => { stdout += chunk.toString() })
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString() })
+    child.on('close', (code) => {
+      const combined = `${stdout}\n${stderr}`
+      const failures = code === 0 ? [] : [`offline runner exited ${code ?? 1}`]
+      resolveCase({
+        id: testCase.id,
+        failures,
+        matchedBranchId: failures.length ? null : 'offline',
+        combined,
+        code: code ?? 1,
+      })
+    })
+  })
+}
+
+function runEvalCase(testCase) {
+  if (testCase.offline_runner) {
+    return runOfflineCase(testCase)
+  }
+  return runNativeAcp(testCase)
+}
+
 const loaded = readCases(casesPath)
 const allCaseIds = new Set(loaded.map(({ value }) => value.id))
 
@@ -488,7 +559,7 @@ if (!runLive) {
 let failed = 0
 for (const testCase of selected) {
   console.log(`[agent-eval] run ${testCase.id}`)
-  const result = await runNativeAcp(testCase)
+  const result = await runEvalCase(testCase)
   if (result.failures.length) {
     failed += 1
     console.error(`[agent-eval] FAIL ${result.id}: ${result.failures.join('; ')}`)

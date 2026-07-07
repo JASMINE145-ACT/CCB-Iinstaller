@@ -18,6 +18,7 @@ EXPECTED_MCP_TOOLS = frozenset({
     "parse_excel_smart",
     "ask_clarification",
     "append_business_rule",
+    "append_quotation_mapping_pending",
     "get_product_price_tiers",
 })
 

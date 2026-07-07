@@ -2,7 +2,7 @@
 
 > Human organization tasks (`/tasks` in AionUI). Separate from cron jobs (`/scheduled`) and agent `team_tasks` MCP.
 
-**Status:** Phase 1–3 implemented (2026-06-15). Phase 2: RBAC + dual-view UI. Phase 3: manager query API + optional MCP. Self-built aioncore required — bundled v0.1.27 still lacks `/api/work-tasks`. **2026-06-27:** `aionui-work-tasks` re-merged into `aionui-app` router (local dev + org VPS binary); smoke **401** on `GET /api/work-tasks`. Employee `/tasks` UI still uses **local** aioncore — see [`dev-sync-playbook.md`](./dev-sync-playbook.md) Rule 0.
+**Status:** Phase 1–3 implemented (2026-06-15). Phase 4 center sync **shipped 2026-07-06** — employee `/tasks` UI uses **org VPS** via `orgHttpBridge` (not local aioncore). Self-built aioncore required — bundled v0.1.27 still lacks `/api/work-tasks`. **2026-06-27:** `aionui-work-tasks` re-merged into `aionui-app` router; smoke **401** on `GET /api/work-tasks`. **2026-07-06:** VPS deploy verified (`/api/work-tasks` + `/api/users` → 401 without JWT; CRUD + dev UI PASS). See task `07-03-work-tasks-center-sync`.
 
 ---
 

@@ -12,6 +12,11 @@ const materialSchema = {
     description: "Material / product code (aliases: material, product_code, code).",
 };
 const priceFieldProperties = {
+    source_file: { type: "string", description: "Provenance workbook filename or path (learn-by-data / import)." },
+    source_sheet: { type: "string", description: "Source worksheet name." },
+    source_row: { type: "integer", description: "1-based row number in source_sheet." },
+    is_preferred_price: { type: "boolean", description: "TRUE = default query row; FALSE = historical/superseded." },
+    superseded_by_source: { type: "string", description: "When is_preferred_price=false, which source replaced this row." },
     price_a: { type: "number" },
     price_b: { type: "number" },
     price_c: { type: "number" },
@@ -25,7 +30,6 @@ const priceFieldProperties = {
     product_type: { type: "string" },
     unit: { type: "string" },
     volume: { type: "number" },
-    is_preferred_price: { type: "boolean" },
 };
 server.setRequestHandler(ListToolsRequestSchema, () => ({
     tools: [

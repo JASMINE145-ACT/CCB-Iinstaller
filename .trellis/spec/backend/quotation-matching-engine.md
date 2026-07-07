@@ -194,6 +194,24 @@ score       = hit_weight / total_weight + compat_bonus
 | `min_score_gap` | `config.INVENTORY_MIN_SCORE_GAP` | Large gap top1−top2 → truncate to single high-confidence candidate |
 | `max_candidates` | 20 | Cap when not using score tiers |
 
+### 7.4 Union re-rank (`_rank_compatible_candidates`)
+
+After merge, compatible candidates sort by `_compat_sort_key`:
+
+```
+(penalty, source_rank, -compat_bonus)
+```
+
+| Key | Meaning |
+|-----|---------|
+| `penalty` | `0` = passed hard-filter compat; `1` = dropped unless all fail |
+| `source_rank` | `共同(0) > 历史报价(1) > 字段匹配(2)` — **before** semantic bonus |
+| `-compat_bonus` | Tie-break within same source tier |
+
+**Effect:** `candidates[0]` on MCP / learn-by-data respects dual-path consensus (`共同`) over single-path fuzzy hits. Row-level category fixes (波纹管 vs 给水) remain in hard-filter / knowledge — not in this sort key alone.
+
+**Tests:** `python/tests/test_quotation_match_ranking_fix.py` (rows 8–9); row 10 corrugated deferred (字段-only correct vs 历史 noise).
+
 ---
 
 ## 8. Legacy / non-authoritative paths
@@ -232,6 +250,8 @@ The engine **recalls and ranks**; it does **not** pick the final SKU for the use
 | Org API (default when `price_library_path` omitted) | `wanding_fuzzy_matcher._try_load_from_org_remote` | `invalidate_wanding_cache()` on publish |
 | Mapping table | Neon `product_mapping` or custom library name patterns | `invalidate_mapping_cache()` |
 
+**Learn-by-data write-back (2026-07-06, updated):** Section D appends rows to `mapping_import_pending.jsonl` via MCP `append_quotation_mapping_pending`. **Eligibility:** **D-mismatch** (`agent_pick ≠ sheet F col`) **or D-gap** (aligned but mapping table lacks `norm_text + code`); skip when M2 already satisfied. Fields from VANTSING B/C/F/G. Python: `section_d_trigger()` / `is_section_d_eligible()` in `learn_by_data_mapping.py`. Merge: `python python/scripts/merge_mapping_import.py` → `MAPPING_TABLE_PATH`; honors `allow_overwrite` for keyword conflicts. Task `07-06-learn-by-data-price-library-enrich` Phase 2.2.
+
 Precomputed columns on load: `norm_text`, `spec_tokens` — required for performant `search_fuzzy` over full catalog.
 
 ---
@@ -253,6 +273,7 @@ Precomputed columns on load: `norm_text`, `spec_tokens` — required for perform
 
 | Test / script | Covers |
 |---------------|--------|
+| `python/tests/test_quotation_match_ranking_fix.py` | `match_quotation_union` source-rank order (rows 8–9) |
 | `python/test_wanding_matcher_compat.py` | Tokenization, `search_fuzzy` scenarios, `_rank_compatible_candidates` |
 | `python/tests/test_lesso_dn_spec_fix.py` | End-to-end `match_quotation_union` DN spec |
 | `python/tests/test_price_library_supplier.py` | `supplier` through `match_fuzzy_candidates` |
@@ -277,4 +298,5 @@ When fixing a match bug: add a **minimal row fixture** to `test_wanding_matcher_
 
 | Date | Note |
 |------|------|
+| 2026-07-06 | P1 rank fix — `_compat_sort_key` source before compat_bonus; task `07-06-quotation-match-ranking-fix` |
 | 2026-07-03 | Initial spec — documents Python authoritative path, engine layers, legacy JS stubs, agent selection boundary |

@@ -10,3 +10,17 @@
 {"ts":"2026-07-04T15:25:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/research/p0-extension-channel-runtime-trace.md","reason":"P0 lifecycle trace + conditional go/no-go"}
 {"ts":"2026-07-04T15:25:00+08:00","file":".trellis/spec/integration/wecom-channel.md","reason":"Integration spec draft"}
 {"ts":"2026-07-04T16:00:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/execution-plan.md","reason":"Parked after P1a; resume checklist; assignee not urgent"}
+{"ts":"2026-07-06T23:30:00+08:00","file":"AionCore/crates/aionui-channel/assets/extension-channel-bridge.mjs","reason":"P1b: Node NDJSON bridge for extension channel entryPoint"}
+{"ts":"2026-07-06T23:30:00+08:00","file":"AionCore/crates/aionui-channel/src/plugins/extension_channel/","reason":"P1b: ExtensionChannelHost + ExtensionChannelPlugin"}
+{"ts":"2026-07-06T23:30:00+08:00","file":"AionCore/crates/aionui-channel/src/manager.rs","reason":"P1b: enable/restore extension plugins with JS runtime"}
+{"ts":"2026-07-06T23:30:00+08:00","file":"AionCore/crates/aionui-app/src/router/state.rs","reason":"P1b: wire managed Node + bridge script into ChannelManager"}
+{"ts":"2026-07-07T11:05:00+08:00","file":"D:/Projects/aionui-src/packages/desktop/src/renderer/components/settings/SettingsModal/contents/channels/WecomAibotExtensionPanel.tsx","reason":"P1a UI: fix Settings 远程连接 white screen — invalid @icon-park icons PlugsConnected/Warning → LinkOne/Caution"}
+{"ts":"2026-07-07T11:05:00+08:00","file":"D:/Projects/aionui-src/packages/desktop/src/renderer/components/settings/SettingsModal/contents/WebuiModalContent.tsx","reason":"P1a UI: direct import ChannelModalContent (remove lazy Suspense hang on 请稍候)"}
+{"ts":"2026-07-07T11:05:00+08:00","file":"D:/Projects/aionui-src/packages/desktop/src/renderer/components/settings/SettingsModal/contents/channels/ChannelModalContent.tsx","reason":"P1a UI: WecomAibotExtensionPanel integration, auto-expand ext-wecom-aibot, hasToken re-enable, zh/en i18n"}
+{"ts":"2026-07-07T11:05:00+08:00","file":"D:/Projects/aionui-src/examples-wecom-dev/","reason":"Dev: AIONUI_EXTENSIONS_PATH junction dir — load ext-wecom-aibot only (avoid demo extension settings tabs)"}
+{"ts":"2026-07-07T12:10:00+08:00","file":"scripts/review/smoke-renderer-imports.mjs","reason":"Layer B gate: batched bun -e icon export smoke; --git-diff/--file; optional --full-module; 60s icon timeout"}
+{"ts":"2026-07-07T12:10:00+08:00","file":".trellis/spec/frontend/layer-b-renderer-review.md","reason":"Layer B spec: B1-B4 checklist, code-reviewer custom instructions, WeCom white-screen incident ref"}
+{"ts":"2026-07-07T12:10:00+08:00","file":".trellis/spec/frontend/coding-rules.md","reason":"§2 Layer B checklist items + link to layer-b-renderer-review.md"}
+{"ts":"2026-07-07T12:10:00+08:00","file":".agents/skills/trellis-task-execution/SKILL.md","reason":"Step 5 verification gate: mandatory Layer B for renderer UI"}
+{"ts":"2026-07-07T12:10:00+08:00","file":".claude/skills/trellis-task-execution/SKILL.md","reason":"Sync Layer B into tracked Claude skill mirror"}
+{"ts":"2026-07-07T12:10:00+08:00","file":"docs/ai-tools-reference.md","reason":"§八 Layer B row + quick-decision entry for smoke-renderer-imports.mjs"}

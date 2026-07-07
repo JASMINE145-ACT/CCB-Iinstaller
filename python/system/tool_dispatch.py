@@ -32,6 +32,11 @@ def dispatch(tool: str, params: dict[str, Any]) -> Any:
 
         return handle_append_business_rule(params)
 
+    if tool == "append_quotation_mapping_pending":
+        from quotation.mapping_pending_dispatch import handle_append_quotation_mapping_pending
+
+        return handle_append_quotation_mapping_pending(params)
+
     if tool == "match_quotation":
         from quotation.match_dispatch import handle_match_quotation
 

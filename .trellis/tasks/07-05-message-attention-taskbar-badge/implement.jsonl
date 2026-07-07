@@ -1,0 +1,9 @@
+{"type":"spec","path":".trellis/spec/frontend/conversation-attention-notifications.md","reason":"Extend 07-01 with Windows taskbar badge contract"}
+{"type":"spec","path":"aionui-src/packages/desktop/src/renderer/pages/conversation/GroupedHistory/hooks/useConversationListSync.ts","reason":"Attention unread store — badge reads same sets as sidebar dots"}
+{"type":"file","path":"aionui-src/packages/desktop/src/process/bridge/appBadgeBridge.ts","action":"added","reason":"app.setBadgeCount on win32 via IPC app-badge.set-count"}
+{"type":"file","path":"aionui-src/packages/desktop/src/renderer/hooks/system/useTaskbarAttentionBadge.ts","action":"added","reason":"Sync unread count to main on store change"}
+{"type":"file","path":"aionui-src/packages/desktop/src/renderer/pages/conversation/GroupedHistory/utils/conversationAttention.ts","action":"modified","reason":"getAttentionUnreadConversationCount union helper"}
+{"type":"file","path":"aionui-src/packages/desktop/src/common/adapter/ipcBridge.ts","action":"modified","reason":"appBadge.setCount provider channel"}
+{"type":"file","path":"aionui-src/packages/desktop/src/renderer/components/layout/Layout.tsx","action":"modified","reason":"Register useTaskbarAttentionBadge"}
+{"type":"hotfix","path":"aionui-src/packages/desktop/src/renderer/pages/conversation/GroupedHistory/hooks/useConversationListSync.ts","reason":"export subscribeConversationListSync — fixed dev white screen (esbuild missing export)"}
+{"type":"test","command":"pnpm exec vitest run tests/unit/renderer/conversationAttention.test.ts","result":"10/10 pass","date":"2026-07-05"}

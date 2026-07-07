@@ -1,0 +1,3 @@
+{"ts":"2026-07-06T09:50:00+08:00","gate":"code-review","verdict":"PASS","evidence":"agent 5fa40281 — schema/SKILL/agent wiring aligned; no tier prices on upsert"}
+{"ts":"2026-07-06T09:50:00+08:00","gate":"pytest","verdict":"PASS","evidence":"test_learn_by_data_price_library 3/3; test_org_price_admin_client 23/23"}
+{"ts":"2026-07-06T10:25:00+08:00","gate":"deploy-dev","verdict":"PASS","evidence":"deploy-ccb-skills; deploy-seed-agents -ForceMd; sync-dev-wanding-vendor; registry copied; start-dev-full SkipVendorSync — localhost:5173 200"}

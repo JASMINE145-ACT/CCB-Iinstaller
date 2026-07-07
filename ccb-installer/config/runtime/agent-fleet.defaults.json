@@ -1,0 +1,19 @@
+{
+  "$schema": "../schemas/runtime-config-layer.schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "agent-fleet-defaults",
+  "kind": "platform",
+  "values": {
+    "primaryPackageId": "com.wanding.trade",
+    "defaultRouterCapability": "platform.agent.route",
+    "guidOnlyAgentIds": ["price-library-agent"],
+    "officePresetAgentIds": [
+      "cowork",
+      "word-creator",
+      "word-form-creator",
+      "ppt-creator",
+      "excel-creator"
+    ],
+    "legacyFleetAgentIds": ["cowork", "word-form-creator"]
+  }
+}

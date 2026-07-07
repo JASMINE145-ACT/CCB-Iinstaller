@@ -1,0 +1,5 @@
+{"path": ".trellis/spec/backend/mcp-business.md", "reason": "Quotation MCP tool surface + learn-by-data Step 1 contract"}
+{"path": ".trellis/spec/backend/quotation-matching-engine.md", "reason": "Section D mapping column provenance B/C/F/G"}
+{"path": "python/quotation/layout.py", "reason": "VANTSING_LAYOUT canonical column map"}
+{"path": "python/scripts/smoke_learn_by_data_section_d.py", "reason": "Existing _read_vantsing_rows to promote"}
+{"path": "ccb-installer/packages/vertical/com.wanding.trade/skills/quotation-learn-by-data/SKILL.md", "reason": "Step 1 tool routing to rewrite"}

@@ -177,6 +177,30 @@ server.setRequestHandler(ListToolsRequestSchema, () => ({
                 required: ["rule_text"],
             },
         },
+        {
+            name: "append_quotation_mapping_pending",
+            description: "Learn-by-data Section D: append one historical mapping row (inquiry→sheet F col product code) to local mapping_import_pending.jsonl. No org auth. confirmed=false previews; confirmed=true writes pending. Use allow_overwrite=true when guard reports keyword conflict.",
+            inputSchema: {
+                type: "object",
+                properties: {
+                    inquiry_name: { type: "string", description: "VANTSING col B — 询价货物名称." },
+                    inquiry_spec: { type: "string", description: "VANTSING col C — 询价规格型号." },
+                    product_code: { type: "string", description: "VANTSING col F — 报价单成单料号 (sheet product number)." },
+                    quotation_name: { type: "string", description: "VANTSING col G — 报价名称." },
+                    source_file: { type: "string", description: "Excel basename for audit." },
+                    source_sheet: { type: "string", description: "Sheet name for audit." },
+                    source_row: { type: "number", description: "1-based Excel row for audit." },
+                    agent_pick_code: { type: "string", description: "Agent pick from learn-by-data (for audit only)." },
+                    confirmed: { type: "boolean", description: "false=preview; true=append pending after user confirms." },
+                    allow_overwrite: { type: "boolean", description: "true when user confirms replacing conflicting mapping keyword." },
+                    fields: {
+                        type: "object",
+                        description: "Optional nested field bag (same keys as top-level).",
+                    },
+                },
+                required: ["product_code", "source_file", "source_sheet", "source_row"],
+            },
+        },
     ],
 }));
 function asRecord(value) {

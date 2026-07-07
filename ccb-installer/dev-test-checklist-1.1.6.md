@@ -29,6 +29,35 @@
 
 ---
 
+## 0b. Agent eval smoke（Issue 8 — 打包 / 发版一条命令）
+
+```powershell
+node eval\run-agent-eval.mjs --suite smoke
+.\ccb-installer\scripts\run-agent-eval-suite.ps1 -Suite smoke -Run -InstallDir D:\CCB-Wanding -Json
+```
+
+**统一 smoke = 15 条**（路由 9 + 报价 6，~35-45 min）。替代大部分 UI 手点。
+
+| # | 检查项 | Pass |
+|---|--------|------|
+| 8.1 | schema 72/72 | [ ] |
+| 8.2 | **smoke live 15/15** | [ ] |
+
+<details>
+<summary>15 条明细（展开核对）</summary>
+
+**路由 9：** orchestrator-quote-delegates · orchestrator-accurate-delegates · orchestrator-research-delegates · orchestrator-no-price-library-mcp · direct-quotation-card-no-delegation · quote-tool-all-prices-direct50 · session-greet-hello · quote-direct50-b · quote-ambiguous-short
+
+**报价 6：** quote-direct50-post-hook-golden · quote-smoke-direct50-then-inventory · quote-smoke-fill-direct50-draft · quote-smoke-tee50-inventory-fill · quote-smoke-learn-by-data-vantsing · quote-smoke-lingwei-batch-query
+
+</details>
+
+仅重跑报价子集（修报价后）：`-Suite quotation-smoke`（6 条）
+
+Fixture：`data\smoke\lingwei-6.8-quotation.xlsx`。剧本：[`eval/scenarios/quotation-workflow-smoke-20260706.md`](../eval/scenarios/quotation-workflow-smoke-20260706.md)
+
+---
+
 ## Issue 1 — 五个 user skills 必须部署
 
 **路径：** `%LOCALAPPDATA%\CCB-Wanding\.claude\skills\`（与「我的技能」UI 一致）

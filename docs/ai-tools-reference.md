@@ -652,6 +652,10 @@ openspec config                            # 查看/修改配置
 
 # 六、快速决策表
 
+> **同功能 skill 四体系选型裁定（12 能力维度 + 降级链）与场景 F–L（构建失败/重构/安全/性能/发布/文档/研究）playbooks**：
+> 见 [`.cursor/skills/trellis-task-execution/skill-selection.md`](../.cursor/skills/trellis-task-execution/skill-selection.md)。
+> 本表是单条速查；两个体系提供同一能力时以裁定矩阵为准。
+
 ## 遇到新任务，应该用什么？
 
 | 任务类型 | 首选工具 |
@@ -737,7 +741,8 @@ task.py finish             # 完成任务
 | **Superpowers** | AI 自律 | 完成前必须有运行证据 | skill `verification-before-completion` |
 | **ECC** | 用户/AI 调命令 | build/lint/test 流水线 | `/verify` · `/code-review` |
 | **Trellis** | 工作流 | 对照 task spec + 项目 `.trellis/spec/` | `trellis-check` agent/skill |
-| **Cursor User Rules** | 用户规则（若启用） | **顺序**：code-review agent PASS → test PASS → 文档 | Task `code-reviewer` 等 |
+| **Cursor User Rules** | 用户规则（若启用） | **顺序**：code-review agent PASS → test PASS → 文档；renderer UI 加 **Layer B** import smoke | Task `code-reviewer` 等 |
+| **Layer B（renderer）** | code-reviewer / trellis-check | 变更 `renderer/**` 时模块可加载 + icon export 存在 | `node scripts/review/smoke-renderer-imports.mjs` — [spec](../.trellis/spec/frontend/layer-b-renderer-review.md) |
 | **Commit 硬门禁**（2026-07-03 新增） | 代码层 hook（不是自律） | 有 active task 但无验证证据（execution-plan.md ✅ / check.jsonl PASS / task.json notes）时，**代码层拦截** `git commit` | `.trellis/scripts/common/commit_gate.py` + 三平台 `commit-gate.py` adapter — 详见 [`trellis-meta` change-hooks.md § Example: Add a Blocking Pre-Commit Gate](../.claude/skills/trellis-meta/references/customize-local/change-hooks.md) |
 
 > **注意**：上面四套门禁（Superpowers/ECC/Trellis/Cursor Rules）此前**全部是文本约定**——AI 读 skill 文档后自觉执行，没有代码层强制。"Commit 硬门禁"是第一个真正在代码层拦截的机制，且目前只有 **Cursor（已接线）+ Codex（已接线）** 生效；**Claude Code 侧 `commit-gate.py` 已写好但 `.claude/settings.json` 的 `PreToolUse`/`Bash` matcher 尚未注册**——这是刻意的：注册这个 matcher 属于修改 AI 自己的权限/hook 配置，被 auto-mode 权限分类器拦下，需要用户手动添加或显式二次授权，AI 不会自行绕过。
@@ -760,6 +765,7 @@ task.py finish             # 完成任务
 | Trellis 任务规格合规 | `trellis-check` **sub-agent** |
 | 通用安全/质量扫一遍 | ECC `/code-review` |
 | 架构/计划对齐（大步骤后） | Cursor `code-reviewer` agent |
+| renderer / Settings UI 可加载性 | Layer B：`scripts/review/smoke-renderer-imports.mjs` + [layer-b-renderer-review.md](../.trellis/spec/frontend/layer-b-renderer-review.md) |
 | 声明「可以提交了」 | Superpowers `verification-before-completion` + 实际命令输出 |
 
 ---

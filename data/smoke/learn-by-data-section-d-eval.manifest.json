@@ -1,0 +1,45 @@
+{
+  "fixture": "data/smoke/learn-by-data-section-d-eval.xlsx",
+  "purpose": "Section D offline eval — isolated temp dirs only; do not merge into production mapping",
+  "row_count": 4,
+  "scenarios": {
+    "d-gap": 1,
+    "d-mismatch": 1,
+    "d-skip-empty": 1,
+    "d-skip-m2": 1
+  },
+  "rows": [
+    {
+      "row": 8,
+      "keywords": "EVAL_GAP_ac347c86 DN20",
+      "actual_code": "8030020288",
+      "scenario": "d-gap",
+      "expected_section_d_trigger": "gap",
+      "agent_pick_for_eval": "8030020288"
+    },
+    {
+      "row": 9,
+      "keywords": "PVC直通 20",
+      "actual_code": "8010024551",
+      "scenario": "d-mismatch",
+      "expected_section_d_trigger": "mismatch",
+      "agent_pick_for_eval": "8030020288"
+    },
+    {
+      "row": 10,
+      "keywords": "水管",
+      "actual_code": "8020012379",
+      "scenario": "d-skip-m2",
+      "expected_section_d_trigger": null,
+      "agent_pick_for_eval": "8020012379"
+    },
+    {
+      "row": 11,
+      "keywords": "EVAL_EMPTY_F ROW",
+      "actual_code": "",
+      "scenario": "d-skip-empty",
+      "expected_section_d_trigger": null,
+      "agent_pick_for_eval": ""
+    }
+  ]
+}

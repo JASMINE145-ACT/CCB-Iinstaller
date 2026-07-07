@@ -428,6 +428,58 @@ node ccb-installer/scripts/compile-runtime-config.mjs --fixture
 
 ---
 
+## Issue 8 — Agent eval 回归大全（smoke / core / full）
+
+> 来源：2026-07-06 `/trellis-plan-execution` + 用户「来吧」。**Harness + suite + 入口脚本已落地；live smoke 待打包机/API。**  
+> **Trellis task:** [`.trellis/tasks/07-09-agent-eval-regression-suite/`](../.trellis/tasks/07-09-agent-eval-regression-suite/)
+
+### 目标
+
+每次打包或 agent/MCP/路由改动后，跑分层 ACP eval，锁住委派、工具选择、防幻觉等基础逻辑。
+
+| Suite | Cases | 何时跑 |
+|-------|-------|--------|
+| **smoke** | **15** | **发版/打包一条命令**（路由 9 + 报价 6，~35-45 min） |
+| **quotation-smoke** | 6 | 可选：仅重跑报价子集 |
+| **core** | 27 | 发版前加深（extends smoke + 12） |
+| **full** | 72 | major |
+
+### 报价 6 流程 ↔ case（2026-07-06）
+
+| # | 流程 | Case |
+|---|------|------|
+| 1 | 查询直接50 | `quote-direct50-post-hook-golden` |
+| 2 | 进而查库存 | `quote-smoke-direct50-then-inventory` |
+| 3 | 填写报价单 | `quote-smoke-fill-direct50-draft` |
+| 4 | 三通50+库存+填单 | `quote-smoke-tee50-inventory-fill` |
+| 5 | learn-by-data | `quote-smoke-learn-by-data-vantsing`（VANTSING fixture） |
+| 6 | LingWei 批量 | `quote-smoke-lingwei-batch-query` |
+
+### 已实施（2026-07-06 Phase 2）
+
+| # | 改动 | 文件 |
+|---|------|------|
+| 7 | 多轮 `prompts[]` | `test-native-acp-agent.mjs` |
+| 8 | `quotation-smoke` suite | `eval/suites/quotation-smoke.json` |
+| 9 | LingWei golden | `data/smoke/lingwei-6.8-quotation.xlsx` |
+| 10 | 5 条新 case | `agent_eval_cases.jsonl`（72 total） |
+
+### 命令
+
+```powershell
+node eval\run-agent-eval.mjs
+.\ccb-installer\scripts\run-agent-eval-suite.ps1 -Suite smoke -Run -InstallDir D:\CCB-Wanding -Json
+```
+
+### 1.1.6 exe smoke
+
+| # | 检查 | Pass |
+|---|------|------|
+| E1 | schema 72/72 | [ ] |
+| E2 | **smoke live 15/15** | [ ] |
+
+---
+
 ## 1.1.6 打包检查项（汇总）
 
 - [x] Issue 1：skill 部署链（config reset + bootstrap 解耦）— **脚本已落地 2026-07-04**
@@ -435,7 +487,8 @@ node ccb-installer/scripts/compile-runtime-config.mjs --fixture
 - [x] **Issue 7：slash command + config_generation 4 + research bootstrap + health 扩展** — **脚本已落地 2026-07-04**
 - [x] **Bootstrap exit 1（generation 4：staging 有、NSIS 未拷 seed/config/resources）** — **修复 2026-07-05** `installer-wanding-v2.nsi` + `Test-NsisPayloadCoverage`；见 §5.3
 - [x] **AionCore 0.1.28 降级 → migration 12 冲突（UI 误报安装不完整）** — **修复 2026-07-05** 重打注入 `0.1.29`（`-AioncorePath`）；见 `build-deploy-verify.md` §5.2
-- [ ] Issue 7：exe smoke — commands / gen-4 reset / Full install-health
+- [x] **Issue 8：Agent eval smoke 门禁（harness + suite + PS 入口 + CI schema）** — **脚本 done 2026-07-06**；exe live smoke pending
+- [ ] Issue 8：exe live — **`smoke` 15/15**
 - [ ] Issue 2：agent + MCP payload + post-nudge 三层对齐
 - [ ] Issue 2：gate 测试/fixture
 - [ ] Issue 3：orchestrator dispatch smoke 矩阵 + idle resume 回归（见上）
@@ -477,6 +530,6 @@ node ccb-installer/scripts/compile-runtime-config.mjs --fixture
 | Issue 4（research Exa+Tavily） | [`.trellis/tasks/07-04-07-05-research-dual-source-deep-framework/`](../.trellis/tasks/07-04-07-05-research-dual-source-deep-framework/) | `in_progress` |
 | Issue 5（View Steps 工具名） | [`.trellis/tasks/07-04-acp-view-steps-empty-tool-title/`](../.trellis/tasks/07-04-acp-view-steps-empty-tool-title/) | `completed`（**待 1.1.6 AionUI 出包**） |
 | Issue 6（Platform P0–P5） | [`.trellis/tasks/07-03-platform-business-decoupling/`](../.trellis/tasks/07-03-platform-business-decoupling/) | `review`（自动化 done；见上 §Issue 6 打包清单） |
-| Issue 7（打包遗漏审计） | 本文件 §Issue 7 | **脚本 done 2026-07-04**；exe smoke pending |
+| Issue 8（Agent eval smoke） | [`.trellis/tasks/07-09-agent-eval-regression-suite/`](../.trellis/tasks/07-09-agent-eval-regression-suite/) | **脚本 done 2026-07-06**；live smoke pending |
 
 **不并行打包：** 用户明确 1.1.6 再出 exe。Issue 3/4/6 实施见各 task 的 `execution-plan.md` / 本文件 §Issue 6。

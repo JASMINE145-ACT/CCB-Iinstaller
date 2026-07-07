@@ -75,7 +75,7 @@ import {
 } from './assistantProfiles.js'
 import {
   appendWanDDelegationIndex,
-  CCB_DEFAULT_SESSION_AGENT_ID,
+  getDefaultSessionAgentId,
   filterDelegatableCustomAgents,
   filterMcpConfigsForOrchestratorSession,
   isSpecialistDirectSession,
@@ -913,7 +913,7 @@ export class AcpAgent implements Agent {
       )
 
       const orchestratorSystemPrompt =
-        sessionProfileId === CCB_DEFAULT_SESSION_AGENT_ID
+        sessionProfileId === getDefaultSessionAgentId()
           ? appendWanDDelegationIndex(
               assistantProfile?.instructions.system_prompt,
               sessionDelegatableAgents,

@@ -33,6 +33,7 @@ import {
   type CcbAssistantProfile,
 } from './assistantProfiles.js'
 import { appendEmployeeProfileToUserContext } from './employeeProfile.js'
+import { getAgentFleetPolicy } from './packageRegistry.js'
 
 export type AgentSessionProfileSource = 'agent' | 'assistant'
 
@@ -54,44 +55,37 @@ export type ResolvedSessionProfile = {
   source: AgentSessionProfileSource | undefined
 }
 
-/** Default WanD orchestrator when no preset/handoff is staged */
-export const CCB_DEFAULT_SESSION_AGENT_ID = 'wande-orchestrator'
+const fleet = () => getAgentFleetPolicy()
 
-/** Bundled agents retained for WanD routing + office presets */
-export const CCB_WANDING_KEEP_AGENT_IDS = new Set([
-  'wande-orchestrator',
-  'quotation-agent',
-  'accurate-agent',
-  'research-agent',
-  'price-library-agent',
-  'cowork',
-  'word-creator',
-  'word-form-creator',
-  'ppt-creator',
-  'excel-creator',
-])
+/** Default session router — from package registry (`platform.agent.route`) with legacy fallback */
+export function getDefaultSessionAgentId(): string {
+  return fleet().defaultSessionAgentId
+}
+
+/** Bundled agents retained for routing + office presets — registry fleet + legacy extras */
+export function getFleetKeepAgentIds(): ReadonlySet<string> {
+  return fleet().keepAgentIds
+}
 
 /** Guid-only specialists — kept in fleet but not delegatable from default router */
-export const CCB_GUID_ONLY_AGENT_IDS = new Set(['price-library-agent'])
+export function getGuidOnlyAgentIds(): ReadonlySet<string> {
+  return fleet().guidOnlyAgentIds
+}
 
-/** Specialists the default router may delegate to (keep set minus orchestrator and Guid-only) */
-export const CCB_ROUTER_DELEGATABLE_AGENT_IDS = new Set(
-  [...CCB_WANDING_KEEP_AGENT_IDS].filter(
-    id => id !== CCB_DEFAULT_SESSION_AGENT_ID && !CCB_GUID_ONLY_AGENT_IDS.has(id),
-  ),
-)
+/** Specialists the default router may delegate to */
+export function getRouterDelegatableAgentIds(): ReadonlySet<string> {
+  return fleet().routerDelegatableAgentIds
+}
 
-/** @deprecated Use CCB_ROUTER_DELEGATABLE_AGENT_IDS */
-export const CCB_WANDING_DELEGATABLE_AGENT_IDS = CCB_ROUTER_DELEGATABLE_AGENT_IDS
+/** @deprecated Use getRouterDelegatableAgentIds() */
+export function getWandingDelegatableAgentIds(): ReadonlySet<string> {
+  return getRouterDelegatableAgentIds()
+}
 
 /** Office Guid presets — delegatable from default router */
-export const CCB_WANDING_OFFICE_PRESET_IDS = new Set([
-  'cowork',
-  'word-creator',
-  'word-form-creator',
-  'ppt-creator',
-  'excel-creator',
-])
+export function getOfficePresetAgentIds(): ReadonlySet<string> {
+  return fleet().officePresetAgentIds
+}
 
 /** Fallback claude_md when orchestrator sidecar has no claude_md (avoids global CLAUDE.md persona bleed) */
 export const WANDE_ORCHESTRATOR_ROUTER_CLAUDE_MD = `# 全局路由 / Global Router
@@ -106,7 +100,7 @@ export function isSpecialistDirectSession(
   profile: CcbAssistantProfile | null | undefined,
 ): boolean {
   if (!sessionProfileId?.trim() || !profile) return false
-  if (normalizeAgentId(sessionProfileId) === CCB_DEFAULT_SESSION_AGENT_ID) {
+  if (normalizeAgentId(sessionProfileId) === getDefaultSessionAgentId()) {
     return false
   }
   return profile.defaults.mcp.enabled.length > 0
@@ -162,7 +156,7 @@ export function resolveSessionUserContextOverride(args: {
         base = fromSidecar
       } else if (
         sessionProfileId &&
-        normalizeAgentId(sessionProfileId) === CCB_DEFAULT_SESSION_AGENT_ID
+        normalizeAgentId(sessionProfileId) === getDefaultSessionAgentId()
       ) {
         base = { claudeMd: WANDE_ORCHESTRATOR_ROUTER_CLAUDE_MD, currentDate }
       } else if (isSpecialistDirectSession(sessionProfileId, assistantProfile)) {
@@ -193,8 +187,8 @@ export function resolveSessionUserContextOverride(args: {
 export function resolveDefaultSessionAgentId(
   configDir = getClaudeConfigHomeDir(),
 ): string | undefined {
-  return getAgentSessionProfile(CCB_DEFAULT_SESSION_AGENT_ID, configDir)
-    ? CCB_DEFAULT_SESSION_AGENT_ID
+  return getAgentSessionProfile(getDefaultSessionAgentId(), configDir)
+    ? getDefaultSessionAgentId()
     : undefined
 }
 
@@ -518,7 +512,7 @@ export function filterDelegatableCustomAgents(
     const lookupId = agent.filename ?? agent.agentType
     if (
       options?.orchestratorSession &&
-      CCB_ROUTER_DELEGATABLE_AGENT_IDS.has(lookupId)
+      getRouterDelegatableAgentIds().has(lookupId)
     ) {
       return true
     }
@@ -553,7 +547,7 @@ export function buildWanDDelegationIndex(
   for (const agent of agents) {
     if (isBuiltInAgent(agent) || isPluginAgent(agent)) continue
     const id = agent.filename ?? agent.agentType
-    if (!CCB_ROUTER_DELEGATABLE_AGENT_IDS.has(id)) continue
+    if (!getRouterDelegatableAgentIds().has(id)) continue
     const description =
       agent.whenToUse?.trim() ||
       WAN_D_DELEGATION_INTENT[id] ||
@@ -624,7 +618,7 @@ export function isWandeOrchestratorSession(
   sessionProfileId: string | undefined,
 ): boolean {
   return (
-    normalizeAgentId(sessionProfileId ?? '') === CCB_DEFAULT_SESSION_AGENT_ID
+    normalizeAgentId(sessionProfileId ?? '') === getDefaultSessionAgentId()
   )
 }
 

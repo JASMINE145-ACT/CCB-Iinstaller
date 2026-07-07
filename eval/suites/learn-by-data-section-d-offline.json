@@ -1,0 +1,7 @@
+{
+  "description": "Section D offline eval — pytest + isolated smoke (no ACP, no production pending)",
+  "extends": null,
+  "case_ids": [
+    "learn-by-data-section-d-offline"
+  ]
+}

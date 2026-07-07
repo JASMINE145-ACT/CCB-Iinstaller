@@ -16,10 +16,29 @@ import {
   PROTOCOL_VERSION,
 } from '@agentclientprotocol/sdk'
 
-const install = 'D:\\CCB-Wanding'
-const configDir = join(os.homedir(), 'AppData', 'Local', 'CCB-Wanding', '.claude')
+const install =
+  process.env.CCB_TEST_INSTALL_DIR ||
+  (existsSync('D:\\CCB-Wanding') ? 'D:\\CCB-Wanding' : join(os.homedir(), 'AppData', 'Local', 'Programs', 'CCB-Wanding'))
+const configDir =
+  process.env.CCB_TEST_CONFIG_DIR ||
+  join(os.homedir(), 'AppData', 'Local', 'CCB-Wanding', '.claude')
+const testProfile =
+  process.env.CCB_TEST_PROFILE ||
+  process.env.CCB_TEST_AGENT_ID ||
+  ''
+
+if (!existsSync(install)) {
+  console.error(`[native-acp] install dir not found: ${install}`)
+  console.error('[native-acp] set CCB_TEST_INSTALL_DIR to your CCB-Wanding root')
+  process.exit(1)
+}
+if (!existsSync(join(configDir, 'settings.json'))) {
+  console.error(`[native-acp] settings.json not found under ${configDir}`)
+  console.error('[native-acp] set CCB_TEST_CONFIG_DIR or run bootstrap first')
+  process.exit(1)
+}
+
 const settings = JSON.parse(readFileSync(join(configDir, 'settings.json'), 'utf8').replace(/^\uFEFF/, ''))
-const testProfile = process.env.CCB_TEST_PROFILE || ''
 const handoffPath = join(configDir, '.aionui-next-assistant-profile.json')
 
 if (testProfile) {
@@ -151,10 +170,29 @@ try {
   console.log('[session]', session.sessionId, session.models?.currentModelId)
   if (testProfile) console.log('[profile]', testProfile)
 
-  const result = await conn.prompt({
-    sessionId: session.sessionId,
-    prompt: [{ type: 'text', text: process.env.CCB_TEST_PROMPT || 'Reply exactly: OK' }],
-  })
+  function parsePrompts() {
+    const raw = process.env.CCB_TEST_PROMPTS || ''
+    if (raw.trim()) {
+      const parsed = JSON.parse(raw)
+      if (!Array.isArray(parsed) || !parsed.length) {
+        throw new Error('CCB_TEST_PROMPTS must be a non-empty JSON string array')
+      }
+      return parsed.map((item) => String(item))
+    }
+    return [process.env.CCB_TEST_PROMPT || 'Reply exactly: OK']
+  }
+
+  const prompts = parsePrompts()
+  let result = null
+  for (let turn = 0; turn < prompts.length; turn++) {
+    console.log(`[prompt ${turn + 1}/${prompts.length}]`, prompts[turn].slice(0, 120))
+    result = await conn.prompt({
+      sessionId: session.sessionId,
+      prompt: [{ type: 'text', text: prompts[turn] }],
+    })
+    console.log(`[result ${turn + 1}]`, JSON.stringify(result))
+    if (result.stopReason !== 'end_turn') break
+  }
 
   clearTimeout(timeout)
   console.log('[result]', JSON.stringify(result))

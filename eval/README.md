@@ -61,12 +61,30 @@ Live runs invoke `ccb-installer/test-native-acp-agent.mjs` with `CCB_TEST_PROFIL
 - **Not expressible (human judge via `must_not`/`notes`):** 调用次数上限（≤2）、连续同参重发检测、逐月（1-5 月全出现）表格校验 — 断言引擎无计数/序列断言，未扩 schema。
 - **Suite:** `core`（`full` 自动含）。诊断: `.trellis/tasks/07-06-accurate-delegation-convergence/research/delegation-convergence-diagnosis.md`.
 
-### 2026-07-06 — learn-by-data Section D (P2.2)
+### 2026-07-06 — knowledge effectiveness offline eval (SP2 hooks)
 
-- **Offline smoke:** `python python/scripts/smoke_learn_by_data_section_d.py` — VANTSING fixture: 8 mismatch preview+apply, merge 8 rows, recall 3/3 via `search_mapping_fuzzy`
-- **Case:** `quote-smoke-learn-by-data-section-d` — batch + `append_quotation_mapping_pending` (pass_if_any preview or Section D table)
-- **Suites:** `quotation-smoke` (7), unified `smoke` (16)
-- **Record:** `.trellis/tasks/07-06-learn-by-data-price-library-enrich/test-records/section-d-smoke.json`
+- **Offline suite:** `knowledge-effectiveness-offline` (5 cases, ~10s, no ACP)
+  ```powershell
+  .\ccb-installer\scripts\run-agent-eval-suite.ps1 -Suite knowledge-effectiveness-offline -Run
+  # or
+  node eval/run-agent-eval.mjs --run --suite knowledge-effectiveness-offline
+  ```
+- **Cases:** `knowledge-effectiveness-offline-full` | `-match-limit` (N=4) | `-append-rule` | `-kb-hash` | `-reread-reset`
+- **Runner:** `eval/run-knowledge-effectiveness-offline-eval.mjs` — pytest `test_knowledge_read_gate.py`; per-case filter via `offline_pytest_k`
+- **core** suite includes `-full` for schema gate
+
+### 2026-07-06 — learn-by-data Section D (P2.2 + D-gap offline eval)
+
+- **Offline eval (isolated, no production pending):**
+  ```powershell
+  node eval/run-section-d-offline-eval.mjs
+  # or
+  .\ccb-installer\scripts\run-agent-eval-suite.ps1 -Suite learn-by-data-section-d-offline
+  ```
+  Fixture: `data/smoke/learn-by-data-section-d-eval.xlsx` + manifest (d-gap / d-mismatch / d-skip-m2 / d-skip-empty). Regenerate: `python python/scripts/generate_learn_by_data_section_d_eval_fixture.py`
+- **Live ACP case:** `quote-smoke-learn-by-data-section-d` — preview-only (`forbidden_params: confirmed:true`); D-mismatch ∪ D-gap SKILL
+- **Legacy offline smoke:** `python python/scripts/smoke_learn_by_data_section_d.py` — VANTSING mismatch rows in temp dirs
+- **Record:** `.trellis/tasks/07-06-learn-by-data-price-library-enrich/test-records/section-d-eval-smoke.json`
 
 ### 2026-07-06 — Unified smoke (15 cases)
 

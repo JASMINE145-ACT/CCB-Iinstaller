@@ -1,0 +1,11 @@
+{
+  "description": "Knowledge effectiveness offline eval — hook pytest (match limit 4, hash, append_rule)",
+  "extends": null,
+  "case_ids": [
+    "knowledge-effectiveness-offline-full",
+    "knowledge-effectiveness-offline-match-limit",
+    "knowledge-effectiveness-offline-append-rule",
+    "knowledge-effectiveness-offline-kb-hash",
+    "knowledge-effectiveness-offline-reread-reset"
+  ]
+}

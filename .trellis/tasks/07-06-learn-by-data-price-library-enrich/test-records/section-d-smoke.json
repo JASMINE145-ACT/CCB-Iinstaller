@@ -1,0 +1,19 @@
+{
+  "fixture": "D:\\Projects\\claude-code-best\\data\\smoke\\learn-by-data-vantsing-filled.xlsx",
+  "mismatch_preview_ok": 8,
+  "mismatch_applied_ok": 8,
+  "gap_applied_n": 0,
+  "mismatch_applied_n": 8,
+  "skipped_or_rejected": 0,
+  "merge": {
+    "mapping_path": "C:\\Users\\m1774\\AppData\\Local\\Temp\\tmpc076wlo4\\mapping_table.xlsx",
+    "pending_path": "C:\\Users\\m1774\\AppData\\Local\\Temp\\tmpc076wlo4\\pending.jsonl",
+    "appended": 8,
+    "skipped": 0,
+    "overwritten": 0,
+    "dry_run": false
+  },
+  "recall_sample_hits": 3,
+  "recall_sample_n": 3,
+  "pass": true
+}

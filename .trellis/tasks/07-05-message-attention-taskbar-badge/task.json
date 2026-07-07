@@ -1,0 +1,10 @@
+{
+  "id": "07-05-message-attention-taskbar-badge",
+  "title": "Windows taskbar attention badge (Cursor-style)",
+  "status": "completed",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "repos": ["aionui-src", "claude-code-best"]
+  },
+  "notes": "Implementation 2026-07-05; hotfix export 2026-07-06; user manual smoke PASS 2026-07-06"
+}

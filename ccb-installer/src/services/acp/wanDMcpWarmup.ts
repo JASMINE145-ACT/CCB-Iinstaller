@@ -7,7 +7,7 @@ import { spawn } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { getClaudeConfigHomeDir } from '../../utils/envUtils.js'
-import { CCB_DEFAULT_SESSION_AGENT_ID } from './agentSessionProfile.js'
+import { getDefaultSessionAgentId } from './agentSessionProfile.js'
 import { normalizeAgentId } from './agentIds.js'
 
 type WarmupCall = {
@@ -146,7 +146,7 @@ export async function warmWanDMcpServers(serverNames: string[]): Promise<void> {
 export function scheduleWanDMcpWarmup(sessionProfileId?: string): void {
   const id = normalizeAgentId(sessionProfileId ?? '')
   const servers: string[] = []
-  if (!id || id === CCB_DEFAULT_SESSION_AGENT_ID) {
+  if (!id || id === getDefaultSessionAgentId()) {
     servers.push('quotation', 'accurate')
   } else if (id === 'quotation-agent') {
     servers.push('quotation')

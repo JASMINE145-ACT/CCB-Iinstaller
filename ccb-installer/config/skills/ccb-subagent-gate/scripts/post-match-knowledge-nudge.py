@@ -68,6 +68,14 @@ def main() -> int:
     if tool_name not in MATCH_TOOL_NAMES:
         return 0
 
+    session_id = str(hook_input.get("session_id") or "").strip()
+    tool_response = hook_input.get("tool_response")
+    if hook_input.get("is_error") is not True:
+        if not (isinstance(tool_response, dict) and tool_response.get("is_error") is True):
+            from knowledge_effectiveness import increment_match_count  # noqa: E402
+
+            increment_match_count(session_id)
+
     payload = unwrap_tool_payload(hook_input.get("tool_response"))
     if not payload or not payload_is_multi_candidate(payload):
         return 0

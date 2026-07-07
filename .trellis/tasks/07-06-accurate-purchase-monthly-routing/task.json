@@ -1,0 +1,10 @@
+{
+  "id": "07-06-accurate-purchase-monthly-routing",
+  "title": "Accurate purchase monthly query — wrong fetch_by_date chain",
+  "status": "awaiting-smoke",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "repos": ["ccb-installer", "claude-code-best"]
+  },
+  "notes": "User debug 2026-07-06: 1-5月采购额 → 7× fetch_by_date + python temp script; expected 1× summarize_records"
+}

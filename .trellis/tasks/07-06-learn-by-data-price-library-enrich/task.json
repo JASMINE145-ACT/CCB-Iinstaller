@@ -1,0 +1,12 @@
+{
+  "id": "07-06-learn-by-data-price-library-enrich",
+  "name": "learn-by-data-price-library-enrich",
+  "status": "in_progress",
+  "description": "Phase 2 quotation-learn-by-data: Section B uses price library oracle; Section C upserts agent top candidate metadata (no tier prices) via price-library MCP on quotation-agent.",
+  "meta": {
+    "execution_plan": "execution-plan.md"
+  },
+  "children": [
+    "07-06-07-06-learn-by-data-step1-extract"
+  ]
+}

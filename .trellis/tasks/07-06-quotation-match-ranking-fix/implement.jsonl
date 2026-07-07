@@ -1,0 +1,4 @@
+{"type":"file","path":"python/inventory/services/match_and_inventory.py","action":"modified","reason":"_compat_sort_key: source_rank before compat_bonus (共同>历史>字段)"}
+{"type":"file","path":"python/tests/test_quotation_match_ranking_fix.py","action":"added","reason":"Rows 8-9 regression; row 10 xfail (P2/P3 deferred)"}
+{"type":"skill","path":"ccb-installer/packages/vertical/com.wanding.trade/skills/quotation-learn-by-data/SKILL.md","action":"modified","reason":"Selection parity: agent_pick_code via knowledge SOP; forbid candidates[0]"}
+{"type":"spec","path":".trellis/spec/integration/agents-unified-model.md","reason":"learn-by-data compare agent_pick not list [0]"}

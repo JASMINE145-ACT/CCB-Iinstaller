@@ -24,10 +24,11 @@ This is **UI truth** for long-running CCB sessions (e.g. 万鼎报价 / `learn-b
 | **Toast vs badge** | Toast gated by **Settings → Notifications**. Badge updates **independently** (in-app attention still visible when toast is off). |
 | **Clear badge** | User navigates to `/conversation/:id` for that session → clear both permission and completion unread. |
 | **Click toast** | Main `Notification.on('click')` → `notification.clicked` → `useNotificationClick` → `navigate(/conversation/:id)`. |
+| **Taskbar badge (Windows)** | Distinct unread conversation count on app icon via `app.setBadgeCount`; updates with sidebar dots; **not** gated by `notificationEnabled`. Implemented 2026-07-05 (`07-05-message-attention-taskbar-badge`). |
 
 ### Out of scope (defer)
 
-- macOS dock badge / Windows taskbar overlay (`P2`)
+- macOS dock badge (`P2`, Windows done first)
 - Changing in-conversation permission cards (`MessagePermission`, `MessageToolGroup`)
 - New CCB backend events (reuse existing WS only)
 - Team tab ‼️ rewrite (Team badges remain; this feature covers **single-agent** sidebar)
@@ -50,10 +51,12 @@ confirmation.add          responseStream terminal / turn.completed
            ┌───────────┴───────────┐
            ▼                       ▼
   useConversationAttentionNotifications   ConversationRow blue dot
-  (Layout) → notification.show IPC        (hasAttentionUnread)
+  useTaskbarAttentionBadge (Win)          (hasAttentionUnread)
+  (Layout) → notification.show IPC
            │
            ▼
   notificationBridge.ts → Notification + click emit
+  appBadgeBridge.ts → app.setBadgeCount (win32)
 ```
 
 ### Active conversation ID (critical)
@@ -78,12 +81,14 @@ Paths relative to `packages/desktop/src/`.
 | Attention store + IPC subscriptions | `renderer/pages/conversation/GroupedHistory/hooks/useConversationListSync.ts` |
 | Trigger helper + path parse | `renderer/pages/conversation/GroupedHistory/utils/conversationAttention.ts` |
 | OS toast hook | `renderer/hooks/system/useConversationAttentionNotifications.ts` |
+| **Windows taskbar badge hook** | `renderer/hooks/system/useTaskbarAttentionBadge.ts` |
 | Toast click → navigate | `renderer/hooks/system/useNotificationClick.ts` |
 | Register toast hook | `renderer/components/layout/Layout.tsx` |
 | Sync init on boot | `renderer/hooks/context/ConversationHistoryContext.tsx` |
 | Clear unread on enter | `renderer/pages/conversation/GroupedHistory/hooks/useConversations.ts` |
 | Sidebar blue dot | `renderer/pages/conversation/GroupedHistory/ConversationRow.tsx` |
 | Main-process notification + click | `process/bridge/notificationBridge.ts` |
+| **Windows taskbar badge (main)** | `process/bridge/appBadgeBridge.ts` |
 | i18n | `renderer/services/i18n/locales/{en-US,zh-CN}/conversation.json` → `attention.*` |
 | Unit tests | `tests/unit/renderer/conversationAttention.test.ts` |
 
@@ -131,7 +136,10 @@ Configured in **Settings → System → Notifications** (`SystemModalContent`).
 [ ] Click toast → lands on /conversation/A; dot clears
 [ ] A agent finishes turn → toast + dot (if not on A)
 [ ] User on A → no toast/dot increment for A events
-[ ] Disable notifications in settings → no toast; dot still works
+[ ] Disable notifications in settings → no toast; dot + taskbar badge still update
+[ ] Session A completes while on Guid → taskbar shows 1 (Windows)
+[ ] Second session completes → taskbar shows 2
+[ ] Open session A → taskbar decrements
 [ ] Direct load /conversation/A with pending events → no false toast (cold-start path)
 ```
 
@@ -145,4 +153,4 @@ Configured in **Settings → System → Notifications** (`SystemModalContent`).
 |-----|-------|
 | Permission arrives while user is on session, then leaves without resolving | No badge until next event (PRD-compliant; usability follow-up possible) |
 | Error/disconnect stream treated as “completion” attention | Same copy as finish; confirm product intent if misleading |
-| Taskbar overlay | `P2` — separate task if Cursor parity needed on Windows/macOS dock |
+| Taskbar overlay | ✅ Windows (`app.setBadgeCount`) — task `07-05`; macOS dock deferred |

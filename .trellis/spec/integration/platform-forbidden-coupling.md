@@ -104,4 +104,6 @@ Before implementing a feature, classify:
 
 | Date | Change |
 |------|--------|
+| 2026-07-05 | SB-13: `lint-platform-forbidden-coupling.mjs` + CI workflow `forbidden-coupling.yml`; baseline at `ccb-installer/config/lint/platform-forbidden-coupling.baseline.json` |
+| 2026-07-05 | SB-01: ACP `packageRegistry.ts` loads default router / fleet sets from registry snapshot + `agent-fleet.defaults.json` |
 | 2026-07-03 | Initial P0 rules from platform decoupling design §21 |

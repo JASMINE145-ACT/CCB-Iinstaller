@@ -234,11 +234,12 @@ def _rank_compatible_candidates(
     )
 
 
-def _compat_sort_key(keywords: str, candidate: dict[str, Any]) -> tuple[int, float, int]:
+def _compat_sort_key(keywords: str, candidate: dict[str, Any]) -> tuple[int, int, float]:
     keep, bonus = _candidate_compat(keywords, candidate)
     penalty = 0 if keep else 1
     source_rank = _SOURCE_PRIORITY.get(candidate.get("source", "字段匹配"), 2)
-    return penalty, -bonus, source_rank
+    # Source (共同 > 历史 > 字段) before semantic compat_bonus — aligns merge contract with [0].
+    return penalty, source_rank, -bonus
 
 
 def match_quotation_union(

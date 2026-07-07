@@ -1,0 +1,53 @@
+{
+  "id": "delegation-nested-view-steps",
+  "name": "07-06-delegation-nested-view-steps",
+  "title": "View Steps 委派嵌套 + DelegationRun B0（轻量化完善）",
+  "description": "Plan A nested View Steps plus frontend-only DelegationRun B0 reducer (buildDelegationRuns): shared model for tree, live running chip, SubagentDrawer. No CCB bridge/DB. Closes agent-team-architecture § UI observability.",
+  "status": "in_progress",
+  "dev_type": "implementation",
+  "scope": "aionui-src delegationRun.ts + View Steps + optional live chip + SubagentDrawer; spec §3.4c",
+  "package": "frontend",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-06",
+  "completedAt": null,
+  "relatedFiles": [
+    "aionui-src/packages/desktop/src/common/chat/delegationRun.ts",
+    "aionui-src/packages/desktop/src/common/chat/delegationSpawnContext.ts",
+    "aionui-src/packages/desktop/src/common/chat/normalizeToolCall.ts",
+    "aionui-src/packages/desktop/src/common/chat/groupNormalizedToolCalls.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/components/MessageToolGroupSummary.tsx",
+    "aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/components/SubagentDrawer.tsx",
+    ".trellis/tasks/07-06-delegation-nested-view-steps/research/delegation-run-b0-contract.md",
+    ".trellis/spec/integration/agent-team-architecture.md",
+    ".trellis/spec/frontend/chat-acp-flow.md"
+  ],
+  "notes": "2026-07-06: Amended after user chose A lightweight + B0 (frontend DelegationRun). B1 CCB bridge enrich explicitly deferred. Implementation order F→A→B→G→C→D→E.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "UI",
+    "scenario": "A",
+    "plan_depth": "Standard",
+    "approach": "A-lightweight-plus-B0",
+    "workstreams": [
+      "F-delegation-run-b0",
+      "A-nested-view-steps",
+      "B-delegation-labels-header",
+      "G-live-delegation-chip",
+      "C-subagent-drawer-parity",
+      "H-spawn-context-b0-1",
+      "D-spec-sync",
+      "E-gate"
+    ],
+    "deferred": [
+      "B1-ccb-bridge-delegation-run-meta"
+    ],
+    "related_tasks": [
+      "07-04-orchestrator-dispatch-hardening",
+      "07-04-acp-view-steps-empty-tool-title",
+      "06-18-quotation-runtime-stability-audit",
+      "06-15-agents-unified-storage"
+    ]
+  }
+}

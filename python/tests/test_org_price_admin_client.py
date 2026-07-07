@@ -155,6 +155,33 @@ class OrgPriceAdminDispatchTests(unittest.TestCase):
         self.assertTrue(result["requires_confirmation"])
         self.assertEqual(result["material_code"], "M001")
 
+    def test_unconfirmed_upsert_accepts_learn_by_data_source_fields(self) -> None:
+        active = {"version": {"version_number": 3}, "products": []}
+        draft = {"revision": 2, "items": []}
+        fields = {
+            "source_file": "quote.xlsx",
+            "source_sheet": "Sheet1",
+            "source_row": 16,
+            "is_preferred_price": True,
+            "superseded_by_source": "",
+            "description": "直接50",
+            "description_cn": "直接50",
+            "description_english": "Coupling 50",
+        }
+        with mock.patch.object(opac, "get_active", return_value=active):
+            with mock.patch.object(opac, "get_draft", return_value=draft):
+                with mock.patch.object(opac, "apply_draft_item") as mock_apply:
+                    result = handle_upsert_price_library_item(
+                        {"material_code": "8020020755", "fields": fields, "confirmed": False}
+                    )
+        mock_apply.assert_not_called()
+        self.assertTrue(result["requires_confirmation"])
+        proposed = result.get("proposed") or {}
+        patch = proposed.get("fields") or proposed
+        self.assertEqual(patch.get("source_file"), "quote.xlsx")
+        self.assertEqual(patch.get("source_row"), 16)
+        self.assertNotIn("price_b", patch)
+
     def test_confirmed_upsert_calls_apply(self) -> None:
         active = {"version": {"version_number": 3}, "products": [{"product_id": "plp-1", "material_code": "M001", "price_b": 1.0}]}
         draft = {"revision": 2, "items": []}

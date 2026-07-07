@@ -20,7 +20,7 @@ if (-not (Test-Path $ClaudeCodeBRoot)) {
 }
 
 $DestAcp = Join-Path $ClaudeCodeBRoot "src\services\acp"
-foreach ($file in @("agent.ts", "agentSessionProfile.ts", "employeeProfile.ts", "mcpSessionPrefetch.ts", "mcpToolRepeatGuard.ts", "wanDEnvBootstrap.ts", "wanDMcpWarmup.ts", "permissions.ts", "askUserQuestionPermissionResolve.ts", "workspacePointer.ts", "promptConversion.ts", "sessionTranscript.ts")) {
+foreach ($file in @("agent.ts", "agentSessionProfile.ts", "packageRegistry.ts", "employeeProfile.ts", "mcpSessionPrefetch.ts", "mcpToolRepeatGuard.ts", "wanDEnvBootstrap.ts", "wanDMcpWarmup.ts", "permissions.ts", "askUserQuestionPermissionResolve.ts", "workspacePointer.ts", "promptConversion.ts", "sessionTranscript.ts")) {
   $src = Join-Path $Overlay $file
   if (-not (Test-Path $src)) { Write-Error "Missing overlay file: $src" }
   Copy-Item $src (Join-Path $DestAcp $file) -Force

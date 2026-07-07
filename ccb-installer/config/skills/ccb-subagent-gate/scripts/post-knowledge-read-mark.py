@@ -13,6 +13,7 @@ from parse_transcript_knowledge_gate import (  # noqa: E402
     _payload_has_knowledge_mark,
     mark_session_knowledge_read,
 )
+from knowledge_effectiveness import mark_knowledge_effective_read  # noqa: E402
 
 
 def _tool_input_is_knowledge_read(tool_name: str, tool_input: object) -> bool:
@@ -45,6 +46,7 @@ def main() -> int:
 
     session_id = str(hook_input.get("session_id") or "").strip()
     mark_session_knowledge_read(session_id)
+    mark_knowledge_effective_read(session_id)
     return 0
 
 

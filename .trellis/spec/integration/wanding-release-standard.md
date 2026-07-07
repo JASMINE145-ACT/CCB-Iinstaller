@@ -266,6 +266,8 @@ $INSTALL = "$env:LOCALAPPDATA\Programs\CCB-Wanding"
 ```powershell
 .\ccb-installer\scripts\test-mcp-health.ps1 -Probe -Session
 .\ccb-installer\scripts\smoke-wanding-e2e.ps1 -InstallDir "<InstallDir>"
+# Agent routing / tool-choice regression (live; ~10 min; requires API + MCP)
+.\ccb-installer\scripts\run-agent-eval-suite.ps1 -Suite smoke -Run -InstallDir "<InstallDir>" -Json
 ```
 
 ### 6.6 Manual smoke (from feature matrix)

@@ -4,6 +4,7 @@ description: "万鼎报价与库存专家：查价、选型、库存与报价单
 mcpServers:
   - quotation
   - excel
+  - price-library
 skills:
   - quotation-learn-by-data
 model: minimax-m3
@@ -30,6 +31,11 @@ hooks:
         - type: command
           command: python "$LOCALAPPDATA/CCB-Wanding/.claude/skills/ccb-subagent-gate/scripts/post-price-tiers-nudge.py"
           timeout: 30
+    - matcher: "mcp__quotation__append_business_rule"
+      hooks:
+        - type: command
+          command: python "$LOCALAPPDATA/CCB-Wanding/.claude/skills/ccb-subagent-gate/scripts/post-business-rule-knowledge-invalidate.py"
+          timeout: 15
   Stop:
     - hooks:
         - type: command
@@ -62,7 +68,7 @@ Use **excel** MCP (haris / openpyxl) **only after** `fill_quotation_sheet` (read
 | 仅查库存（仅描述） | `search_inventory` 或 `match_quotation` → `get_inventory_by_code` | 重复搜 |
 | 生成 / 填写报价单 | **Path C**：`fill_items` + `require_exact_codes=true`；**不传** `file_path` / `template_path`（内置 `空白标准报价单.xlsx`） | 把 `Wanding-Quotation_*.xlsx` 当 `file_path`；无 `fill_items` 只传路径 |
 | 改已有报价单 | Path A：`file_path` = 用户**已存在**的询价 Excel；或 Path C + `fill_items` 改指定行 | 空话 end_turn（ROE） |
-| `/learn-by-data` / 按数据学习 / 复盘报价 | `Skill(quotation-learn-by-data)` → 已填 **VANTSING** Excel 复盘；**必须** `match_quotation_batch` + `show_candidates=true` 分批重 match | 用 parallel `match_quotation` 替代 batch；LLM 猜列；未走完批次就结束 |
+| `/learn-by-data` / 按数据学习 / 复盘报价 | `Skill(quotation-learn-by-data)` → VANTSING 复盘；batch + `show_candidates=true`；Section C 缺码 → `upsert_price_library_item`（`price_admin`，无档位价） | parallel single-match；LLM 猜列；未确认就 `confirmed=true` 写 draft |
 
 `inventory_unavailable` → 说明库存暂不可查，不编造数量。已拿到可回复数据立即出表，不要空转工具循环。
 

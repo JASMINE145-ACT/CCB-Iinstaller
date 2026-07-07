@@ -1,0 +1,8 @@
+{
+  "id": "lingwei-6.8-quotation",
+  "source": "39.LINGWEI 凌威 / 2026/6月/6.8/LingWei6.8报价单.xlsx",
+  "repo_fixture": "data/smoke/lingwei-6.8-quotation.xlsx",
+  "eval_case": "quote-smoke-lingwei-batch-query",
+  "usage": "Batch match_quotation_batch smoke; override with CCB_EVAL_FIXTURE_LINGWEI for local WeDrive path",
+  "learn_by_data_note": "quotation-learn-by-data SKILL MVP is VANTSING-only; use data/smoke/learn-by-data-vantsing-filled.xlsx for flow 5"
+}

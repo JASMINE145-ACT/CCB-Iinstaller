@@ -1,0 +1,10 @@
+{
+  "id": "07-06-quotation-match-ranking-fix",
+  "title": "Quotation match ranking — 共同/波纹管/conduit rows 9–10",
+  "status": "completed-p1",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "repos": ["claude-code-best", "ccb-installer"]
+  },
+  "notes": "User 2026-07-06: normal query correct; learn-by-data candidates[0] wrong. Plan approved pending 执行task."
+}

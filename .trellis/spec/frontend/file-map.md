@@ -56,7 +56,8 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | System settings (theme, locale) | `packages/desktop/src/process/bridge/systemSettingsBridge.ts` + `themeBridge.ts` |
 | Native dialogs (file picker, alert) | `packages/desktop/src/process/bridge/dialogBridge.ts` |
 | Notifications | `packages/desktop/src/process/bridge/notificationBridge.ts` |
-| **Background attention (toast + sidebar dot)** | `GroupedHistory/hooks/useConversationListSync.ts` + `utils/conversationAttention.ts` + `hooks/system/useConversationAttentionNotifications.ts` — see [`conversation-attention-notifications.md`](./conversation-attention-notifications.md) |
+| **Windows taskbar badge** | `process/bridge/appBadgeBridge.ts` + `hooks/system/useTaskbarAttentionBadge.ts` — task `07-05-message-attention-taskbar-badge` |
+| **Background attention (toast + sidebar dot + taskbar)** | `GroupedHistory/hooks/useConversationListSync.ts` + `utils/conversationAttention.ts` + `hooks/system/useConversationAttentionNotifications.ts` + `useTaskbarAttentionBadge.ts` — see [`conversation-attention-notifications.md`](./conversation-attention-notifications.md) |
 | Feedback dialog (UI) | `packages/desktop/src/process/bridge/feedbackBridge.ts` | Note: `process/feedback/` directory contains only `logs.ts` (not the dialog itself) |
 | Update / version check | `packages/desktop/src/process/bridge/updateBridge.ts` + `packages/desktop/src/common/update/` |
 | WanD internal manifest / CCB dual-track update | `packages/desktop/src/process/bridge/internalUpdateManifest.ts` + `ccbUpdateBridge.ts` (**new**, `ccbUpdate.*`) — spec `integration/internal-update.md` §3.7 |
@@ -101,7 +102,7 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Sidebar entry + pending badge | `packages/desktop/src/renderer/components/layout/Sider/SiderNav/SiderWorkTasksEntry.tsx` |
 | Sidebar org data entries (知识库 + 价格库) | `Sider/index.tsx` — flat peers after 「任务」; same row style as `SiderScheduledEntry` / `SiderWorkTasksEntry` (`h-34px`, icon + text); gated by `isOrgServerConfigured()` |
 | Org knowledge sidebar entry | `SiderNav/SiderOrgKnowledgeEntry.tsx` → `#/org-knowledge` |
-| Memory sidebar entry (personal/business files) | `SiderNav/SiderMemoryEntry.tsx` → `#/memory` · page `pages/memory/MemoryPage` · IPC `ccbPersonalMemoryService.listFiles/readFile/writeFile` · path jail `ccbMemoryFiles.ts` — task `07-06-ccb-memory-auto-accumulation` P6 |
+| Memory sidebar entry (personal/business files) | `SiderNav/SiderMemoryEntry.tsx` → `#/memory` · page `pages/memory/MemoryPage/` (Shell, FileSidebar, EditorPanel, …) · IPC `ccbPersonalMemoryService.*` · path jail `ccbMemoryFiles.ts` — accumulation task `07-06-ccb-memory-auto-accumulation` · UI redesign `07-06-memory-page-ui-redesign` (2026-07-06) |
 | Price library sidebar entry | `SiderNav/SiderPriceLibraryEntry.tsx` → `#/price-library` |
 | **Wiring status (2026-06-26)** | Routes + sider entry + `AuthContext` desktop SSO **wired** (uncommitted). API needs self-built aioncore (`/api/work-tasks` 404 on bundled 0.1.27). |
 | Auth user `work_task_role` + session token | `packages/desktop/src/common/auth/authSession.ts`, `packages/desktop/src/renderer/hooks/context/AuthContext.tsx` |

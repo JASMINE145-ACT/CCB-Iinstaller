@@ -13,6 +13,7 @@
     "anti-hallucination-accurate",
     "permission-write-file",
     "knowledge-read-trigger",
+    "knowledge-effectiveness-offline-full",
     "session-open-no-accurate-mcp",
     "quote-stock-selected-code-no-selected-list",
     "orchestrator-accurate-purchase-monthly-convergence"

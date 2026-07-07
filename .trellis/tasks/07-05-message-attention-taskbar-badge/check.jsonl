@@ -1,0 +1,4 @@
+{"phase":"code-review","agent":"code-reviewer","verdict":"PASS","date":"2026-07-05","notes":"IPC wiring, Windows gating, unread union count, clear on navigate"}
+{"phase":"unit-test","command":"vitest conversationAttention.test.ts","verdict":"PASS","evidence":"10/10","date":"2026-07-05"}
+{"phase":"manual-smoke","item":"Windows taskbar badge increment/decrement","verdict":"PASS","evidence":"user confirmed 2026-07-06","date":"2026-07-06"}
+{"phase":"hotfix","item":"subscribeConversationListSync export","verdict":"PASS","evidence":"Renderer did-finish-load after -Clean restart","date":"2026-07-06"}

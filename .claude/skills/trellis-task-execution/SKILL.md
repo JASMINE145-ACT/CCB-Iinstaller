@@ -1,12 +1,14 @@
 ---
 name: trellis-task-execution
-description: "Design phased execution plans that map Trellis task workstreams to project skills and agents (trellis-before-dev, TDD, trellis-check, code-review, parallel agents, verification gate). Use when starting or continuing a Trellis task, asking how to execute a PRD, planning workstream→tool mapping, choosing OpenSpec vs Trellis vs ECC workflows, or before saying 执行task."
+description: "Design phased execution plans that map Trellis task workstreams to project skills and agents (trellis-before-dev, TDD, trellis-check, code-review, parallel agents, verification gate). Use when starting or continuing a Trellis task, asking how to execute a PRD, planning workstream→tool mapping, choosing between Trellis/OpenSpec/Superpowers/ECC skills for any scenario (feature, debug, build failure, refactor, security, performance, release, docs, research), or before saying 执行task."
 ---
 
 # Trellis Task Execution — Workstream → Tool Mapping
 
 Help the user **design** how to execute a Trellis task using this repo's meta-tools.
 **Output a phased plan for approval** — do not jump to implementation unless the user explicitly says 执行 / implement.
+
+**Invocation contract (mandatory):** Skills and subagents in this plan must be **actually loaded and executed in the planning session**, not cited as future homework. See §Step 1b.
 
 Canonical reference: [`docs/ai-tools-reference.md`](../../docs/ai-tools-reference.md) (§五 协作场景 · §八 验证门禁).
 
@@ -18,6 +20,7 @@ Canonical reference: [`docs/ai-tools-reference.md`](../../docs/ai-tools-referenc
 - User says「帮我设计执行计划」「Workstream 怎么分工」「用哪些 skill」
 - After `/opsx:explore` or `trellis-brainstorm`, before `task.py start` or coding
 - User wants to avoid mixing verification gates or parallel-agent footguns
+- Any scenario needing a cross-system skill chain — debug, build failure, refactor, security, performance, release, docs-only, deep research (Scenarios C, F–L)
 
 ---
 
@@ -26,12 +29,92 @@ Canonical reference: [`docs/ai-tools-reference.md`](../../docs/ai-tools-referenc
 | Scenario | When | Primary path |
 |----------|------|--------------|
 | **A** 标准功能 | Normal Trellis task, clear PRD | `task.py create` → brainstorm → plan → TDD → check → finish |
-| **B** 大型规格 | Multi-week, needs design artifacts | `/opsx:explore` → `/opsx:propose` **+** Trellis task sync |
+| **B** 大型规格 | Multi-week, needs design artifacts | `openspec-explore` skill → `/opsx:propose` **+** Trellis task sync |
 | **C** Bug 修复 | Regression / production symptom | `systematic-debugging` → TDD repro → `trellis-implement` → check |
 | **D** 并行子流 | Independent workstreams, two repos | `dispatching-parallel-agents` with **merge rules** (see §Parallel) |
-| **E** 探索 only | Requirements unclear | `/opsx:explore` or `trellis-brainstorm` — **no code** |
+| **E** 探索 only | Requirements unclear | `openspec-explore` skill **or** `trellis-brainstorm` — **no code**, no full execution plan until clear |
+| **F** 构建失败 | Build/compile/type error, not runtime behavior | `Agent: ecc:<lang>-build-resolver` → escalate to `systematic-debugging` after 2 failed rounds |
+| **G** 重构清理 | Behavior-preserving structure change | Characterization tests first (`superpowers:test-driven-development`) → `ecc:refactor-clean` / `ecc:code-simplifier` |
+| **H** 安全敏感 | Touches auth / secrets / user input / payments | `Agent: security-reviewer` (mandatory) + `ecc:security-scan` → Security profile |
+| **I** 性能优化 | Slow / jank / bundle / memory, measurable | Measure first (`Agent: performance-optimizer`, chrome-devtools trace) → TDD with benchmark evidence |
+| **J** 发布打包 | Installer / release / build-wanding | Release spec + `ecc:verification-loop` → Release profile + manual acceptance |
+| **K** 文档规格 | md/comments/codemap only, no behavior change | `Agent: doc-updater` / `openspec-sync-specs` / `trellis-update-spec` → Fast profile |
+| **L** 深度研究 | Tech selection / external API / no code output | `Agent: trellis-research` (persist) + `ecc:deep-research` — **no implementation plan** |
+
+Scenario F–L invocation chains, entry tests, and gate profiles: **[skill-selection.md](./skill-selection.md) §三**（required Read when classifying into F–L）.
 
 **WanD / AionUI 集成任务** (ccb-installer + aionui-src): always **Scenario A or D**, never full ECC `/orchestrate` autopilot — user must do **UI manual** verification step.
+
+---
+
+## Step 1b — Invoke skills (mandatory; not names-only)
+
+Planning **composes** all four systems — Trellis / OpenSpec / Superpowers / ECC. A skill name in a table row is **invalid** unless it carries a real invocation record this session: `Skill:` (Skill tool), `Agent:` (subagent dispatch), or `Read:` (Read SKILL.md **and follow its process to its artifact**).
+
+**REQUIRED READ:** [skill-selection.md](./skill-selection.md) — per-harness invocation mechanics (§一), the 12-capability four-system verdict matrix with fallback chains (§二), scenario F–L playbooks (§三), and the rationalization/red-flag tables (§四). When two systems offer the same capability, take the matrix verdict — do not re-litigate per task.
+
+### Invocation mechanics (summary — full table in skill-selection.md §一)
+
+| System | Claude Code | Cursor | Codex/other |
+|--------|-------------|--------|-------------|
+| Trellis skills | `Skill: trellis-<name>` | `Read: .cursor/skills/<name>/SKILL.md` | `Read: .agents/skills/<name>/SKILL.md` |
+| Trellis agents | `Agent: trellis-research/implement/check` | inline (no subagents) | `.codex/agents/*.toml` |
+| OpenSpec | **not in Skill list** → `Read: .cursor/skills/openspec-*/SKILL.md` + `openspec` CLI | `/opsx:*` or Read | Read + CLI |
+| Superpowers | `Skill: superpowers:<name>` — plugin, **directly invocable; never say "if on disk"** | Cursor plugin | Read plugin cache |
+| ECC skills / agents | `Skill: ecc:<name>` / `Agent: ecc:<name>` | partial | fallback chain |
+
+### Default winners per capability (verdicts — rationale in skill-selection.md §二)
+
+| Capability | Verdict | Discipline overlay |
+|------------|---------|--------------------|
+| Brainstorm | `trellis-brainstorm` (task-bound prd.md) | `superpowers:brainstorming` first when requirements very vague |
+| Explore | `openspec-explore` (light) / `Agent: trellis-research` (persist) | `Agent: ecc:code-explorer` for execution-path tracing |
+| Design artifacts | `openspec-propose` (full artifact set) | `Agent: ecc:spec-miner` for brownfield spec extraction |
+| Plan | this skill's `execution-plan.md` | `superpowers:writing-plans` self-contained-steps discipline |
+| TDD | `superpowers:test-driven-development` | + `ecc:<lang>-tdd` for framework specifics |
+| Debug | `superpowers:systematic-debugging` before any fix | `Agent: ecc:<lang>-build-resolver` for pure build errors |
+| Implement | `Agent: trellis-implement` (spec injection) | `superpowers:executing-plans` checkpoints |
+| Parallel | `superpowers:dispatching-parallel-agents` + trellis §Step 6 merge rules (both) | `ecc:multi-*` only at ≥3 heterogeneous agents |
+| Review | trellis-check (spec) / `Agent: ecc:<lang>-reviewer` (quality) — pick one primary | superpowers review-interaction skills |
+| Verify/finish | trellis §Step 5 chain | `superpowers:verification-before-completion` + `ecc:verification-loop` commands |
+| Learning | `trellis-update-spec` (project) | `ecc:learn` (personal instincts), `openspec-sync-specs` (OpenSpec deltas) |
+| Security | ECC only: `Agent: security-reviewer` + `ecc:security-scan` — mandatory on `security` tag | — |
+
+### By scenario — minimum invocations before `execution-plan.md`
+
+| Scenario | Must run this session |
+|----------|------------------------|
+| **Any** | `trellis-before-dev` (Read skill → get_context → spec indexes) |
+| **A** | Above; codebase grep/read for canonical files in PRD |
+| **B** | Above + `openspec-explore` (Read skill → `openspec list --json` + architecture explore) |
+| **C** | Above + systematic-debugging or inline repro; identify failing test command |
+| **D** | Above + `Skill: superpowers:dispatching-parallel-agents` + merge rules (§Step 6) |
+| **E** | `openspec-explore` **or** `trellis-brainstorm` only — **do not** ship full execution plan; offer summary or defer to next turn |
+| **F** | `Agent: ecc:<lang>-build-resolver`; escalate `Skill: superpowers:systematic-debugging` after 2 failed rounds |
+| **G** | `Skill: superpowers:test-driven-development` (characterization safety net) + `Skill: ecc:refactor-clean` |
+| **H** | `Agent: security-reviewer` + `Skill: ecc:security-scan` — mandatory, no fallback skip |
+| **I** | `Agent: performance-optimizer` + measured baseline persisted to `research/` |
+| **J** | `Read:` release spec + `Skill: ecc:verification-loop`; pre-package `git status/diff` check |
+| **K** | `Agent: doc-updater` or `Skill: ecc:update-docs`; `Read: openspec-sync-specs` if OpenSpec deltas pending |
+| **L** | `Agent: trellis-research` (persist) — no execution plan, no code |
+
+### Evidence block (required)
+
+In chat and in `execution-plan.md` header or §Progress snapshot, include:
+
+```markdown
+## Skills invoked (this planning session)
+| Invocation | Type | Evidence |
+|------------|------|----------|
+| trellis-before-dev | Skill: | spec paths: … |
+| superpowers:systematic-debugging | Skill: | root-cause hypothesis + elimination log |
+| ecc:typescript-reviewer | Agent: | review verdict, N findings |
+| openspec-explore | Read: | openspec list --json output / diagram in chat |
+```
+
+Every row needs a type prefix (`Skill:` / `Agent:` / `Read:`) **and** output evidence — a name without evidence is a red flag (skill-selection.md §四). If a row says `available` in Phase -1 but carries no invocation record, downgrade to `unavailable` and use that capability's fallback chain from the matrix.
+
+---
 
 ### Plan depth and risk
 
@@ -86,10 +169,11 @@ cat .trellis/tasks/<task-dir>/task.json   # if exists
 
 Then:
 
-1. **`trellis-before-dev`** — read spec index + Pre-Development Checklist for touched packages (`frontend`, `backend`, `integration`, …).
-2. List **workstreams** from PRD (A/B/C… or phased P0/P1/P2).
-3. List **acceptance criteria** and **canonical files** from PRD.
-4. Note **cross-repo** touches (`claude-code-best` vs `aionui-src`).
+1. **Step 1b** — invoke skills per scenario (Read SKILL.md or Task subagent); record evidence.
+2. **`trellis-before-dev`** — if not already done in 1b: read spec index + Pre-Development Checklist for touched packages (`frontend`, `backend`, `integration`, …).
+3. List **workstreams** from PRD (A/B/C… or phased P0/P1/P2).
+4. List **acceptance criteria** and **canonical files** from PRD.
+5. Note **cross-repo** touches (`claude-code-best` vs `aionui-src`).
 
 ---
 
@@ -212,8 +296,8 @@ Use this when mapping each workstream row:
 | Work kind | Prefer | Avoid |
 |-----------|--------|-------|
 | Read spec / conventions | `trellis-before-dev` | Guessing from memory |
-| Clarify PRD | `trellis-brainstorm` | Coding first |
-| Large design | `/opsx:explore` → `/opsx:propose` | Giant monolithic PRD edit |
+| Clarify PRD | `trellis-brainstorm` (Read skill) | Coding first |
+| Large design | `openspec-explore` (Read skill) → `/opsx:propose` | Giant monolithic PRD edit; naming `/opsx:explore` without Read |
 | UI / renderer logic | TDD → edit → `code-reviewer` | Skip tests |
 | ccb-installer scripts/manifest | `trellis-implement` sub-agent | Hand-editing vendor |
 | Diagnosis / mapping logic | TDD on `*.test.ts` first | UI-only validation |
@@ -222,6 +306,13 @@ Use this when mapping each workstream row:
 | Capture learnings | `trellis-update-spec` | Only task.json notes |
 | Stuck in loop | `trellis-break-loop` | Repeated blind fixes |
 | Parallel independent streams | `dispatching-parallel-agents` | Same file in two agents |
+| Build/compile error | `Agent: ecc:<lang>-build-resolver` | Blind edit-retry loops |
+| Unknown root cause | `Skill: superpowers:systematic-debugging` | Fixing before understanding |
+| Refactor / dead code | `Skill: ecc:refactor-clean` after characterization tests | Refactor without safety net |
+| Security-sensitive change | `Agent: security-reviewer` + `ecc:security-scan` | Self-declared "looks safe" |
+| Performance work | `Agent: performance-optimizer` + measured baseline | Optimizing without numbers |
+| Docs / codemap only | `Agent: doc-updater` / `ecc:update-docs` | Full Standard gate for md-only diff |
+| Same capability, two systems | **skill-selection.md §二 verdict** | Re-debating per task or listing all four names |
 
 ### Artifact and TDD contracts
 
@@ -284,6 +375,7 @@ Never retry blindly. Name the resume phase and durable evidence in every recover
 ```
 改代码
   → code-reviewer agent（或 trellis-check — 二选一作主审）
+       + renderer UI 改动：Layer B `node scripts/review/smoke-renderer-imports.mjs`（见 layer-b-renderer-review.md）
   → 运行验证 + 贴证据（bun test / test-mcp-health.ps1 / smoke）
   → trellis-update-spec（+.trellis/spec/）
   → implement.jsonl + check.jsonl + prd AC
@@ -327,28 +419,13 @@ Safe split pattern (two repos):
 
 ---
 
-## Reference examples
+## Reference example — `07-02-mcp-health-coverage-expansion`
 
-### Primary — Step 3b compliant (`07-01-price-library-admin-agent`)
-
-Use when teaching **execution-plan.md + progress snapshot + `p*-done.md`**:
-
-- [`07-01-price-library-admin-agent/execution-plan.md`](../../.trellis/tasks/07-01-price-library-admin-agent/execution-plan.md)
-- Multiple `p0b-*-done.md` / `p1-*-done.md` phase evidence files
-
-### Integration — Scenario D-lite (`07-02-mcp-health-coverage-expansion`)
-
-Workstream→tool mapping for **two-repo** MCP health tasks. Plan was **retroactively backfilled** 2026-07-03 (original 2026-07-02 close used jsonl only).
-
-| Artifact | Path |
-|----------|------|
-| Execution plan | [`07-02-.../execution-plan.md`](../../.trellis/tasks/07-02-mcp-health-coverage-expansion/execution-plan.md) |
-| Done record | [`mcp-health-coverage-expansion-done.md`](../../.trellis/tasks/07-02-mcp-health-coverage-expansion/mcp-health-coverage-expansion-done.md) |
-| Live evidence | `implement.jsonl`, `check.jsonl`, commit `a83358b4`, `mcp-health.md` §2026-07-02 |
+Proven mapping (adapt for similar integration tasks):
 
 | Phase | Priority | Workstream | Tool |
 |-------|----------|------------|------|
-| 0 | — | Activate | `task.py start` + `mcp-health.md` + prd |
+| 0 | — | Activate | `task.py start` + `trellis-before-dev` → `mcp-health.md` + prd |
 | 1 | P0 | A — UI agents + coverage | TDD → `ccbMcpHealth.ts` + `CcbMcpHealthPanel.tsx` → code-review |
 | 2 | P1 | C — manifest deep probe | `trellis-implement` (backend-leaning) |
 | 2 | P1 | E — diagnosis + MiniMax | TDD `ccbMcpHealthDiagnosis.test.ts` first |
@@ -368,8 +445,11 @@ More detail: [examples.md](./examples.md)
 | ECC `/orchestrate` for WanD UI tasks | Phased plan + manual UI step |
 | Parallel edit JSON + TS manifest | Serial merge after JSON lands |
 | Mark task complete without spec + jsonl | `trellis-update-spec` + implement/check jsonl |
+| Skill name in plan without Read/Task this session | §Step 1b invocation contract |
+| Writing "if on disk" for Superpowers on Claude Code | It's a plugin: `Skill: superpowers:<name>` — check the Skill list, don't guess the disk |
+| Listing all four systems' candidates in a plan row | Take the skill-selection.md §二 verdict; cite one winner + fallback |
+| Treating debug/refactor/security as "not covered, improvise" | Scenarios F–L each have a first-invocation chain |
 | `openspec-explore` then implement | User must exit explore or `/opsx:propose` |
-| Label task "Proven / as executed" without `execution-plan.md` on disk | Backfill retroactively or cite `07-01` as gold standard; see `07-02` compliance note |
 
 ---
 
@@ -381,4 +461,7 @@ More detail: [examples.md](./examples.md)
 | 「落档执行计划」 | Step 3b only — create/update `execution-plan.md`, status `draft` |
 | 「执行 task」 / 「继续做」 | Read `execution-plan.md` → execute **Active phase**; enforce §Step 5 gate; update Progress |
 | 「可以并行吗？」 | Scenario D table + merge rules |
-| 「用哪个 skill？」 | §Step 4 cheat sheet + quick decision table in ai-tools-reference §六 |
+| 「用哪个 skill？」 | skill-selection.md §二 verdict matrix → §Step 4 cheat sheet → ai-tools-reference §六 |
+| 「这个 bug 怎么查」「构建挂了」 | Scenario C/F playbook (skill-selection.md §三) — invoke first, fix second |
+| 「清理一下」「重构」 | Scenario G playbook — characterization tests before touching structure |
+| 「发版」「打包」 | Scenario J playbook — release spec + verification-loop + manual gate |

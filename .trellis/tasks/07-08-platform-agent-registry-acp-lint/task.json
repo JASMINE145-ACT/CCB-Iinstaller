@@ -1,0 +1,40 @@
+{
+  "id": "platform-agent-registry-acp-lint",
+  "name": "07-08-platform-agent-registry-acp-lint",
+  "title": "Task A — ACP 默认 Agent 从 registry 加载 + forbidden-coupling CI lint (SB-01 + SB-13)",
+  "description": "07-05 separation backlog 首批代码迁移（claude-code-best 单仓）：SB-01 将 agentSessionProfile.ts 中 CCB_DEFAULT_SESSION_AGENT_ID / keep-agent / delegatable / office-preset 等硬编码改为从 package-registry.snapshot.json 派生（保留 legacy fallback）；SB-13 新增 CI lint 扫描 platform 路径禁止新增 WanD 硬编码。不含 aionui SB-02、不含 route-b SB-04。",
+  "status": "completed",
+  "dev_type": "feature",
+  "scope": "platform-registry",
+  "package": "integration",
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-05",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "07-05-platform-business-architecture-separation",
+  "relatedFiles": [
+    ".trellis/spec/integration/platform-business-boundary-map.md",
+    ".trellis/spec/integration/platform-forbidden-coupling.md",
+    ".trellis/spec/integration/package-manifest-schema.md",
+    ".trellis/tasks/07-05-platform-business-architecture-separation/research/separation-backlog.md",
+    "ccb-installer/src/services/acp/agentSessionProfile.ts",
+    "ccb-installer/config/generated/package-registry.snapshot.json",
+    "ccb-installer/scripts/build-package-registry.mjs"
+  ],
+  "notes": "Task A = SB-01 + SB-13。Task B (aionui ccbAgentCatalog) 与 Task C (route-b SB-04) 另开 task。07-05 审计依据：residual-coupling-audit.md A1。",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "scenario": "A",
+    "verification_profile": "Standard",
+    "backlog_ids": ["SB-01", "SB-13"],
+    "repos": ["claude-code-best"]
+  }
+}

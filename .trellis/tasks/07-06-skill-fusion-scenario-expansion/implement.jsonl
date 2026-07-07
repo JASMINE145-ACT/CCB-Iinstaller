@@ -1,0 +1,4 @@
+{"file": ".cursor/skills/trellis-task-execution/SKILL.md", "reason": "Base skill to extend — invocation contract, scenarios A-E, gate chain"}
+{"file": ".cursor/commands/trellis-plan-execution.md", "reason": "Command entry to upgrade — scenario table + evidence requirements"}
+{"file": "docs/ai-tools-reference.md", "reason": "Canonical four-system reference (§五 scenarios, §六 decision table, §八 gates) — new matrix must stay consistent"}
+{"file": ".cursor/skills/openspec-explore/SKILL.md", "reason": "OpenSpec skills exist only under .cursor/skills — Read-invocation on Claude Code harness"}

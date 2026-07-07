@@ -1,0 +1,2 @@
+{"ts":"2026-07-06T09:45:00+08:00","phase":"P1-P2","note":"MCP schema source fields; SKILL Section B/C; quotation-agent price-library MCP; package registry rebuild","tests":"pytest test_learn_by_data_price_library + test_org_price_admin_client 23/23 PASS"}
+{"ts":"2026-07-06T15:45:00+08:00","phase":"P2.2-D-gap-eval","note":"Offline Section D eval suite: fixture+manifest+pytest+run-section-d-offline-eval.mjs; live case preview-only","tests":"pytest section_d_eval 5/5 + offline runner PASS"}

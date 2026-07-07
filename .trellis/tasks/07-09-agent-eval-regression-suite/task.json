@@ -1,0 +1,16 @@
+{
+  "id": "07-09-agent-eval-regression-suite",
+  "name": "agent-eval-regression-suite",
+  "title": "Agent Eval 回归大全（打包门禁）",
+  "status": "in_progress",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "source": "user /trellis-plan-execution 2026-07-05; Phase 2 quotation-smoke 2026-07-06"
+  },
+  "related_tasks": [
+    "06-19-mcp-error-codes-agent-eval",
+    "06-19-fix-eval-cases-agent-eval",
+    "07-04-orchestrator-dispatch-hardening"
+  ],
+  "notes": "Phase 2 quotation-smoke (6 user flows) landed 2026-07-06; live run pending."
+}

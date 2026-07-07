@@ -1,0 +1,42 @@
+{
+  "id": "07-11-conversation-survives-upgrade",
+  "name": "07-11-conversation-survives-upgrade",
+  "title": "长会话续用 — 所有 CCB 对话升级后能用好",
+  "description": "员工在长会话中升级 App 后，仍在同一条对话正常干活并绑定当前版运行时。范围：所有 CCB 对话（D1）。升级不频繁，每版本首次 open 软刷新即可（D2）。验收=能用好，不绑特定新功能（D3）。refresh/ensure 失败则阻断发送并明确报错，禁止静默降级（D4）。",
+  "status": "in_progress",
+  "priority": "P0",
+  "created": "2026-07-06",
+  "updated": "2026-07-06",
+  "dev_type": "implementation",
+  "scope": "AionUI conversation continuity — all CCB conversations, long-session upgrade path",
+  "package": "integration",
+  "tags": ["ui", "cross-repo", "packaging", "continuity", "all-conversations"],
+  "productDecisions": {
+    "D1_all_ccb_conversations": true,
+    "D2_infrequent_upgrade_one_refresh_per_version": true,
+    "D3_works_when_needed_not_feature_showcase": true,
+    "D4_fail_explicit_block_no_silent_fallback": true
+  },
+  "relatedTasks": [
+    "07-01-aionui-full-auto-permission-sync",
+    "06-29-specialist-session-resume-profile-drift",
+    "06-19-quotation-behavior-backflow",
+    "06-28-app-startup-readiness-gate",
+    "07-06-employee-profile-settings-prompt"
+  ],
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "research": "research/conversation-continuity-contract.md",
+    "scenario": "C",
+    "plan_depth": "Full",
+    "verification_profile": "UI",
+    "north_star": "long_session_same_conversation_after_upgrade",
+    "smoke_conversation_types": [
+      "quotation-guid",
+      "accurate-guid",
+      "wande-orchestrator-default",
+      "office-preset"
+    ]
+  },
+  "notes": "2026-07-06 finalized: all conversations; infrequent upgrades; works-well-enough AC; explicit error on failure. Supersedes narrow quotation-only AC. Explore → continuity contract in research/."
+}

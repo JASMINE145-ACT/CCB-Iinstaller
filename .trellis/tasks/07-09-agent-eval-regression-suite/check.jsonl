@@ -1,0 +1,6 @@
+{"command":"node eval/run-agent-eval.mjs","result":"PASS: loaded=67 selected=67 schema ok"}
+{"command":"node eval/run-agent-eval.mjs --list-suites","result":"PASS: smoke 9, core 22, full all"}
+{"command":"node eval/run-agent-eval.mjs --suite smoke","result":"PASS: selected=9 schema ok"}
+{"command":"powershell run-agent-eval-suite.ps1 -Suite smoke -SchemaOnly","result":"PASS: exit 0, 9 cases"}
+{"command":"node eval/run-agent-eval.mjs","result":"PASS: loaded=72 selected=72 schema ok"}
+{"command":"node eval/run-agent-eval.mjs --suite quotation-smoke","result":"PASS: selected=6 schema ok"}

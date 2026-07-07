@@ -1,7 +1,7 @@
 """Local draft preview helpers (no org POST — confirmed=false path)."""
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Mapping
 
 from admin.org_price_admin_payloads import UPDATABLE_FIELD_NAMES
 
@@ -139,3 +139,79 @@ def build_proposed_change(
         "creates_new": creates_new,
         "currently_deleted_in_draft": is_deleted,
     }
+
+
+def _collect_material_codes(
+    active_products: list[dict[str, Any]],
+    draft_items: list[dict[str, Any]],
+) -> set[str]:
+    codes: set[str] = set()
+    for product in active_products:
+        fields = _product_fields(product)
+        material_code = str(fields.get("material_code") or "").strip()
+        if material_code:
+            codes.add(material_code)
+    for item in draft_items:
+        fields = _product_fields(item)
+        material_code = str(fields.get("material_code") or "").strip()
+        if material_code:
+            codes.add(material_code)
+    return codes
+
+
+def fields_match_source_provenance(
+    fields: Mapping[str, Any],
+    *,
+    source_file: str,
+    source_sheet: str,
+    source_row: int,
+) -> bool:
+    if not fields:
+        return False
+    row_value = fields.get("source_row")
+    try:
+        normalized_row = int(row_value)
+    except (TypeError, ValueError):
+        return False
+    return (
+        str(fields.get("source_file") or "").strip() == source_file.strip()
+        and str(fields.get("source_sheet") or "").strip() == source_sheet.strip()
+        and normalized_row == int(source_row)
+    )
+
+
+def find_by_source_provenance(
+    *,
+    active_products: list[dict[str, Any]],
+    draft_items: list[dict[str, Any]],
+    source_file: str,
+    source_sheet: str,
+    source_row: int,
+) -> dict[str, Any] | None:
+    """Return first active/draft-effective row matching source_file+sheet+row."""
+    normalized_file = source_file.strip()
+    normalized_sheet = source_sheet.strip()
+    normalized_row = int(source_row)
+    if not normalized_file or not normalized_sheet or normalized_row <= 0:
+        return None
+
+    for material_code in sorted(_collect_material_codes(active_products, draft_items)):
+        fields, product_id, is_deleted = effective_fields_for_product(
+            active_products=active_products,
+            draft_items=draft_items,
+            material_code=material_code,
+        )
+        if is_deleted or not fields:
+            continue
+        if fields_match_source_provenance(
+            fields,
+            source_file=normalized_file,
+            source_sheet=normalized_sheet,
+            source_row=normalized_row,
+        ):
+            return {
+                "material_code": material_code,
+                "product_id": product_id,
+                "fields": fields,
+            }
+    return None

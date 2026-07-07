@@ -1,0 +1,4 @@
+{"type":"research","path":".trellis/tasks/07-06-accurate-purchase-monthly-routing/research/execute-extra-tool-drift.md","reason":"H7 confirmed — L1 examples taught ExecuteExtraTool; quotation uses direct mcp__ since 2026-06-18"}
+{"type":"file","path":"ccb-installer/packages/vertical/com.wanding.trade/agents/accurate-agent.md","action":"modified","reason":"Direct mcp__accurate__* SOP; 禁止 ExecuteExtraTool; purchase/sales full-company monthly JSON examples"}
+{"type":"deploy","command":"ccb-installer/scripts/deploy-seed-agents.ps1 -ForceMd","result":"16 files deployed; accurate-agent.md -> %LOCALAPPDATA%\\CCB-Wanding\\.claude\\agents\\accurate-agent.md","date":"2026-07-06"}
+{"type":"spec","path":".trellis/spec/integration/agents-unified-model.md","reason":"L1076 — include accurate-agent.md in direct MCP SOP rule + purchase smoke AC"}

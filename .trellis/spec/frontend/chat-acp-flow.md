@@ -126,6 +126,30 @@ aioncore **omits** `title` on `tool_call_update` (see `AionCore` test `session_t
 
 Task: `.trellis/tasks/07-04-acp-view-steps-empty-tool-title/`
 
+### 3.4c View Steps — delegation nested tree (shipped 2026-07-06)
+
+**Problem (was):** WanD Path A (default `wande-orchestrator` → `Agent(quotation-agent)` → child Read/MCP → forward) was **correct at runtime**, but **View Steps rendered a flat list**. Child tool calls appeared as sibling rows next to the parent `Agent` step.
+
+**Shipped (B0):** `buildDelegationRuns` in `delegationRun.ts` groups tools via existing `groupNormalizedToolCalls` + `parentToolUseId` (from `_meta.claudeCode` or sequential fallback). `MessageToolGroupSummary` renders nested `DelegationRun` groups with header `委派 → {displayLabel} · {status} · {n} tools`, optional running chip, and orphan top-level tools for Guid-direct paths.
+
+```text
+View Steps (shipped)
+────────────────────
+▼ 委派 → 万鼎报价专家 · done · 2 tools
+    ├─ Read wanding_business_knowledge.md
+    └─ mcp__quotation__match_quotation
+  Read SOP (orphan — Guid-direct, no fake Agent parent)
+```
+
+| Component | File (aionui-src) | Role |
+|-----------|-------------------|------|
+| B0 reducer | `delegationRun.ts` | `buildDelegationRuns`, `findDelegationRunForParent`, `formatDelegationHeader` |
+| Nested View Steps | `MessageToolGroupSummary.tsx` | Tree + running chip |
+| Subagent drawer | `SubagentDrawer.tsx` | Reuses `findDelegationRunForParent` when caller passes `turnToolMessages` |
+| Parent link | `normalizeToolCall.ts` | `parentToolUseId` from `_meta.claudeCode` |
+
+**Deferred:** B1 CCB bridge `_meta.delegationRun` enrich; unified expandable nested renderer (View Steps vs drawer); operator-language child labels. Spec: [`../integration/agent-team-architecture.md`](../integration/agent-team-architecture.md) § UI observability. Task: `.trellis/tasks/07-06-delegation-nested-view-steps/`.
+
 ### 3.5 Permission request (with tool_call)
 
 ```json

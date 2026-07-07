@@ -71,10 +71,17 @@ def session_has_knowledge_read_flag(session_id: str) -> bool:
 
 
 def hook_input_has_knowledge_read(hook_input: dict[str, Any]) -> bool:
+    from knowledge_effectiveness import knowledge_is_effective  # noqa: E402
+
+    has_read = transcript_has_knowledge_read(*resolve_hook_transcript_paths(hook_input))
     session_id = str(hook_input.get("session_id") or "").strip()
-    if session_id and session_has_knowledge_read_flag(session_id):
-        return True
-    return transcript_has_knowledge_read(*resolve_hook_transcript_paths(hook_input))
+    legacy_read = bool(session_id and session_has_knowledge_read_flag(session_id))
+    effective, _ = knowledge_is_effective(
+        hook_input,
+        transcript_has_read=has_read,
+        session_has_legacy_read=legacy_read and not has_read,
+    )
+    return effective
 
 
 def _loads_maybe(value: Any) -> Any:

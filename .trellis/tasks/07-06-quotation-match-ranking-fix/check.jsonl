@@ -1,0 +1,2 @@
+{"phase":"code-review","agent":"code-reviewer","verdict":"PASS","date":"2026-07-06","notes":"P1 sort key only; row 10 xfail documented"}
+{"phase":"pytest","command":"pytest test_quotation_match_ranking_fix + test_lesso + test_wanding_matcher_compat","verdict":"PASS","evidence":"2 passed, 1 xfailed, 22 passed compat suite","date":"2026-07-06"}

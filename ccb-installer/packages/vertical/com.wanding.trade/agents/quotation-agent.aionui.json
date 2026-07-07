@@ -21,6 +21,7 @@
   ],
   "mcp_allowlist": [
     "quotation",
-    "excel"
+    "excel",
+    "price-library"
   ]
 }

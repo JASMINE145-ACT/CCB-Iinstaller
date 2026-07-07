@@ -1,0 +1,11 @@
+{"file":"ccb-installer/test-native-acp-agent.mjs","reason":"CCB_TEST_PROFILE handoff + configurable install/config dirs"}
+{"file":"eval/run-agent-eval.mjs","reason":"--suite/--list-suites, suite extends validation, profile env pass-through, mcp prefix forbidden"}
+{"file":"eval/suites/smoke.json","reason":"9-case packaging gate suite"}
+{"file":"eval/suites/core.json","reason":"22-case pre-release suite extending smoke"}
+{"file":"eval/suites/full.json","reason":"all-mode full suite"}
+{"file":"eval/agent_eval_cases.jsonl","reason":"+orchestrator-no-price-library-mcp (67 cases)"}
+{"file":"ccb-installer/scripts/run-agent-eval-suite.ps1","reason":"PS entry matching test-mcp-health style"}
+{"file":"eval/suites/quotation-smoke.json","reason":"6-flow quotation assistant smoke suite"}
+{"file":"eval/scenarios/quotation-workflow-smoke-20260706.md","reason":"User flow mapping + LingWei/VANTSING notes"}
+{"file":"data/smoke/lingwei-6.8-quotation.xlsx","reason":"Golden batch query fixture from user WeDrive path"}
+{"file":"data/smoke/lingwei-6.8-quotation.manifest.json","reason":"Fixture metadata"}

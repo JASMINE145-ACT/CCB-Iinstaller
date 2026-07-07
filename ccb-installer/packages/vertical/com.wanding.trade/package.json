@@ -40,7 +40,8 @@
       ],
       "mcpServers": [
         "quotation",
-        "excel"
+        "excel",
+        "price-library"
       ],
       "skills": [
         "quotation-learn-by-data"

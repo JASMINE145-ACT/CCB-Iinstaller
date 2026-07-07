@@ -98,6 +98,7 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 | [`org-knowledge-phase0-rollout.md`](./integration/org-knowledge-phase0-rollout.md) | ✅ Phase 0 login linkage ops |
 | [`unified-org-sso-rollout.md`](./integration/unified-org-sso-rollout.md) | ✅ Unified org SSO pilot + fleet |
 | [`agents-unified-model.md`](./integration/agents-unified-model.md) | ✅ Agent markdown + sidecar + subagent gate / ROE / Gate-J · **§ price+stock + image inquiry (2026-06-29)** |
+| [`agent-team-architecture.md`](./integration/agent-team-architecture.md) | ✅ Main vs subagent team map — routing, Guid direct, `Agent()`, hooks, **§ UI observability** (2026-07-06) |
 | [`aioncore-work-tasks.md`](./integration/aioncore-work-tasks.md) | ✅ `/tasks` work-tasks API |
 | [`platform-architecture.md`](./integration/platform-architecture.md) | ✅ Platform index → `docs/` |
 | [`platform-vertical-packages.md`](./integration/platform-vertical-packages.md) | ✅ ADR — vertical packages |

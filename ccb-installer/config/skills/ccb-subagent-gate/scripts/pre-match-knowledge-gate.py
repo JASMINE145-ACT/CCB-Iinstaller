@@ -9,10 +9,15 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR / "lib"))
+from hook_transcript import resolve_hook_transcript_paths  # noqa: E402
 from parse_transcript_knowledge_gate import (  # noqa: E402
     KNOWLEDGE_FALLBACK_PATH,
     MATCH_TOOL_NAMES,
-    hook_input_has_knowledge_read,
+    transcript_has_knowledge_read,
+)
+from knowledge_effectiveness import (  # noqa: E402
+    deny_reason_for_code,
+    knowledge_is_effective,
 )
 
 DENY_REASON_TEMPLATE = (
@@ -32,15 +37,28 @@ def main() -> int:
     if tool_name not in MATCH_TOOL_NAMES:
         return 0
 
-    if hook_input_has_knowledge_read(hook_input):
+    paths = resolve_hook_transcript_paths(hook_input)
+    has_transcript_read = transcript_has_knowledge_read(*paths)
+    session_id = str(hook_input.get("session_id") or "").strip()
+    from parse_transcript_knowledge_gate import session_has_knowledge_read_flag  # noqa: E402
+
+    legacy_read = bool(session_id and session_has_knowledge_read_flag(session_id))
+
+    effective, reason_code = knowledge_is_effective(
+        hook_input,
+        transcript_has_read=has_transcript_read,
+        session_has_legacy_read=legacy_read,
+    )
+    if effective:
         return 0
 
     kb_path = (os.environ.get("WANDING_BUSINESS_KNOWLEDGE_PATH") or "").strip() or KNOWLEDGE_FALLBACK_PATH
+    deny_reason = deny_reason_for_code(reason_code, kb_path) if reason_code else DENY_REASON_TEMPLATE.format(kb_path=kb_path)
     output = {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
             "permissionDecision": "deny",
-            "permissionDecisionReason": DENY_REASON_TEMPLATE.format(kb_path=kb_path),
+            "permissionDecisionReason": deny_reason,
         }
     }
     sys.stdout.write(json.dumps(output, ensure_ascii=False))

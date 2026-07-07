@@ -1,0 +1,28 @@
+{
+  "id": "07-06-learn-by-data-step1-extract",
+  "name": "07-06-learn-by-data-step1-extract",
+  "title": "learn-by-data Step 1 VANTSING extract",
+  "description": "Unify learn-by-data Step 1 on quotation MCP compact VANTSING row extract; remove excel MCP full-range dependency.",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-06",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "07-06-learn-by-data-price-library-enrich",
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {
+    "execution_plan": "execution-plan.md"
+  }
+}

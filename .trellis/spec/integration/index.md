@@ -19,6 +19,7 @@
 | **Org price library** (API + AionUI read-only MVP) | [`price-library.md`](./price-library.md) — incl. **LKG pollution** vs **expected** org_knowledge 401 / AOL degradations (§ Dev / smoke triage) |
 | **Org knowledge agent write** (append MCP, shadow read-only, **preview UX**) | [`org-knowledge.md`](./org-knowledge.md) § Agent write path + § Preview UX (2026-06-29) + Common mistakes |
 | **VPS org API deploy** (knowledge + price + work-task routes) | [`../../../scripts/org-phase0/vps-org-api-deploy-checklist.md`](../../../scripts/org-phase0/vps-org-api-deploy-checklist.md) |
+| **Agent team — main vs subagent calling model**（路由、Guid 直连、委派、`Agent()`、hooks 总览；**View Steps 平铺 vs 运行时嵌套**见 § UI observability） | [`agent-team-architecture.md`](./agent-team-architecture.md) — entry map; deep dive [`agents-unified-model.md`](./agents-unified-model.md) |
 | **Subagent delivery gate / ROE / Gate-J** | [`agents-unified-model.md`](./agents-unified-model.md) § Subagent delivery gate, § Universal ROE, § Multi-candidate reply |
 | **Quick hook map** (which agent has which hook, dev-repo vs product layer) | [`agent-hooks-overview.md`](./agent-hooks-overview.md) — 1-page index; deep dive still in `agents-unified-model.md` |
 | **Guid / sidebar / Team assistant catalog**（侧栏 emoji + 创建团队 Leader 列表） | [`agents-unified-model.md`](./agents-unified-model.md) § Sidebar avatar fix, § Team / conversation catalog unification (2026-06-29); [`../frontend/file-map.md`](../frontend/file-map.md) §7 |

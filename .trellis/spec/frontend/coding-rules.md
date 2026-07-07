@@ -25,7 +25,7 @@
 
 ## 2. UI change verification checklist (run before declaring done)
 
-For every non-trivial frontend change, mentally walk this list:
+For every non-trivial frontend change, mentally walk this list. **Layer B** (renderer module loadability) is documented in [`layer-b-renderer-review.md`](./layer-b-renderer-review.md).
 
 ```
 - [ ] Does this change belong to renderer, preload, process, or common?
@@ -44,6 +44,11 @@ For every non-trivial frontend change, mentally walk this list:
 - [ ] Does lint pass? (bun run lint, bun run format:check)
 - [ ] Does full TypeScript pass? (`cd D:\Projects\aionui-src && bunx tsc --noEmit -p tsconfig.json`) — required before `dist:win` / PR
 - [ ] Slash menu change? If yes, agent commands come from ACP — use `mergeSlashCommands`, do not override backend names in SendBox builtins
+- [ ] Layer B (renderer loadability) — see layer-b-renderer-review.md:
+        NEW @icon-park/react icons: bun import verify or grep existing usage
+        Changed renderer files: node scripts/review/smoke-renderer-imports.mjs --file <path>
+        Static import under lazy route: document blast radius or re-lazy / ErrorBoundary
+        Review verdict must include Layer B command output
 ```
 
 If any answer is unclear, stop and clarify before merging.

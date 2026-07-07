@@ -10,6 +10,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = SKILL_ROOT / "scripts"
@@ -348,6 +349,343 @@ class TestTranscriptKnowledgeGate(unittest.TestCase):
                     os.environ["SUBAGENT_GATE_LOG_DIR"] = old
             self.assertTrue(result["knowledge_read_in_session"])
             self.assertFalse(result["should_block"])
+
+
+class TestKnowledgeEffectiveness(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = tempfile.mkdtemp()
+        self._env = os.environ.copy()
+        os.environ["SUBAGENT_GATE_LOG_DIR"] = self._tmp
+
+    def tearDown(self) -> None:
+        os.environ.clear()
+        os.environ.update(self._env)
+
+    def test_denies_after_four_completed_matches(self) -> None:
+        from knowledge_effectiveness import (  # noqa: E402
+            MATCH_COUNT_LIMIT,
+            increment_match_count,
+            mark_knowledge_effective_read,
+        )
+
+        session_id = "sess-match-limit"
+        mark_knowledge_effective_read(session_id)
+        for _ in range(MATCH_COUNT_LIMIT):
+            increment_match_count(session_id)
+
+        read_line = json.dumps(
+            {
+                "type": "assistant",
+                "message": {
+                    "content": [
+                        {
+                            "type": "tool_use",
+                            "name": "Read",
+                            "input": {
+                                "file_path": r"D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md"
+                            },
+                        }
+                    ]
+                },
+            },
+            ensure_ascii=False,
+        )
+        proc = subprocess.run(
+            [sys.executable, str(SCRIPTS / "pre-match-knowledge-gate.py")],
+            input=json.dumps(
+                {
+                    "tool_name": "mcp__quotation__match_quotation",
+                    "session_id": session_id,
+                    "transcript_path": "",
+                }
+            ),
+            text=True,
+            capture_output=True,
+            env=os.environ.copy(),
+            check=False,
+        )
+        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+        payload = json.loads(proc.stdout)
+        self.assertEqual(payload["hookSpecificOutput"]["permissionDecision"], "deny")
+        self.assertIn("4", payload["hookSpecificOutput"]["permissionDecisionReason"])
+
+    def test_append_business_rule_invalidates_next_match(self) -> None:
+        mark_session_knowledge_read("sess-rule-invalidate")
+        mark_proc = subprocess.run(
+            [sys.executable, str(SCRIPTS / "post-knowledge-read-mark.py")],
+            input=json.dumps(
+                {
+                    "tool_name": "Read",
+                    "session_id": "sess-rule-invalidate",
+                    "tool_input": {
+                        "file_path": r"D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md"
+                    },
+                }
+            ),
+            text=True,
+            capture_output=True,
+            env=os.environ.copy(),
+            check=False,
+        )
+        self.assertEqual(mark_proc.returncode, 0, msg=mark_proc.stderr)
+
+        invalidate_proc = subprocess.run(
+            [sys.executable, str(SCRIPTS / "post-business-rule-knowledge-invalidate.py")],
+            input=json.dumps(
+                {
+                    "tool_name": "mcp__quotation__append_business_rule",
+                    "session_id": "sess-rule-invalidate",
+                    "tool_input": {"confirmed": True},
+                    "tool_response": {"success": True, "applied": True},
+                }
+            ),
+            text=True,
+            capture_output=True,
+            env=os.environ.copy(),
+            check=False,
+        )
+        self.assertEqual(invalidate_proc.returncode, 0, msg=invalidate_proc.stderr)
+
+        deny_proc = subprocess.run(
+            [sys.executable, str(SCRIPTS / "pre-match-knowledge-gate.py")],
+            input=json.dumps(
+                {
+                    "tool_name": "mcp__quotation__match_quotation",
+                    "session_id": "sess-rule-invalidate",
+                    "transcript_path": "",
+                }
+            ),
+            text=True,
+            capture_output=True,
+            env=os.environ.copy(),
+            check=False,
+        )
+        self.assertEqual(deny_proc.returncode, 0, msg=deny_proc.stderr)
+        payload = json.loads(deny_proc.stdout)
+        self.assertEqual(payload["hookSpecificOutput"]["permissionDecision"], "deny")
+        self.assertIn("规则已变更", payload["hookSpecificOutput"]["permissionDecisionReason"])
+
+    def test_kb_hash_change_denies_until_re_read(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            kb_path = Path(tmp) / "wanding_business_knowledge.md"
+            kb_path.write_text("kb-version-1", encoding="utf-8")
+            env = os.environ.copy()
+            env["SUBAGENT_GATE_LOG_DIR"] = tmp
+            env["WANDING_BUSINESS_KNOWLEDGE_PATH"] = str(kb_path)
+            session_id = "sess-kb-hash"
+
+            mark_proc = subprocess.run(
+                [sys.executable, str(SCRIPTS / "post-knowledge-read-mark.py")],
+                input=json.dumps(
+                    {
+                        "tool_name": "Read",
+                        "session_id": session_id,
+                        "tool_input": {"file_path": str(kb_path)},
+                    }
+                ),
+                text=True,
+                capture_output=True,
+                env=env,
+                check=False,
+            )
+            self.assertEqual(mark_proc.returncode, 0, msg=mark_proc.stderr)
+
+            kb_path.write_text("kb-version-2", encoding="utf-8")
+            deny_proc = subprocess.run(
+                [sys.executable, str(SCRIPTS / "pre-match-knowledge-gate.py")],
+                input=json.dumps(
+                    {
+                        "tool_name": "mcp__quotation__match_quotation",
+                        "session_id": session_id,
+                        "transcript_path": "",
+                    }
+                ),
+                text=True,
+                capture_output=True,
+                env=env,
+                check=False,
+            )
+            self.assertEqual(deny_proc.returncode, 0, msg=deny_proc.stderr)
+            deny_payload = json.loads(deny_proc.stdout)
+            self.assertEqual(deny_payload["hookSpecificOutput"]["permissionDecision"], "deny")
+            self.assertIn("更新", deny_payload["hookSpecificOutput"]["permissionDecisionReason"])
+
+            mark_proc2 = subprocess.run(
+                [sys.executable, str(SCRIPTS / "post-knowledge-read-mark.py")],
+                input=json.dumps(
+                    {
+                        "tool_name": "Read",
+                        "session_id": session_id,
+                        "tool_input": {"file_path": str(kb_path)},
+                    }
+                ),
+                text=True,
+                capture_output=True,
+                env=env,
+                check=False,
+            )
+            self.assertEqual(mark_proc2.returncode, 0, msg=mark_proc2.stderr)
+            allow_proc = subprocess.run(
+                [sys.executable, str(SCRIPTS / "pre-match-knowledge-gate.py")],
+                input=json.dumps(
+                    {
+                        "tool_name": "mcp__quotation__match_quotation",
+                        "session_id": session_id,
+                        "transcript_path": "",
+                    }
+                ),
+                text=True,
+                capture_output=True,
+                env=env,
+                check=False,
+            )
+            self.assertEqual(allow_proc.returncode, 0, msg=allow_proc.stderr)
+            self.assertEqual(allow_proc.stdout.strip(), "")
+
+    def test_re_read_after_invalidate_resets_match_count(self) -> None:
+        from knowledge_effectiveness import (  # noqa: E402
+            MATCH_COUNT_LIMIT,
+            increment_match_count,
+            load_state,
+            mark_knowledge_effective_read,
+        )
+
+        session_id = "sess-reread-reset"
+        mark_knowledge_effective_read(session_id)
+        for _ in range(MATCH_COUNT_LIMIT):
+            increment_match_count(session_id)
+
+        invalidate_proc = subprocess.run(
+            [sys.executable, str(SCRIPTS / "post-business-rule-knowledge-invalidate.py")],
+            input=json.dumps(
+                {
+                    "tool_name": "mcp__quotation__append_business_rule",
+                    "session_id": session_id,
+                    "tool_input": {"confirmed": True},
+                    "tool_response": {"success": True, "applied": True},
+                }
+            ),
+            text=True,
+            capture_output=True,
+            env=os.environ.copy(),
+            check=False,
+        )
+        self.assertEqual(invalidate_proc.returncode, 0, msg=invalidate_proc.stderr)
+
+        mark_proc = subprocess.run(
+            [sys.executable, str(SCRIPTS / "post-knowledge-read-mark.py")],
+            input=json.dumps(
+                {
+                    "tool_name": "Read",
+                    "session_id": session_id,
+                    "tool_input": {
+                        "file_path": r"D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md"
+                    },
+                }
+            ),
+            text=True,
+            capture_output=True,
+            env=os.environ.copy(),
+            check=False,
+        )
+        self.assertEqual(mark_proc.returncode, 0, msg=mark_proc.stderr)
+
+        state = load_state(session_id)
+        assert state is not None
+        self.assertEqual(state.get("match_count_since_read"), 0)
+        self.assertFalse(state.get("invalidated"))
+
+        allow_proc = subprocess.run(
+            [sys.executable, str(SCRIPTS / "pre-match-knowledge-gate.py")],
+            input=json.dumps(
+                {
+                    "tool_name": "mcp__quotation__match_quotation",
+                    "session_id": session_id,
+                    "transcript_path": "",
+                }
+            ),
+            text=True,
+            capture_output=True,
+            env=os.environ.copy(),
+            check=False,
+        )
+        self.assertEqual(allow_proc.returncode, 0, msg=allow_proc.stderr)
+        self.assertEqual(allow_proc.stdout.strip(), "")
+
+
+class TestConversationKnowledgeContinuity(unittest.TestCase):
+    """K4/K5 — conversation-scoped SP2 inherit after soft refresh."""
+
+    def setUp(self) -> None:
+        self._tmpdir = tempfile.TemporaryDirectory()
+        self._prev_local = os.environ.get("LOCALAPPDATA")
+        os.environ["LOCALAPPDATA"] = self._tmpdir.name
+
+    def tearDown(self) -> None:
+        if self._prev_local is None:
+            os.environ.pop("LOCALAPPDATA", None)
+        else:
+            os.environ["LOCALAPPDATA"] = self._prev_local
+        self._tmpdir.cleanup()
+
+    def test_k4_conversation_inherit_same_hash_allows_match(self) -> None:
+        from knowledge_effectiveness import (  # noqa: E402
+            knowledge_is_effective,
+            save_conversation_knowledge_state,
+        )
+
+        conversation_id = "conv-k4"
+        kb_hash = "abc123same"
+        save_conversation_knowledge_state(
+            conversation_id,
+            {
+                "kb_content_hash": kb_hash,
+                "read_at_generation": 5,
+                "match_count_since_read": 1,
+                "invalidated": False,
+                "invalidated_reason": None,
+            },
+        )
+
+        with patch(
+            "knowledge_effectiveness.compute_kb_content_hash",
+            return_value=kb_hash,
+        ):
+            effective, reason = knowledge_is_effective(
+                {"session_id": "new-session", "conversation_id": conversation_id},
+                transcript_has_read=False,
+            )
+        self.assertTrue(effective, msg=reason)
+        self.assertEqual(reason, "")
+
+    def test_k5_conversation_kb_hash_changed_denies_match(self) -> None:
+        from knowledge_effectiveness import (  # noqa: E402
+            knowledge_is_effective,
+            save_conversation_knowledge_state,
+        )
+
+        conversation_id = "conv-k5"
+        save_conversation_knowledge_state(
+            conversation_id,
+            {
+                "kb_content_hash": "old-hash",
+                "read_at_generation": 4,
+                "match_count_since_read": 0,
+                "invalidated": True,
+                "invalidated_reason": "kb_hash_changed",
+            },
+        )
+
+        with patch(
+            "knowledge_effectiveness.compute_kb_content_hash",
+            return_value="new-hash",
+        ):
+            effective, reason = knowledge_is_effective(
+                {"session_id": "new-session", "conversation_id": conversation_id},
+                transcript_has_read=True,
+            )
+        self.assertFalse(effective)
+        self.assertEqual(reason, "kb_hash_changed")
 
 
 if __name__ == "__main__":
