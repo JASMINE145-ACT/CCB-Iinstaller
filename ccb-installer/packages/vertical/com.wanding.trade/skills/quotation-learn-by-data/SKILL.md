@@ -329,7 +329,16 @@ Also pass audit: `source_file` (basename), `source_sheet`, `source_row`, `agent_
 | **M4** | Same keyword, different F col code vs existing mapping | **Preview conflict** → user confirms → `allow_overwrite=true` |
 | **M5** | F 列 empty | **Reject** |
 
-**Tool (all learn-by-data users — no price_admin):** `append_quotation_mapping_pending` on **quotation** MCP only. **Forbidden:** editing `mapping_table.xlsx` directly, Bash file writes.
+**Tools (all learn-by-data users — no price_admin):** on **quotation** MCP:
+
+| Path | When | Tool | After confirm |
+|------|------|------|---------------|
+| **Org cloud (preferred)** | `ORG_SERVER_URL` configured | `append_quotation_mapping_pending` → routes to org draft (`target: org_draft`) | `mapping_admin` runs `publish_quotation_mapping_draft` (same MCP); then **全员** `match_quotation` 历史报价 recall |
+| **Local fallback** | org not configured | `append_quotation_mapping_pending` → `mapping_import_pending.jsonl` | user runs `python python/scripts/merge_mapping_import.py` |
+
+Optional: `lookup_quotation_mapping` to check D-gap / M2 against org active rows before append.
+
+**Forbidden:** editing `mapping_table.xlsx` directly, Bash file writes.
 
 ```markdown
 ### 历史报价库补全建议（learn-by-data）
@@ -343,10 +352,10 @@ Also pass audit: `source_file` (basename), `source_sheet`, `source_row`, `agent_
 入库原因：`纠错` = D-mismatch；`补映射` = D-gap（Agent 与人工一致但历史库缺该关键词映射）。
 
 1. `append_quotation_mapping_pending` with `confirmed=false` (fields from table above).
-2. **Same turn:** show preview + guard result; ask 是否确认写入 pending.
+2. **Same turn:** show preview + guard result; ask 是否确认写入。
 3. If M4 conflict: show 旧码→新码; after user agrees, call with `confirmed=true` **and** `allow_overwrite=true`.
 4. `confirmed=true` — one row at a time.
-5. Tell user: run `python python/scripts/merge_mapping_import.py` to merge pending → `mapping_table.xlsx` (invalidates mapping cache).
+5. **Org path:** tell user rows are in org draft; `mapping_admin` must `publish_quotation_mapping_draft` (`confirmed=true`) before fleet-wide recall. **Local path:** run `python python/scripts/merge_mapping_import.py` to merge pending → `mapping_table.xlsx`.
 
 Section D does **not** end session if Section A/C still has pending confirmations. Run Section D **after** batch tables; serial with Section C confirmed writes.
 

@@ -206,6 +206,33 @@ def sheet_product_code_is_valid(code: str) -> bool:
     return row is not None
 
 
+def _org_mapping_hits(norm_key: str) -> list[dict[str, Any]]:
+    try:
+        from admin.org_mapping_client import is_org_mapping_configured, lookup_mapping_rows
+
+        if not is_org_mapping_configured() or not norm_key:
+            return []
+        data = lookup_mapping_rows(norm_key=norm_key) or {}
+        rows = data.get("rows") or []
+        hits: list[dict[str, Any]] = []
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            code = str(row.get("product_code") or "").strip()
+            if not code:
+                continue
+            hits.append(
+                {
+                    "code": code,
+                    "matched_name": str(row.get("quotation_name") or "").strip(),
+                    "search_text": norm_key,
+                }
+            )
+        return hits
+    except Exception:
+        return []
+
+
 def check_learn_by_data_mapping_guards(
     *,
     inquiry_name: str,
@@ -282,6 +309,14 @@ def check_learn_by_data_mapping_guards(
     if mapping_df is None:
         mapping_df = load_mapping_df(config.MAPPING_TABLE_PATH)
     existing = _find_mapping_by_norm_text(mapping_df, norm_key)
+    org_hits = _org_mapping_hits(norm_key)
+    if org_hits:
+        seen_codes = {str(hit.get("code") or "").strip() for hit in existing}
+        for hit in org_hits:
+            code = str(hit.get("code") or "").strip()
+            if code and code not in seen_codes:
+                existing.append(hit)
+                seen_codes.add(code)
     for hit in existing:
         if str(hit.get("code") or "").strip() == sheet_code:
             return {

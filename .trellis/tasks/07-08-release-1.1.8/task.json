@@ -1,0 +1,12 @@
+{
+  "id": "07-08-release-1.1.8",
+  "title": "CCB-Wanding 1.1.8 Full NSIS 发布",
+  "status": "draft",
+  "created": "2026-07-07",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "baseline_release": "1.1.7",
+    "baseline_delivery": "ccb-installer/delivery-1.1.7-2026-07-06.md",
+    "trigger": "dev smoke PASS + user /trellis-plan-execution 打包 1.1.8"
+  }
+}

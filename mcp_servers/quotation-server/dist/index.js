@@ -179,7 +179,7 @@ server.setRequestHandler(ListToolsRequestSchema, () => ({
         },
         {
             name: "append_quotation_mapping_pending",
-            description: "Learn-by-data Section D: append one historical mapping row (inquiry→sheet F col product code) to local mapping_import_pending.jsonl. No org auth. confirmed=false previews; confirmed=true writes pending. Use allow_overwrite=true when guard reports keyword conflict.",
+            description: "Learn-by-data Section D: append historical mapping row. When ORG_SERVER_URL is configured, confirmed=true writes org draft (fleet-shared); otherwise local mapping_import_pending.jsonl. confirmed=false previews.",
             inputSchema: {
                 type: "object",
                 properties: {
@@ -191,7 +191,7 @@ server.setRequestHandler(ListToolsRequestSchema, () => ({
                     source_sheet: { type: "string", description: "Sheet name for audit." },
                     source_row: { type: "number", description: "1-based Excel row for audit." },
                     agent_pick_code: { type: "string", description: "Agent pick from learn-by-data (for audit only)." },
-                    confirmed: { type: "boolean", description: "false=preview; true=append pending after user confirms." },
+                    confirmed: { type: "boolean", description: "false=preview; true=append after user confirms." },
                     allow_overwrite: { type: "boolean", description: "true when user confirms replacing conflicting mapping keyword." },
                     fields: {
                         type: "object",
@@ -199,6 +199,52 @@ server.setRequestHandler(ListToolsRequestSchema, () => ({
                     },
                 },
                 required: ["product_code", "source_file", "source_sheet", "source_row"],
+            },
+        },
+        {
+            name: "lookup_quotation_mapping",
+            description: "Query org historical quotation mapping by inquiry keywords (dedup / D-gap). Requires ORG_SERVER_URL.",
+            inputSchema: {
+                type: "object",
+                properties: {
+                    inquiry_name: { type: "string" },
+                    inquiry_spec: { type: "string" },
+                    norm_key: { type: "string", description: "Optional pre-normalized key from learn-by-data." },
+                    search_text: { type: "string" },
+                },
+            },
+        },
+        {
+            name: "append_quotation_mapping_item",
+            description: "Section D org path: append one row to org quotation-mapping draft (fleet-shared). confirmed=false preview; confirmed=true writes draft.",
+            inputSchema: {
+                type: "object",
+                properties: {
+                    inquiry_name: { type: "string" },
+                    inquiry_spec: { type: "string" },
+                    product_code: { type: "string" },
+                    quotation_name: { type: "string" },
+                    source_file: { type: "string" },
+                    source_sheet: { type: "string" },
+                    source_row: { type: "number" },
+                    agent_pick_code: { type: "string" },
+                    confirmed: { type: "boolean" },
+                    allow_overwrite: { type: "boolean" },
+                    fields: { type: "object" },
+                },
+                required: ["product_code", "source_file", "source_sheet", "source_row"],
+            },
+        },
+        {
+            name: "publish_quotation_mapping_draft",
+            description: "Publish org quotation-mapping draft (mapping_admin). Makes mappings visible fleet-wide for match_quotation 历史报价.",
+            inputSchema: {
+                type: "object",
+                properties: {
+                    reason: { type: "string" },
+                    revision: { type: "number", description: "Draft revision from get draft / append response." },
+                    confirmed: { type: "boolean" },
+                },
             },
         },
     ],

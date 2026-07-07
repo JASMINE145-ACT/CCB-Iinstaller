@@ -37,6 +37,21 @@ def dispatch(tool: str, params: dict[str, Any]) -> Any:
 
         return handle_append_quotation_mapping_pending(params)
 
+    if tool == "lookup_quotation_mapping":
+        from quotation.org_mapping_dispatch import handle_lookup_quotation_mapping
+
+        return handle_lookup_quotation_mapping(params)
+
+    if tool == "append_quotation_mapping_item":
+        from quotation.org_mapping_dispatch import handle_append_quotation_mapping_item
+
+        return handle_append_quotation_mapping_item(params)
+
+    if tool == "publish_quotation_mapping_draft":
+        from quotation.org_mapping_dispatch import handle_publish_quotation_mapping_draft
+
+        return handle_publish_quotation_mapping_draft(params)
+
     if tool == "match_quotation":
         from quotation.match_dispatch import handle_match_quotation
 

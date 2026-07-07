@@ -240,6 +240,45 @@ QUERY_TERM_TO_CHINESE = [
 ]
 
 
+_UNICODE_FRACTIONS = {
+    "½": "1/2",
+    "¾": "3/4",
+    "¼": "1/4",
+}
+
+
+def _normalize_unicode_fractions(keywords: str) -> str:
+    s = keywords or ""
+    for uchar, ascii_frac in _UNICODE_FRACTIONS.items():
+        s = s.replace(uchar, ascii_frac)
+    return s
+
+
+def _is_ceiling_drat(norm_text: str) -> bool:
+    return _contains_any(norm_text, [r"\bsteel\s*drat\b", r"\bstelldrat\b"])
+
+
+def _is_fitting_drat_thread(norm_text: str) -> bool:
+    """Elbow drat / 丝扣弯头 in AW/fitting context — not ceiling Stelldrat."""
+    if _is_ceiling_drat(norm_text):
+        return False
+    if not _contains_any(norm_text, [r"\bdrat\b", r"丝扣", r"螺纹弯头", r"螺纹弯"]):
+        return False
+    if _query_fitting(norm_text) in {"elbow", "tee", "coupling", "reducer", "fitting"}:
+        return True
+    return _contains_any(norm_text, [r"\baw\b", r"给水"])
+
+
+def _apply_drat_thread_expansion(keywords: str) -> str:
+    norm = _normalize(keywords or "")
+    if not _is_fitting_drat_thread(norm):
+        return keywords
+    extra = " 内螺纹 丝扣弯头 螺纹弯头"
+    if extra.strip() not in norm:
+        return f"{keywords} {extra}".strip()
+    return keywords
+
+
 def _normalize_keyword_terms(keywords: str) -> str:
     """将询价中的英文/印尼语替换为中文品名词，便于筛选命中库内品名。"""
     s = (keywords or "").strip()
@@ -806,7 +845,7 @@ def _product_ceiling(product_text: str, product_type: str = "") -> bool:
 def _query_ceiling_category(norm_kw: str) -> str | None:
     if _contains_any(norm_kw, [r"\bmain\s*hollow\b", r"\bhollow\b"]):
         return "main_hollow"
-    if _contains_any(norm_kw, [r"\bsteel\s*drat\b", r"\bstelldrat\b", r"\bdrat\b"]):
+    if _contains_any(norm_kw, [r"\bsteel\s*drat\b", r"\bstelldrat\b"]):
         return "stelldrat"
     if _contains_any(norm_kw, [r"\bdynabolt\b"]):
         return "dynabolt"
@@ -823,7 +862,7 @@ def _product_ceiling_category(product_text: str) -> str | None:
     text = _normalize(product_text or "")
     if _contains_any(text, [r"\bmain\s*hollow\b", r"\bhollow\b"]):
         return "main_hollow"
-    if _contains_any(text, [r"\bstelldrat\b", r"\bsteel\s*drat\b", r"\bdrat\b"]):
+    if _contains_any(text, [r"\bstelldrat\b", r"\bsteel\s*drat\b"]):
         return "stelldrat"
     if _contains_any(text, [r"\bdynabolt\b"]):
         return "dynabolt"
@@ -930,6 +969,8 @@ def _query_fitting(norm_kw: str) -> str | None:
 
 def _product_fitting(product_text: str) -> str | None:
     text = _normalize(product_text)
+    if _contains_any(text, [r"faucet\s*elbow", r"内螺纹弯头", r"丝扣弯头", r"螺纹弯头"]):
+        return "elbow"
     categories: list[tuple[str, list[str]]] = [
         ("glue", [r"胶水", r"胶粘剂", r"cement", r"glue"]),
         ("welder", [r"热熔器", r"焊接机", r"welding machine", r"welder"]),
@@ -954,6 +995,16 @@ def _product_fitting(product_text: str) -> str | None:
 def _thread_gender(text: str) -> str | None:
     norm_text = _normalize(text)
     if _contains_any(norm_text, [r"内丝", r"内螺纹", r"female thread", r"\bfemale\b"]):
+        return "female"
+    if _is_fitting_drat_thread(norm_text):
+        return "female"
+    if _contains_any(norm_text, [r"丝扣", r"螺纹弯头", r"螺纹弯"]) and _query_fitting(norm_text) in {
+        "elbow",
+        "tee",
+        "coupling",
+        "reducer",
+        "fitting",
+    }:
         return "female"
     if _contains_any(norm_text, [r"外丝", r"外螺纹", r"male thread", r"\bmale\b"]):
         return "male"
@@ -1232,6 +1283,8 @@ def _hard_filter_and_bonus(
 
     q_fit = _query_fitting(norm_kw)
     p_fit = _product_fitting(product_norm)
+    q_thread = _thread_gender(norm_kw)
+    p_thread = _thread_gender(product_norm)
     non_pipe_categories = {
         "tee",
         "elbow",
@@ -1264,7 +1317,14 @@ def _hard_filter_and_bonus(
         return False, 0.0
     if q_fit in exact_categories:
         if p_fit and p_fit != q_fit:
-            return False, 0.0
+            threaded_faucet_elbow = (
+                q_fit == "elbow"
+                and q_thread == "female"
+                and p_fit == "faucet"
+                and p_thread == "female"
+            )
+            if not threaded_faucet_elbow:
+                return False, 0.0
         if p_fit is None and q_fit != "glue":
             return False, 0.0
     if q_fit == "fitting" and p_fit in {"pipe", "faucet", "glue", "hose", "welder"}:
@@ -1298,8 +1358,6 @@ def _hard_filter_and_bonus(
         else:
             bonus += 0.08
 
-    q_thread = _thread_gender(norm_kw)
-    p_thread = _thread_gender(product_norm)
     if q_thread:
         if p_thread != q_thread:
             return False, 0.0
@@ -2245,7 +2303,9 @@ def match_fuzzy(
         return out
     keywords = _apply_knowledge_expansion(keywords)
     keywords = _apply_pressure_expansion(keywords)
+    keywords = _normalize_unicode_fractions(keywords)
     keywords = _normalize_keyword_terms(keywords)
+    keywords = _apply_drat_thread_expansion(keywords)
     keywords = _strip_query_intent_terms(keywords)
     if not keywords:
         return None
@@ -2331,7 +2391,9 @@ def match_fuzzy_candidates(
         return [item]
     keywords = _apply_knowledge_expansion(keywords)
     keywords = _apply_pressure_expansion(keywords)
+    keywords = _normalize_unicode_fractions(keywords)
     keywords = _normalize_keyword_terms(keywords)
+    keywords = _apply_drat_thread_expansion(keywords)
     keywords = _strip_query_intent_terms(keywords)
     if not keywords:
         return []

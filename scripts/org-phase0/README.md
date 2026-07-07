@@ -12,6 +12,7 @@ One-page runbook: Phase 0 [`org-knowledge-phase0-rollout.md`](../../.trellis/spe
 |--------|--------------|---------|
 | `vps-create-employee-runbook.md` | Ops | **SSH → admin TOKEN → POST /api/users → 验证 → env.local 登记** |
 | `env.example` / `env.local.example` | Copy → `env.local` (gitignored) | Secrets template — prefer `env.local.example` |
+| `bootstrap-quotation-mapping.py` | Windows / VPS | Import `mapping_table.xlsx` → org `qmap_*` only (API draft + publish) |
 | `vps-smoke.sh` | VPS | systemd + auth/status + optional knowledge count |
 | `vps-create-employee.sh` | VPS | Promote admin → manager + create employee + verify org login |
 | `verify-desktop.ps1` | Windows | org-server.json, org-session.token, center reachability |

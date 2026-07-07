@@ -177,6 +177,7 @@ def test_append_pending_and_dispatch_preview(tmp_path: Path, monkeypatch) -> Non
     pending = tmp_path / "mapping_import_pending.jsonl"
     monkeypatch.setattr("quotation.learn_by_data_mapping.resolve_mapping_pending_path", lambda: pending)
     monkeypatch.setattr("quotation.mapping_pending_dispatch.load_mapping_pending_entries", lambda: [])
+    monkeypatch.setattr("admin.org_mapping_client.is_org_mapping_configured", lambda: False)
 
     preview = handle_append_quotation_mapping_pending(
         {

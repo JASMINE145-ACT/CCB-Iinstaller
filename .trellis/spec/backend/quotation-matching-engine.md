@@ -113,8 +113,10 @@ Before `search_fuzzy` scans rows, `match_fuzzy_candidates` applies (in order):
 1. **Material code fast path** — 8–14 digit or patterned code → exact `get_wanding_price_by_code` (score `1.0`, single candidate).
 2. **`_apply_knowledge_expansion`** — parse `wanding_business_knowledge.md` §【字段匹配同义与规格】→ append target terms.
 3. **`_apply_pressure_expansion`** — bidirectional PN ↔ MPa (e.g. PN16 → 1.6MPa).
-4. **`_normalize_keyword_terms`** — `QUERY_TERM_TO_CHINESE` (印尼语/英语口语 → 中文品名, e.g. `conduit`→电线管, `热熔器`→焊接机).
-5. **`_strip_query_intent_terms`** — remove 报价/B级/代理价等非品名词.
+4. **`_normalize_unicode_fractions`** — `½`/`¼`/`¾` → `1/2`/`1/4`/`3/4` (e.g. VANTSING `½"` inch).
+5. **`_normalize_keyword_terms`** — `QUERY_TERM_TO_CHINESE` (印尼语/英语口语 → 中文品名, e.g. `conduit`→电线管, `热熔器`→焊接机).
+6. **`_apply_drat_thread_expansion`** — fitting context: `Elbow drat` = **丝扣弯头 / 螺纹弯头** (`内螺纹`); excludes ceiling `stelldrat` / `steel drat`.
+7. **`_strip_query_intent_terms`** — remove 报价/B级/代理价等非品名词.
 
 Inside `search_fuzzy`, keywords may fan out via **`_expand_keyword_with_synonyms`** (`SYNONYM_GROUPS` replacement variants).
 
@@ -274,6 +276,7 @@ Precomputed columns on load: `norm_text`, `spec_tokens` — required for perform
 | Test / script | Covers |
 |---------------|--------|
 | `python/tests/test_quotation_match_ranking_fix.py` | `match_quotation_union` source-rank order (rows 8–9) |
+| `python/tests/test_drat_elbow_aw.py` | `Elbow drat` → Faucet Elbow `8010024875` over plain 90° elbow (P0 2026-07-07) |
 | `python/test_wanding_matcher_compat.py` | Tokenization, `search_fuzzy` scenarios, `_rank_compatible_candidates` |
 | `python/tests/test_lesso_dn_spec_fix.py` | End-to-end `match_quotation_union` DN spec |
 | `python/tests/test_price_library_supplier.py` | `supplier` through `match_fuzzy_candidates` |

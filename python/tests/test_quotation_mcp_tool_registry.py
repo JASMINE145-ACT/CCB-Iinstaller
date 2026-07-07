@@ -19,6 +19,9 @@ EXPECTED_MCP_TOOLS = frozenset({
     "ask_clarification",
     "append_business_rule",
     "append_quotation_mapping_pending",
+    "lookup_quotation_mapping",
+    "append_quotation_mapping_item",
+    "publish_quotation_mapping_draft",
     "get_product_price_tiers",
 })
 

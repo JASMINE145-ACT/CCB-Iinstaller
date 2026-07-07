@@ -1,0 +1,14 @@
+{
+  "id": "07-07-quotation-drat-recall-and-mapping-cloud",
+  "title": "drat 螺纹弯头召回 + 历史报价库云端共享",
+  "status": "draft",
+  "created": "2026-07-07",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "parent_tasks": [
+      "07-06-learn-by-data-price-library-enrich",
+      "07-06-quotation-match-ranking-fix"
+    ],
+    "trigger": "PT. JINSE 7.1 learn-by-data row 10 + user /trellis-plan-execution"
+  }
+}

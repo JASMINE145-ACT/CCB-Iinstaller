@@ -101,5 +101,18 @@ def handle_append_quotation_mapping_pending(params: dict[str, Any]) -> Any:
     if basename:
         row["source_file"] = basename
 
+    try:
+        from admin.org_mapping_client import is_org_mapping_configured
+        from quotation.org_mapping_dispatch import handle_append_quotation_mapping_item
+
+        if is_org_mapping_configured():
+            org_params = dict(params)
+            org_params["confirmed"] = True
+            if allow_overwrite:
+                org_params["allow_overwrite"] = True
+            return handle_append_quotation_mapping_item(org_params)
+    except Exception as exc:
+        return {"success": False, "error": f"org mapping append failed: {exc}", "guard": guard}
+
     result = append_mapping_pending_row(row, allow_overwrite=allow_overwrite)
-    return {"success": True, "applied": True, "guard": guard, **result}
+    return {"success": True, "applied": True, "guard": guard, "target": "local_pending", **result}
