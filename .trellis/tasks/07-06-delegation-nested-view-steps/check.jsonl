@@ -7,3 +7,4 @@
 {"ts":"2026-07-07","file":".trellis/tasks/07-06-delegation-nested-view-steps/research/delegation-spawn-context-contract.md","reason":"B0.1 research contract doc"}
 {"ts":"2026-07-07","file":"manual-smoke","reason":"Path A PASS — 查询直接50价格: 委派→万鼎报价专家·done·2tools, nested Read+MCP, agentId a7bef2f70cb5d93da"}
 {"ts":"2026-07-07","file":"aionui-src/tests/unit/common-chat/delegationSpawnContext.test.ts","reason":"vitest 6/6 B0.1 PASS; code-review PASS (agent 8fd7a418)"}
+{"ts":"2026-07-08","file":"aionui-src/tests/unit/renderer/messageToolGroupSummary.dom.test.tsx","reason":"SubagentDrawer 查看执行 DOM test + operatorToolLabels 3/3; vitest 5/5; Layer B smoke PASS; code-review PASS"}

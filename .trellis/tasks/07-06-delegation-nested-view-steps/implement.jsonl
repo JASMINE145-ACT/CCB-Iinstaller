@@ -7,5 +7,7 @@
 {"ts":"2026-07-06","file":"aionui-src/packages/desktop/src/common/chat/delegationRun.ts","reason":"findDelegationRunForParent helper"}
 {"ts":"2026-07-06","file":"aionui-src/.../SubagentDrawer.tsx","reason":"turnToolMessages prop + findDelegationRunForParent nested timeline"}
 {"ts":"2026-07-07","file":"aionui-src/packages/desktop/src/common/chat/delegationSpawnContext.ts","reason":"B0.1 assessTurnDelegationSpawn + PATH_A smoke fixture"}
+{"ts":"2026-07-08","file":"aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/components/MessageToolGroupSummary.tsx","reason":"Wire SubagentDrawer (turnToolMessages), 查看执行, collapsed running chip"}
+{"ts":"2026-07-08","file":"aionui-src/packages/desktop/src/common/chat/operatorToolLabels.ts","reason":"Operator-facing nested step labels (Read 业务知识库 / 查价 MCP)"}
 {"ts":"2026-07-07","file":"aionui-src/tests/unit/common-chat/delegationSpawnContext.test.ts","reason":"6 spawn context contract tests"}
 {"ts":"2026-07-07","file":".trellis/tasks/07-06-delegation-nested-view-steps/research/delegation-spawn-context-contract.md","reason":"B0.1 research doc"}

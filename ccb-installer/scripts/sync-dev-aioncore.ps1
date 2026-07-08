@@ -61,7 +61,7 @@ $proc = Start-Process -FilePath $destExe -ArgumentList @(
 try {
     Start-Sleep -Seconds 2
     try {
-        Invoke-WebRequest -Uri 'http://127.0.0.1:13498/api/price-library/active' -UseBasicParsing | Out-Null
+        Invoke-WebRequest -Uri 'http://127.0.0.1:13498/api/price-library/active' -UseBasicParsing -TimeoutSec 5 | Out-Null
         $code = 200
     } catch {
         $code = [int]$_.Exception.Response.StatusCode
@@ -76,7 +76,7 @@ try {
             @{ Path = '/api/org-knowledge'; Label = 'org-knowledge' }
         )) {
         try {
-            Invoke-WebRequest -Uri "http://127.0.0.1:13498$($pair.Path)" -UseBasicParsing | Out-Null
+            Invoke-WebRequest -Uri "http://127.0.0.1:13498$($pair.Path)" -UseBasicParsing -TimeoutSec 5 | Out-Null
             $routeCode = 200
         } catch {
             $routeCode = [int]$_.Exception.Response.StatusCode
