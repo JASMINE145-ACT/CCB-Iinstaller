@@ -4,6 +4,7 @@ from __future__ import annotations
 import http.cookiejar
 import json
 import logging
+import re
 import urllib.error
 import urllib.request
 from datetime import datetime
@@ -27,6 +28,30 @@ from admin.org_session import (
 logger = logging.getLogger(__name__)
 
 DEFAULT_SLUG = "wanding_business_knowledge"
+
+_RULE_DEDUP_MIN_CHARS = 6
+
+
+def _normalize_rule_text(text: str) -> str:
+    return re.sub(r"\s+", "", (text or "").lower())
+
+
+def rule_already_in_doc(rule_text: str, doc_content: str) -> bool:
+    """True when an equivalent rule already exists in org doc content."""
+    norm_rule = _normalize_rule_text(rule_text)
+    if len(norm_rule) < _RULE_DEDUP_MIN_CHARS:
+        return False
+    norm_doc = _normalize_rule_text(doc_content)
+    if norm_rule in norm_doc:
+        return True
+    for line in (doc_content or "").splitlines():
+        stripped = line.strip().lstrip("-").strip()
+        if len(stripped) < _RULE_DEDUP_MIN_CHARS:
+            continue
+        norm_line = _normalize_rule_text(stripped)
+        if norm_rule in norm_line or norm_line in norm_rule:
+            return True
+    return False
 
 # cache: slug -> {"version": int|None, "content": str, "source": str}
 _doc_cache: dict[str, dict[str, Any]] = {}
@@ -260,6 +285,15 @@ def append_business_rule(
     content = str(doc.get("content") or "").rstrip()
     title = str(doc.get("title") or slug)
     version = int(doc.get("version") or 0)
+    if rule_already_in_doc(rule, content):
+        return {
+            "slug": slug,
+            "skipped": True,
+            "reason": "duplicate",
+            "rule_text": rule,
+            "version": version,
+        }
+
     section_text = (section or "业务规则补充").strip()
     reason_text = (reason or "").strip()
     today = datetime.now().strftime("%Y-%m-%d")

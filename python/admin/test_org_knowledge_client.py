@@ -15,6 +15,11 @@ class OrgKnowledgeClientTests(unittest.TestCase):
     def setUp(self) -> None:
         okc.invalidate_org_knowledge_cache()
 
+    def test_rule_already_in_doc_detects_duplicate(self) -> None:
+        content = "## 业务规则\n\n- 直接50默认A系列白色排水\n"
+        self.assertTrue(okc.rule_already_in_doc("直接50默认A系列白色", content))
+        self.assertFalse(okc.rule_already_in_doc("全新未出现规则XYZ", content))
+
     def test_is_org_api_configured_false_by_default(self) -> None:
         with mock.patch.dict(os.environ, {}, clear=True):
             self.assertFalse(okc.is_org_api_configured())
