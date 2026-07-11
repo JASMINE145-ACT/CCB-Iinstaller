@@ -12,6 +12,82 @@ Help the user **design** how to execute a Trellis task using this repo's meta-to
 
 Canonical reference: [`docs/ai-tools-reference.md`](../../docs/ai-tools-reference.md) (§五 协作场景 · §八 验证门禁).
 
+Command entry: `.cursor/commands/trellis-plan-execution.md` — must stay aligned with this skill.
+
+---
+
+## Operating doctrine: Contract → TDD → Contract Verification
+
+Every execution plan is organized around three layers:
+
+```text
+Project layer: Contract-Driven
+  Define the behavior contract(s) this task protects or changes.
+
+Coding layer: TDD
+  For each touched contract, write or identify RED/GREEN tests before implementation.
+
+Acceptance layer: Contract Verification
+  Verify the whole contract chain: code + tests + eval + UI/manual smoke where applicable.
+```
+
+A valid plan answers:
+
+1. **Which contract is touched?** e.g. `WANd.LEARNING.IDLE.001`
+2. **What behavior does the contract protect?**
+3. **Which code paths implement it?**
+4. **Which tests/evals/smokes prove it still holds?**
+5. **What is the minimum TDD route per workstream?**
+
+### Contract ID rules
+
+- Prefer existing IDs from `.trellis/spec/**`, `.trellis/tasks/**`, eval cases, or `agent-runtime-registry.yml`.
+- If none exists, assign provisional `WANd.<DOMAIN>.<BEHAVIOR>.001` in `execution-plan.md`; promote to spec/registry at spec-update gate if permanent.
+- Every implementation row: `touches: <contract-id>` or `touches: docs-only/no-runtime-contract`.
+
+### Contract card (Standard / Full)
+
+```markdown
+### Contract: WANd.<DOMAIN>.<BEHAVIOR>.001
+
+**Behavior protected:** <one sentence>
+**Primary code:** `<file>`, `<file>`
+**Tests:** `<exact command or test file>`
+**Eval / smoke:** `<eval case, script, or manual UI smoke>`
+**Risk if broken:** <user-visible or safety impact>
+```
+
+### Contract map (Lite — minimum for small tasks)
+
+Use when **Plan depth = Lite** (single repo, one low-risk workstream):
+
+```markdown
+## Contract map (lite)
+- **touches:** WANd.X.Y.001 | docs-only/no-runtime-contract
+- **Behavior protected:** <one sentence>
+- **GREEN:** `<exact command>`
+- **Manual smoke:** <N/A or one line>
+```
+
+No full four-table layout required for Lite unless the task crosses UI/runtime/agent layers.
+
+### TDD row (per workstream)
+
+```text
+RED: failing test/eval before change, or "N/A + reason"
+GREEN: exact command proving implementation passes
+REFACTOR guard: same command(s) remain green after cleanup
+```
+
+### Contract Verification gate (before completion)
+
+For each touched contract:
+
+1. Run bound unit/contract/integration tests.
+2. Run eval or smoke if behavior crosses agent/UI/runtime layers.
+3. Record command + result in `execution-plan.md` Progress snapshot.
+4. Update spec/contract registry if contract is new or changed.
+
 ---
 
 ## When to invoke
@@ -120,11 +196,11 @@ Every row needs a type prefix (`Skill:` / `Agent:` / `Read:`) **and** output evi
 
 Choose the smallest safe depth:
 
-| Depth | Use when | Detail |
-|-------|----------|--------|
-| **Lite** | One repo, one low-risk workstream | Capability summary, files, command, fallback |
-| **Standard** | Multiple files/layers or 2–4 dependent workstreams | Full table, risks, artifacts, TDD route, profile, recovery |
-| **Full** | Cross-repo, parallel, release/security-sensitive, or large design | Standard + capability matrix, merge/checkpoint/manual gates |
+| Depth | Use when | Contract sections |
+|-------|----------|-------------------|
+| **Lite** | One repo, one low-risk workstream | **Contract map (lite)** + GREEN command; skip full four-table layout |
+| **Standard** | Multiple files/layers or 2–4 dependent workstreams | Full **Contract map**, **TDD contract**, **Contract Verification** + workstream `touches` |
+| **Full** | Cross-repo, parallel, release/security-sensitive, or large design | Standard contract sections + capability matrix, merge/checkpoint/manual gates |
 
 Default to **Standard**. Tag only risks that change execution:
 `security` · `migration` · `external-api` · `concurrency` · `cross-repo` · `ui` · `packaging` · `long-running`.
@@ -202,25 +278,38 @@ Fill this template and present it to the user **before coding**:
 | Activate task | `task.py start <dir>` | in_progress |
 | Read spec + PRD | `trellis-before-dev` | spec paths noted |
 
+### Contract map
+| Contract | Behavior protected | Primary code | Tests / eval / smoke | Risk |
+|----------|--------------------|--------------|----------------------|------|
+| WANd.X.Y.001 | … | … | … | … |
+
+*Lite depth: replace table with **Contract map (lite)** block (see §Operating doctrine).*
+
 ### Phase 1…N — Workstreams
-| Phase | Priority | Workstream | Risk | Tool / agent | Files | Required output | Profile | Notes |
-|-------|----------|------------|------|--------------|-------|-----------------|---------|-------|
-| 1 | P0 | … | ui | TDD / trellis-implement | … | RED evidence + implementation | UI | … |
+| Phase | Priority | Workstream | touches | Risk | Tool / agent | Files | Required output | Profile | Notes |
+|-------|----------|------------|---------|------|--------------|-------|-----------------|---------|-------|
+| 1 | P0 | … | WANd.X.Y.001 | ui | TDD / trellis-implement | … | RED evidence + implementation | UI | … |
 
 ### TDD contract
-| Workstream | Test level | RED evidence | GREEN command | Regression target |
-|------------|------------|--------------|---------------|-------------------|
-| … | unit / contract / integration / e2e / smoke | failing test or justified N/A | exact command | protected behavior |
+| Workstream | Contract | RED evidence | GREEN command | Refactor guard |
+|------------|----------|--------------|---------------|----------------|
+| … | WANd.X.Y.001 | failing test or N/A + reason | exact command | same GREEN command(s) |
+
+### Contract Verification
+| Contract | Verification command / smoke | Required evidence | Status |
+|----------|------------------------------|-------------------|--------|
+| WANd.X.Y.001 | … | command output / screenshot / eval result | pending |
 
 ### Verification profile and gate
 **Selected:** Fast | Standard | UI | Release | Security | Cross-repo
 
-1. code-review agent **or** `trellis-check` (pick one primary)
-2. Profile-specific commands with **evidence**
-3. `trellis-update-spec` → relevant spec md
-4. `implement.jsonl` + `check.jsonl` + prd AC `[x]`
-5. `git commit` — **only if user asks**
-6. `/trellis:finish-work`
+1. **Contract Verification** — each touched contract: tests + eval/smoke + evidence row above
+2. code-review agent **or** `trellis-check` (pick one primary)
+3. Profile-specific commands with **evidence**
+4. `trellis-update-spec` → relevant spec md (+ registry if contract new/changed)
+5. `implement.jsonl` + `check.jsonl` + prd AC `[x]`
+6. `git commit` — **only if user asks**
+7. `/trellis:finish-work`
 
 ### Parallelization (if Scenario D)
 | Agent | Scope | Merge rule |
@@ -370,14 +459,14 @@ Never retry blindly. Name the resume phase and durable evidence in every recover
 
 ## Step 5 — Verification gate (fixed chain)
 
-**Do not mix four gate systems in one turn.** Pick **one** primary review path, then tests, then docs:
+**Do not mix four gate systems in one turn.** Pick **one** primary review path, then **Contract Verification**, then docs:
 
 ```
 改代码
   → code-reviewer agent（或 trellis-check — 二选一作主审）
        + renderer UI 改动：Layer B `node scripts/review/smoke-renderer-imports.mjs`（见 layer-b-renderer-review.md）
-  → 运行验证 + 贴证据（bun test / test-mcp-health.ps1 / smoke）
-  → trellis-update-spec（+.trellis/spec/）
+  → Contract Verification（每个 touched contract：tests + eval/smoke + execution-plan 证据行）
+  → trellis-update-spec（+.trellis/spec/；新 contract 则更新 registry）
   → implement.jsonl + check.jsonl + prd AC
   → git commit（用户明确要求时）
   → /trellis:finish-work

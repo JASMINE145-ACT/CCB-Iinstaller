@@ -139,6 +139,10 @@
 
 **裁定**：**主审二选一不变**（trellis-check 管 spec 合规 / code-reviewer 管 quality）。语言明确时优先派语言特定 `ecc:<lang>-reviewer` 而非通用 code-reviewer。审查交互纪律借 superpowers。
 
+**Code-reviewer 身份（本项目）**：`Task` → `subagent_type: "code-reviewer"` = **Superpowers** `agents/code-reviewer.md`（路径见 `.cursor/rules/code-reviewer-agent.mdc`）+ 项目扩展 `.cursor/agents/code-reviewer.md`。
+
+**Layer A（普世语义审查）**：当 diff 触及 **picker / 设置绑定 / 路由身份字段**（任意层：renderer、API、worker）时，code-reviewer **必须**对照 `.trellis/spec/code-review-layer-a.md` 的 A1–A5；无 Layer A 规则结论不得 PASS。典型触发：Agent/助手/模型下拉、Channels 与 Guid 同类选择、config persist + backend read 链。
+
 **Layer B（renderer UI）**：当 diff 触及 `aionui-src/.../renderer/**` 时，code-reviewer **必须**运行 `node scripts/review/smoke-renderer-imports.mjs`（`--git-diff` 或 `--file`），并在 verdict 附输出；无 Layer B 证据不得 PASS。详见 `.trellis/spec/frontend/layer-b-renderer-review.md`。
 
 ### 10. 验证 / 完工
