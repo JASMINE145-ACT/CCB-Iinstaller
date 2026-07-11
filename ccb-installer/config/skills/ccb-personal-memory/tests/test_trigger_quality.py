@@ -15,6 +15,7 @@ import sys
 import tempfile
 import time
 import unittest
+import uuid
 from pathlib import Path
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
@@ -49,6 +50,32 @@ class TriggerQualityBase(unittest.TestCase):
             input=json.dumps(hook_input),
             text=True,
             capture_output=True,
+            env=self._env,
+            check=False,
+        )
+
+    def _run_worker(
+        self,
+        transcript_path: Path,
+        *,
+        session_id: str = "sess-worker",
+        start_line: int = 0,
+    ) -> subprocess.CompletedProcess[str]:
+        """Direct worker invoke ( `/remember` path ) — Stop hook is no-op."""
+        self._jobs.mkdir(parents=True, exist_ok=True)
+        job_path = self._jobs / f"{uuid.uuid4().hex[:12]}.json"
+        job = {
+            "configDir": str(self._config),
+            "transcriptPath": str(transcript_path),
+            "sessionId": session_id,
+            "agentType": "",
+            "startLine": start_line,
+        }
+        job_path.write_text(json.dumps(job, ensure_ascii=False), encoding="utf-8")
+        return subprocess.run(
+            [sys.executable, str(SCRIPTS / "personal-memory-worker.py"), "--job", str(job_path)],
+            capture_output=True,
+            text=True,
             env=self._env,
             check=False,
         )
@@ -102,6 +129,21 @@ class TriggerQualityBase(unittest.TestCase):
         self._env["CCB_PERSONAL_MEMORY_THINKING_MOCK"] = str(mock)
 
 
+class TestStopHookUnified(TriggerQualityBase):
+    def test_stop_hook_is_noop(self) -> None:
+        proc = self._run_hook(
+            {
+                "transcript_path": str(FIXTURES / "workflow-signal.jsonl"),
+                "hook_event_name": "Stop",
+                "session_id": "sess-noop",
+            }
+        )
+        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+        self.assertIn("unified-precipitation-mainline", self._log_text())
+        self.assertEqual(self._workflow_text(), "")
+
+
+@unittest.skip("Stop gate/cooldown moved to ccb-session-precipitation idle 60s path")
 class TestTriggerGate(TriggerQualityBase):
     """R1/R2/R7/R8 — hook-side gating, watermark, cooldown, hygiene."""
 
@@ -212,24 +254,12 @@ class TestExtractionQuality(TriggerQualityBase):
     """R3/R4/R5/R6 — evidence validation, near-dup, business veto, profile."""
 
     def test_supplier_habit_not_vetoed(self) -> None:
-        proc = self._run_hook(
-            {
-                "transcript_path": str(FIXTURES / "supplier-habit.jsonl"),
-                "hook_event_name": "Stop",
-                "session_id": "sess-sup",
-            }
-        )
+        proc = self._run_worker(FIXTURES / "supplier-habit.jsonl", session_id="sess-sup")
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         self.assertIn("我习惯先查供应商库存再报价", self._workflow_text())
 
     def test_discount_instruction_still_vetoed(self) -> None:
-        proc = self._run_hook(
-            {
-                "transcript_path": str(FIXTURES / "discount-veto.jsonl"),
-                "hook_event_name": "Stop",
-                "session_id": "sess-disc",
-            }
-        )
+        proc = self._run_worker(FIXTURES / "discount-veto.jsonl", session_id="sess-disc")
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         self.assertNotIn("折", self._workflow_text())
         self.assertFalse(self._workflow.is_file())
@@ -238,13 +268,7 @@ class TestExtractionQuality(TriggerQualityBase):
         self._write_mock(
             [{"target": "workflow", "text": "报价之前先看一次库存", "confidence": 0.95}]
         )
-        proc = self._run_hook(
-            {
-                "transcript_path": str(FIXTURES / "workflow-signal.jsonl"),
-                "hook_event_name": "Stop",
-                "session_id": "sess-noev",
-            }
-        )
+        proc = self._run_worker(FIXTURES / "workflow-signal.jsonl", session_id="sess-noev")
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         self.assertNotIn("报价之前先看一次库存", self._workflow_text())
 
@@ -259,13 +283,7 @@ class TestExtractionQuality(TriggerQualityBase):
                 }
             ]
         )
-        proc = self._run_hook(
-            {
-                "transcript_path": str(FIXTURES / "workflow-signal.jsonl"),
-                "hook_event_name": "Stop",
-                "session_id": "sess-badev",
-            }
-        )
+        proc = self._run_worker(FIXTURES / "workflow-signal.jsonl", session_id="sess-badev")
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         self.assertNotIn("报价之前先看一次库存", self._workflow_text())
 
@@ -280,13 +298,7 @@ class TestExtractionQuality(TriggerQualityBase):
                 }
             ]
         )
-        proc = self._run_hook(
-            {
-                "transcript_path": str(FIXTURES / "workflow-signal.jsonl"),
-                "hook_event_name": "Stop",
-                "session_id": "sess-short",
-            }
-        )
+        proc = self._run_worker(FIXTURES / "workflow-signal.jsonl", session_id="sess-short")
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         self.assertNotIn("查库存", self._workflow_text())
 
@@ -306,13 +318,7 @@ class TestExtractionQuality(TriggerQualityBase):
                 }
             ]
         )
-        proc = self._run_hook(
-            {
-                "transcript_path": str(FIXTURES / "workflow-signal.jsonl"),
-                "hook_event_name": "Stop",
-                "session_id": "sess-dup",
-            }
-        )
+        proc = self._run_worker(FIXTURES / "workflow-signal.jsonl", session_id="sess-dup")
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         self.assertEqual(self._workflow_text().count("- ["), 1)
 
@@ -327,13 +333,7 @@ class TestExtractionQuality(TriggerQualityBase):
                 }
             ]
         )
-        proc = self._run_hook(
-            {
-                "transcript_path": str(FIXTURES / "profile-signal.jsonl"),
-                "hook_event_name": "Stop",
-                "session_id": "sess-prof",
-            }
-        )
+        proc = self._run_worker(FIXTURES / "profile-signal.jsonl", session_id="sess-prof")
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         profile_text = self._profile.read_text(encoding="utf-8") if self._profile.is_file() else ""
         self.assertIn("称呼「陈工」", profile_text)

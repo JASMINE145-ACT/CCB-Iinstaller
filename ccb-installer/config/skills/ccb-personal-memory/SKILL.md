@@ -1,32 +1,30 @@
 # ccb-personal-memory
 
-Personal memory on **Stop / SubagentStop**: non-blocking enqueue + background **minimax-m3-thinking** extract (heuristic fallback).
+> **Stop / SubagentStop learning moved to `ccb-session-precipitation`** (idle 60s + Memory Inbox).
+> This skill remains for **`/记住` explicit command** and worker library reuse.
 
-## Entry
+## Stop hook (disabled)
 
-1. `scripts/post-personal-memory-stop.py` — writes job + `.learning-status.json` (`learning`), spawns worker, **exit 0 immediately**
-2. `scripts/personal-memory-worker.py` — thinking API → JSON → validate → append `memory/personal/workflow.md`
+`scripts/post-personal-memory-stop.py` — **no-op** (logs `unified-precipitation-mainline`, exit 0).
+Agents still list the hook for compatibility; it does not spawn workers or append memory.
 
-## Status (UI)
+## Active entry (`/记住` only)
 
-`.claude/memory/.learning-status.json` — AionUI banner when `status=learning` (stale after 90s)
+`scripts/personal-memory-worker.py` — thinking API → validate → append `memory/personal/*.md`
+(enqueued by `/记住` command handler, not Stop).
 
-## Agents
+## Unified learning mainline
 
-| Agent | Event |
-|-------|-------|
-| `wande-orchestrator` | Stop |
-| `quotation-agent` | SubagentStop (via Stop chain) |
-| `accurate-agent` | SubagentStop (via Stop chain) |
+See **`ccb-session-precipitation`**: idle 60s → LLM five lanes → Memory「待沉淀」→ promote (org KB / personal / golden / eval).
 
 ## Logs
 
-`.claude/logs/personal-memory-stop.log`
+`.claude/logs/personal-memory-stop.log` (no-op skip lines)
 
 ## Test env
 
 | Var | Effect |
 |-----|--------|
-| `CCB_PERSONAL_MEMORY_SYNC=1` | Hook waits for worker (unit tests) |
-| `CCB_PERSONAL_MEMORY_THINKING_MOCK` | Path to mock JSON entries |
-| `CCB_PERSONAL_MEMORY_FORCE_FALLBACK=1` | Skip API, use heuristic |
+| `CCB_PERSONAL_MEMORY_SYNC` | Worker waits synchronously (unit tests) |
+| `CCB_PERSONAL_MEMORY_THINKING_MOCK` | Mock JSON entries |
+| `CCB_PERSONAL_MEMORY_FORCE_FALLBACK` | Heuristic fallback (worker only) |

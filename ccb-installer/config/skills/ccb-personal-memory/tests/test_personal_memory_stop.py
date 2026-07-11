@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for ccb-personal-memory Stop enqueue + worker."""
+"""Unit tests for ccb-personal-memory Stop hook (unified precipitation: no-op)."""
 from __future__ import annotations
 
 import json
@@ -17,9 +17,9 @@ SCRIPTS = SKILL_ROOT / "scripts"
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "transcripts"
 sys.path.insert(0, str(SCRIPTS / "lib"))
 
-from learning_status import read_status  # noqa: E402
 from memory_store import append_candidate  # noqa: E402
 from parse_transcript_personal_memory import extract_candidates  # noqa: E402
+from personal_memory_paths import log_path  # noqa: E402
 from thinking_client import parse_entries  # noqa: E402
 
 
@@ -29,8 +29,6 @@ class TestPersonalMemoryStop(unittest.TestCase):
         self._config = Path(self._tmpdir) / ".claude"
         self._env = os.environ.copy()
         self._env["CCB_WANDING_CONFIG_DIR"] = str(self._config)
-        self._env["CCB_PERSONAL_MEMORY_SYNC"] = "1"
-        self._env["CCB_PERSONAL_MEMORY_FORCE_FALLBACK"] = "1"
         self._workflow = self._config / "memory" / "personal" / "workflow.md"
 
     def _run_hook(self, hook_input: dict[str, object]) -> subprocess.CompletedProcess[str]:
@@ -43,6 +41,17 @@ class TestPersonalMemoryStop(unittest.TestCase):
             check=False,
         )
 
+    def _log_text(self) -> str:
+        path = log_path(self._config)
+        return path.read_text(encoding="utf-8") if path.is_file() else ""
+
+    def test_stop_hook_is_noop_even_with_signal(self) -> None:
+        transcript = FIXTURES / "workflow-signal.jsonl"
+        proc = self._run_hook({"transcript_path": str(transcript), "hook_event_name": "Stop"})
+        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+        self.assertFalse(self._workflow.is_file())
+        self.assertIn("unified-precipitation-mainline", self._log_text())
+
     def test_no_signal_no_file_change(self) -> None:
         transcript = FIXTURES / "no-signal.jsonl"
         before = self._workflow.read_text(encoding="utf-8") if self._workflow.is_file() else ""
@@ -51,18 +60,7 @@ class TestPersonalMemoryStop(unittest.TestCase):
         after = self._workflow.read_text(encoding="utf-8") if self._workflow.is_file() else ""
         self.assertEqual(before, after)
 
-    def test_workflow_signal_appends(self) -> None:
-        transcript = FIXTURES / "workflow-signal.jsonl"
-        proc = self._run_hook({"transcript_path": str(transcript), "hook_event_name": "Stop"})
-        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
-        text = self._workflow.read_text(encoding="utf-8")
-        self.assertIn("我习惯先查库存", text)
-        self.assertRegex(text, r"- \[\d{4}-\d{2}-\d{2}\]")
-        status = read_status(self._config)
-        self.assertEqual(status and status.get("status"), "done")
-        self.assertGreaterEqual(int(status.get("entriesAppended") or 0), 1)
-
-    def test_dedup_existing_line(self) -> None:
+    def test_dedup_existing_line_unchanged(self) -> None:
         self._workflow.parent.mkdir(parents=True, exist_ok=True)
         self._workflow.write_text(
             "- [2026-07-01] 我习惯先查库存再报价\n",
@@ -79,7 +77,7 @@ class TestPersonalMemoryStop(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         self.assertFalse(self._workflow.is_file())
 
-    def test_subagent_stop_uses_agent_transcript(self) -> None:
+    def test_subagent_stop_is_noop(self) -> None:
         transcript = FIXTURES / "subagent-stop.jsonl"
         proc = self._run_hook(
             {
@@ -89,42 +87,13 @@ class TestPersonalMemoryStop(unittest.TestCase):
             }
         )
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
-        text = self._workflow.read_text(encoding="utf-8")
-        self.assertIn("导出 Excel", text)
+        self.assertFalse(self._workflow.is_file())
 
     def test_business_signal_excluded(self) -> None:
         transcript = FIXTURES / "business-exclude.jsonl"
         proc = self._run_hook({"transcript_path": str(transcript), "hook_event_name": "Stop"})
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         self.assertFalse(self._workflow.is_file())
-
-    def test_thinking_mock_appends(self) -> None:
-        # Signal transcript required since the hook now pre-screens (R1); mock
-        # entries must carry evidence locatable in the transcript (R3).
-        self._env.pop("CCB_PERSONAL_MEMORY_FORCE_FALLBACK", None)
-        mock = Path(self._tmpdir) / "mock.json"
-        mock.write_text(
-            json.dumps(
-                {
-                    "entries": [
-                        {
-                            "target": "workflow",
-                            "text": "报价之前先查一次库存",
-                            "evidence": "我习惯先查库存再报价",
-                            "confidence": 0.95,
-                        }
-                    ]
-                },
-                ensure_ascii=False,
-            ),
-            encoding="utf-8",
-        )
-        self._env["CCB_PERSONAL_MEMORY_THINKING_MOCK"] = str(mock)
-        transcript = FIXTURES / "workflow-signal.jsonl"
-        proc = self._run_hook({"transcript_path": str(transcript), "hook_event_name": "Stop"})
-        self.assertEqual(proc.returncode, 0, msg=proc.stderr)
-        text = self._workflow.read_text(encoding="utf-8")
-        self.assertIn("报价之前先查一次库存", text)
 
     def test_parse_entries_filters(self) -> None:
         entries = parse_entries(
@@ -145,8 +114,6 @@ class TestPersonalMemoryStop(unittest.TestCase):
 
     def test_enqueue_async_returns_fast(self) -> None:
         env = self._env.copy()
-        env.pop("CCB_PERSONAL_MEMORY_SYNC", None)
-        env["CCB_PERSONAL_MEMORY_FORCE_FALLBACK"] = "1"
         transcript = FIXTURES / "workflow-signal.jsonl"
         started = time.perf_counter()
         proc = subprocess.run(
@@ -160,8 +127,7 @@ class TestPersonalMemoryStop(unittest.TestCase):
         elapsed = time.perf_counter() - started
         self.assertEqual(proc.returncode, 0, msg=proc.stderr)
         self.assertLess(elapsed, 2.0)
-        status = read_status(self._config)
-        self.assertEqual(status and status.get("status"), "learning")
+        self.assertFalse(self._workflow.is_file())
 
     def test_concurrent_append_both_land(self) -> None:
         self._workflow.parent.mkdir(parents=True, exist_ok=True)
