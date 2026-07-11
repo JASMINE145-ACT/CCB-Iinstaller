@@ -1,0 +1,6 @@
+{"file": "D:/Projects/aionui-src/packages/desktop/src/common/adapter/ipcBridge.ts", "reason": "priceLibrary getDraft/upsertItem/publishDraft"}
+{"file": "D:/Projects/aionui-src/packages/desktop/src/renderer/pages/priceLibrary/PriceLibraryRowDrawer.tsx", "reason": "L2 row drawer + confirm"}
+{"file": "D:/Projects/aionui-src/packages/desktop/src/renderer/pages/priceLibrary/priceLibraryEdit.ts", "reason": "diff/payload helpers"}
+{"file": ".trellis/spec/integration/price-library.md", "reason": "§ AionUI row edit"}
+{"file": ".trellis/spec/frontend/coding-rules.md", "reason": "renderer IPC patterns"}
+{"file": ".trellis/spec/code-review-layer-a.md", "reason": "Layer A admin gate"}

@@ -11,9 +11,10 @@
 | VPS published active | ✅ **v3 / 3299** — 42-field products (294 rows with `supplier`) |
 | API `GET /active` product shape | ✅ per `data/data.Md` (flatten JSON) |
 | AionUI `#/price-library` read-only | ✅ **42-column** table (incl. `supplier` after `volume`) |
+| AionUI L2 row edit (P4) | ✅ Admin drawer + draft/publish IPC (2026-07-11; P3 publish smoke waived) |
 | Python `org_price_client` + matcher `try_remote` | ✅ org-primary (no fleet `PRICE_USE_BUNDLED_FIRST`) |
 | price-library MCP write path (10 tools) | ✅ P0B–P1 landed; deploy-seed + vendor sync 2026-07-02 |
-| AionUI price_admin UI | ❌ Out of scope — VPS curl/runbook + Guid agent |
+| AionUI price_admin full-table UI | ❌ Out of scope — L2 drawer only; bulk stays Agent/Excel |
 
 **Task:** `.trellis/tasks/06-27-remote-shared-price-library/` — completed (full schema v2).  
 **P-1 fleet revert:** `.trellis/tasks/07-01-price-library-admin-agent/p1-fleet-org-primary-done.md` (2026-07-01).  
@@ -210,6 +211,23 @@ print('products', len(d.get('products') or []))
 1. Open `#/price-library` — header shows **42 列**, version **v3+**
 2. Scroll right past **体积** — column **供应商** appears
 3. Search `8010012697` or `HENG XIN` — row shows non-empty supplier (~294 products have supplier; catalog-only rows stay `—`)
+
+### AionUI row edit (P4 L2 drawer — 2026-07-11)
+
+| Item | Value |
+|------|--------|
+| Task | `.trellis/tasks/07-11-price-library-row-edit-ui/` |
+| Gate | Parent P3 publish smoke **waived** by user; upsert two-phase already PASS |
+| Visibility | `resolveIsOrgPriceAdmin()` — Edit column + drawer only when draft GET returns 200 |
+| IPC | `priceLibrary.getDraft` / `upsertItem` / `publishDraft` via `orgHttp*` (CSRF in main `orgHttpProxy`) |
+| Confirm | Diff modal → POST `/draft/items`; optional publish → bind `revision` → POST `/draft/publish` |
+| P0 fields | `price_a`–`price_e`, `description`, `description_cn`, `supplier`, `unit` |
+| Files | `PriceLibraryRowDrawer.tsx`, `priceLibraryEdit.ts`, `usePriceLibrary.ts`, `ipcBridge.priceLibrary` |
+| Tests | `bun test tests/unit/priceLibrary/` — **15 pass** |
+
+**Wrong:** Expect non-admin to see Edit — column hidden; server still 403.  
+**Wrong:** Skip diff confirm and POST immediately — UI requires Modal.confirm.  
+**Wrong:** Auto-retry publish on 409 — show conflict message; user must refresh.
 
 **Wrong:** Expect supplier on every row — only ~294/3299 have non-empty supplier.  
 **Wrong:** UI shows 41 cols after API v3 — rebuild dev / hard refresh; column def is in `aionui-src`, not CCB vendor sync.
@@ -468,7 +486,7 @@ quotation MCP (match_fuzzy, try_remote=True)
 
 **Recorded:** 2026-07-01 — **P-1 fleet org-primary:** VPS migration **018** + publish **v3/3299** (294 supplier); removed `PRICE_USE_BUNDLED_FIRST` from fleet MCP. Runbook: [`07-01/.../p1-fleet-org-primary-done.md`](../../tasks/07-01-price-library-admin-agent/p1-fleet-org-primary-done.md).
 
-**Recorded:** 2026-07-02 — **AionUI `#/price-library` supplier column** (42 cols): `priceLibraryTypes.ts` + zh-CN/en-US i18n + supplier search. Task [`07-03-price-library-supplier-ui-column`](../../tasks/07-03-price-library-supplier-ui-column/prd.md). Tests: `bun test tests/unit/priceLibrary/` 7 pass.
+**Recorded:** 2026-07-11 — **P4 L2 row edit UI** in aionui-src: admin-gated Edit column + drawer; IPC `getDraft`/`upsertItem`/`publishDraft`; two-phase confirm; `bun test tests/unit/priceLibrary/` 15 pass; code-review Layer A/B PASS. Parent P3 publish smoke waived. Task [`07-11-price-library-row-edit-ui`](../../tasks/07-11-price-library-row-edit-ui/prd.md).
 
 ---
 
@@ -541,3 +559,5 @@ Task: [`07-01-price-library-admin-agent`](../../tasks/07-01-price-library-admin-
 **Recorded:** 2026-07-02 — P1: `price-library-agent` sidecar + AionUI `requires_price_admin` catalog gate + deploy-seed + MCP health PASS. Delivery: [`p1-guid-agent-catalog-done.md`](../../tasks/07-01-price-library-admin-agent/p1-guid-agent-catalog-done.md). Bun catalog **3/3**. **Active:** P3 E2E smoke (admin Guid upsert → publish → `version_number++`).
 
 **Recorded:** 2026-07-03 — **P2-Edit:** `list_price_library_versions` MCP; `price-library-edit` skill; agent hooks (data.Md PreToolUse, confirm PostToolUse, unpublished Stop warn); sidecar SOP + diff table. Delivery: [`p2-edit-done.md`](../../tasks/07-01-price-library-admin-agent/p2-edit-done.md). Tests: unittest **23/23** + gate **4/4**.
+
+**Recorded:** 2026-07-11 — **P4 L2 row edit UI** (aionui-src): admin Edit column + `PriceLibraryRowDrawer`; IPC `getDraft`/`upsertItem`/`publishDraft`; two-phase confirm; tests **15/15**; code-review Layer A/B PASS. Parent P3 publish smoke waived. Task [`07-11-price-library-row-edit-ui`](../../tasks/07-11-price-library-row-edit-ui/prd.md).

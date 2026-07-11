@@ -1,0 +1,6 @@
+{"check": "unit priceLibrary", "evidence": "bun test tests/unit/priceLibrary/ → 15 pass (2026-07-11)"}
+{"check": "code-reviewer", "evidence": "Layer A PASS · Layer B PASS · Runtime Crash Checklist clean · agent 29cf8493"}
+{"check": "P3 publish gate", "evidence": "waived by user 2026-07-11「执行 P4，跳过 publish」; upsert two-phase PASS 2026-07-10"}
+{"check": "P3.5 MCP schema", "evidence": "price-library-server dist index.js priceFieldProperties aligned to UPDATABLE_FIELD_NAMES incl rucika_*/factory_*/pe_*"}
+{"check": "manual UI smoke", "evidence": "PASS — user sign-off 2026-07-11（admin 编辑 + non-admin 无编辑）"}
+{"check": "security boundary", "evidence": "security-signoff.md 2026-07-11 — no Critical/Important; AionCore 403 + CSRF + field allowlist + two-phase confirm"}

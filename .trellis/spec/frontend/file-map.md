@@ -104,6 +104,7 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Org knowledge sidebar entry | `SiderNav/SiderOrgKnowledgeEntry.tsx` → `#/org-knowledge` |
 | Memory sidebar entry (personal/business files) | `SiderNav/SiderMemoryEntry.tsx` → `#/memory` · page `pages/memory/MemoryPage/` (Shell, FileSidebar, EditorPanel, …) · IPC `ccbPersonalMemoryService.*` · path jail `ccbMemoryFiles.ts` — accumulation task `07-06-ccb-memory-auto-accumulation` · UI redesign `07-06-memory-page-ui-redesign` (2026-07-06) |
 | Price library sidebar entry | `SiderNav/SiderPriceLibraryEntry.tsx` → `#/price-library` |
+| Price library L2 row edit (P4) | `pages/priceLibrary/PriceLibraryRowDrawer.tsx` + `priceLibraryEdit.ts` + `ipcBridge.priceLibrary.{getDraft,upsertItem,publishDraft}` |
 | **Wiring status (2026-06-26)** | Routes + sider entry + `AuthContext` desktop SSO **wired** (uncommitted). API needs self-built aioncore (`/api/work-tasks` 404 on bundled 0.1.27). |
 | Auth user `work_task_role` + session token | `packages/desktop/src/common/auth/authSession.ts`, `packages/desktop/src/renderer/hooks/context/AuthContext.tsx` |
 | HTTP credentials policy | `packages/desktop/src/common/adapter/httpBridge.ts` — `backendFetchCredentials()` (`omit` desktop, `include` WebUI) |

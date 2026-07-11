@@ -12,7 +12,7 @@
 | **Repos** | `claude-code-best`（主）+ `aionui-src`（P1 catalog） |
 | **Plan depth** | **Full**（edit 体系完善） |
 | **Verification profile** | **UI**（Guid smoke 为主） |
-| **Active phase** | **P3** — Guid E2E smoke（需用户） |
+| **Active phase** | **P4** child `07-11-price-library-row-edit-ui` implemented 2026-07-11（P3 publish smoke **waived**） |
 
 ---
 
@@ -30,7 +30,8 @@
 | **P2-Edit-a** 单条对话 SOP + hooks | ✅ | [`p2-edit-done.md`](./p2-edit-done.md) · pytest 23/23 · gate 4/4 |
 | **P2-Edit-b** 批量 SOP + prepare 衔接 | ✅ | `skills/price-library-edit/SKILL.md` |
 | **P2-Edit-c** list versions MCP | ✅ | `list_price_library_versions` |
-| **P3** E2E + 记录 | ⬜ | [`p3-e2e-pending.md`](./p3-e2e-pending.md) |
+| **P3** E2E + 记录 | 🟡 partial | upsert PASS 2026-07-10；publish **waived** for P4 start |
+| **P4** L2 row edit UI | ✅ | child 07-11 · bun 15/15 · code-review PASS · **UI smoke PASS 2026-07-11** |
 
 **Child task done:** [`07-03-price-library-supplier-ui-column`](../07-03-price-library-supplier-ui-column/)
 
@@ -311,6 +312,130 @@ P1.5 orchestrator **仍 defer**（不阻塞 edit 体系）。
 
 ---
 
+## P4 — Manual Edit UI（L2 row drawer）— 2026-07-10 规划
+
+> **Research:** [`research/agent-vs-manual-edit-coverage-2026-07-10.md`](./research/agent-vs-manual-edit-coverage-2026-07-10.md)  
+> **Verdict:** Agent-first 覆盖 **~82%**（按频次加权）；P4 补齐非技术 admin UX + 紧急热修，**不做**全表 CRUD。  
+> **Gate:** P3 publish smoke **waived** 2026-07-11（用户「执行 P4，跳过 publish」）；upsert 两阶段已 PASS。P3.5 MCP schema 对齐仍可并行。
+
+### Executive summary
+
+| 问题 | 结论 |
+|------|------|
+| Agent 能否覆盖大部分场景？ | **是** — 单条/多字段改价、增删恢复、supplier、批量 import、publish、409、revert 均已具备（11 MCP + skill + hooks） |
+| 仍缺什么？ | 非技术 admin Guid 门槛、RUCIKA 多档 MCP schema 摩擦、细粒度 audit、schema migration |
+| 人工 edit 要做哪些？ | **v1 L2 行抽屉**：P0 价档 + 描述 + supplier；预览 diff → 写 draft → 二次确认 publish；复用 org API，无新 backend |
+
+### Contract map
+
+| Contract | Behavior protected | Primary code | Tests / eval / smoke | Risk |
+|----------|--------------------|--------------|----------------------|------|
+| `WANd.PRICE_LIBRARY.AUTHORITY.001` | org AionCore 是唯一写入权威 | `price-library-agent.md`, org API | pytest admin client | 本地 xlsx 误当权威 |
+| `WANd.PRICE_LIBRARY.CONFIRMATION.001` | 写操作两阶段确认 | Agent MCP + **P4 UI diff modal** | P3 smoke + P4 UI unit | 跳过预览直接写 |
+| `WANd.PRICE_LIBRARY.REVISION.001` | publish 绑定 revision；409 停 | `org_price_admin_client.py`, UI publish | mock 409 + manual | silent replay |
+| `WANd.PRICE_LIBRARY.DATA_MD.001` | 字段语义按需 Read data.Md | hooks + **P4 字段 tooltip** | gate pytest | RUCIKA 档位解释错 |
+| `WANd.PRICE_LIBRARY.UI.RBAC.001` *(provisional)* | 仅 price_admin 见编辑入口；403 服务端权威 | `ccbAgentCatalog.ts`, `resolveIsOrgPriceAdmin` | bun test catalog | 非 admin 客户端写 |
+
+### Contract: WANd.PRICE_LIBRARY.UI.RBAC.001
+
+**Behavior protected:** 非 `price_admin` 用户在 `#/price-library` 仅只读；编辑抽屉与 POST 写路径对非 admin 不可见或 403。  
+**Primary code:** `aionui-src/.../ccbAgentCatalog.ts`, `pages/priceLibrary/*`, org HTTP bridge CSRF  
+**Tests:** `bun test tests/unit/priceLibrary/` + catalog admin gate  
+**Eval / smoke:** admin 见「编辑」→ 改价 → publish `version_number++`；yjc 无编辑按钮  
+**Risk if broken:** 非授权改价、全员报价数据污染
+
+### Agent vs Manual — 分工（落档）
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│  Agent 继续负责（P4 不替代）                                      │
+├────────────────────────────────────────────────────────────────┤
+│  · 全库 prepare-price-library-import.py 规范化                    │
+│  · 几十行 export → Excel → import preview/apply                  │
+│  · revert_price_library_version（低频高危）                       │
+│  · schema migration                                            │
+│  · 并发 409 后重读 draft 协调                                     │
+└────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────┐
+│  P4 v1 人工 edit（L2 row drawer）                                │
+├────────────────────────────────────────────────────────────────┤
+│  · 搜索定位 → 点行「编辑」→ 改 P0 字段 → 预览 diff → 写 draft      │
+│  · 可选「发布」二次确认（展示 revision）                          │
+│  · 字段：price_a–e, description*, supplier, unit (P0–P1)     │
+│  · RUCIKA 多档 (P1) — 或先做 P3.5 MCP schema 对齐                │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### Phase -1 — Capability matrix (P4)
+
+| Capability | Status | Fallback |
+|------------|--------|----------|
+| Backend API (draft/items, publish) | ✅ available | — |
+| aionui-src IPC CSRF POST pattern | ✅ available (org-knowledge / work-tasks 先例) | research org-knowledge.md |
+| `resolveIsOrgPriceAdmin` | ✅ available | probe GET /draft |
+| P3 E2E agent smoke | ⬜ pending | **blocks P4 implement** |
+| MCP schema 全 42 列 | ⚠️ partial | P3.5 align `index.js` ↔ `UPDATABLE_FIELD_NAMES` |
+
+**Plan depth:** Standard · **Scenario:** E (explore) → A (P4 implement after P3) · **Profile:** UI
+
+### Workstreams
+
+| Phase | Priority | Workstream | touches | Risk | Tool / agent | Files | Required output | Profile |
+|-------|----------|------------|---------|------|--------------|-------|-----------------|---------|
+| P3 | P0 | Guid E2E smoke | `WANd.PRICE_LIBRARY.*` | ui | 用户 Guid | `p3-e2e-pending.md` | upsert PASS; publish waived | UI |
+| P3.5 | P1 | MCP schema 对齐 42 列 | docs-only/runtime | low | trellis-implement | `mcp_servers/price-library-server/index.js`, payloads | LLM 可传 `rucika_*`/`factory_*` | Standard |
+| P4-a | P1 | IPC 写路径 + CSRF | `WANd.PRICE_LIBRARY.UI.RBAC.001` | external-api | trellis-implement | aionui-src ipcBridge | `getDraft`, `upsertItem`, `publishDraft` | UI |
+| P4-b | P1 | L2 row drawer UI | `WANd.PRICE_LIBRARY.CONFIRMATION.001` | ui | trellis-implement | `pages/priceLibrary/` | diff modal + publish confirm | UI |
+| P4-c | P2 | 字段 tooltip + data.Md 链 | `WANd.PRICE_LIBRARY.DATA_MD.001` | ui | trellis-implement | i18n + tooltip | RUCIKA 档位说明 | UI |
+| P4-d | defer | Audit 时间线 UI | — | — | — | — | 先补 MCP `GET /audit` | — |
+| P4-e | defer | Import 向导 / 全表 inline | — | — | — | — | Agent+Excel 足够 | — |
+
+### TDD contract
+
+| Workstream | Contract | RED evidence | GREEN command | Refactor guard |
+|------------|----------|--------------|---------------|----------------|
+| P3 E2E | `WANd.PRICE_LIBRARY.CONFIRMATION.001` | N/A (manual) | admin Guid upsert→publish | `p3-e2e-pending.md` 签字 |
+| P3.5 MCP schema | `WANd.PRICE_LIBRARY.DATA_MD.001` | upsert 缺 `rucika_*` in schema | `pytest python/tests/test_org_price_admin_client.py` | MCP health PASS |
+| P4-a IPC | `WANd.PRICE_LIBRARY.UI.RBAC.001` | mock 403 non-admin POST | `bun test tests/unit/priceLibrary/` | catalog gate 3/3 |
+| P4-b drawer | `WANd.PRICE_LIBRARY.CONFIRMATION.001` | save without preview blocked | drawer unit + admin smoke | revision 409 toast |
+
+### Contract Verification (P4 gate chain)
+
+| Contract | Verification command / smoke | Required evidence | Status |
+|----------|------------------------------|-------------------|--------|
+| `WANd.PRICE_LIBRARY.*` (agent) | P3 Guid smoke | `p3-e2e-pending.md` | upsert PASS; publish waived |
+| `WANd.PRICE_LIBRARY.UI.RBAC.001` | yjc 无编辑；admin 有编辑 | user sign-off 2026-07-11 | **PASS** |
+| `WANd.PRICE_LIBRARY.CONFIRMATION.001` | UI diff → confirm → draft；publish 二次确认 | user sign-off 2026-07-11 | **PASS** |
+| `WANd.PRICE_LIBRARY.REVISION.001` | 409 后 UI 停、展示重读提示 | mock or dual-admin | unit path covered |
+
+### P4 v1 字段范围（人工 edit）
+
+| 优先级 | 字段 | UI 形态 |
+|--------|------|---------|
+| P0 | `price_a`–`price_e`, `description`, `description_cn`, `supplier` | 抽屉表单 |
+| P1 | `price_d_low`, `unit`, `product_type`, `rucika_quote_price_*` | 条件展示（按 product_type） |
+| P2 | `factory_*`, `local_*`, `pe_*` | 高级折叠区 |
+| 不做 v1 | `source_*`, `raw_json`, `is_preferred_price` | 留 Agent / import |
+
+### Recommended order
+
+```
+P3 E2E smoke（用户）→ P3.5 MCP schema（可选并行）→ P4-a IPC → P4-b drawer → P4-c tooltips → spec update
+```
+
+**Child task 建议:** `07-xx-price-library-row-edit-ui`（P3 PASS 后 `task.py create`）
+
+### Evidence (planning session 2026-07-10)
+
+| Type | Output |
+|------|--------|
+| `Agent: trellis-research` | [`research/agent-vs-manual-edit-coverage-2026-07-10.md`](./research/agent-vs-manual-edit-coverage-2026-07-10.md) |
+| `Read:` | `price-library.md` § Agent write path · `price-library-agent.md` · `price-library-edit/SKILL.md` |
+| `Skill:` | `trellis-task-execution` scenario E→A classification |
+
+---
+
 ## Change log
 
 | Date | Change |
@@ -319,3 +444,7 @@ P1.5 orchestrator **仍 defer**（不阻塞 edit 体系）。
 | 2026-07-02 | P0D import/revert + MCP health manifest landed |
 | 2026-07-02 | P1 deploy-seed + vendor sync + dev restart; active phase → P3 E2E |
 | 2026-07-03 | P2-Edit 完善计划（edit 矩阵 + hooks + bulk SOP + list versions + P3 最短 smoke） |
+| 2026-07-10 | P4 Manual Edit UI 规划：Agent 覆盖 ~82%；L2 row drawer v1 范围 + contract map；research 落档 |
+| 2026-07-11 | P4 implement：child `07-11-price-library-row-edit-ui`；P3 publish waived；bun 15/15；code-review PASS；spec § AionUI row edit |
+| 2026-07-11 | P3.5 MCP schema 对齐 + vendor sync；交接见 [`../07-11-price-library-row-edit-ui/USER-OPS.md`](../07-11-price-library-row-edit-ui/USER-OPS.md) |
+| 2026-07-11 | **收口**：P4 UI smoke PASS + security sign-off（无 Critical）；见 [`../07-11-price-library-row-edit-ui/security-signoff.md`](../07-11-price-library-row-edit-ui/security-signoff.md) |

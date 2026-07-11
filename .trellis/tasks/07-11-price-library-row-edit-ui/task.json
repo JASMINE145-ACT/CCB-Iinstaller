@@ -1,0 +1,29 @@
+{
+  "id": "07-11-price-library-row-edit-ui",
+  "name": "07-11-price-library-row-edit-ui",
+  "title": "价格库 L2 行编辑 UI（P4）",
+  "description": "AionUI #/price-library L2 row drawer: getDraft/upsert/publish IPC + admin-gated edit with two-phase confirm. Gate waived: P3 publish smoke residual. Reuses org API, no new backend.",
+  "status": "done",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-11",
+  "completedAt": "2026-07-11",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "07-01-price-library-admin-agent",
+  "relatedFiles": [],
+  "notes": "P4 L2 row edit in aionui-src. bun 15/15. code-review PASS. Manual UI smoke PASS 2026-07-11. Security sign-off: no Critical/Important — see security-signoff.md. P3 publish waived.",
+  "meta": {
+    "security_signoff": "2026-07-11",
+    "ui_smoke": "PASS"
+  }
+}

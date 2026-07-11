@@ -29,7 +29,8 @@
     "P3 E2E (dual account, concurrency, CSRF)"
   ],
   "children": [
-    "07-03-price-library-supplier-ui-column"
+    "07-03-price-library-supplier-ui-column",
+    "07-11-price-library-row-edit-ui"
   ],
   "parent": null,
   "relatedFiles": [
@@ -57,7 +58,7 @@
     "aionui-src/packages/desktop/src/common/assistants/fetchAssistantsCatalog.ts",
     "mcp_servers/price-library-server"
   ],
-  "notes": "P-1 DONE 2026-07-01. Child 07-03 DONE 2026-07-02. P0B–P1 DONE 2026-07-02. Deploy: sync-dev-wanding-vendor + deploy-seed-agents -ForceMd + start-dev-full. Canonical plan: execution-plan.md (Active: P3 E2E). Next: admin Guid smoke.",
+  "notes": "P-1-P2 DONE. P4 child 07-11 DONE (UI smoke + security signoff 2026-07-11). Agent upsert PASS. Optional defer: P1.5 orchestrator, 409 dual-admin, audit UI.",
   "meta": {
     "explore_date": "2026-07-02",
     "audit_date": "2026-07-02",
@@ -68,7 +69,7 @@
     "p0d_import_revert": "completed_2026-07-02",
     "p1_guid_agent_catalog": "completed_2026-07-02",
     "p1_deploy_seed": "completed_2026-07-02",
-    "active_phase": "P3-e2e",
+    "active_phase": "closed-p4-security-signoff",
     "execution_plan": "execution-plan.md",
     "child_tasks_completed": [
       "07-03-price-library-supplier-ui-column"
