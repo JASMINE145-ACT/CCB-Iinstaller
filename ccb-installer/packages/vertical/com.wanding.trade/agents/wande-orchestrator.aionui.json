@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "agent_id": "wande-orchestrator",
-  "display_name": "全局路由",
+  "display_name": "工作助手",
   "avatar": "🧭",
   "guid_primary": false,
   "delegatable": false,

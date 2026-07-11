@@ -3,34 +3,6 @@
   "readOnly": true,
   "packages": [
     {
-      "id": "com.example.manufacturing-scheduling",
-      "version": "0.1.0",
-      "displayName": "Manufacturing Scheduling Pilot",
-      "capabilities": [
-        {
-          "id": "business.manufacturing.schedule",
-          "description": "Build deterministic finite-capacity production schedules."
-        }
-      ],
-      "contributions": [
-        {
-          "id": "manufacturing-scheduling-agent-catalog",
-          "kind": "agent-catalog",
-          "source": "packages/vertical/com.example.manufacturing-scheduling/agents"
-        },
-        {
-          "id": "manufacturing-scheduling-health",
-          "kind": "health",
-          "source": "packages/vertical/com.example.manufacturing-scheduling/health/mcp-health-manifest.json"
-        },
-        {
-          "id": "manufacturing-scheduling-dashboard",
-          "kind": "ui",
-          "source": "packages/vertical/com.example.manufacturing-scheduling/ui/scheduling-dashboard.json"
-        }
-      ]
-    },
-    {
       "id": "com.wanding.trade",
       "version": "0.1.0",
       "displayName": "WanD Trade",
@@ -50,6 +22,10 @@
         {
           "id": "business.pricing.manage",
           "description": "Administer organization price-library drafts and releases."
+        },
+        {
+          "id": "business.worktasks.manage",
+          "description": "Create, edit, and query organization work tasks via agent (RBAC)."
         }
       ],
       "contributions": [
@@ -150,25 +126,10 @@
       "requiredCapabilities": []
     },
     {
-      "id": "scheduling-agent",
-      "packageId": "com.example.manufacturing-scheduling",
-      "source": "ccb-installer/packages/vertical/com.example.manufacturing-scheduling/agents/scheduling-agent.md",
-      "displayName": "Production Scheduler",
-      "mcpServers": [
-        "manufacturing-scheduling"
-      ],
-      "skills": [
-        "finite-capacity-scheduling"
-      ],
-      "requiredCapabilities": [
-        "business.manufacturing.schedule"
-      ]
-    },
-    {
       "id": "wande-orchestrator",
       "packageId": "com.wanding.trade",
       "source": "ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md",
-      "displayName": "全局路由",
+      "displayName": "工作助手",
       "mcpServers": [],
       "skills": [],
       "requiredCapabilities": [
@@ -185,6 +146,19 @@
       ],
       "skills": [],
       "requiredCapabilities": []
+    },
+    {
+      "id": "work-tasks-agent",
+      "packageId": "com.wanding.trade",
+      "source": "ccb-installer/packages/vertical/com.wanding.trade/agents/work-tasks-agent.md",
+      "displayName": "工作任务助手",
+      "mcpServers": [
+        "work-tasks-agent"
+      ],
+      "skills": [],
+      "requiredCapabilities": [
+        "business.worktasks.manage"
+      ]
     }
   ],
   "mcpServers": [
@@ -213,14 +187,6 @@
       "packageId": null,
       "source": "ccb-installer/config/mcp-health-manifest.json",
       "providesCapabilities": []
-    },
-    {
-      "id": "manufacturing-scheduling",
-      "packageId": "com.example.manufacturing-scheduling",
-      "source": "packages/vertical/com.example.manufacturing-scheduling/health/mcp-health-manifest.json",
-      "providesCapabilities": [
-        "business.manufacturing.schedule"
-      ]
     },
     {
       "id": "office-word",
@@ -255,6 +221,14 @@
       "packageId": null,
       "source": "ccb-installer/config/mcp-health-manifest.json",
       "providesCapabilities": []
+    },
+    {
+      "id": "work-tasks-agent",
+      "packageId": "com.wanding.trade",
+      "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json",
+      "providesCapabilities": [
+        "business.worktasks.manage"
+      ]
     }
   ],
   "skills": [
@@ -265,18 +239,16 @@
       "providesCapabilities": []
     },
     {
+      "id": "ccb-session-precipitation",
+      "packageId": null,
+      "source": "ccb-installer/config/skills/ccb-session-precipitation/SKILL.md",
+      "providesCapabilities": []
+    },
+    {
       "id": "ccb-subagent-gate",
       "packageId": null,
       "source": "ccb-installer/config/skills/ccb-subagent-gate/SKILL.md",
       "providesCapabilities": []
-    },
-    {
-      "id": "finite-capacity-scheduling",
-      "packageId": "com.example.manufacturing-scheduling",
-      "source": "packages/vertical/com.example.manufacturing-scheduling/skills/finite-capacity-scheduling/SKILL.md",
-      "providesCapabilities": [
-        "business.manufacturing.schedule"
-      ]
     },
     {
       "id": "price-library-edit",
@@ -324,6 +296,12 @@
       "legacyId": "wanding_business_knowledge",
       "kind": "knowledge",
       "targetId": "wanding-business-knowledge",
+      "packageId": "com.wanding.trade"
+    },
+    {
+      "legacyId": "work-tasks-agent",
+      "kind": "agent",
+      "targetId": "work-tasks-agent",
       "packageId": "com.wanding.trade"
     }
   ],
@@ -382,6 +360,11 @@
       "severity": "warning",
       "code": "orphan-skill",
       "message": "Skill ccb-personal-memory is not assigned to a package"
+    },
+    {
+      "severity": "warning",
+      "code": "orphan-skill",
+      "message": "Skill ccb-session-precipitation is not assigned to a package"
     },
     {
       "severity": "warning",

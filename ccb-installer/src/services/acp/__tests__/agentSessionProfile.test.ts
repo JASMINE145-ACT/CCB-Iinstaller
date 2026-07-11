@@ -138,7 +138,7 @@ describe('evaluateOrchestratorToolGuard', () => {
 })
 
 describe('filterMcpConfigsForOrchestratorSession', () => {
-  it('strips business MCP from ACP param overlay on default router session', async () => {
+  it('strips business MCP from ACP param overlay on default entry session', async () => {
     const { filterMcpConfigsForOrchestratorSession } = await import(
       '../agentSessionProfile.js'
     )
@@ -146,6 +146,7 @@ describe('filterMcpConfigsForOrchestratorSession', () => {
       guide_mcp: { scope: 'dynamic' },
       quotation: { scope: 'dynamic' },
       'price-library': { scope: 'dynamic' },
+      'work-tasks-agent': { scope: 'dynamic' },
     }
     const filtered = filterMcpConfigsForOrchestratorSession(
       configs,

@@ -1,0 +1,2 @@
+{"file": "ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md", "reason": "Primary high-risk agent prompt to modify only after approval"}
+{"file": "eval/agent_eval_cases.jsonl", "reason": "Quotation behavior characterization eval cases"}

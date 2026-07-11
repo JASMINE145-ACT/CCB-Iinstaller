@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "agent_id": "work-tasks-agent",
+  "display_name": "工作任务助手",
+  "avatar": "📋",
+  "guid_primary": true,
+  "delegatable": true,
+  "enabled": true,
+  "sort_order": 85,
+  "source": "bundled",
+  "skills": {
+    "enabled": [],
+    "disabled": []
+  },
+  "recommended_prompts": [
+    "帮我创建一条今天要做的工作任务",
+    "把我刚接受的任务标记为进行中",
+    "查询团队里有哪些逾期任务（经理）",
+    "列出我名下待接受的任务"
+  ],
+  "mcp_allowlist": [
+    "work-tasks-agent"
+  ]
+}

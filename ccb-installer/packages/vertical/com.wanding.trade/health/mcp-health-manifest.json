@@ -78,6 +78,16 @@
         "arguments": {}
       },
       "notes": "Read probe works for any org-authenticated user. Draft/write tools require price_admin."
+    },
+    "work-tasks-agent": {
+      "kind": "stdio",
+      "lazy": true,
+      "required_paths": [
+        "vendor/mcp-servers/work-tasks-agent/index.mjs"
+      ],
+      "tool_prefix": "mcp__work-tasks-agent__",
+      "probe_timeout_ms": 30000,
+      "notes": "Requires Org SSO JWT via ORG_SESSION_TOKEN_FILE. Role gates query for employees."
     }
   },
   "agent_profiles": {
@@ -87,9 +97,10 @@
         "quotation",
         "accurate",
         "office-word",
-        "excel"
+        "excel",
+        "work-tasks-agent"
       ],
-      "notes": "Router session with an empty MCP allowlist."
+      "notes": "Employee primary entry session with empty business MCP allowlist; Agent() routing is a tool."
     },
     "quotation-agent": {
       "required_mcp": [
@@ -118,6 +129,14 @@
       ],
       "optional_mcp": [
         "excel"
+      ]
+    },
+    "work-tasks-agent": {
+      "required_mcp": [
+        "work-tasks-agent"
+      ],
+      "tool_prefixes": [
+        "mcp__work-tasks-agent__"
       ]
     }
   }

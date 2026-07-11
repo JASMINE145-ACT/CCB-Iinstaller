@@ -1,0 +1,5 @@
+{"file": "eval/suites/quotation-smoke.json", "reason": "Quotation smoke suite for contract verification"}
+{"file": ".trellis/spec/integration/agent-team-architecture.md", "reason": "WanD agent team routing and direct specialist contracts"}
+{"file": ".trellis/spec/integration/agent-hooks-overview.md", "reason": "Runtime hook matrix for quotation-agent"}
+{"file": ".trellis/spec/integration/contracts/agent-runtime-registry.yml", "reason": "Existing WanD runtime contract ids"}
+{"file": ".trellis/tasks/07-11-safe-quotation-agent-prompt-refactor/research/p2b-edit-map.md", "reason": "P2B inventory mapping and verification evidence"}

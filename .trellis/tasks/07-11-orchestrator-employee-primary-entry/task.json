@@ -1,0 +1,49 @@
+{
+  "id": "orchestrator-employee-primary-entry",
+  "name": "orchestrator-employee-primary-entry",
+  "title": "Orchestrator as employee primary entry (not router-locked)",
+  "description": "Reframe wande-orchestrator as employee primary entry agent: routing is a tool, not the identity. Extensible for skills/thin MCP/EIL context.",
+  "status": "completed",
+  "dev_type": "feature",
+  "scope": "ccb-installer agent L1 persona + integration specs; optional later skills/thin MCP slots",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-11",
+  "completedAt": "2026-07-11",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    ".trellis/tasks/07-11-orchestrator-employee-primary-entry/prd.md",
+    ".trellis/tasks/07-11-orchestrator-employee-primary-entry/execution-plan.md",
+    ".trellis/tasks/07-11-orchestrator-employee-primary-entry/research/extension-slots.md",
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md",
+    ".trellis/spec/integration/agent-team-architecture.md",
+    ".trellis/tasks/07-14-employee-intelligence-layer/prd.md"
+  ],
+  "notes": "2026-07-11 P0 complete. Identity unlocked: employee primary entry; routing = tool. code-reviewer PASS×2; bun test 15 pass; user manual smoke PASS (效果很好). Evidence: p0-done.md. P1+ deferred in extension-slots.md. plan_revision 4.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "UI",
+    "scenario": "A",
+    "plan_revision": 4,
+    "plan_depth": "Standard",
+    "risks": [
+      "ui",
+      "security"
+    ],
+    "related_tasks": [
+      "07-14-employee-intelligence-layer",
+      "07-09-agent-work-tasks-collaboration-system",
+      "07-06-employee-profile-settings-prompt"
+    ],
+    "extension_slots": "research/extension-slots.md"
+  }
+}

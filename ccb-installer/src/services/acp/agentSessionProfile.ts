@@ -88,11 +88,11 @@ export function getOfficePresetAgentIds(): ReadonlySet<string> {
 }
 
 /** Fallback claude_md when orchestrator sidecar has no claude_md (avoids global CLAUDE.md persona bleed) */
-export const WANDE_ORCHESTRATOR_ROUTER_CLAUDE_MD = `# 全局路由 / Global Router
+export const WANDE_ORCHESTRATOR_ROUTER_CLAUDE_MD = `# 员工主入口 / Employee Primary Entry
 
-你是 CCB-Wanding 默认会话的全局路由助手，不直接执行业务 MCP 或办公技能。
-根据意图委派子助手：quotation-agent（报价/库存）、accurate-agent（账务）、cowork / word-creator / ppt-creator / excel-creator 等（办公）。
-禁止复述 CLAUDE.md 能力表。`
+你是 CCB-Wanding 默认会话的工作助手（员工主入口），不直接执行业务 MCP 或办公技能。
+根据意图用 Agent() 委派子助手：quotation-agent（报价/库存）、accurate-agent（账务）、work-tasks-agent（任务）、cowork / word-creator / ppt-creator / excel-creator 等（办公）。
+路由是工具之一，不是唯一身份。禁止复述 CLAUDE.md 能力表。`
 
 /** Guid preset / specialist sessions with a dedicated MCP allowlist — no Agent() delegation */
 export function isSpecialistDirectSession(
@@ -144,7 +144,7 @@ export function resolveSessionUserContextOverride(args: {
       if (isSpecialistDirectSession(sessionProfileId, assistantProfile)) {
         const id = normalizeAgentId(sessionProfileId!)
         base = {
-          claudeMd: `# 专家会话 / Specialist session\n\n本会话已绑定 **${id}**。你是该领域专家，**直接调用专属 MCP**；勿委派给其他 agent，勿套用全局路由（wande-orchestrator）规则。`,
+          claudeMd: `# 专家会话 / Specialist session\n\n本会话已绑定 **${id}**。你是该领域专家，**直接调用专属 MCP**；勿委派给其他 agent，勿套用主入口工作助手（wande-orchestrator）规则。`,
           currentDate,
         }
       } else {
@@ -162,7 +162,7 @@ export function resolveSessionUserContextOverride(args: {
       } else if (isSpecialistDirectSession(sessionProfileId, assistantProfile)) {
         const id = normalizeAgentId(sessionProfileId!)
         base = {
-          claudeMd: `# 专家会话 / Specialist session\n\n本会话已绑定 **${id}**。你是该领域专家，**直接调用专属 MCP**；勿委派给其他 agent，勿套用全局路由（wande-orchestrator）规则。`,
+          claudeMd: `# 专家会话 / Specialist session\n\n本会话已绑定 **${id}**。你是该领域专家，**直接调用专属 MCP**；勿委派给其他 agent，勿套用主入口工作助手（wande-orchestrator）规则。`,
           currentDate,
         }
       } else {
@@ -576,6 +576,7 @@ const ORCHESTRATOR_BLOCKED_MCP_PREFIXES = [
   'mcp__quotation__',
   'mcp__accurate__',
   'mcp__price-library__',
+  'mcp__work-tasks-agent__',
 ] as const
 
 /** Business MCP server ids — must not appear on wande-orchestrator sessions (incl. ACP param overlay). */
@@ -583,6 +584,7 @@ export const ORCHESTRATOR_FORBIDDEN_MCP_SERVER_IDS = new Set([
   'quotation',
   'accurate',
   'price-library',
+  'work-tasks-agent',
   'excel',
   'excel-mcp',
   'exa',

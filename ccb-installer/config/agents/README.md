@@ -11,7 +11,7 @@ Each agent is stored as a pair:
 
 | Agent | Guid card | `delegatable` | Runtime tools | Notes |
 |-------|-----------|---------------|---------------|-------|
-| `wande-orchestrator` | hidden default route | no | none | Router only; delegates via `Agent()`; no business MCP in main session |
+| `wande-orchestrator` | hidden default entry | no | none | Employee primary entry; delegates via `Agent()`; no business MCP in main session |
 | `quotation-agent` | 万鼎报价专家 | yes | `quotation`, `excel` | Direct quotation workflow; quotation MCP matches/fills, Excel MCP is for post-fill workbook inspection/editing |
 | `accurate-agent` | 万鼎账务专家 | yes | `accurate` | Direct accounting session |
 | `word-creator` | Word 文档助手 | yes | `office-word` | MCP-only Word creation; delivery gate blocks invalid output |

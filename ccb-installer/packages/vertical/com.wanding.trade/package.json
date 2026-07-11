@@ -20,6 +20,10 @@
     {
       "id": "business.pricing.manage",
       "description": "Administer organization price-library drafts and releases."
+    },
+    {
+      "id": "business.worktasks.manage",
+      "description": "Create, edit, and query organization work tasks via agent (RBAC)."
     }
   ],
   "agents": [
@@ -71,6 +75,17 @@
       "skills": [
         "price-library-edit"
       ]
+    },
+    {
+      "id": "work-tasks-agent",
+      "source": "packages/vertical/com.wanding.trade/agents/work-tasks-agent.md",
+      "requiredCapabilities": [
+        "business.worktasks.manage"
+      ],
+      "mcpServers": [
+        "work-tasks-agent"
+      ],
+      "skills": []
     }
   ],
   "mcpServers": [
@@ -170,6 +185,25 @@
         },
         "description": "Organization price library admin MCP: read active/draft, preview and apply draft item changes (price_admin + confirmed writes)."
       }
+    },
+    {
+      "id": "work-tasks-agent",
+      "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json",
+      "providesCapabilities": [
+        "business.worktasks.manage"
+      ],
+      "runtime": {
+        "command": "node",
+        "args": [
+          "${installDir}/vendor/mcp-servers/work-tasks-agent/index.mjs"
+        ],
+        "env": {
+          "ORG_SERVER_URL": "${orgServerUrl}",
+          "AIONUI_APPDATA_PROFILE": "${appDataProfile}",
+          "ORG_SESSION_TOKEN_FILE": "${orgSessionTokenFile}"
+        },
+        "description": "Work tasks agent MCP: create/edit tasks; manager query via Org VPS JWT (role-gated)."
+      }
     }
   ],
   "skills": [
@@ -234,6 +268,11 @@
       "legacyId": "wanding_business_knowledge",
       "kind": "knowledge",
       "targetId": "wanding-business-knowledge"
+    },
+    {
+      "legacyId": "work-tasks-agent",
+      "kind": "agent",
+      "targetId": "work-tasks-agent"
     }
   ]
 }
