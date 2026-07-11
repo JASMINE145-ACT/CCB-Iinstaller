@@ -3,10 +3,11 @@
 > **Companion to** [`coding-rules.md` §2](./coding-rules.md#2-ui-change-verification-checklist-run-before-declaring-done).  
 > Applies when **any** `aionui-src/packages/desktop/src/renderer/**` file changes, especially Settings / Channels UI.
 
-Layer A (semantic review) asks: *Is the logic correct?*  
+Layer A (semantic review) asks: *Is the logic correct and wired to the canonical contract?* — see [`../code-review-layer-a.md`](../code-review-layer-a.md).  
 Layer B asks: *Will the module actually load in Electron/Vite without white-screening the route?*
 
-**PASS requires both layers** for renderer UI work.
+**PASS requires Layer A** for picker/settings/routing changes.  
+**PASS requires both Layer A and Layer B** for renderer UI work.
 
 ---
 
@@ -101,11 +102,14 @@ Record in task `check.jsonl` when applicable:
 ## code-reviewer Custom Instructions (copy-paste)
 
 ```text
+Layer A (universal): read .trellis/spec/code-review-layer-a.md when diff touches pickers, settings bindings, or routing identity.
+  FAIL if canonical path reused incorrectly, multi-surface parity broken, identity vs capability confused, or persist-read chain untraced.
+
 Layer B mandatory for aionui-src packages/desktop/src/renderer/** changes:
 1. Read .trellis/spec/frontend/layer-b-renderer-review.md
 2. Run: node scripts/review/smoke-renderer-imports.mjs --git-diff (or --file per changed tsx)
 3. FAIL if smoke fails or new @icon-park/react names lack bun import proof
-4. Include Layer B command output in verdict
+4. Include Layer A rule ids + Layer B command output in verdict
 ```
 
 ---

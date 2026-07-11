@@ -25,9 +25,15 @@
 
 ## 2. UI change verification checklist (run before declaring done)
 
-For every non-trivial frontend change, mentally walk this list. **Layer B** (renderer module loadability) is documented in [`layer-b-renderer-review.md`](./layer-b-renderer-review.md).
+For every non-trivial frontend change, mentally walk this list. **Layer A** (semantic / data-source parity) is in [`../code-review-layer-a.md`](../code-review-layer-a.md). **Layer B** (renderer module loadability) is in [`layer-b-renderer-review.md`](./layer-b-renderer-review.md).
 
 ```
+- [ ] Layer A (picker / settings / routing identity) — see code-review-layer-a.md:
+        A1 canonical path reused (not narrower duplicate fetch)
+        A2 multi-surface parity if same user decision exists elsewhere
+        A3 identity vs capability — persist profile id when consumer routes on it
+        A4 persist ↔ read symmetry traced
+        A5 mapper/restore test or backend cite — not "dropdown renders" alone
 - [ ] Does this change belong to renderer, preload, process, or common?
         (See electron-architecture.md §1)
 - [ ] Does it introduce new IPC? If yes, are preload + bridge + type definitions updated?

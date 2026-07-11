@@ -50,3 +50,12 @@ Before multi-workstream Trellis tasks (especially ccb-installer + aionui-src):
 - **Cursor**: `@trellis-task-execution` or command **`/trellis:plan-execution`**
 - **Skill path**: `.agents/skills/trellis-task-execution/` (mirrored in `.cursor/skills/`, `.claude/skills/`)
 - **Meta-tool map**: `docs/ai-tools-reference.md` §五 · §八
+
+## Code review agent (Cursor)
+
+**Canonical reviewer:** Superpowers **`code-reviewer`** subagent (`subagent_type: "code-reviewer"`).
+
+- **Plugin base:** `C:\Users\m1774\.cursor\plugins\cache\cursor-public\superpowers\b7a8f76985f1e93e75dd2f2a3b424dc731bd9d37\agents\code-reviewer.md`
+- **Project extension:** `.cursor/agents/code-reviewer.md` (Layer A + Layer B)
+- **Layer A spec:** `.trellis/spec/code-review-layer-a.md`
+- **Cursor rule:** `.cursor/rules/code-reviewer-agent.mdc` (`alwaysApply: true`)

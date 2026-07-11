@@ -741,7 +741,8 @@ task.py finish             # 完成任务
 | **Superpowers** | AI 自律 | 完成前必须有运行证据 | skill `verification-before-completion` |
 | **ECC** | 用户/AI 调命令 | build/lint/test 流水线 | `/verify` · `/code-review` |
 | **Trellis** | 工作流 | 对照 task spec + 项目 `.trellis/spec/` | `trellis-check` agent/skill |
-| **Cursor User Rules** | 用户规则（若启用） | **顺序**：code-review agent PASS → test PASS → 文档；renderer UI 加 **Layer B** import smoke | Task `code-reviewer` 等 |
+| **Cursor User Rules** | 用户规则（若启用） | **顺序**：code-review agent PASS → test PASS → 文档；**Layer A**（picker/契约）+ **Layer B**（renderer） | Task `code-reviewer` → 本项目 `.cursor/agents/code-reviewer.md` |
+| **Layer A（普世语义）** | code-reviewer / trellis-check | picker、设置绑定、路由身份、多入口一致性 | [spec](../.trellis/spec/code-review-layer-a.md) — 内置于 `.cursor/agents/code-reviewer.md` |
 | **Layer B（renderer）** | code-reviewer / trellis-check | 变更 `renderer/**` 时模块可加载 + icon export 存在 | `node scripts/review/smoke-renderer-imports.mjs` — [spec](../.trellis/spec/frontend/layer-b-renderer-review.md) |
 | **Commit 硬门禁**（2026-07-03 新增） | 代码层 hook（不是自律） | 有 active task 但无验证证据（execution-plan.md ✅ / check.jsonl PASS / task.json notes）时，**代码层拦截** `git commit` | `.trellis/scripts/common/commit_gate.py` + 三平台 `commit-gate.py` adapter — 详见 [`trellis-meta` change-hooks.md § Example: Add a Blocking Pre-Commit Gate](../.claude/skills/trellis-meta/references/customize-local/change-hooks.md) |
 
@@ -764,7 +765,7 @@ task.py finish             # 完成任务
 |-------|-----|
 | Trellis 任务规格合规 | `trellis-check` **sub-agent** |
 | 通用安全/质量扫一遍 | ECC `/code-review` |
-| 架构/计划对齐（大步骤后） | Cursor `code-reviewer` agent |
+| 架构/计划对齐（大步骤后） | Cursor `code-reviewer` agent — **本项目用** `.cursor/agents/code-reviewer.md`（含 Layer A+B），**不要**只读 Superpowers 插件缓存 |
 | renderer / Settings UI 可加载性 | Layer B：`scripts/review/smoke-renderer-imports.mjs` + [layer-b-renderer-review.md](../.trellis/spec/frontend/layer-b-renderer-review.md) |
 | 声明「可以提交了」 | Superpowers `verification-before-completion` + 实际命令输出 |
 

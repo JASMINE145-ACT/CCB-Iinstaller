@@ -1,0 +1,4 @@
+interface:
+  display_name: "System Review"
+  short_description: "Evidence-based system risk review."
+  default_prompt: "Use $system-review to review this plan, repository, or implementation and report prioritized risks, evidence, and next-step options."

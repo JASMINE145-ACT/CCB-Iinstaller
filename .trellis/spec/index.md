@@ -44,6 +44,15 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 
 ---
 
+## Quality gates (code-review)
+
+| Doc | Layer | When |
+|-----|-------|------|
+| [`code-review-layer-a.md`](./code-review-layer-a.md) | **A — Semantic / architecture** | Picker, settings binding, routing identity, multi-surface parity (universal) |
+| [`frontend/layer-b-renderer-review.md`](./frontend/layer-b-renderer-review.md) | **B — Renderer loadability** | `aionui-src/.../renderer/**` changes |
+
+---
+
 ## Full doc map
 
 ### Frontend (`frontend/`)
