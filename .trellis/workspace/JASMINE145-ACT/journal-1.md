@@ -219,39 +219,40 @@ Shipped task-detail 了解任务 CTA: new chat with understand prompt, default m
 ### Evidence
 - p6-done.md; filterState 17 PASS; code-reviewer PASS ×2
 
-## 2026-07-11 — Work tasks assignee roster (list_assignees)
+## 2026-07-11 — Work tasks assignee roster (list_assignees) — closed
 
-**Task**: `07-12-work-tasks-list-assignees-roster`  
-**Branch**: `main`
+**Task**: `07-12-work-tasks-list-assignees-roster` (archived)  
+**Branch**: `main`  
+**MCP**: v2.3.2
 
 ### Summary
 
-Manager agent can discover assignable employees via MCP `work_tasks_list_assignees` (Org `/api/users`, not env.local). Acceptance verifies all env.local employees (yjc, liankexin, zjz, qps) on VPS roster. Orchestrator routing synced for「有哪些人可以派」.
+Manager agent lists assignable employees via `work_tasks_list_assignees` (Org `/api/users`, not env.local). Desktop smoke PASS with admin: 4 employees (liankexin, qps, yjc, zjz).
 
-### Main Changes
+### Follow-up fixes (same day)
 
-- MCP v2.3.0: `work_tasks_list_assignees` + shared `fetchUserList`
-- `parse-env-employees.mjs` + V2-M2b/M2c acceptance
-- `work-tasks-agent.md`, `wande-orchestrator.md`, `work-tasks-agent.aionui.json`
-- Spec: `aioncore-work-tasks.md` tool table
+| Issue | Fix |
+|-------|-----|
+| `ExecuteExtraTool` → `result: null` | Agent SOP: direct `mcp__work-tasks-agent__*` |
+| Agent used `list_mine` for roster | Always advertise manager tools; forbid list_mine for「可派给谁」 |
+| UI admin but MCP `role=employee` | Unwrap `/api/auth/user` `{ success, user }` envelope (v2.3.2) |
 
 ### Git Commits
 
 | Hash | Message |
 |------|---------|
-| `4400196c` | feat(work-tasks): assignee roster MCP |
+| `4400196c` | feat: list_assignees + env employee checks |
+| `984b7fd4` | archive 07-12 task |
+| `e7b1c61d` | forbid ExecuteExtraTool in agent SOPs |
+| `8373b5ad` | unwrap auth user envelope |
 
-### Testing
+### Testing / Smoke
 
-- [OK] parse-env-employees.test.mjs — 2/2 PASS
-- [OK] test-work-tasks-agent-acceptance.mjs — ALL PASS (4 employees)
-- [OK] code-reviewer Layer A PASS
+- [OK] acceptance ALL PASS (4 employees on VPS)
+- [OK] unwrap unit test 2/2
+- [OK] **Manual UI (admin)**:「有哪些人可以派任务」→ 4-row roster PASS (2026-07-11)
 
 ### Status
 
-[OK] **Completed**
-
-### Next Steps
-
-- Restart CCB / reload MCP for v2.3.0 in desktop smoke
+[OK] **Completed — user smoke PASS**
 

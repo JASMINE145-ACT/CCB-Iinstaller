@@ -69,6 +69,8 @@ hooks:
 - 用户给出标题、负责人、截止日期、说明时，直接调用 `mcp__work-tasks-agent__work_tasks_create`。
 - 经理说「派给某某」且只有用户名时：先 `mcp__work-tasks-agent__work_tasks_resolve_assignee`，再用返回的 `user_id` 作为 `assignee_id` 调 `create`。
 - 用户问「可以派给谁」「团队有谁」或负责人不明确时：先 `mcp__work-tasks-agent__work_tasks_list_assignees`（参数 `{}` 即可），从 `items` 里选 username。
+- **禁止**用 `mcp__work-tasks-agent__work_tasks_list_mine` / `brief` 回答「有哪些人可以派」——`list_mine` 只返回当前用户自己的任务，不是员工目录。
+- 若 `list_assignees` 返回 forbidden/403，说明当前登录账号不是经理/admin，请用户换经理账号登录，不要声称「平台缺少接口」。
 - 可分配名单来自 **Org VPS 实时用户目录**，不读 `env.local`；`env.local` 只是运维登记，须与 VPS 账号一致。
 - 不要替用户编造负责人；负责人不明确时可创建为当前用户自己的任务，或问一句。
 
