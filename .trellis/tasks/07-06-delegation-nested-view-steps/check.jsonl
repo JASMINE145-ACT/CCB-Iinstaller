@@ -8,3 +8,5 @@
 {"ts":"2026-07-07","file":"manual-smoke","reason":"Path A PASS — 查询直接50价格: 委派→万鼎报价专家·done·2tools, nested Read+MCP, agentId a7bef2f70cb5d93da"}
 {"ts":"2026-07-07","file":"aionui-src/tests/unit/common-chat/delegationSpawnContext.test.ts","reason":"vitest 6/6 B0.1 PASS; code-review PASS (agent 8fd7a418)"}
 {"ts":"2026-07-08","file":"aionui-src/tests/unit/renderer/messageToolGroupSummary.dom.test.tsx","reason":"SubagentDrawer 查看执行 DOM test + operatorToolLabels 3/3; vitest 5/5; Layer B smoke PASS; code-review PASS"}
+{"ts":"2026-07-09","file":"manual-smoke","reason":"UI ACCEPT — orchestrator: 委派→万鼎报价专家·blocked·3tools + nested Read/查价MCP + agentId + 查看执行; Guid: flat View Steps 无委派框. MCP timeout ignored per assignee."}
+{"ts":"2026-07-09","file":"git-push","reason":"aionui-src e49d74a → wanding/ccb-wanding-1.1.2-recovered; claude-code-best d478a5c9 → main"}
