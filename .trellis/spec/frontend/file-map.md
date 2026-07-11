@@ -94,7 +94,9 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Domain types + status machine + scope/overdue helpers | `packages/desktop/src/common/types/workTasks/workTaskTypes.ts` |
 | HTTP / WS IPC (`listTasks` scope, `listMembers`, `queryTasks`) | `packages/desktop/src/common/adapter/ipcBridge.ts` → `workTask.*` |
 | List page (scope tabs, status filter, cards, manager overview) | `packages/desktop/src/renderer/pages/workTasks/WorkTasksPage/index.tsx` |
-| Detail (accept CTA, assignee/creator/due, attachments) | `…/WorkTasksPage/WorkTaskDetailPage.tsx` |
+| Detail (accept CTA, **了解任务** agent handoff, assignee/creator/due, attachments) | `…/WorkTasksPage/WorkTaskDetailPage.tsx` |
+| Understand-task prompt + brief-path writeback (pure) | `packages/desktop/src/common/workTasks/workTaskOpenAgent.ts` |
+| Understand-task conversation open | `…/workTasks/openWorkTaskUnderstandConversation.ts` |
 | Attachment open / download | `WorkTaskDetailPage.tsx` — click name → `shell.openFile` (desktop) or `downloadFileFromPath` (web); desktop download icon |
 | Create / edit (assignee picker, due date) | `…/components/CreateWorkTaskDialog.tsx` |
 | Status tag | `…/components/WorkTaskStatusTag.tsx` |

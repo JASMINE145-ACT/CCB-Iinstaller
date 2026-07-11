@@ -294,13 +294,27 @@ sqlite3 "$env:APPDATA\AionUi-Dev\aionui\aionui-backend.db" "PRAGMA table_info(us
 | File | Role |
 |------|------|
 | `pages/workTasks/WorkTasksPage/index.tsx` | Scope tabs (全部/我负责的/我分配的) + status filter + manager overview |
-| `pages/workTasks/WorkTasksPage/WorkTaskDetailPage.tsx` | Detail, accept CTA, assignee/creator/due, attachments open/download |
+| `pages/workTasks/WorkTasksPage/WorkTaskDetailPage.tsx` | Detail, accept CTA, **了解任务**（agent picker + new chat handoff）, assignee/creator/due, attachments open/download |
 | `pages/workTasks/components/CreateWorkTaskDialog.tsx` | Assignee picker (manager), due date |
 | `pages/workTasks/components/WorkTaskStatusTag.tsx` | 5-state tag |
 | `pages/workTasks/useWorkTasks.ts` | SWR + scope + members + query + pending badge count |
 | `components/layout/Sider/SiderNav/SiderWorkTasksEntry.tsx` | Sidebar **任务** + pending_accept badge |
 | `Router.tsx` | `/tasks`, `/tasks/:task_id` |
 | i18n | `renderer/services/i18n/locales/{zh-CN,en-US}/workTasks.json` |
+
+### 了解任务（Agent）handoff (2026-07-11)
+
+**Semantically understand, not execute.** Detail CTA 了解任务 + agent Select (default wande-orchestrator).
+
+| Step | Behavior |
+|------|----------|
+| Click | Always **new** ACP conversation; session_mode=bypassPermissions（UI「全自动」）; stage first message via stageAcpInitialMessage (**no attachments**) |
+| Prompt | Task snapshot + 硬约束：先介绍、默认不 work_tasks_edit 改状态 |
+| Write-back | UI appends [Agent 了解] … · 会话 <shortId> to description (dedupe by conversation id); failure does not roll back chat |
+| Files | common/workTasks/workTaskOpenAgent.ts, openWorkTaskUnderstandConversation.ts, WorkTaskDetailPage.tsx |
+
+Contracts: WANd.TASKS.OPEN_UNDERSTAND.001, WANd.TASKS.BRIEF_PATH_WRITEBACK.001, WANd.TASKS.AGENT_PICKER.001.
+
 
 Attachments (P5 local-only, 2026-07-09): metadata via org `workTask.addAttachment` with `storage_mode: local`; bytes copied to Electron `userData/work-task-attachments/{attachment_id}` via main-process IPC (`workTaskAttachmentBridge.ts`). **No VPS disk** for new uploads.
 

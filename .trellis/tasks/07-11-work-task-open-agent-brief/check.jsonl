@@ -1,0 +1,6 @@
+# check.jsonl — verification context
+{"path":".trellis/tasks/07-11-work-task-open-agent-brief/prd.md","note":"AC checklist"}
+{"path":".trellis/tasks/07-11-work-task-open-agent-brief/execution-plan.md","note":"Contract Verification table"}
+{"path":".trellis/spec/integration/aioncore-work-tasks.md","note":"了解任务 handoff section"}
+{"path":".trellis/spec/code-review-layer-a.md","note":"Layer A"}
+{"path":".trellis/spec/frontend/layer-b-renderer-review.md","note":"Layer B"}

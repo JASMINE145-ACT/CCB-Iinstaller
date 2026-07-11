@@ -1,0 +1,6 @@
+# implement.jsonl — curated context for 07-11-work-task-open-agent-brief
+{"path":".trellis/tasks/07-11-work-task-open-agent-brief/prd.md","note":"AC + locked decisions"}
+{"path":".trellis/tasks/07-11-work-task-open-agent-brief/execution-plan.md","note":"contracts + phases"}
+{"path":".trellis/spec/integration/aioncore-work-tasks.md","note":"UI map + understand handoff"}
+{"path":".trellis/spec/code-review-layer-a.md","note":"agent picker Layer A"}
+{"path":".trellis/spec/frontend/layer-b-renderer-review.md","note":"renderer Layer B"}

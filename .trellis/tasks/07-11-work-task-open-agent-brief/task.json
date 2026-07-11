@@ -1,0 +1,28 @@
+{
+  "id": "work-task-open-agent-brief",
+  "name": "work-task-open-agent-brief",
+  "title": "Work task detail: open agent to understand task",
+  "description": "",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-11",
+  "completedAt": "2026-07-11",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "CTA=了解任务(非执行); 先介绍; 无附件; 始终新建; UI写回description简要路径. Plan: execution-plan.md draft.\n2026-07-11: spec updated — aioncore-work-tasks.md + file-map.md: 了解任务 handoff + bypassPermissions",
+  "meta": {
+    "execution_plan": "execution-plan.md"
+  }
+}
