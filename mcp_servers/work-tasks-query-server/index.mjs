@@ -11,6 +11,9 @@
  *
  * Optional:
  * - WORK_TASKS_AGENT_ROLE: employee | manager (overrides /api/auth/user)
+ *
+ * v2 tools: list_mine, brief (mine-only), get, resolve_assignee (manager).
+ * Legacy: username===admin maps to manager until EIL is_admin (P4).
  */
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
@@ -22,9 +25,10 @@ const port = process.env.AIONCORE_PORT ?? '13400';
 const staticJwt = process.env.AIONCORE_JWT ?? '';
 const sessionTokenFile = process.env.ORG_SESSION_TOKEN_FILE ?? '';
 const serverName = 'work-tasks-agent';
-const serverVersion = '2.1.0';
+const serverVersion = '2.3.0';
 const csrfCookieName = 'aionui-csrf-token';
 const csrfHeaderName = 'x-csrf-token';
+const BRIEF_ITEMS_CAP = 20;
 let csrfTokenCache = null;
 let cachedRole = null;
 
@@ -64,6 +68,7 @@ async function resolveRole() {
   const user = await fetchJson('GET', '/api/auth/user');
   const stored = String(user?.work_task_role ?? 'employee').trim().toLowerCase();
   const username = String(user?.username ?? '').trim();
+  // Legacy fallback until EIL is_admin (P4): admin username acts as manager for tool gates.
   cachedRole = username.toLowerCase() === 'admin' ? 'manager' : stored;
   return cachedRole;
 }
@@ -71,6 +76,12 @@ async function resolveRole() {
 function assertQueryPermission(role) {
   if (!roleCanQuery(role)) {
     throw new Error(`work_tasks_query forbidden for role=${role}`);
+  }
+}
+
+function assertResolvePermission(role) {
+  if (!roleCanQuery(role)) {
+    throw new Error(`work_tasks_resolve_assignee forbidden for role=${role}`);
   }
 }
 
@@ -176,6 +187,111 @@ async function fetchQuery(params = {}) {
   return fetchJson('GET', `/api/work-tasks/query${suffix}`);
 }
 
+/** Own tasks only — never uses /query. */
+async function listMine(params = {}) {
+  const qs = new URLSearchParams();
+  qs.set('scope', 'mine');
+  if (params.status) qs.set('status', params.status);
+  return fetchJson('GET', `/api/work-tasks?${qs.toString()}`);
+}
+
+function isOverdueTask(task, now = Date.now()) {
+  if (!task?.due_at) return false;
+  if (task.status !== 'pending_accept' && task.status !== 'accepted') return false;
+  return Number(task.due_at) < now;
+}
+
+/**
+ * Brief from mine only (contract: must NOT call /query).
+ * @param {object} [args]
+ * @param {boolean} [args.overdue_only]
+ */
+async function buildBrief(args = {}) {
+  const raw = await listMine({});
+  const list = Array.isArray(raw) ? raw : Array.isArray(raw?.items) ? raw.items : [];
+  const now = Date.now();
+  let pending_accept = 0;
+  let accepted = 0;
+  let overdue_count = 0;
+  for (const t of list) {
+    if (t.status === 'pending_accept') pending_accept += 1;
+    if (t.status === 'accepted') accepted += 1;
+    if (isOverdueTask(t, now)) overdue_count += 1;
+  }
+  let items = list;
+  if (args.overdue_only) {
+    items = list.filter((t) => isOverdueTask(t, now));
+  }
+  items = items.slice(0, BRIEF_ITEMS_CAP);
+  return {
+    summary: {
+      total: list.length,
+      pending_accept,
+      accepted,
+      overdue_count,
+    },
+    items,
+    capped: list.length > BRIEF_ITEMS_CAP && !args.overdue_only,
+  };
+}
+
+async function getTask(id) {
+  if (!id || typeof id !== 'string') {
+    throw new Error('work_tasks_get requires id');
+  }
+  return fetchJson('GET', `/api/work-tasks/${encodeURIComponent(id)}`);
+}
+
+function normalizeUserList(raw) {
+  const list = Array.isArray(raw) ? raw : Array.isArray(raw?.items) ? raw.items : [];
+  return list.map((u) => ({
+    user_id: u?.id ?? u?.user_id ?? null,
+    username: u?.username ?? null,
+    work_task_role: u?.work_task_role ?? null,
+  }));
+}
+
+async function fetchUserList() {
+  const raw = await fetchJson('GET', '/api/users');
+  return normalizeUserList(raw);
+}
+
+async function resolveAssignee(username) {
+  const name = String(username ?? '').trim();
+  if (!name) {
+    throw new Error('work_tasks_resolve_assignee requires username');
+  }
+  const list = await fetchUserList();
+  const hit = list.find((u) => String(u?.username ?? '').toLowerCase() === name.toLowerCase());
+  if (!hit) {
+    throw new Error(`assignee not found for username=${name}`);
+  }
+  return {
+    user_id: hit.user_id,
+    username: hit.username,
+    work_task_role: hit.work_task_role ?? null,
+  };
+}
+
+/**
+ * Manager roster for assignment — live Org directory, not env.local.
+ * @param {{ role?: string, assignable_only?: boolean }} [args]
+ */
+async function listAssignees(args = {}) {
+  const list = await fetchUserList();
+  let items = list.filter((u) => u.user_id && u.username);
+  const assignableOnly = args.assignable_only !== false;
+  if (assignableOnly) {
+    items = items.filter((u) => String(u.work_task_role ?? 'employee').toLowerCase() === 'employee');
+  }
+  const roleFilter = String(args.role ?? '').trim().toLowerCase();
+  if (roleFilter) {
+    items = items.filter((u) => String(u.work_task_role ?? '').toLowerCase() === roleFilter);
+  }
+  items.sort((a, b) => String(a.username).localeCompare(String(b.username)));
+  return { items, count: items.length };
+}
+
 async function createTask(args = {}) {
   return fetchJson('POST', '/api/work-tasks', {
     title: args.title,
@@ -260,6 +376,45 @@ function buildTools(canQuery) {
         required: ['id'],
       },
     },
+    {
+      name: 'work_tasks_list_mine',
+      description:
+        'List the current actor own work tasks (GET scope=mine). Use for “我的任务”; never org-wide.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          status: {
+            type: 'string',
+            description: 'Optional status filter.',
+          },
+        },
+      },
+    },
+    {
+      name: 'work_tasks_brief',
+      description:
+        'Own-task brief summary (mine only). Must not use org query. Caps items at 20.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          overdue_only: {
+            type: 'boolean',
+            description: 'When true, items list only overdue own tasks.',
+          },
+        },
+      },
+    },
+    {
+      name: 'work_tasks_get',
+      description: 'Get one work task by id (backend ACL enforced).',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'Task id.' },
+        },
+        required: ['id'],
+      },
+    },
   ];
   if (canQuery) {
     tools.push({
@@ -279,6 +434,35 @@ function buildTools(canQuery) {
             description: 'When true, list only overdue items (summary still reflects full set).',
           },
         },
+      },
+    });
+    tools.push({
+      name: 'work_tasks_list_assignees',
+      description:
+        'Manager-only: list org users available for assignment (live /api/users). Default: employees only.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          role: {
+            type: 'string',
+            description: 'Optional filter: employee | manager | admin.',
+          },
+          assignable_only: {
+            type: 'boolean',
+            description: 'When true (default), only employees who can receive tasks.',
+          },
+        },
+      },
+    });
+    tools.push({
+      name: 'work_tasks_resolve_assignee',
+      description: 'Manager-only: resolve username to user_id for assignment.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          username: { type: 'string', description: 'Exact org username to resolve.' },
+        },
+        required: ['username'],
       },
     });
   }
@@ -325,6 +509,52 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     if (name === 'work_tasks_edit') {
       const data = await editTask(args);
       auditLog({ ...auditBase, result: 'ok', result_count: 1, task_id: data?.id ?? args.id ?? null });
+      return {
+        content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
+      };
+    }
+    if (name === 'work_tasks_list_mine') {
+      const data = await listMine({ status: args.status });
+      const list = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : [];
+      auditLog({ ...auditBase, result: 'ok', result_count: list.length });
+      return {
+        content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
+      };
+    }
+    if (name === 'work_tasks_brief') {
+      const data = await buildBrief({ overdue_only: Boolean(args.overdue_only) });
+      auditLog({ ...auditBase, result: 'ok', result_count: data.items.length });
+      return {
+        content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
+      };
+    }
+    if (name === 'work_tasks_get') {
+      const data = await getTask(args.id);
+      auditLog({ ...auditBase, result: 'ok', result_count: 1, task_id: data?.id ?? args.id });
+      return {
+        content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
+      };
+    }
+    if (name === 'work_tasks_list_assignees') {
+      assertResolvePermission(role);
+      const data = await listAssignees({
+        role: args.role,
+        assignable_only: args.assignable_only,
+      });
+      auditLog({ ...auditBase, result: 'ok', result_count: data.count });
+      return {
+        content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
+      };
+    }
+    if (name === 'work_tasks_resolve_assignee') {
+      assertResolvePermission(role);
+      const data = await resolveAssignee(args.username);
+      auditLog({
+        ...auditBase,
+        result: 'ok',
+        result_count: 1,
+        target_assignee_id: data.user_id,
+      });
       return {
         content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
       };

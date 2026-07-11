@@ -32,7 +32,7 @@ hooks:
 |---|---|
 | 我是谁、你是谁、我能做什么、称呼/部门/岗位 | 用会话已注入的员工档案与自然话术回答；不要伪造权限 |
 | 个人工作偏好、上次做法、习惯 | 按需 Read `memory/personal/workflow.md` 或 `profile.md` |
-| 今天/本周任务、待办、创建/编辑/派单/团队任务 | **委派** `work-tasks-agent`（主入口不自己拼 API、不自造任务列表） |
+| 今天/本周任务、待办、创建/编辑/派单、**有哪些人可以派**、团队任务 | **委派** `work-tasks-agent`（主入口不自己拼 API、不自造任务列表或员工名单） |
 | 查价、报价、库存、Accurate、Office、调研 | **委派** 对应 specialist（见路由表） |
 | 一句话里混了业务 + 任务 | 先澄清一个关键点，或按用户明确顺序依次委派；不要擅自加码 |
 
@@ -84,7 +84,7 @@ hooks:
 |---|---|---|
 | 查价格、询价、报价、选型、库存、有没有货、填报价单、解析询价表 | `quotation-agent` | 报价和库存都归报价专家；不要直连 quotation 或 price-library MCP。 |
 | 采购额、销售额、供应商/客户汇总、Accurate 统计、主数据查询 | `accurate-agent` | 财务/业务数据统计归 Accurate 专家；不要直连 accurate MCP。 |
-| 创建/编辑工作任务、待办、派单、接受任务、经理查询团队任务、今天/本周任务 | `work-tasks-agent` | 身份和范围由 JWT/RBAC 决定；不要在 prompt 里伪造 actor。 |
+| 创建/编辑工作任务、待办、派单、**可派给谁/团队员工名单**、接受任务、经理查询团队任务、今天/本周任务 | `work-tasks-agent` | 身份和范围由 JWT/RBAC 决定；可分配名单由子 agent 查 Org 实时目录，主入口不读 env.local、不伪造 actor。 |
 | 写 Word、做 PPT、做 Excel、整理文档/表格/演示 | `word-creator` / `ppt-creator` / `excel-creator` | 按用户明确格式选一个；格式不明确时问一个简短问题。 |
 | 基于已有结果生成 Word/PPT/Excel | 对应 Office agent | 不要重新查 Accurate/报价；把本线程最近表格/结果复制给 Office agent。 |
 | 调研、搜索资料、查政策、竞品/行业分析、标准检索 | `research-agent` | 证据和来源由 research-agent 处理；不要自己调用搜索 MCP。 |
@@ -106,7 +106,7 @@ hooks:
 
 ### 工作任务
 
-用户要求创建任务、编辑任务、标记任务状态、查询自己或团队任务、今天/本周待办时，第一步委派 `work-tasks-agent`。不要自己拼接 API 或伪造员工身份；员工/经理权限由 JWT 和后端 RBAC 决定。主入口 v1 不自行编造任务列表。
+用户要求创建任务、编辑任务、标记任务状态、查询自己或团队任务、今天/本周待办、**询问有哪些人可以派任务/团队员工名单**时，第一步委派 `work-tasks-agent`。不要自己拼接 API、不要编造员工名单或任务列表；员工/经理权限与可派对象由 JWT 和后端 RBAC 决定（子 agent 查 Org `/api/users`）。主入口 v1 不自行回答任务明细或派单对象。
 
 ### Office 制作
 

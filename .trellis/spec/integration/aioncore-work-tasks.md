@@ -293,7 +293,9 @@ sqlite3 "$env:APPDATA\AionUi-Dev\aionui\aionui-backend.db" "PRAGMA table_info(us
 
 | File | Role |
 |------|------|
-| `pages/workTasks/WorkTasksPage/index.tsx` | Scope tabs (全部/我负责的/我分配的) + status filter + manager overview |
+| `pages/workTasks/WorkTasksPage/index.tsx` | Scope tabs + status filter + **manager team overview** + **P6 drill-down** (`?assignee=&status=&overdue=`). Assignee/status → `/query`; **`overdue` client-only** (never on `/query` wire — AionCore rejects it) |
+| `pages/workTasks/components/WorkTaskManagerDashboard.tsx` | KPI cards, workload bars, overdue panel; clickable assignee/KPI; Soft UI `compact` when filter active |
+| `common/types/workTasks/workTaskFilterState.ts` | URL filter parse/serialize + list-mode mapping (`WANd.TASKS.DASHBOARD_DRILLDOWN.001`); `overdueClient` / `overview_client` / `unassigned_client` |
 | `pages/workTasks/WorkTasksPage/WorkTaskDetailPage.tsx` | Detail, accept CTA, **了解任务**（agent picker + new chat handoff）, assignee/creator/due, attachments open/download |
 | `pages/workTasks/components/CreateWorkTaskDialog.tsx` | Assignee picker (manager), due date |
 | `pages/workTasks/components/WorkTaskStatusTag.tsx` | 5-state tag |
@@ -304,17 +306,16 @@ sqlite3 "$env:APPDATA\AionUi-Dev\aionui\aionui-backend.db" "PRAGMA table_info(us
 
 ### 了解任务（Agent）handoff (2026-07-11)
 
-**Semantically understand, not execute.** Detail CTA 了解任务 + agent Select (default wande-orchestrator).
+**Semantically understand, not execute.** Detail CTA `了解任务` + agent Select (default `wande-orchestrator`).
 
 | Step | Behavior |
 |------|----------|
-| Click | Always **new** ACP conversation; session_mode=bypassPermissions（UI「全自动」）; stage first message via stageAcpInitialMessage (**no attachments**) |
-| Prompt | Task snapshot + 硬约束：先介绍、默认不 work_tasks_edit 改状态 |
-| Write-back | UI appends [Agent 了解] … · 会话 <shortId> to description (dedupe by conversation id); failure does not roll back chat |
-| Files | common/workTasks/workTaskOpenAgent.ts, openWorkTaskUnderstandConversation.ts, WorkTaskDetailPage.tsx |
+| Click | Always **new** ACP conversation; `session_mode=bypassPermissions`（UI「全自动」）; stage first message via `stageAcpInitialMessage` (**no attachments**) |
+| Prompt | Task snapshot + 硬约束：先介绍、默认不 `work_tasks_edit` 改状态 |
+| Write-back | UI appends `[Agent 了解] … · 会话 <shortId>` to `description` (dedupe by conversation id); failure does not roll back chat |
+| Files | `common/workTasks/workTaskOpenAgent.ts`, `openWorkTaskUnderstandConversation.ts`, `WorkTaskDetailPage.tsx` |
 
-Contracts: WANd.TASKS.OPEN_UNDERSTAND.001, WANd.TASKS.BRIEF_PATH_WRITEBACK.001, WANd.TASKS.AGENT_PICKER.001.
-
+Contracts: `WANd.TASKS.OPEN_UNDERSTAND.001`, `WANd.TASKS.BRIEF_PATH_WRITEBACK.001`, `WANd.TASKS.AGENT_PICKER.001`.
 
 Attachments (P5 local-only, 2026-07-09): metadata via org `workTask.addAttachment` with `storage_mode: local`; bytes copied to Electron `userData/work-task-attachments/{attachment_id}` via main-process IPC (`workTaskAttachmentBridge.ts`). **No VPS disk** for new uploads.
 
@@ -392,7 +393,7 @@ Without self-built aioncore, UI shows API-unavailable / blocked empty state (Pha
 
 ```powershell
 cd D:\Projects\aionui-src
-bun test tests/unit/common-utils/workTaskTypes.test.ts   # status machine + scope/overdue helpers
+bun test tests/unit/common-utils/workTaskTypes.test.ts tests/unit/common-utils/workTaskDashboard.test.ts
 
 cd D:\Projects\claude-code-best\AionCore
 cargo test -p aionui-work-tasks                      # RBAC integration tests
@@ -410,20 +411,25 @@ scripts\build-aioncore-work-tasks.cmd                   # release build (~4–5 
 
 ### Optional MCP (work-tasks-agent)
 
-`mcp_servers/work-tasks-query-server/index.mjs` — single **`work-tasks-agent`** MCP (v2.1.0):
+`mcp_servers/work-tasks-query-server/index.mjs` — single **`work-tasks-agent`** MCP (v2.3.0):
 
 | Tool | employee | manager/admin |
 |------|----------|---------------|
 | `work_tasks_create` | yes (self scope via API) | yes |
 | `work_tasks_edit` | yes (ACL) | yes |
-| `work_tasks_query` | **denied** | yes |
+| `work_tasks_query` | **denied** | yes (P1–P3: org `list_all`; EIL P4 narrows scope) |
+| `work_tasks_list_mine` | yes | yes |
+| `work_tasks_brief` | yes (own only; **never** `/query`) | yes (own only) |
+| `work_tasks_get` | yes (ACL) | yes (ACL) |
+| `work_tasks_list_assignees` | **denied** | yes (live `/api/users`; default employee-only roster) |
+| `work_tasks_resolve_assignee` | **denied** | yes (username → user_id) |
 
 - **Deploy:** `vendor/mcp-servers/work-tasks-agent/index.mjs` + `node_modules` junction → `quotation-server` (see `sync-dev-wanding-vendor.ps1`).
 - **Config:** `ccb-installer/packages/vertical/com.wanding.trade/package.json` + `ensure-wanding-settings.ps1` entry `work-tasks-agent`.
 - **Env:** `ORG_SERVER_URL`, `ORG_SESSION_TOKEN_FILE` (preferred); fallback `AIONCORE_PORT` + `AIONCORE_JWT`.
 - **Audit (07-09):** stderr JSON `work_tasks_tool_audit` per tool call (unified DB deferred to EIL P2).
-- **UI:** Agent-created tasks stamp `metadata.source=agent`; `/tasks` shows **AI 创建** tag.
-- **Acceptance:** `node scripts/test-work-tasks-agent-acceptance.mjs`
+- **UI:** Agent-created tasks stamp `metadata.source=agent`; `/tasks` shows **AI 创建** tag; manager **团队概览** shows per-assignee breakdown (`workTaskDashboard.ts`).
+- **Acceptance:** `node scripts/test-work-tasks-agent-acceptance.mjs` (07-09 + V2-E*/M*/G* cases)
 
 Legacy alias: `work_tasks_summary` → same handler as `work_tasks_query` (not listed in `ListTools`).
 
