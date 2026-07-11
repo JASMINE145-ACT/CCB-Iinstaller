@@ -411,7 +411,7 @@ scripts\build-aioncore-work-tasks.cmd                   # release build (~4–5 
 
 ### Optional MCP (work-tasks-agent)
 
-`mcp_servers/work-tasks-query-server/index.mjs` — single **`work-tasks-agent`** MCP (v2.3.0):
+`mcp_servers/work-tasks-query-server/index.mjs` — single **`work-tasks-agent`** MCP (v2.3.2):
 
 | Tool | employee | manager/admin |
 |------|----------|---------------|
@@ -431,7 +431,7 @@ scripts\build-aioncore-work-tasks.cmd                   # release build (~4–5 
 - **UI:** Agent-created tasks stamp `metadata.source=agent`; `/tasks` shows **AI 创建** tag; manager **团队概览** shows per-assignee breakdown (`workTaskDashboard.ts`).
 - **Acceptance:** `node scripts/test-work-tasks-agent-acceptance.mjs` (07-09 + V2-E*/M*/G* cases)
 
-**MCP invocation (agent SOP — 2026-07-11):** Wanding ACP sets `ENABLE_SEARCH_EXTRA_TOOLS=false`. Specialist `work-tasks-agent.md` must call **`mcp__work-tasks-agent__*`** directly (e.g. `mcp__work-tasks-agent__work_tasks_list_assignees`). **Forbidden:** `ExecuteExtraTool({ tool_name: "work_tasks_*" })` — returns `result: null`. Manual smoke: admin login → new Guid →「有哪些人可以派任务？」→ View Steps shows native MCP name, not ExecuteExtraTool. Same contract as quotation/accurate ([`agents-unified-model.md`](./agents-unified-model.md) SOP bullet).
+**MCP invocation (agent SOP — 2026-07-11):** Wanding ACP sets `ENABLE_SEARCH_EXTRA_TOOLS=false`. Specialist `work-tasks-agent.md` must call **`mcp__work-tasks-agent__*`** directly (e.g. `mcp__work-tasks-agent__work_tasks_list_assignees`). **Forbidden:** `ExecuteExtraTool({ tool_name: "work_tasks_*" })` — returns `result: null`. **ListTools (v2.3.1+):** manager tools (`list_assignees`, `resolve_assignee`, `query`) are always advertised; RBAC enforced on call — employees get 403, not hidden tools (prevents agent falling back to `list_mine` for roster questions). **Auth unwrap (v2.3.2):** `/api/auth/user` returns `{ success, user }` — MCP must unwrap `user` (not only `data`); otherwise `work_task_role` is missing → defaults to `employee` while UI shows admin. Manual smoke: admin login → new Guid →「有哪些人可以派任务？」→ View Steps shows `mcp__work-tasks-agent__work_tasks_list_assignees` with roster, not `forbidden for role=employee`.
 
 Legacy alias: `work_tasks_summary` → same handler as `work_tasks_query` (not listed in `ListTools`).
 

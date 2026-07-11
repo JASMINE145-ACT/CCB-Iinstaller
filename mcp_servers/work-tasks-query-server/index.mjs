@@ -25,12 +25,33 @@ const port = process.env.AIONCORE_PORT ?? '13400';
 const staticJwt = process.env.AIONCORE_JWT ?? '';
 const sessionTokenFile = process.env.ORG_SESSION_TOKEN_FILE ?? '';
 const serverName = 'work-tasks-agent';
-const serverVersion = '2.3.0';
+const serverVersion = '2.3.2';
 const csrfCookieName = 'aionui-csrf-token';
 const csrfHeaderName = 'x-csrf-token';
 const BRIEF_ITEMS_CAP = 20;
 let csrfTokenCache = null;
-let cachedRole = null;
+
+/**
+ * Unwrap Org API envelopes. /api/auth/user returns { success, user };
+ * many list endpoints return { success, data }.
+ */
+function unwrapPayload(parsed) {
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return parsed;
+  }
+  if (parsed.data !== undefined) return parsed.data;
+  if (parsed.user !== undefined && typeof parsed.user === 'object') return parsed.user;
+  return parsed;
+}
+
+function readUserFields(user) {
+  const body = unwrapPayload(user) ?? user;
+  return {
+    id: body?.id ?? body?.user_id ?? null,
+    username: body?.username ?? null,
+    work_task_role: body?.work_task_role ?? null,
+  };
+}
 
 function baseUrl() {
   const org = String(process.env.ORG_SERVER_URL ?? '').trim().replace(/\/$/, '');
@@ -64,13 +85,11 @@ function roleCanQuery(role) {
 async function resolveRole() {
   const forced = String(process.env.WORK_TASKS_AGENT_ROLE ?? '').trim().toLowerCase();
   if (forced) return forced;
-  if (cachedRole) return cachedRole;
-  const user = await fetchJson('GET', '/api/auth/user');
-  const stored = String(user?.work_task_role ?? 'employee').trim().toLowerCase();
-  const username = String(user?.username ?? '').trim();
+  const fields = readUserFields(await fetchJson('GET', '/api/auth/user'));
+  const stored = String(fields.work_task_role ?? 'employee').trim().toLowerCase();
+  const username = String(fields.username ?? '').trim();
   // Legacy fallback until EIL is_admin (P4): admin username acts as manager for tool gates.
-  cachedRole = username.toLowerCase() === 'admin' ? 'manager' : stored;
-  return cachedRole;
+  return username.toLowerCase() === 'admin' ? 'manager' : stored;
 }
 
 function assertQueryPermission(role) {
@@ -79,18 +98,18 @@ function assertQueryPermission(role) {
   }
 }
 
-function assertResolvePermission(role) {
+function assertManagerPermission(role, toolName) {
   if (!roleCanQuery(role)) {
-    throw new Error(`work_tasks_resolve_assignee forbidden for role=${role}`);
+    throw new Error(`${toolName} forbidden for role=${role}`);
   }
 }
 
 async function resolveActor() {
-  const user = await fetchJson('GET', '/api/auth/user');
+  const fields = readUserFields(await fetchJson('GET', '/api/auth/user'));
   return {
-    actor_user_id: user?.id ?? user?.user_id ?? null,
-    actor_username: user?.username ?? null,
-    work_task_role: user?.work_task_role ?? null,
+    actor_user_id: fields.id,
+    actor_username: fields.username,
+    work_task_role: fields.work_task_role,
   };
 }
 
@@ -146,7 +165,7 @@ async function fetchJson(method, path, body) {
     throw new Error(`work-tasks request failed (${res.status}) ${method} ${path}: ${text}`);
   }
   const parsed = await res.json();
-  return parsed?.data ?? parsed;
+  return unwrapPayload(parsed);
 }
 
 function parseCsrfTokenFromSetCookie(headerValue) {
@@ -472,8 +491,8 @@ function buildTools(canQuery) {
 const server = new Server({ name: serverName, version: serverVersion }, { capabilities: { tools: {} } });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
-  const role = await resolveRole();
-  return { tools: buildTools(roleCanQuery(role)) };
+  // Always advertise full catalog; RBAC enforced on CallTool (employees must see list_assignees exists).
+  return { tools: buildTools(true) };
 });
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -536,7 +555,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       };
     }
     if (name === 'work_tasks_list_assignees') {
-      assertResolvePermission(role);
+      assertManagerPermission(role, 'work_tasks_list_assignees');
       const data = await listAssignees({
         role: args.role,
         assignable_only: args.assignable_only,
@@ -547,7 +566,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       };
     }
     if (name === 'work_tasks_resolve_assignee') {
-      assertResolvePermission(role);
+      assertManagerPermission(role, 'work_tasks_resolve_assignee');
       const data = await resolveAssignee(args.username);
       auditLog({
         ...auditBase,
