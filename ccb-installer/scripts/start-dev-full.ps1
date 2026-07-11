@@ -15,7 +15,7 @@
 #   .\ccb-installer\scripts\start-dev-full.ps1 -SkipVendorSync         # UI-only; skips repo→vendor sync
 #   .\ccb-installer\scripts\start-dev-full.ps1 -VendorSmoke            # optional HDPE+supplier smoke after vendor sync
 #   .\ccb-installer\scripts\start-dev-full.ps1 -VendorUpdateSettings:$false  # skip ccb-mcp.json refresh
-#   .\ccb-installer\scripts\start-dev-full.ps1 -VendorStrict              # vendor sync fingerprint drift → fail
+#   .\ccb-installer\scripts\start-dev-full.ps1 -NoExtensions     # opt-out: skip ext-wecom-aibot (examples-wecom-dev)
 #
 # ─────────────────────────────────────────────────────────────────────────────
 # COMPLETENESS CHECKLIST (manual verification after launch)
@@ -28,6 +28,7 @@
 #  □  Settings → Tools: quotation / accurate / excel MCP entries present
 #  □  Settings → Models: model list non-empty (CCB models)
 #  □  Chat → 万鼎报价专家: WanD MCP warmup completes within ~15 s
+#  □  Settings → Channels: ext-企业微信 AI Bot (长连接) card visible (default; use -NoExtensions to hide)
 # ─────────────────────────────────────────────────────────────────────────────
 
 param(
@@ -39,8 +40,15 @@ param(
     [switch]$VendorSmoke,
     [switch]$VendorStrict,
     [bool]$VendorUpdateSettings = $true,
-    [bool]$BuildAioncore  = $true
+    [bool]$BuildAioncore  = $true,
+    [switch]$NoExtensions,
+    [switch]$WithExtensions  # deprecated alias; extensions are on by default (2026-07-09)
 )
+
+# WeCom ext-wecom-aibot is the default dev path (Settings → Channels → Bot ID + Secret + Agent).
+# If both -NoExtensions and -WithExtensions are passed, -WithExtensions wins (backward compat).
+$useExtensions = -not $NoExtensions
+if ($WithExtensions) { $useExtensions = $true }
 
 if ($SkipVendorSync -and (
         $PSBoundParameters.ContainsKey('VendorSmoke') -or
@@ -98,6 +106,16 @@ Test-DevPreflightPath 'Python runtime' `
 
 Test-DevPreflightPath 'Quotation MCP server' `
     "$InstallDir\vendor\mcp-servers\quotation-server\dist\index.js"
+
+if ($useExtensions) {
+    $nodeCmd = Get-Command node -ErrorAction SilentlyContinue
+    if (-not $nodeCmd) {
+        Write-Host '[PREFLIGHT FAIL] Node.js runtime (required for ext-wecom-aibot default dev path)' -ForegroundColor Red
+        Write-Host '  Install Node.js or pass -NoExtensions to use bun run dev only.' -ForegroundColor Red
+        throw 'Pre-flight failed: Node.js runtime'
+    }
+    Write-Host "[ok] Node.js runtime ($($nodeCmd.Source))" -ForegroundColor Green
+}
 
 Test-DevPreflightPath 'Seed agent (quotation-agent.md)' `
     "$env:LOCALAPPDATA\CCB-Wanding\.claude\agents\quotation-agent.md"
@@ -271,6 +289,11 @@ Write-Host '  ⚠  DO NOT press Ctrl+R in the Electron window.' -ForegroundColor
 Write-Host '     White screen after Ctrl+R = quit fully and rerun this script.' -ForegroundColor Yellow
 Write-Host ''
 Write-Host 'Starting AionUI dev (full parity — org SSO login)...' -ForegroundColor Cyan
+if ($useExtensions) {
+    Write-Host '  Extensions   : examples-wecom-dev/ (ext-wecom-aibot — default)' -ForegroundColor DarkGray
+} else {
+    Write-Host '  Extensions   : off (-NoExtensions)' -ForegroundColor DarkGray
+}
 Write-Host "  CCB baseline : $InstallDir" -ForegroundColor DarkGray
 Write-Host "  CCB config   : $configDir" -ForegroundColor DarkGray
 Write-Host "  aioncore     : $(Join-Path $bundledCore 'aioncore.exe') (synced from repo build)" -ForegroundColor DarkGray
@@ -285,9 +308,16 @@ Write-Host ''
 $prevEa = $ErrorActionPreference
 $ErrorActionPreference = 'Continue'
 try {
-    & bun run dev
+    if ($useExtensions) {
+        # WeCom only — avoid e2e-full-extension / hello-world polluting Settings UI.
+        $env:AIONUI_EXTENSIONS_PATH = Join-Path $AionUiSrc 'examples-wecom-dev'
+        & node (Join-Path $AionUiSrc 'scripts\dev-bootstrap.mjs') launch start --extensions
+    } else {
+        Remove-Item Env:AIONUI_EXTENSIONS_PATH -ErrorAction SilentlyContinue
+        & bun run dev
+    }
     if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
-        throw "bun run dev failed (exit $LASTEXITCODE)"
+        throw "AionUI dev launch failed (exit $LASTEXITCODE)"
     }
 } finally {
     $ErrorActionPreference = $prevEa

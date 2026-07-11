@@ -36,6 +36,7 @@ $officeWordServer = Join-Path $InstallDir "vendor\mcp-servers\office-word-mcp\se
 $officeWordSitePackages = Join-Path $InstallDir "vendor\mcp-servers\office-word-mcp\site-packages"
 $excelFileServer = Join-Path $InstallDir "vendor\mcp-servers\excel-mcp-server\server.py"
 $excelFileSitePackages = Join-Path $InstallDir "vendor\mcp-servers\excel-mcp-server\site-packages"
+$workTasksAgentServer = Join-Path $InstallDir "vendor\mcp-servers\work-tasks-agent\index.mjs"
 $wandingRoot = Join-Path $InstallDir "vendor\wanding"
 $wandingDataDir = Join-Path $wandingRoot "data"
 $wandingPythonDir = Join-Path $wandingRoot "python"
@@ -637,6 +638,17 @@ $excelFile = [pscustomobject]@{
     description = "Excel file MCP (haris-musa/excel-mcp-server): create, edit, chart .xlsx without Microsoft Excel."
 }
 
+$workTasksAgent = [pscustomobject]@{
+    command     = "node"
+    args        = @($workTasksAgentServer)
+    env         = [pscustomobject]@{
+        ORG_SERVER_URL           = $orgServerUrl
+        AIONUI_APPDATA_PROFILE   = $orgAppDataProfile
+        ORG_SESSION_TOKEN_FILE   = $orgSessionTokenFile
+    }
+    description = "Work tasks agent MCP: create/edit tasks; manager query via Org VPS JWT (role-gated)."
+}
+
 Set-JsonProperty -Object $settings.mcpServers -Name "exa" -Value $exa
 Set-JsonProperty -Object $settings.mcpServers -Name "tavily" -Value $tavily
 Set-JsonProperty -Object $settings.mcpServers -Name "excel-mcp" -Value $excel
@@ -645,6 +657,7 @@ Set-JsonProperty -Object $settings.mcpServers -Name "price-library" -Value $pric
 Set-JsonProperty -Object $settings.mcpServers -Name "accurate" -Value $accurate
 Set-JsonProperty -Object $settings.mcpServers -Name "office-word" -Value $officeWord
 Set-JsonProperty -Object $settings.mcpServers -Name "excel" -Value $excelFile
+Set-JsonProperty -Object $settings.mcpServers -Name "work-tasks-agent" -Value $workTasksAgent
 
 # Python main.py loads vendor/wanding/.env.accurate (override=True) when MCP env omits AOL_*.
 if ($aolAccessToken -and $aolDatabaseId -and $aolSignatureSecret) {
@@ -694,6 +707,7 @@ else {
             accurate = $accurate
             "office-word" = $officeWord
             excel = $excelFile
+            "work-tasks-agent" = $workTasksAgent
         }
     }
 }

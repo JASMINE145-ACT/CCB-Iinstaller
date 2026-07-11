@@ -18,6 +18,7 @@ if ($InstallDir) { $commonArgs['InstallDir'] = $InstallDir }
 
 & (Join-Path $PSScriptRoot "deploy-subagent-gate-skill.ps1") @commonArgs
 & (Join-Path $PSScriptRoot "deploy-personal-memory-skill.ps1") @commonArgs
+& (Join-Path $PSScriptRoot "deploy-session-precipitation-skill.ps1") @commonArgs
 & (Join-Path $PSScriptRoot "deploy-quotation-learn-by-data-skill.ps1") @commonArgs
 & (Join-Path $PSScriptRoot "deploy-price-library-edit-skill.ps1") @commonArgs
 & (Join-Path $PSScriptRoot "deploy-wanding-deep-research-skill.ps1") @commonArgs

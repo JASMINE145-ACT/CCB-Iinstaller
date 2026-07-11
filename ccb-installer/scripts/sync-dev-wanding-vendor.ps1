@@ -97,8 +97,23 @@ Invoke-Robocopy `
     -Destination $priceLibMcpDst `
     -ExtraArgs @("/E")
 
+$workTasksMcpDst = Join-Path $vendor "mcp-servers\work-tasks-agent"
+$null = New-Item -ItemType Directory -Force -Path $workTasksMcpDst
+$workTasksSrc = Join-Path $RepoRoot "mcp_servers\work-tasks-query-server\index.mjs"
+if (Test-Path -LiteralPath $workTasksSrc) {
+    Copy-Item -LiteralPath $workTasksSrc -Destination (Join-Path $workTasksMcpDst "index.mjs") -Force
+    Write-Host "[copy] work-tasks-agent MCP -> $workTasksMcpDst"
+} else {
+    Write-Host "[skip] missing work-tasks MCP source: $workTasksSrc" -ForegroundColor Yellow
+}
+
 $priceLibNm = Join-Path $vendor "mcp-servers\price-library-server\node_modules"
 $quotNm = Join-Path $vendor "mcp-servers\quotation-server\node_modules"
+$workTasksNm = Join-Path $vendor "mcp-servers\work-tasks-agent\node_modules"
+if ((Test-Path -LiteralPath $quotNm) -and -not (Test-Path -LiteralPath $workTasksNm)) {
+    Write-Host "[junction] work-tasks-agent node_modules -> quotation-server"
+    New-Item -ItemType Junction -Path $workTasksNm -Target $quotNm -Force | Out-Null
+}
 if ((Test-Path -LiteralPath $quotNm) -and -not (Test-Path -LiteralPath $priceLibNm)) {
     Write-Host "[junction] price-library-server node_modules -> quotation-server"
     New-Item -ItemType Junction -Path $priceLibNm -Target $quotNm -Force | Out-Null
