@@ -5,3 +5,5 @@
 *.exe
 !resources/**/*.exe
 !vendor/**/*.exe
+# GitHub 100MB limit — keep local only (see root .gitignore)
+vendor/mcp-servers/excel-mcp/mcp-excel.exe

@@ -1,0 +1,41 @@
+{
+  "id": "employee-intelligence-layer",
+  "name": "07-14-employee-intelligence-layer",
+  "title": "Employee Intelligence Layer / 员工智能层",
+  "description": "Enterprise AI-native employee identity layer: org structure, role/scope, lifecycle, AI work profile, task collaboration audit, and manager/employee agent capabilities — not a full HR system.",
+  "status": "planning",
+  "dev_type": "feature",
+  "scope": "AionCore org identity + RBAC + audit + AionUI/ACP prompt & tool permission integration",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-09",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    ".trellis/tasks/07-14-employee-intelligence-layer/prd.md",
+    ".trellis/tasks/07-14-employee-intelligence-layer/execution-plan.md",
+    ".trellis/tasks/07-06-employee-profile-settings-prompt/prd.md",
+    ".trellis/tasks/07-09-agent-work-tasks-collaboration-system/prd.md",
+    ".trellis/spec/integration/aioncore-work-tasks.md",
+    ".trellis/spec/integration/agent-team-architecture.md",
+    ".trellis/spec/integration/agents-unified-model.md"
+  ],
+  "notes": "2026-07-09 planning via /trellis:plan-execution. 2026-07-09 P0 decisions locked in research/eil-contract.md: is_admin orthogonal to work_task_role; flat department string; static business role enum; Settings org fields read-only; audit 90d retention; 07-09 finishes standalone before EIL P2 unified audit.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "Security",
+    "scenario": "B",
+    "plan_revision": 2,
+    "risks": ["security", "migration", "cross-repo", "external-api", "ui"],
+    "prerequisite_tasks": ["07-09-agent-work-tasks-collaboration-system"]
+  }
+}

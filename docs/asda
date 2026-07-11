@@ -1,0 +1,156 @@
+后端：最值得借的 6 块
+1. Run 是一等公民（Execution Domain）
+Rudder 把一次 agent 工作拆成清晰生命周期：
+
+Wakeup → Preflight → Execute → Persist → Release
+         (准入)      (adapter)  (transcript/usage/logs)
+对应 contract：RUN.WAKEUP.001、RUN.RESULT.001、RUN.ADMISSION.001（issue 级执行锁）。
+
+你们现状： 委派在 runAgent.ts 里发生，证据在 subagents/agent-*.jsonl，但 AionUI 没有「Run 实体」——只有平铺 tool steps。
+
+可借： 不必上 Postgres heartbeat，但可以在 ACP bridge 层定义 DelegationRun 元数据：
+
+字段	用途
+parentToolUseId
+UI 树形分组
+childAgentId / subagent_type
+显示 [quotation-agent]
+childToolCount
+对应 tool_uses: 2
+status
+running / done / blocked
+这是 观测层，不是重做 Rudder kernel。
+
+2. 稳定指令 vs 动态上下文（Agents Domain）
+AGENT.INSTRUCTIONS.001：stable instructions 和 runtime run context 分开加载、有界注入。
+
+Rudder 的 agent-run-context.ts 按 scene（issue | chat | review | heartbeat）组装不同 context bundle。
+
+你们已有类似分层（L0–L4），但委派时仍有历史问题（sidecar claude_md 子 agent 吃不到、L0 bleed）。Rudder 的写法值得借：
+
+Stable (agent .md body)     →  spawn 时必带
+Dynamic (issue/project/    →  每次 run 注入，有上限
+         employee profile)
+Ephemeral (chat turn)       →  不写入 durable identity
+对应你们：wande-orchestrator.md playbook = stable；用户本轮消息 = ephemeral；mergeEmployeeProfile = dynamic。把「委派 spawn 契约」写成 domain contract，链到 runAgent.ts + 测试。
+
+3. 路由与执行分域（Work Routing vs Execution）
+Rudder 明确拆分：
+
+Work Routing：谁该干活、谁 review、checkout 归属
+Execution：怎么跑、怎么记 log
+你们： 路由在 L1 playbook + evaluateOrchestratorToolGuard，执行在 CCB QueryEngine——概念上是一体的，文档上可拆开，避免改 guard 时误伤 hook/ROE。
+
+可映射：
+
+Rudder	WanD
+ROUTING.ASSIGNMENT.001
+orchestrator intent → Agent(subagent_type)
+ROUTING.REVIEWER.001
+:roe-judge Stop hook
+RUN.EXECUTION.001
+runAgent.ts sync spawn
+RUN.ADMISSION.001
+CLAUDE_CODE_DISABLE_BACKGROUND_TASKS + sync-wait
+4. Issue 层级 = 显式委派上下文
+ISSUE.HIERARCHY.001 要点：子 issue 不仅是 UI 分组，agent runtime 也要知道自己在树的哪一层。
+
+Root: 「Q2 报价项目」
+  └─ Sub: 「查直接50价格」  ← agent 知道这是 delegated slice
+Chat-first 的 WanD 可轻量借： 一轮 Agent(quotation-agent) 不必建 issue，但 委派 prompt 里应带「父意图 / 会话角色」——你们 orchestrator 已传 full message，可再加 structured handoff block（类似 Rudder parent breadcrumb）。
+
+5. Review → Learning 的显式晋升路径
+Rudder 产品环：
+
+Goal → Issue → Run → Review → Feedback → Learning → 下次更好
+LEARNING.PROMOTION.001：反馈不会自动偷偷改 skill，必须走可审查路径。
+
+你们： quotation-learn-by-data、ccb-personal-memory、hook nudge 已有碎片能力，缺的是 「什么证据可以 promote 到 skill/SOP」 的产品规则——Rudder 这里比你们成熟。
+
+6. Product Logic Registry（和 Trellis 同源）
+Rudder doc/product/：
+
+domain contract + contract_ids
+related_code / related_tests
+registry.yml 映射
+你们 Trellis spec + eval cases 已经在做类似事。可借的是 更硬的链接格式：
+
+# 类似 registry.yml
+- id: WANd.DELEGATION.001
+  code: [runAgent.ts, agentSessionProfile.ts]
+  tests: [agentSessionProfile.test.ts, orchestrator-quote-delegates]
+  ui: [MessageToolGroupSummary.tsx]
+这样「改 View Steps 不能破坏 delegation contract」有据可查。
+
+前端：最值得借的 5 块（对应当前痛点）
+你们刚确认的 gap：运行时树存在，UI 平铺。Rudder 正好在打这个。
+
+1. 统一 Transcript 渲染层（直接对标 View Steps）
+Rudder 用 RunTranscriptView 一套组件服务：
+
+Run Detail 页
+Issue 上 LiveRunWidget
+Dashboard ActiveAgentsPanel
+设计原则（DESIGN.md §3.4.1）：
+
+操作员语言，不是 protocol dump
+Command 显示真实命令，隐藏 shell 包装
+Thinking 可 inline；tool payload 可折叠
+同一 entry type 在所有 surface 表现一致
+这正是你们 § UI observability 的 follow-up。 不要给 View Steps 单独写 parser，做 shared normalizeAcpToolCall → blocks，SubagentDrawer 复用。
+
+2. Spawn / Delegate 的语义化一行摘要
+RunTranscriptView.semantic.tsx 对 Codex spawn_agent：
+
+Spawned explorer agent: Inspect the transcript renderer...
+测试明确要求：UI 里不出现 raw spawn_agent。
+
+映射到 WanD：
+
+当前 View Steps:
+  Agent(quotation-agent)          ← 有
+  Read wanding_business_knowledge ← 看起来像 orchestrator
+  match_quotation                 ← 看起来像 orchestrator
+目标（借 Rudder）:
+  ┌─ Delegated to 万鼎报价专家 ─────────────┐
+  │  Read 业务知识库                         │
+  │  查价 match_quotation                    │
+  └──────────────────────────────────────────┘
+  转发报价结果
+实现关键：parentToolUseId 分组 + subagent_type 标签 + semantic summary。
+
+3. Live Run + Agent Identity
+LiveRunWidget / ActiveAgentsPanel：
+
+谁在跑（AgentIdentity + avatar）
+跑了多久（elapsed）
+live transcript 预览（同一 RunTranscriptView）
+3s poll + cancel
+WanD 可借： 委派进行中时，chat 里不只「思考中」，而是 「quotation-agent 运行中 · 2/2 tools」 小条，点进 SubagentDrawer 看 nested timeline。
+
+4. 设计系统：Operator Tool，不是 AI Demo
+Rudder DESIGN.md 核心：
+
+calm / dense / operational
+Output first — 结果、artifact、状态 > setup 说明
+Progressive disclosure — 详情进 drawer
+「what is happening, who is doing it, what needs intervention」
+和你们 WanD 业务场景契合：用户要 价表、路径、口径，不要看 orchestrator 内心戏。
+
+5. Raw vs Nice 双模式
+RunTranscriptView 支持 mode: "nice" | "raw" + showDeveloperDiagnostics。
+
+WanD： 默认 nice（委派树 + 业务摘要）；开发者/运维开 raw（parentToolUseId、完整 MCP payload）——和 eval 调试同源。
+
+Rudder 的 meta-agent 体系：和你们 Trellis 的对照
+Rudder 的 development-lifecycle-router-maintainer：
+
+Route first → spawn-required by default
+writer → checks → verifier → reviewers → handoff
+和你们 code-review → test-agent → trellis 文档 强化门禁很像，但更产品化：
+
+stage classifier（先判阶段再动手）
+spawn-required 默认开启（不用用户再说「去 review」）
+evidence ledger（每阶段退出条件）
+可借到 /trellis:plan-execution： 不只「列 skill 名」，而是 每个 phase 的 exit bar + 证据 artifact——你们已在改 invocation contract，Rudder 的 verification-review.md 是更完整的参考。
+
