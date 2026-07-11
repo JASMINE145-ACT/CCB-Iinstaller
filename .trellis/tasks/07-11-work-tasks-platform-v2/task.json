@@ -1,0 +1,69 @@
+{
+  "id": "work-tasks-platform-v2",
+  "name": "work-tasks-platform-v2",
+  "title": "Work Tasks Platform v2 — MCP tools + manager dashboard",
+  "description": "Unified upgrade: work-tasks-agent MCP v2 (list_mine/brief/get/resolve_assignee) + /tasks manager dashboard; EIL is_admin scope in P4 when ready.",
+  "status": "in_progress",
+  "dev_type": "feature",
+  "scope": "AionCore work-tasks API + MCP + aionui /tasks UI",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-11",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    ".trellis/tasks/07-11-work-tasks-platform-v2/prd.md",
+    ".trellis/tasks/07-11-work-tasks-platform-v2/execution-plan.md",
+    ".trellis/tasks/07-11-work-tasks-platform-v2/research/baseline.md",
+    ".trellis/tasks/07-11-work-tasks-platform-v2/research/api-contract-matrix.md",
+    ".trellis/tasks/07-11-work-tasks-platform-v2/research/dashboard-data-contract.md",
+    ".trellis/tasks/07-09-agent-work-tasks-collaboration-system/prd.md",
+    ".trellis/tasks/07-11-orchestrator-employee-primary-entry/research/extension-slots.md",
+    ".trellis/tasks/07-14-employee-intelligence-layer/research/eil-contract.md",
+    ".trellis/spec/integration/aioncore-work-tasks.md",
+    "mcp_servers/work-tasks-query-server/index.mjs"
+  ],
+  "notes": "2026-07-11 P6 Plan A impl done. filterState + IPC query params + dashboard drill-down. Evidence: p6-done.md. Unit 13 PASS; code-reviewer PASS. Manual AC-D* / AC6-8 pending. P4 EIL deferred.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "Cross-repo",
+    "scenario": "A",
+    "plan_revision": 3,
+    "plan_depth": "Standard+Full-merge-gates",
+    "risks": [
+      "security",
+      "cross-repo",
+      "ui",
+      "packaging"
+    ],
+    "prerequisite_tasks": [
+      "07-09-agent-work-tasks-collaboration-system"
+    ],
+    "related_tasks": [
+      "07-11-orchestrator-employee-primary-entry",
+      "07-14-employee-intelligence-layer"
+    ],
+    "contract_docs": [
+      "research/api-contract-matrix.md",
+      "research/dashboard-data-contract.md"
+    ],
+    "phases": [
+      "P0 contracts",
+      "P1 API optional",
+      "P2 MCP v2",
+      "P2b agent+deploy",
+      "P3 UI dashboard",
+      "P4 EIL is_admin",
+      "P5 spec/smoke"
+    ]
+  }
+}

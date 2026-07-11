@@ -1,0 +1,10 @@
+{"file": ".trellis/tasks/07-11-work-tasks-platform-v2/prd.md", "reason": "AC checklist for completion gate"}
+{"file": ".trellis/tasks/07-11-work-tasks-platform-v2/execution-plan.md", "reason": "Contract Verification + acceptance matrix"}
+{"file": ".trellis/tasks/07-11-work-tasks-platform-v2/research/api-contract-matrix.md", "reason": "RBAC matrix must match implementation"}
+{"file": ".trellis/tasks/07-11-work-tasks-platform-v2/research/dashboard-data-contract.md", "reason": "UI data/cap/role boundary"}
+{"file": ".trellis/spec/integration/aioncore-work-tasks.md", "reason": "Spec must be updated at P5"}
+{"file": "scripts/test-work-tasks-agent-acceptance.mjs", "reason": "GREEN evidence for MCP v2"}
+{"file": "mcp_servers/work-tasks-query-server/index.mjs", "reason": "Verify tool allowlist + audit + brief mine-only"}
+{"file": "ccb-installer/packages/vertical/com.wanding.trade/agents/work-tasks-agent.md", "reason": "Agent playbook matches tools"}
+{"file": "AionCore/crates/aionui-work-tasks/src/service.rs", "reason": "No employee /query; ACL on get"}
+{"file": "AionCore/crates/aionui-work-tasks/tests/service_integration.rs", "reason": "Backend RBAC regression"}

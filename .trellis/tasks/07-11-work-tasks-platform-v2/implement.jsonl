@@ -1,0 +1,15 @@
+{"file": ".trellis/tasks/07-11-work-tasks-platform-v2/prd.md", "reason": "Product ACs, MCP catalog, dashboard scope"}
+{"file": ".trellis/tasks/07-11-work-tasks-platform-v2/execution-plan.md", "reason": "Phased workstreams + P1-P3 scope contract"}
+{"file": ".trellis/tasks/07-11-work-tasks-platform-v2/research/baseline.md", "reason": "Gap inventory vs 07-09"}
+{"file": ".trellis/tasks/07-11-work-tasks-platform-v2/research/api-contract-matrix.md", "reason": "Per-tool RBAC + REST mapping locked"}
+{"file": ".trellis/tasks/07-11-work-tasks-platform-v2/research/dashboard-data-contract.md", "reason": "UI dashboard input/grouping/cap"}
+{"file": ".trellis/spec/integration/aioncore-work-tasks.md", "reason": "Canonical work-tasks API + RBAC spec"}
+{"file": ".trellis/tasks/07-14-employee-intelligence-layer/research/eil-contract.md", "reason": "is_admin / scope matrix for P4"}
+{"file": "mcp_servers/work-tasks-query-server/index.mjs", "reason": "MCP server to extend with v2 tools"}
+{"file": "ccb-installer/packages/vertical/com.wanding.trade/agents/work-tasks-agent.md", "reason": "Agent L1 tool table must list v2 tools"}
+{"file": "scripts/test-work-tasks-agent-acceptance.mjs", "reason": "Extend with per-tool RED/GREEN cases"}
+{"file": "AionCore/crates/aionui-work-tasks/src/service.rs", "reason": "query_tasks list_all + RBAC"}
+{"file": "AionCore/crates/aionui-work-tasks/src/routes.rs", "reason": "REST routes for list/query/get"}
+{"file": "AionCore/crates/aionui-db/src/repository/sqlite_work_task.rs", "reason": "list_for_scope / list_all SQL"}
+{"file": "D:/Projects/aionui-src/packages/desktop/src/renderer/pages/workTasks/useWorkTasks.ts", "reason": "list/query hooks for dashboard"}
+{"file": "D:/Projects/aionui-src/packages/desktop/src/renderer/pages/workTasks/WorkTasksPage/index.tsx", "reason": "Manager dashboard UI target"}

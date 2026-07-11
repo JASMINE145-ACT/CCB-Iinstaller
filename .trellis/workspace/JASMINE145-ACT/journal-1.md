@@ -167,3 +167,37 @@ Built a code-level PreToolUse/beforeShellExecution hook (shared commit_gate.py +
 ### Next Steps
 
 - None - task complete
+
+
+## Session 5: Work task understand-agent handoff
+
+**Date**: 2026-07-11
+**Task**: Work task understand-agent handoff
+**Branch**: `main`
+
+### Summary
+
+Shipped task-detail 了解任务 CTA: new chat with understand prompt, default main agent, bypassPermissions, description brief-path writeback. Closed Trellis 07-11-work-task-open-agent-brief. aionui 6536e96; trellis/spec 40b01f32.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `40b01f32` | (see git log) |
+| `6536e96` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

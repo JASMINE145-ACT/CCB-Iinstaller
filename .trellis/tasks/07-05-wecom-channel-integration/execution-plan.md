@@ -1,17 +1,231 @@
-# Execution Plan — `07-05-wecom-channel-integration` (rev 3)
+# Execution Plan — `07-05-wecom-channel-integration` (rev 7)
 
 | Field | Value |
 |-------|--------|
-| **Status** | `active` — rev 5 error passthrough |
-| **Plan revision** | 5 (2026-07-10 — 853000 errmsg passthrough + fast-fail) |
-| **Scenario** | **C** + **external-api** (WeCom credential 853000) |
+| **Status** | `active` — P0 outbound file **implemented** (awaiting manual M2) |
+| **Plan revision** | 7 (2026-07-11 — harden contracts; MVP = outbound file; inbound deferred) |
+| **Scenario** | **B** (large spec extension) + **L** (research done) + **H** (path allowlist) |
 | **Plan depth** | Full |
-| **Verification profile** | Cross-repo |
-| **Repos** | `aionui-src` (primary) + `claude-code-best` (Trellis/spec) |
+| **Verification profile** | Cross-repo + UI manual smoke |
+| **Repos** | `aionui-src` (ext-wecom-aibot ×2 trees) + `claude-code-best` (AionCore bridge + Trellis) |
 | **Parked** | 2026-07-04 — resumed 2026-07-06 for P1b |
-| **Active phase** | **P1d** — error passthrough; manual smoke needs valid WeCom creds |
+| **Active phase** | **P1e-P0** — WeCom outbound file (**code done**; manual **M2** pending) |
+| **Approach** | **B** — contracts locked; P0 implemented 2026-07-11 |
 
-**PRD:** [`prd.md`](./prd.md) · **Gap:** [`research/gap-analysis-ext-wecom-bot.md`](./research/gap-analysis-ext-wecom-bot.md) · **Bug:** [`research/enable-false-success-2026-07-09.md`](./research/enable-false-success-2026-07-09.md)
+**PRD:** [`prd.md`](./prd.md) · **Gap:** [`research/gap-analysis-ext-wecom-bot.md`](./research/gap-analysis-ext-wecom-bot.md) · **Media research:** [`research/wecom-aibot-media-capabilities.md`](./research/wecom-aibot-media-capabilities.md)
+
+**Prior revs:** Rev 6 (mixed inbound+outbound draft) → superseded by rev 7; Rev 5 (error passthrough) — implemented; Rev 4 (enable) — implemented.
+
+---
+
+## Rev 7 — Decision lock (MVP cut)
+
+| Layer | In this ship (P0) | Explicitly out |
+|-------|-------------------|----------------|
+| Outbound **file** | Yes — `messageType=file` → `uploadMedia` → `replyMedia` | — |
+| Outbound **image** / stream `msg_item` | No | P2 |
+| Proactive `sendMediaMessage` (no reply ctx) | No | P3 |
+| Inbound image/file/mixed | No | P1 (`WANd.WECOM.MEDIA.IN.001`) |
+| Text `replyStream` | Unchanged | — |
+| Dual extension trees | **Must stay in sync** | Single-tree drift forbidden |
+
+**Highest risks (must not regress):**
+
+1. **AionCore bridge first** — `outgoing_to_json` today drops `file_url` / `file_name`; SDK alone cannot see media entities.
+2. **Reply-context lifetime** — `replyStreamForChat(..., finish=true)` clears context; `replyMedia` must complete **before** finish clear.
+3. **Path allowlist** — no arbitrary local paths; whitelist + size + ext/MIME + audit log.
+4. **Inbound not in P0** — temp TTL / agent path / scan are P1-only.
+5. **Two trees** — `examples-wecom-dev/ext-wecom-aibot` **and** `examples/ext-wecom-aibot` must receive the same outbound file behavior.
+
+---
+
+## Rev 7 — Session evidence (planning invocations)
+
+| Invocation | Output |
+|------------|--------|
+| `Read: trellis-task-execution/SKILL.md` | Contract → TDD → Contract Verification doctrine loaded |
+| `Read: trellis-task-execution/skill-selection.md` | Scenario B/L + H (security allowlist); cross-repo → Full |
+| `Read: trellis-before-dev` | Task `07-05-wecom-channel-integration`; `.trellis/spec/integration/wecom-channel.md` |
+| `Agent: trellis-research` | [`research/wecom-aibot-media-capabilities.md`](./research/wecom-aibot-media-capabilities.md) |
+| User risk review (2026-07-11) | Approach **B**; P0 outbound only; harden bridge / reply ctx / allowlist / dual-tree |
+
+---
+
+## Rev 7 — Phase -1 capability matrix
+
+| Capability | Tool | Status | Fallback |
+|------------|------|--------|----------|
+| Media SDK surface | research doc | **done** | WeCom docs |
+| AionCore `outgoing_to_json` File fields | trellis-implement | available | Block P0 if missing |
+| Extension file send + allowlist | trellis-implement | available | Text degrade |
+| Dual-tree sync | mirror patch both dirs | required | Fail gate if drift |
+| Layer A review | `Agent: code-reviewer` | available | — |
+| Layer B (renderer) | N/A (no settings UI in P0) | N/A | — |
+| Rust tests | `cargo test -p aionui-channel` | available | — |
+| JS unit tests | `bun test` / existing wecom unit paths | available | — |
+| Manual WeCom smoke | user + internal group | **required for M2** | Block ship without M2 |
+
+**Plan depth:** Full · **Verification profile:** Cross-repo + UI
+
+---
+
+## Rev 7 — Contract map (P0 ship)
+
+| Contract | Behavior protected | Primary code | Tests / eval / smoke | Risk |
+|----------|-------------------|--------------|----------------------|------|
+| `WANd.WECOM.MEDIA.OUT.001` | `UnifiedOutgoingMessage(File)` → extension JSON → WeCom downloadable file | `plugin.rs` `outgoing_to_json`; `ext-wecom-aibot-channel.js`; `sdk-runtime.js` | Rust serialize test + JS mock upload/reply + **M2** | Quotation Excel never reaches WeCom |
+| `WANd.WECOM.MEDIA.OUT.SECURITY.001` | Outbound path must pass allowlist / size / ext / MIME; reject + audit otherwise | shared JS validator (both trees) | Unit: reject `C:\Windows\...`, oversize, `.exe` | Arbitrary local file exfil |
+| `WANd.WECOM.MEDIA.OUT.CTX.001` | `replyMedia` runs while reply context exists; finish clear only after media (or after safe text fallback) | `sdk-runtime.js`, channel `sendMessage` | Unit: mock finish order; **M2** | `no active reply context` → silent fail |
+| `WANd.WECOM.MEDIA.OUT.DEGRADE.001` | Upload/validation failure → text fallback; `replyStream` still finishes; no hang | channel + sdk-runtime | Unit mock SDK reject; **M2-fail** path | Stuck stream / empty reply |
+| `WANd.WECOM.MEDIA.OUT.SYNC.001` | Dev tree and packaged `examples/` tree behave identically for file send | both `ext-wecom-aibot` trees | Diff gate or shared test against both entrypoints | Installer vs local-dev drift |
+
+### Contract: WANd.WECOM.MEDIA.OUT.001 — wire format (locked)
+
+**Behavior protected:** AionCore emits File messages the extension can send via SDK.
+
+**JSON from `outgoing_to_json` (required fields when `messageType === "file"`):**
+
+| Field | Source | Notes |
+|-------|--------|-------|
+| `messageType` | `OutgoingMessageType::File` → `"file"` | Already partially present; incomplete today |
+| `file_url` **or** `file_path` | `UnifiedOutgoingMessage.file_url` (local path or file URL) | Prefer absolute local path under allowlist |
+| `file_name` | `file_name` | Fallback: basename of path |
+| `mime_type` | optional; JS may infer from ext | e.g. `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` |
+| `text` / `content.text` | optional caption | Text stream path unchanged for non-file |
+
+**Must not change in P0:** text-only `replyStream` path for `messageType=text`.
+
+**Primary code:**  
+`AionCore/.../extension_channel/plugin.rs` ·  
+`aionui-src/examples-wecom-dev/ext-wecom-aibot/channels/{ext-wecom-aibot-channel.js,sdk-runtime.js}` ·  
+mirror under `examples/ext-wecom-aibot/`
+
+**Tests:**  
+- Rust: `cargo test -p aionui-channel outgoing_to_json` (or new `extension_channel_outgoing_file`) asserts File payload includes `file_url`/`file_name`  
+- JS: mock `uploadMedia` + `replyMedia`; assert called with file type + filename  
+
+**Eval / smoke:** Manual **M2** — quotation → WeCom file bubble  
+
+**Risk if broken:** WanD 报价表 blocked on WeCom
+
+### Contract: WANd.WECOM.MEDIA.OUT.SECURITY.001 — allowlist (locked before code)
+
+| Rule | P0 value |
+|------|----------|
+| Allowed roots | Agent artifact / workspace dirs only (exact list fixed in impl notes + tests; e.g. CCB workspace + session artifact dirs — **no** drive-root / user home / system paths) |
+| Max size | ≤ 20 MB soft (WeCom SDK allows 50 MB; P0 tighter) |
+| Allowed extensions | `.xlsx`, `.xls`, `.csv`, `.pdf`, `.docx`, `.txt` (P0 quotation-centric; expand later) |
+| MIME | Must match extension allowlist when provided |
+| Reject behavior | Do **not** upload; send text fallback per DEGRADE.001; write audit log (path basename only — never full secret paths if outside allowlist) |
+| Symlinks / `..` | Resolve + reject if escapes allowlist root |
+
+### Contract: WANd.WECOM.MEDIA.OUT.CTX.001 — reply timing (locked)
+
+```text
+1. Ensure reply context exists for chatId (from inbound frame)
+2. Validate path (SECURITY.001)
+3. uploadMedia({ type: 'file', filename })
+4. replyMedia(frame, media_id, ...)     ← MUST run while context live
+5. Optional text caption via replyStream(finish=false) if needed
+6. replyStream(..., finish=true)        ← clears context LAST
+```
+
+**Forbidden:** `finish=true` before `replyMedia`.  
+**Out of P0:** `sendMediaMessage` without reply context (P3).
+
+### Contract: WANd.WECOM.MEDIA.OUT.DEGRADE.001
+
+**Behavior protected:** Validation/SDK failures still complete the turn with user-visible text (e.g. `[文件发送失败] name — reason`); no stuck「Thinking…」.
+
+### Contract: WANd.WECOM.MEDIA.OUT.SYNC.001
+
+**Behavior protected:** Same channel JS semantics in:
+
+- `aionui-src/examples-wecom-dev/ext-wecom-aibot/` (dev)
+- `aionui-src/examples/ext-wecom-aibot/` (packaged sample)
+
+**Gate:** P0 PR must touch both trees (or prove one is generated from the other). Diff of `channels/*` for file-send helpers must be empty or documented sync script.
+
+### Deferred (not in rev 7 ship)
+
+| Contract | Status |
+|----------|--------|
+| `WANd.WECOM.MEDIA.IN.001` | **Deferred P1** — handlers + download + temp TTL + attachments parse |
+| Outbound image / mixed inline | **Deferred P2** |
+| Proactive `sendMediaMessage` | **Deferred P3** |
+
+---
+
+## Rev 7 — Workstreams (P0 only)
+
+| Phase | Priority | Workstream | touches | Risk | Tool / agent | Files | Required output | Profile |
+|-------|----------|------------|---------|------|--------------|-------|-----------------|---------|
+| **P1e.0** | P0 | Lock AC in PRD + `wecom-channel.md` (outbound file only; cite contracts above) | docs-only | — | edit plan/prd (this rev); full spec update **after** GREEN | `prd.md`, `wecom-channel.md` | AC bullets match OUT.* contracts | — |
+| **P1e.1** | P0 | RED: Rust `outgoing_to_json` File serialization | OUT.001 | cross-repo | `Skill: superpowers:test-driven-development` | `plugin.rs` + tests | Failing assert: `file_url`/`file_name` present | Fast |
+| **P1e.2** | P0 | GREEN: AionCore bridge passthrough File fields | OUT.001 | cross-repo | trellis-implement | `plugin.rs` (± bridge.mjs) | JSON carries `messageType=file` + path/name/mime | Cross-repo |
+| **P1e.3** | P0 | RED: JS allowlist + file send + reply-order tests (mock SDK) | OUT.SECURITY.001, OUT.CTX.001, OUT.DEGRADE.001 | security | TDD | `tests/...outbound-media*.test.js` (or unit under wecom) | Fail until validator + replyMedia order exist | Fast |
+| **P1e.4** | P0 | GREEN: extension `sendMessage` file branch — validate → upload → replyMedia → finish | OUT.001, CTX, SECURITY, DEGRADE | external-api | trellis-implement | both trees: `ext-wecom-aibot-channel.js`, `sdk-runtime.js`, shared validator module | Dual-tree sync | UI |
+| **P1e.5** | P0 | Upstream producer (if needed): stream_relay / message_service emit `OutgoingMessageType::File` when agent artifact path known | OUT.001 | agent-routing | trellis-implement + spike | `stream_relay.rs` / `message_service.rs` | File message reaches extension (not text-only path leak) | Cross-repo |
+| **P1e.6** | P0 | Review + automated gates | all OUT.* | — | `Agent: code-reviewer` → test-agent | — | Layer A PASS; cargo + JS tests green; SYNC.001 dual-tree | Cross-repo |
+| **P1e.7** | P0 | Manual smoke **M2** (+ degrade spot-check) | OUT.001, DEGRADE | external-api | user | WeCom group | File bubble received | UI |
+
+**Parallel split:** P1e.1–2 (Rust) ∥ P1e.3–4 (JS) after field names locked above; **merge owner:** JSON field names in OUT.001 table (single source of truth).  
+**P1e.5** only if File messages never leave AionCore today — spike before coding; if agent already sets `file_url`, skip.
+
+**Inbound workstreams:** removed from active plan (see Deferred).
+
+---
+
+## Rev 7 — TDD contract
+
+| Workstream | Contract | RED evidence | GREEN command | Refactor guard |
+|------------|----------|--------------|---------------|----------------|
+| P1e.1–2 Rust | OUT.001 | Serialize File without `file_url` fails new test | `cargo test -p aionui-channel` (filter extension_channel / outgoing file) | same |
+| P1e.3–4 JS | OUT.SECURITY / CTX / DEGRADE | Allowlist rejects; replyMedia-before-finish fails | `bun test` / project wecom unit command targeting outbound-media | same both trees |
+| P1e.5 producer | OUT.001 | N/A if already emitting File; else failing integration stub | `cargo test -p aionui-channel` | same |
+| P1e.6 gates | all | — | code-reviewer PASS → tests | — |
+| P1e.7 smoke | OUT.001 | — | Manual **M2** | — |
+
+---
+
+## Rev 7 — Contract Verification (P0 gate)
+
+| Contract | Verification command / smoke | Required evidence | Status |
+|----------|------------------------------|-------------------|--------|
+| OUT.001 | `cargo test -p aionui-channel outgoing_to_json` (2 pass) + vitest outbound-media + **M2** | Rust+JS green; WeCom file bubble | **auto PASS**; **M2 pending** |
+| OUT.SECURITY.001 | vitest allowlist / oversize / ext + default roots include `D:\CCB-Wanding\workspace` | 11 tests pass | **PASS** |
+| OUT.CTX.001 | vitest `planOutboundSend` media before finish | test output | **PASS** |
+| OUT.DEGRADE.001 | vitest validation failure → `[文件发送失败]` | test output | **PASS** |
+| OUT.SYNC.001 | dual-tree SHA match for outbound-file/sdk/channel | checklist | **PASS** |
+| IN.001 | — | — | **deferred** |
+
+**Gate chain:** `Agent: code-reviewer` **PASS** (2026-07-11) → cargo + vitest **PASS** → manual **M2** → `trellis-update-spec` (media section) → jsonl  
+
+**Do not claim P0 done without:** OUT.001 + SECURITY.001 + CTX.001 automated evidence **and** M2.
+
+**P1e.5 note:** No Rust `OutgoingMessageType::File` producer yet; P0 live path = **text auto-attach** of allowlisted absolute paths in assistant reply (quotation Excel paths). Typed File bridge ready for later.
+
+---
+
+## Rev 7 — Manual smoke (P0)
+
+| ID | Steps | Pass criteria | Ship |
+|----|-------|---------------|------|
+| **M2** | Trigger quotation (or inject File outgoing) → agent produces Excel under allowlist | User receives **file message** in WeCom | **Required** |
+| **M2b** | Force invalid path / oversize (dev harness or mock) | Text fallback; stream completes; no stuck Thinking | Required if harness available; else unit covers DEGRADE |
+| **M1 / M3 / M4 inbound** | — | — | **Deferred with P1** |
+
+---
+
+## Rev 7 — Recovery / re-approval
+
+| Trigger | Action |
+|---------|--------|
+| User says **执行 task** / **执行 P0** | Start P1e.1 RED; no inbound code |
+| Producer cannot emit File (P1e.5 hard) | Stop; re-approve spike options (artifact hook vs text-path parse — prefer typed File message) |
+| Reply context unavailable at send time | Re-approve P3 `sendMediaMessage` exception — **not** silent workaround in P0 |
+| Dual-tree sync too costly | Re-approve single canonical path + sync script; do not ship one-sided |
+| User expands to inbound | New plan rev; activate IN.001 workstreams |
 
 ---
 
@@ -326,6 +540,7 @@ Full chain: **Layer A PASS + Layer B PASS** → bun test → manual smoke → tr
 | P1b bridge | **done (uncommitted)** | AionCore extension channel JS host + Wecom PluginType; cargo test 206+ pass |
 | P1 manual smoke | **unblocked — retry** | P1c enable contract implemented; user manual enable toggle |
 | P1c enable contract | **implemented** | 001–003 code+tests pass; manual smoke pending |
+| **P1e media plan** | **rev 7 implemented (auto)** | code-reviewer PASS; cargo outgoing_to_json 2/2; vitest outbound-media 11/11; dual-tree sync; **M2 manual pending** |
 
 ---
 
@@ -346,3 +561,5 @@ Full chain: **Layer A PASS + Layer B PASS** → bun test → manual smoke → tr
 ## Defer / out of scope
 
 Rust wecom; corp self-built app; external customer groups; group webhook-only; WanD logic in extension; vertical package naming.
+
+**Rev 7 media deferrals (explicit):** inbound image/file/mixed (`IN.001`); outbound image / stream `msg_item` (P2); proactive `sendMediaMessage` without reply context (P3); expanding allowlist beyond quotation-centric extensions.

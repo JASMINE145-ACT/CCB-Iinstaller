@@ -27,7 +27,7 @@ Employee Primary Entry (identity — stable)
 | S3 | Skill `role-aware-routing` | Bias specialist choice by role | EIL context | 07-11 P3 / 07-14 | open |
 | S4 | Skill `daily-brief` | 「今天怎么样」script | S0 + work-tasks | child | open |
 | S5 | MCP `me_context` | Read EIL `/users/me/context` | 07-14 P1 API | wire in 07-11 or child; API in 07-14 | open |
-| S6 | MCP `my_tasks_brief` | Read-only today/overdue summary | work-tasks API | **not** full CRUD | open |
+| S6 | MCP `my_tasks_brief` | Read-only today/overdue summary | work-tasks API | **07-11-work-tasks-platform-v2** P2 (`work_tasks_brief`) | open |
 | S7 | MCP `explain_capability` | 「我能不能…」from role/scope | S5 | child | open |
 | S8 | Active memory intake | Use workflow.md at session start when useful | personal-memory | soft playbook in P0 | open |
 | S9 | Product copy / Guid label | Display name「工作助手」 | Q1 | UI optional | open |

@@ -98,6 +98,19 @@ platform_type   = extension id (not builtin wecom)
 - [ ] Namespaced ids; `@bot`-only group trigger
 - [ ] Channel status + last error in UI
 
+### P1e — Outbound file (P0 media; inbound deferred)
+
+Contracts: `WANd.WECOM.MEDIA.OUT.001` / `OUT.SECURITY.001` / `OUT.CTX.001` / `OUT.DEGRADE.001` / `OUT.SYNC.001`
+
+- [x] AionCore `outgoing_to_json` passes `messageType=file` + `file_url`/`file_path`/`file_name`
+- [x] Extension allowlist (CCB workspace roots incl. `D:\CCB-Wanding\workspace`), size ≤20MB, ext whitelist
+- [x] `uploadMedia` → `replyMedia` **before** `replyStream(finish=true)` clears reply context
+- [x] Validation/upload failure → `[文件发送失败]` text; stream still finishes
+- [x] `examples-wecom-dev` and `examples/ext-wecom-aibot` stay in sync
+- [x] Unit: `cargo test -p aionui-channel outgoing_to_json`; `vitest …/ext-wecom-aibot-outbound-media.test.ts`
+- [ ] Manual **M2**: quotation Excel appears as WeCom **file** bubble (not text-only)
+- [ ] Inbound image/file — **out of P0** (see execution-plan rev 7 deferred)
+
 ### P2 — Compat security (production label gate)
 
 - [ ] HTTP callback rejects: bad signature, stale timestamp, replay, malformed XML, oversized payload, receiveid mismatch
@@ -131,6 +144,7 @@ platform_type   = extension id (not builtin wecom)
 - [ ] SDK disconnect → auto reconnect
 - [ ] Wrong Secret → clear UI error
 - [ ] Duplicate enable same BotID → reject or reuse single connection
+- [ ] **M2 media:** agent reply with allowlisted `.xlsx` path → WeCom file message
 
 ## Open questions
 
