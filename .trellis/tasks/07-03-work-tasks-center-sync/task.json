@@ -2,7 +2,7 @@
   "id": "work-tasks-center-sync",
   "name": "07-03-work-tasks-center-sync",
   "title": "工作任务中心化 — 云端存储 + 经理全员可见",
-  "description": "Extend 06-15：work_tasks 从本机 SQLite 迁到中心 org aioncore（VPS）；/tasks UI 改走 orgHttpBridge；经理 query 组织全员任务。",
+  "description": "Extend 06-15：work_tasks 从本机 SQLite 迁到中心 org aioncore（VPS）；/tasks UI 改走 orgHttpBridge；经理 query 组织全员任务。P5：本地附件元数据 VPS + blob 本机。",
   "status": "completed",
   "dev_type": "feature",
   "scope": "aionui-src + AionCore + org VPS deploy",
@@ -11,7 +11,7 @@
   "creator": "JASMINE145-ACT",
   "assignee": "JASMINE145-ACT",
   "createdAt": "2026-07-01",
-  "completedAt": "2026-07-06",
+  "completedAt": "2026-07-09",
   "branch": null,
   "base_branch": "main",
   "worktree_path": null,
@@ -23,19 +23,15 @@
   "relatedFiles": [
     ".trellis/tasks/07-03-work-tasks-center-sync/research/decisions.md",
     ".trellis/tasks/07-03-work-tasks-center-sync/prd.md",
+    ".trellis/tasks/07-03-work-tasks-center-sync/p5-vps-done.md",
     ".trellis/tasks/06-15-aionui-work-tasks/prd.md",
     ".trellis/spec/integration/aioncore-work-tasks.md",
-    ".trellis/spec/integration/org-knowledge.md",
-    "AionCore/crates/aionui-work-tasks",
-    "aionui-src/packages/desktop/src/renderer/pages/workTasks",
-    "aionui-src/packages/desktop/src/common/adapter/orgHttpBridge.ts",
-    "aionui-src/packages/desktop/src/common/adapter/ipcBridge.ts",
-    "scripts/org-phase0/vps-org-api-deploy-checklist.md"
+    "AionCore/crates/aionui-db/migrations/020_work_task_attachment_storage.sql",
+    "scripts/org-phase0/verify-work-tasks-p5.ps1"
   ],
-  "notes": "2026-07-01 决策锁定 + P4-A 代码；2026-07-06 VPS deploy/build/restart + 401 smoke + admin CRUD + dev UI 验收 PASS。P4-E（附件打开、本机 API 下线、TeamMembersPage org）defer。见 p4-vps-done.md。",
+  "notes": "P4 2026-07-06 VPS+dev UI PASS。P5 2026-07-09：本地附件 shipped；migration 020；VPS cargo build + 401/admin CRUD 用户验收 PASS（p5-vps-done.md）。P4-E defer。",
   "meta": {
     "execution_plan": "execution-plan.md",
-  "meta": {
     "user_decisions": {
       "storage": "center_org_aioncore_vps",
       "manager_visibility": "all_company_no_department",
@@ -44,14 +40,15 @@
       "offline": "online_required",
       "admin_is_manager": true,
       "realtime_v1": "swr_poll_and_focus_refresh",
-      "attachments": "center_org_fs_upload"
+      "attachments": "local_metadata_vps_blob_on_device_p5"
     },
     "phases": [
       "P4-A-org-http-wiring",
       "P4-B-vps-data-deploy",
       "P4-C-users-rbac",
       "P4-D-realtime-badge",
-      "P4-E-local-migration-sunset"
+      "P4-E-local-migration-sunset",
+      "P5-local-attachments"
     ],
     "open_questions_resolved": "2026-07-01"
   }

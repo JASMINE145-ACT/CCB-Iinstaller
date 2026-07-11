@@ -1,3 +1,6 @@
 {"path": ".trellis/tasks/07-03-work-tasks-center-sync/prd.md", "reason": "Acceptance scenarios"}
 {"path": ".trellis/spec/integration/aioncore-work-tasks.md", "reason": "API + RBAC contract"}
 {"path": "scripts/org-phase0/vps-org-api-deploy-checklist.md", "reason": "VPS deploy smoke"}
+{"ts":"2026-07-09T14:37:00Z","type":"check","summary":"P5 local attachments: cargo test aionui-work-tasks 20/20 PASS; vitest workTaskTypes 10/10 PASS; code-review conditional PASS after RBAC+legacy remote fixes"}
+{"ts":"2026-07-09T15:07:00Z","type":"check","summary":"P5 deploy preflight: release aioncore.exe built; verify-work-tasks-p5.ps1 -OrgSmoke ALL PASS (401+admin CRUD); p5-deploy-preflight-done.md"}
+{"ts":"2026-07-09T15:32:00Z","type":"check","summary":"P5 VPS user acceptance: systemctl restart; work-tasks/users 401; admin login manager; GET /api/work-tasks JWT 200 + task list — p5-vps-done.md"}

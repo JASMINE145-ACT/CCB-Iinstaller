@@ -2,4 +2,6 @@
 {"path": "aionui-src/packages/desktop/src/common/adapter/orgHttpBridge.ts", "reason": "Pattern for center org REST from renderer"}
 {"path": "aionui-src/packages/desktop/src/renderer/pages/workTasks/useWorkTasks.ts", "reason": "SWR + scope + members + query hooks"}
 {"path": "AionCore/crates/aionui-work-tasks/src/routes.rs", "reason": "REST surface already on org binary"}
-{"path": ".trellis/spec/integration/org-knowledge.md", "reason": "Dual JWT + org IPC contract to mirror"}
+{"path": "AionCore/crates/aionui-db/migrations/020_work_task_attachment_storage.sql", "reason": "P5 local attachment storage_mode + uploaded_by_id"}
+{"path": "aionui-src/packages/desktop/src/process/bridge/workTaskAttachmentBridge.ts", "reason": "P5 local blob store under userData"}
+{"path": "aionui-src/packages/desktop/src/renderer/pages/workTasks/WorkTasksPage/WorkTaskDetailPage.tsx", "reason": "P5 local upload/open; no org fs upload"}

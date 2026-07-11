@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | completed |
-| **Scenario** | D（双仓：AionCore + aionui-src；VPS 运维串行） |
-| **Active phase** | — (closed 2026-07-06) |
+| **Status** | `completed` (Phase 4 + **P5** backend VPS 2026-07-09) |
+| **Scenario** | D（Phase 4）· P5 implement |
+| **Active phase** | — (P5 VPS done; UI manual optional) |
 | **Approved** | 2026-07-01（explore 决策锁定） |
 | **Code complete** | 2026-07-01（Phase 4-A 基础已落地） |
 
@@ -22,6 +22,9 @@
 | P4-D 角标轮询 | **done** | 45s/60s SWR；已移除 WS 依赖 |
 | P4-E 本机下线 | **defer** | 附件打开、local API 只读 — follow-up 非阻塞 |
 | Trellis 收尾 | **done** | execution-plan + prd AC + task.json（2026-07-06） |
+| **P5 local attachments** | **done** | code + migration 020 + tests 20/20 + vitest 10/10 |
+| **P5 VPS deploy** | **done** | user 2026-07-09 — 401 smoke + admin CRUD — [`p5-vps-done.md`](./p5-vps-done.md) |
+| P5 UI manual | **optional** | employee upload/open; manager metadata-only |
 
 ---
 
@@ -198,3 +201,110 @@ curl -s http://127.0.0.1:13401/api/users -H "Authorization: Bearer $TOKEN"
 | Agent | Dev Tier 2 协助 / smoke 脚本扩展 | 可选 |
 | Agent | P4-E：附件打开、本机 API 只读 | P4-B 通过后 |
 | Agent | trellis-update-spec + jsonl + prd [x] | 验收通过后 |
+
+---
+
+## Skills invoked (planning session 2026-07-09)
+
+| Invocation | Type | Evidence |
+|------------|------|----------|
+| trellis-task-execution | Read: | `.cursor/skills/trellis-task-execution/SKILL.md` — Scenario E explore |
+| trellis-before-dev | Read: | `get_context.py --mode packages` → integration layer; `aioncore-work-tasks.md` |
+| trellis-research | Agent: | `research/local-attachment-explore.md` — verdict **GO WITH CONSTRAINTS** |
+| skill-selection.md §二 | Read: | explore → trellis-research; no openspec-propose (brownfield extend) |
+
+---
+
+## P5 — 本地附件探索（2026-07-09）
+
+**用户诉求：** VPS 只存 task 元数据；附件员工本地上传、**不上传 VPS**（磁盘空间有限）。  
+**不新建 task** — 在 `07-03-work-tasks-center-sync` 内 extend。  
+**Research：** [`research/local-attachment-explore.md`](./research/local-attachment-explore.md)
+
+### 探索结论（摘要）
+
+| 问题 | 结论 |
+|------|------|
+| 能否做？ | **能**，但**不能**把员工本机绝对路径写进 VPS `file_path`（会泄漏路径、跨设备必挂） |
+| 推荐方案 | **Option C**：`storage_mode=local` + 客户端 blob 存 `%APPDATA%/AionUi/work-task-attachments/{attachment_id}` |
+| VPS 存什么 | 附件元数据（`id`, `file_name`, `mime_type`, `size`, `uploaded_by_id`）；**不存字节、不存真实路径** |
+| 经理能否打开附件 | **不能**（仅见文件名/大小/上传者）；需产品接受 |
+| 与 D9 冲突 | **是** — D9「中心存储」需修订为「元数据中心 + 字节本地」 |
+| 当前 P4-E 缺口 | 上传走 VPS、打开走本机 — 跨设备打开本就未通；本方案**有意**放弃跨设备内容 |
+
+### 产品约束（必须签字）
+
+1. 跨设备**不能**打开附件内容（经理只见 metadata）。
+2. 仅 **Electron 桌面** v1 支持上传/打开；WebUI metadata-only 或隐藏上传。
+3. 必须用 app 托管拷贝，不用原始 picker 路径。
+4. 已有 VPS `remote` 行：显示「需重新上传」或隐藏打开按钮。
+
+### Phase -1 — Capability matrix (P5)
+
+| Capability | Tool | Status | Fallback |
+|------------|------|--------|----------|
+| Explore | trellis-research | **done** | local-attachment-explore.md |
+| Spec amend | trellis-update-spec | available | After implement gate |
+| DB migration | trellis-implement | available | Inline AionCore |
+| UI | TDD + trellis-implement | available | aionui-src |
+| Security review | code-reviewer | available | path-blind server check |
+
+**Plan depth:** Standard  
+**Verification profile:** Cross-repo  
+**Risk tags:** `migration` · `cross-repo` · `ui`
+
+### Phase 5-A — 产品决策（阻塞实现）
+
+| Step | Owner | Output |
+|------|-------|--------|
+| 5-A.1 确认放弃跨设备附件内容 | **用户** | 口头/PRD 勾选 |
+| 5-A.2 修订 D9 in `decisions.md` | Agent | D9b: metadata central, bytes local |
+| 5-A.3 选本地存储根 | **用户** | 默认 `%APPDATA%/AionUi/work-task-attachments/` |
+
+**Gate：** 用户说「执行 P5」前必须完成 5-A.1。
+
+### Phase 5-B — 实现（待批准）
+
+| Phase | Priority | Workstream | Risk | Tool | Files | Output |
+|-------|----------|------------|------|------|-------|--------|
+| 5-B.1 | P0 | DB migration 017 | migration | trellis-implement | `017_work_task_attachment_storage.sql` | `storage_mode`, `uploaded_by_id` |
+| 5-B.2 | P0 | Rust service/DTO | migration | trellis-implement | `aionui-work-tasks`, `api-types`, `models` | path-blind `local` insert |
+| 5-B.3 | P0 | Client blob store | ui | TDD → implement | `workTaskAttachmentStore.ts` (new) | copy/resolve/delete by `attachment_id` |
+| 5-B.4 | P0 | UI wiring | ui | trellis-implement | `WorkTaskDetailPage.tsx` | 去掉 `uploadFileViaOrgHttp` |
+| 5-B.5 | P1 | i18n + disabled states | ui | implement | `workTasks.json` | 「仅本机可用」 |
+| 5-B.6 | P0 | Tests | — | cargo + vitest | service_integration + unit | storage_mode cases |
+| 5-B.7 | P0 | Spec | — | trellis-update-spec | `aioncore-work-tasks.md` | attachment matrix |
+
+### TDD contract (P5)
+
+| Workstream | Level | RED | GREEN | Regression |
+|------------|-------|-----|-------|------------|
+| `storage_mode=local` insert | integration | missing column test | `cargo test -p aionui-work-tasks` | RBAC 14 tests |
+| attachment store | unit | resolve missing blob | `vitest workTaskAttachmentStore` | workTaskTypes 8/8 |
+| UI open guard | unit | remote viewer disabled | vitest component | orgHttpBridge 7/7 |
+
+### Verification gate (P5)
+
+```
+用户批准 P5 + 5-A.1
+  → trellis-implement 5-B.1–5-B.4
+  → code-reviewer PASS
+  → cargo test + vitest (above)
+  → trellis-update-spec
+  → manual: 员工上传 → 本机可打开 → 经理只见文件名不可打开
+  → implement.jsonl + check.jsonl
+```
+
+### Manual smoke (P5)
+
+- [ ] 员工 PC：创建任务 → 上传 PDF → 本机点击打开 **PASS**
+- [ ] 经理 PC：同一任务见附件名 → 打开按钮 **disabled** + 提示
+- [ ] 删除附件 → 本地 blob 删除
+- [ ] VPS `df`：上传任务附件后 **无新增** `/tmp/aionui` 占用
+
+### Defer / out of scope (P5)
+
+- 经理下载 / 对象存储 S3
+- 第二台设备同步 blob
+- WebUI 上传
+- VPS 上 legacy `remote` 文件 GC

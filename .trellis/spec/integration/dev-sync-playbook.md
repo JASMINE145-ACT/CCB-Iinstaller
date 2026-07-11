@@ -17,11 +17,14 @@
 **所有 dev 启动、smoke、parity 测试只允许一条命令链：**
 
 ```powershell
-# 日常（已 bootstrap 过；默认 sync repo→vendor）：
+# 日常（已 bootstrap 过；默认 sync repo→vendor；**默认加载 ext-wecom-aibot**）：
 .\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap
 
 # 纯 UI 改动、确认不需要 python/data/MCP dist 同步：
 .\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap -SkipVendorSync
+
+# 不需要企业微信扩展（仅调试其它渠道 / 减少 Settings 卡片）：
+.\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap -NoExtensions
 
 # 首次 / 怀疑 baseline 陈旧：
 .\ccb-installer\scripts\start-dev-full.ps1
@@ -39,7 +42,7 @@
 | `start-aionui-dev-work-tasks.ps1` | 旁路 launcher → 重定向 |
 | `org-phase0/start-aionui-dev-org-test.ps1` | 缺 bootstrap/route-b → 重定向 |
 
-`start-dev-full.ps1` 固定顺序：**preflight → bootstrap（可选 Skip）→ route-b sync → `sync-dev-wanding-vendor`（默认；`-SkipVendorSync` 跳过）→ `deploy-seed-agents -ForceMd`（含退役 prune）→ `sync-dev-aioncore`（默认 `-Build` + smoke：price-library / work-tasks / org-knowledge 均 401 非 404）→ org SSO env → kill stale → `bun run dev`**。
+`start-dev-full.ps1` 固定顺序：**preflight → bootstrap（可选 Skip）→ route-b sync → `sync-dev-wanding-vendor`（默认；`-SkipVendorSync` 跳过）→ `deploy-seed-agents -ForceMd`（含退役 prune）→ `sync-dev-aioncore`（默认 `-Build` + smoke：price-library / work-tasks / org-knowledge 均 401 非 404）→ org SSO env → kill stale → `dev-bootstrap launch start --extensions`（默认加载 `examples-wecom-dev/ext-wecom-aibot`；`-NoExtensions` 时退回 `bun run dev`）**。
 
 | 原则 | 说明 |
 |------|------|

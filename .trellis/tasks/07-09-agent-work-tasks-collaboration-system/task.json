@@ -1,0 +1,38 @@
+{
+  "id": "agent-work-tasks-collaboration-system",
+  "name": "agent-work-tasks-collaboration-system",
+  "title": "Agent Work Tasks Collaboration System",
+  "description": "Design a single work-tasks-agent with role-based MCP permissions: employee/admin create+edit, admin-only query.",
+  "status": "completed",
+  "dev_type": "feature",
+  "scope": "AionCore work-tasks APIs + MCP tool contract + role-based permissions",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-09",
+  "completedAt": "2026-07-09",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "07-03-work-tasks-center-sync",
+  "relatedFiles": [
+    ".trellis/tasks/07-09-agent-work-tasks-collaboration-system/prd.md",
+    ".trellis/tasks/07-09-agent-work-tasks-collaboration-system/execution-plan.md",
+    ".trellis/tasks/07-09-agent-work-tasks-collaboration-system/research/agent-work-tasks-baseline.md",
+    ".trellis/spec/integration/aioncore-work-tasks.md",
+    ".trellis/spec/integration/agents-unified-model.md"
+  ],
+  "notes": "2026-07-09 wrap-up complete: MCP audit+metadata, CCB package/settings/vendor sync, UI source tag, acceptance script ALL PASS. 2026-07-09 user manual UI smoke PASS (Guid+conversation+/tasks AI tag). Unified audit table deferred to 07-14 EIL P2. Evidence: p09-wrap-up-done.md",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "Cross-repo",
+    "scenario": "A",
+    "plan_revision": 6,
+    "risks": ["security", "cross-repo", "external-api"]
+  }
+}

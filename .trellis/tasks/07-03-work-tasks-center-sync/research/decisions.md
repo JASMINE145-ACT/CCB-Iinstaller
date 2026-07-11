@@ -26,7 +26,8 @@
 | D6 | **离线 (O2)** | **必须在线** — 无网时 `/tasks` 显示不可用（不做 shadow 缓存） |
 | D7 | **admin (O4)** | **`admin` 用户自动视为 `work_task_role = manager`**（VPS bootstrap / JIT 规则） |
 | D8 | **实时更新 (O5)** | **首版：SWR 轮询 + 窗口聚焦刷新**（见下 § O5 说明）；**不接 org WebSocket**（P4-D 可后补） |
-| D9 | **附件 (O6)** | **中心存储** — 上传走 org `POST /api/fs/upload`，路径存 VPS；打开/下载经 org 或同步到本机临时文件 |
+| D9 | **附件 (O6)** | **元数据中心 + 字节本地** — VPS 仅存 `storage_mode=local` 元数据（`file_name`/`size`/`uploaded_by_id`）；字节在员工本机 `%APPDATA%/AionUi/work-task-attachments/{id}`；经理只见文件名，不能跨设备打开（2026-07-09 P5） |
+| D9b | **附件 legacy** | 迁移前 `storage_mode=remote` 行保留 VPS 路径语义；新上传默认 `local` |
 
 ---
 
@@ -65,7 +66,7 @@
 | 全公司 | 现有 `list_all` 不过滤部门；**不**做 migration 016 department |
 | admin=manager | VPS：admin 账号创建/登录时 `work_task_role=manager`；或 middleware 特判 |
 | 轮询 | `useWorkTasks` / pending badge：`refreshInterval` 30–60s + `revalidateOnFocus` |
-| 中心附件 | upload/download 改 org 通道；需确认 VPS 有 `/api/fs/upload` 与磁盘配额 |
+| 中心附件 | upload metadata org `POST .../attachments` (`storage_mode=local`); blob 本机 `work-task-attachments/`；**不上传** org `/api/fs/upload` |
 
 ---
 

@@ -302,22 +302,27 @@ sqlite3 "$env:APPDATA\AionUi-Dev\aionui\aionui-backend.db" "PRAGMA table_info(us
 | `Router.tsx` | `/tasks`, `/tasks/:task_id` |
 | i18n | `renderer/services/i18n/locales/{zh-CN,en-US}/workTasks.json` |
 
-Attachments: `uploadFileViaHttp` → `POST /api/fs/upload` → `workTask.addAttachment`.
+Attachments (P5 local-only, 2026-07-09): metadata via org `workTask.addAttachment` with `storage_mode: local`; bytes copied to Electron `userData/work-task-attachments/{attachment_id}` via main-process IPC (`workTaskAttachmentBridge.ts`). **No VPS disk** for new uploads.
 
-### Attachment open/download (UI, 2026-06-15)
+### Attachment storage modes
 
-Stored path is **absolute** on disk (`ApiResponse<String>` from upload). Renderer does **not** pass `workspace` to read helpers.
+| `storage_mode` | VPS stores | Bytes | Who can open |
+|----------------|------------|-------|--------------|
+| `local` (default) | `file_name`, `size`, `mime_type`, `uploaded_by_id`; `file_path` empty | Uploader device only | Uploader on same device |
+| `remote` (legacy) | Full `file_path` from pre-P5 org upload | VPS `/tmp/aionui/...` | Same-machine path only (legacy) |
 
-| Action | Desktop (`isElectronDesktop`) | WebUI |
-|--------|------------------------------|-------|
-| Click filename | `ipcBridge.shell.openFile.invoke(file_path)` | `downloadFileFromPath(file_path, file_name)` |
-| Download button | `downloadFileFromPath(file_path, file_name)` | (filename click only) |
+Migration: `020_work_task_attachment_storage.sql` — adds `storage_mode`, `uploaded_by_id`.
 
-Reuse same helpers as conversation Preview / Workspace (`renderer/utils/file/download.ts`, `ipcBridge.shell.openFile`).
+RBAC: `ManageAttachments` — creator **or** assignee may add/remove attachment metadata.
 
-**Wrong:** plain `<span>{file_name}</span>` with no handler — user cannot open or save.
+### Attachment open/download (UI)
 
-**Smoke:** upload PDF on task detail → click name → OS default viewer opens; download icon saves copy.
+| Mode | Desktop open | Manager / other device |
+|------|--------------|------------------------|
+| `local` | Resolve blob by `attachment_id` → `shell.openFile` | Filename visible; open **disabled** |
+| `remote` (legacy) | `shell.openFile(file_path)` if path non-empty | May fail if path is VPS-only |
+
+**Smoke (P5):** employee uploads PDF → local open works; manager sees filename only → open disabled; VPS `/tmp/aionui` unchanged.
 
 ---
 
@@ -389,9 +394,24 @@ scripts\build-aioncore-work-tasks.cmd                   # release build (~4–5 
 3. A creates task assigned to B → B sidebar badge + `pending_accept`
 4. B accepts → completes → A sees in **我分配的** and query overview
 
-### Optional MCP (read-only)
+### Optional MCP (work-tasks-agent)
 
-`mcp_servers/work-tasks-query-server/index.mjs` — tool `work_tasks_summary` proxies `GET /api/work-tasks/query`. Env: `AIONCORE_PORT`, `AIONCORE_JWT` (manager token).
+`mcp_servers/work-tasks-query-server/index.mjs` — single **`work-tasks-agent`** MCP (v2.1.0):
+
+| Tool | employee | manager/admin |
+|------|----------|---------------|
+| `work_tasks_create` | yes (self scope via API) | yes |
+| `work_tasks_edit` | yes (ACL) | yes |
+| `work_tasks_query` | **denied** | yes |
+
+- **Deploy:** `vendor/mcp-servers/work-tasks-agent/index.mjs` + `node_modules` junction → `quotation-server` (see `sync-dev-wanding-vendor.ps1`).
+- **Config:** `ccb-installer/packages/vertical/com.wanding.trade/package.json` + `ensure-wanding-settings.ps1` entry `work-tasks-agent`.
+- **Env:** `ORG_SERVER_URL`, `ORG_SESSION_TOKEN_FILE` (preferred); fallback `AIONCORE_PORT` + `AIONCORE_JWT`.
+- **Audit (07-09):** stderr JSON `work_tasks_tool_audit` per tool call (unified DB deferred to EIL P2).
+- **UI:** Agent-created tasks stamp `metadata.source=agent`; `/tasks` shows **AI 创建** tag.
+- **Acceptance:** `node scripts/test-work-tasks-agent-acceptance.mjs`
+
+Legacy alias: `work_tasks_summary` → same handler as `work_tasks_query` (not listed in `ListTools`).
 
 `cargo build --release` requires Rust + VS 2022 Build Tools (see `AionCore/rust-toolchain.toml`). If `cargo` is missing from shell PATH, use `%USERPROFILE%\.cargo\bin\cargo.exe`.
 
