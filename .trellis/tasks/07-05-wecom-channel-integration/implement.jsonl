@@ -24,3 +24,23 @@
 {"ts":"2026-07-07T12:10:00+08:00","file":".agents/skills/trellis-task-execution/SKILL.md","reason":"Step 5 verification gate: mandatory Layer B for renderer UI"}
 {"ts":"2026-07-07T12:10:00+08:00","file":".claude/skills/trellis-task-execution/SKILL.md","reason":"Sync Layer B into tracked Claude skill mirror"}
 {"ts":"2026-07-07T12:10:00+08:00","file":"docs/ai-tools-reference.md","reason":"§八 Layer B row + quick-decision entry for smoke-renderer-imports.mjs"}
+{"ts":"2026-07-09T19:58:00+08:00","file":"D:/Projects/aionui-src/packages/desktop/src/renderer/components/settings/SettingsModal/contents/channels/channelAgentOptions.ts","reason":"WeCom agent picker: merge fetchAssistantsCatalog (CCB presets) + getAgents (CLI); persist custom_agent_id for channel routing"}
+{"ts":"2026-07-09T19:58:00+08:00","file":"D:/Projects/aionui-src/packages/desktop/src/renderer/components/settings/SettingsModal/contents/channels/WecomAibotExtensionPanel.tsx","reason":"Grouped dropdown: WanD assistants + CLI runtimes; fixes frontend/backend gap for quotation-agent"}
+{"ts":"2026-07-09T19:58:00+08:00","file":"D:/Projects/aionui-src/tests/unit/wecom/channelAgentOptions.test.ts","reason":"Unit: preset-first merge + custom_agent_id persist/restore"}
+{"ts":"2026-07-09T19:58:00+08:00","file":"ccb-installer/scripts/start-dev-full.ps1","reason":"WeCom ext-wecom-aibot default dev path; -NoExtensions opt-out"}
+{"ts":"2026-07-09T19:58:00+08:00","file":".trellis/spec/integration/wecom-channel.md","reason":"Dev main line + agent picker helper doc"}
+{"ts":"2026-07-09T22:30:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/execution-plan.md","reason":"Rev 4: Scenario C enable false-success; contracts WANd.WECOM.ENABLE.001-003; P1c workstreams"}
+{"ts":"2026-07-09T22:30:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/research/enable-false-success-2026-07-09.md","reason":"Bug trace: HTTP 200 + success:false → false toast; hasToken secret filter"}
+{"ts":"2026-07-09T22:30:00+08:00","file":"D:/Projects/aionui-src/packages/desktop/src/renderer/components/settings/SettingsModal/contents/channels/extensionEnableConfig.ts","reason":"P1c.1: buildExtensionEnableConfig helper (ENABLE.002)"}
+{"ts":"2026-07-09T22:30:00+08:00","file":"D:/Projects/aionui-src/packages/desktop/src/renderer/components/settings/SettingsModal/contents/channels/channelBridgeResponse.ts","reason":"P1c.1: assertChannelBridgeSuccess helper (ENABLE.001)"}
+{"ts":"2026-07-09T22:30:00+08:00","file":"D:/Projects/aionui-src/tests/unit/channels/extensionEnableConfig.test.ts","reason":"P1c.1: 4 tests PASS"}
+{"ts":"2026-07-09T22:45:00+08:00","file":"D:/Projects/aionui-src/packages/desktop/src/common/channel/channelBridgeResponse.ts","reason":"P1c.2: assertChannelBridgeSuccess wired into enablePlugin/disablePlugin (ENABLE.001)"}
+{"ts":"2026-07-09T22:45:00+08:00","file":"D:/Projects/aionui-src/packages/desktop/src/common/adapter/ipcBridge.ts","reason":"P1c.2: withResponseMap on enable/disable; toPluginStatus error field"}
+{"ts":"2026-07-09T22:45:00+08:00","file":"D:/Projects/aionui-src/packages/desktop/src/renderer/components/settings/SettingsModal/contents/channels/ChannelModalContent.tsx","reason":"P1c.3: buildExtensionEnableConfig for extension toggle"}
+{"ts":"2026-07-09T22:45:00+08:00","file":"AionCore/crates/aionui-channel/src/manager.rs","reason":"P1c.3: merge_extension_enable_raw stored credential merge (ENABLE.002)"}
+{"ts":"2026-07-10T11:42:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/research/enable-error-passthrough-2026-07-10.md","reason":"Rev5: 853000 root cause + passthrough strategy"}
+{"ts":"2026-07-10T11:42:00+08:00","file":"D:/Projects/aionui-src/examples-wecom-dev/ext-wecom-aibot/channels/sdk-runtime.js","reason":"P1d: isAuthenticationFailureLog + logger.error fast-fail"}
+{"ts":"2026-07-10T11:42:00+08:00","file":"AionCore/crates/aionui-channel/src/plugins/extension_channel/host.rs","reason":"P1d: stderr auth → HostEvent::Error"}
+{"ts":"2026-07-10T11:42:00+08:00","file":"AionCore/crates/aionui-channel/src/manager.rs","reason":"P1d: plugin_status_errors + sanitize_plugin_status_error"}
+{"ts":"2026-07-10T11:42:00+08:00","file":"AionCore/crates/aionui-api-types/src/channel.rs","reason":"P1d: PluginStatusResponse.error field"}
+{"ts":"2026-07-10T11:42:00+08:00","file":"D:/Projects/aionui-src/tests/unit/wecom/sdk-runtime-auth-log.test.ts","reason":"P1d: 2/2 PASS"}

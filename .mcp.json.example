@@ -8,6 +8,33 @@
         "AOL_DATABASE_ID": "YOUR_AOL_DATABASE_ID",
         "AOL_SIGNATURE_SECRET": "YOUR_AOL_SIGNATURE_SECRET"
       }
+    },
+    "work-tasks-agent-employee": {
+      "command": "node",
+      "args": ["mcp_servers/work-tasks-query-server/index.mjs"],
+      "env": {
+        "AIONCORE_PORT": "13400",
+        "AIONCORE_JWT": "YOUR_EMPLOYEE_JWT",
+        "WORK_TASKS_AGENT_ROLE": "employee"
+      }
+    },
+    "work-tasks-agent-admin": {
+      "command": "node",
+      "args": ["mcp_servers/work-tasks-query-server/index.mjs"],
+      "env": {
+        "AIONCORE_PORT": "13400",
+        "AIONCORE_JWT": "YOUR_ADMIN_OR_MANAGER_JWT",
+        "WORK_TASKS_AGENT_ROLE": "admin"
+      }
+    },
+    "work-tasks-agent-manager": {
+      "command": "node",
+      "args": ["mcp_servers/work-tasks-query-server/index.mjs"],
+      "env": {
+        "AIONCORE_PORT": "13400",
+        "AIONCORE_JWT": "YOUR_MANAGER_JWT",
+        "WORK_TASKS_AGENT_ROLE": "manager"
+      }
     }
   }
 }

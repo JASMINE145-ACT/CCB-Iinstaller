@@ -37,13 +37,13 @@
     ".trellis/spec/integration/wecom-channel.md",
     ".trellis/tasks/07-05-wecom-channel-integration/research/p0-extension-channel-runtime-trace.md"
   ],
-  "notes": "2026-07-04: P1a done (ext-wecom-aibot scaffold, inbound, UI, 11 unit tests, P0 runtime trace). Parked 2026-07-04 — assignee not urgent; P1b blocked on AionCore extension channel JS host. Code in aionui-src uncommitted. Resume: execution-plan.md §Resume checklist.",
+  "notes": "2026-07-09: rev 4 — enable false-success (Layer A5); agent picker done; manual smoke blocked on P1c. See execution-plan.md rev 4 + research/enable-false-success-2026-07-09.md",
   "meta": {
     "execution_plan": "execution-plan.md",
     "verification_profile": "Cross-repo",
-    "scenario": "B",
-    "plan_revision": 3,
-    "phase": "parked-after-p1a",
+    "scenario": "C",
+    "plan_revision": 4,
+    "phase": "P1c-enable-contract",
     "parked_at": "2026-07-04",
     "approval_gate": "P0-go-no-go-before-P1",
     "p0_verdict": "conditional-nogo-live-messaging",
