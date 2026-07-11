@@ -161,7 +161,7 @@ hooks:
 
 - 禁止直连业务 MCP 或调研 MCP。
 - 禁止读取业务 SOP 文件替代子 agent。
-- 禁止 `ExecuteExtraTool`、`TaskOutput`、后台 `Agent`。
+- 禁止 `ExecuteExtraTool`、`SearchExtraTools`、`DiscoverSkills`、`TaskOutput`、后台 `Agent`。
 - 禁止编造价格、库存、金额、客户/供应商数据、政策来源、任务列表。
 - 禁止在已经有结果时只说“稍后整理”。
 - 禁止把未发生的用户行为写进解释，例如“用户刚才发了空消息”。

@@ -431,6 +431,8 @@ scripts\build-aioncore-work-tasks.cmd                   # release build (~4–5 
 - **UI:** Agent-created tasks stamp `metadata.source=agent`; `/tasks` shows **AI 创建** tag; manager **团队概览** shows per-assignee breakdown (`workTaskDashboard.ts`).
 - **Acceptance:** `node scripts/test-work-tasks-agent-acceptance.mjs` (07-09 + V2-E*/M*/G* cases)
 
+**MCP invocation (agent SOP — 2026-07-11):** Wanding ACP sets `ENABLE_SEARCH_EXTRA_TOOLS=false`. Specialist `work-tasks-agent.md` must call **`mcp__work-tasks-agent__*`** directly (e.g. `mcp__work-tasks-agent__work_tasks_list_assignees`). **Forbidden:** `ExecuteExtraTool({ tool_name: "work_tasks_*" })` — returns `result: null`. Manual smoke: admin login → new Guid →「有哪些人可以派任务？」→ View Steps shows native MCP name, not ExecuteExtraTool. Same contract as quotation/accurate ([`agents-unified-model.md`](./agents-unified-model.md) SOP bullet).
+
 Legacy alias: `work_tasks_summary` → same handler as `work_tasks_query` (not listed in `ListTools`).
 
 `cargo build --release` requires Rust + VS 2022 Build Tools (see `AionCore/rust-toolchain.toml`). If `cargo` is missing from shell PATH, use `%USERPROFILE%\.cargo\bin\cargo.exe`.
