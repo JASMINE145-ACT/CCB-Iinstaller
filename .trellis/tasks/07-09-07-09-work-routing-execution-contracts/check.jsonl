@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/integration/work-routing-execution-contracts.md", "reason": "AC1 domains + ASCII diagram + 3-question decision tree + 6 curated examples"}
+{"file": ".trellis/spec/integration/contracts/agent-runtime-registry.yml", "reason": "AC2 ten registry entries with code/tests/spec/ui links"}
+{"file": ".trellis/spec/integration/index.md", "reason": "AC4 when-to-read row for Routing vs Execution"}
+{"file": ".trellis/spec/integration/agent-team-architecture.md", "reason": "AC3 new section + related task row"}

@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/integration/work-routing-execution-contracts.md", "reason": "Primary deliverable: Routing vs Execution domains, decision tree, Rudder map"}
+{"file": ".trellis/spec/integration/contracts/agent-runtime-registry.yml", "reason": "WANd.ROUTING.* / WANd.RUN.* / WANd.OBSERVE.* contract registry with code/tests links"}
+{"file": ".trellis/tasks/07-09-07-09-work-routing-execution-contracts/research/rudder-wand-mapping.md", "reason": "Explore-mode notes from docs/asda §3"}
+{"file": "docs/asda", "reason": "Source borrow list: Work Routing vs Execution + Product Logic Registry"}
+{"file": ".trellis/spec/integration/agent-team-architecture.md", "reason": "Updated with § Work Routing vs Execution pointer"}

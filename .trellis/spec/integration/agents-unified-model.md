@@ -100,7 +100,7 @@ cd D:\Projects\claude-code-best
 
 ### Sidebar default-route icon fix (2026-07-06)
 
-**Symptom:** Guid 默认会话（未选助手卡片）创建的「你好」等在侧边栏显示 Claude / Gemini / Aion 混用 logo，而非全局路由 🧭。
+**Symptom:** Guid 默认会话（未选助手卡片）创建的「你好」等在侧边栏显示 Claude / Gemini / Aion 混用 logo，而非工作助手 🧭。
 
 **Root cause:** `useGuidSend` 未写入 `ccb_agent_id`；`usePresetAssistantInfo` 无 legacy 推断 → 回退 `getAgentLogo(backend)`.
 
@@ -989,9 +989,9 @@ Any PowerShell script that writes `.md` agent files must use `Set-Content -Encod
 **Guid catalog rule** (`filterGuidCatalogAgents` in `ccbAgentCatalog.ts`):
 
 - Show: all **enabled** agents with `source: bundled` (matches pre-unification preset cards)
-- Hide: `wande-orchestrator` only (default session router — no Guid card)
+- Hide: `wande-orchestrator` only (employee primary entry — hidden Guid; uses routing tool, no card)
 - Show: `quotation-agent`, `accurate-agent` as Guid shortcut cards + office bundled presets
-- Default Guid send (non-preset) stages `wande-orchestrator`; router may **Agent()** delegate to all keep-set specialists
+- Default Guid send (non-preset) stages `wande-orchestrator`; entry may **Agent()** delegate to all keep-set specialists
 - Show: user agents only when `guid_primary === true`
 
 **Repair migration** (`migration.ccbAgentsGuidCatalog_v1`): one-shot backfill `guid_primary` on bundled agents after `ccbAgentsUnified_v1` (fixes Guid showing only 3 seed cards).

@@ -4,7 +4,7 @@
 > **Audience:** Anyone changing routing, Guid cards, `Agent()` behavior, or subagent hooks.  
 > **Deep dive:** [`agents-unified-model.md`](./agents-unified-model.md) (canonical, 1000+ lines). **Hook index:** [`agent-hooks-overview.md`](./agent-hooks-overview.md).
 
-**Last updated:** 2026-07-06
+**Last updated:** 2026-07-11
 
 ---
 
@@ -17,12 +17,26 @@
 | Adding a specialist agent | [`../agent-expansion-template.md`](../agent-expansion-template.md) + § Roster |
 | Fixing subagent hook / Read gate loops | § Hook layer + [`agent-hooks-overview.md`](./agent-hooks-overview.md) |
 | Hardening delegation quality | Trellis `07-04-orchestrator-dispatch-hardening` + § Delegation mechanics |
+| Changing default-session **identity** (entry vs router wording) | Trellis `07-11-orchestrator-employee-primary-entry` + § Glossary below |
+
+---
+
+## Glossary (entry vs routing)
+
+| Term | Meaning |
+|------|---------|
+| **Employee primary entry** | Product identity of `wande-orchestrator`: default-session work assistant for the logged-in employee (`WANd.ENTRY.IDENTITY.001`) |
+| **Routing / `Agent()`** | Implementation **tool** the entry agent uses to delegate business/domain work (`WANd.ROUTING.ASSIGNMENT.001`) — not the sole identity |
+| **Specialist** | Domain agent with business MCP (quotation, accurate, work-tasks, office, research, …) |
+| **Router-only (legacy phrase)** | Prefer **entry + routing tool**. Keep “no business MCP on default session” as a **safety** rule, not as the agent’s product name |
+
+Registry: [`contracts/agent-runtime-registry.yml`](./contracts/agent-runtime-registry.yml) (`WANd.ENTRY.*`, `WANd.ROUTING.*`).
 
 ---
 
 ## One-line mental model
 
-WanD runs a **fixed business agent catalog**: a **default router** (`wande-orchestrator`) plus **specialists** (quotation, accurate, office, research, …). Users enter via either **default-session delegation** (router → `Agent()` → specialist) or **Guid card direct** (specialist calls MCP itself, no `Agent()` targets).
+WanD runs a **fixed business agent catalog**: an **employee primary entry** (`wande-orchestrator`, no business MCP) plus **specialists** (quotation, accurate, office, research, work-tasks, …). Users enter via either **default-session** (entry → `Agent()` routing tool → specialist) or **Guid card direct** (specialist calls MCP itself, no `Agent()` targets).
 
 This is **not** the generic Claude Code Explore/Plan subagent pool — it is product-specific catalog + runtime hard rules.
 
@@ -45,7 +59,7 @@ Office / research seeds: `ccb-installer/config/agents/`
 ┌─────────────────────────────────────────────────────────────┐
 │                    WanD Agent Team                          │
 ├─────────────────────────────────────────────────────────────┤
-│  🧭 wande-orchestrator   Default router — no business MCP   │
+│  🧭 wande-orchestrator   Employee primary entry — no biz MCP │
 │                                                             │
 │  Business specialists (Guid + delegatable)                    │
 │    💰 quotation-agent     Pricing, inventory, quotation     │
@@ -65,7 +79,7 @@ Office / research seeds: `ccb-installer/config/agents/`
 
 | Agent | `delegatable` | Behavior |
 |-------|---------------|----------|
-| `wande-orchestrator` | `false` | Router only — not an `Agent()` target |
+| `wande-orchestrator` | `false` | Primary entry — not an `Agent()` target (uses routing; is not a delegatee) |
 | `quotation-agent`, `accurate-agent`, office agents | `true` | Default session may `Agent(id)`; Guid direct also works |
 | `price-library-agent` | `false` (P1) | **Guid admin only** — orchestrator must not delegate until P1.5 + `price_admin` gate |
 
@@ -117,7 +131,7 @@ User taps「万鼎报价专家」/「万鼎账务专家」card
 ```text
                     Path A                    Path B
               ─────────────────           ─────────────────
-Entry         Default router              Guid specialist card
+Entry         Default primary entry       Guid specialist card
 Bound agent   wande-orchestrator          quotation-agent / …
 Agent() tool  Yes (filtered catalog)      Hidden ([])
 Business MCP  Subagent only               Main session directly
@@ -157,7 +171,7 @@ Detail: [`../backend/acp-session-flow.md`](../backend/acp-session-flow.md), `age
 | Function | Role |
 |----------|------|
 | `isSpecialistDirectSession` | Guid card with MCP allowlist → direct specialist |
-| `isWandeOrchestratorSession` | Default router session |
+| `isWandeOrchestratorSession` | Default employee primary-entry session |
 | `resolveSessionUserContextOverride` | L1 system prompt vs L0 fallback |
 | `filterDelegatableCustomAgents` | Who appears in `Agent()` list |
 | `appendWanDDelegationIndex` | Auto-generated specialist catalog in router prompt |
@@ -203,6 +217,30 @@ When the router calls `Agent(quotation-agent)`:
 ### Subagent context asymmetry (fixed 2026-07-05)
 
 Main session gets employee profile at `session/new`. Delegated subagents get the same block via `mergeEmployeeProfileIntoResolvedUserContext` in overlay `runAgent.ts` (after `omitClaudeMd`, ~L400–412) + `employeeProfile.ts`. Task: `07-06-employee-profile-settings-prompt` P9.
+
+---
+
+## Work Routing vs Execution (domain split)
+
+Runtime behavior splits into two domains plus UI observability. **Full contract map + decision tree:** [`work-routing-execution-contracts.md`](./work-routing-execution-contracts.md) · registry [`contracts/agent-runtime-registry.yml`](./contracts/agent-runtime-registry.yml).
+
+```text
+Routing (who)          Execution (how)              Observability (show)
+─────────────────      ─────────────────────      ──────────────────────
+L1 playbook            runAgent.ts sync spawn       DelegationRun B0
+evaluateOrchestrator   admission / no bg Agent      nested View Steps
+ToolGuard              hooks + jsonl paths          SubagentDrawer
+:roe-judge reviewer
+```
+
+| Question you're answering | Domain | Start here |
+|---------------------------|--------|------------|
+| Should orchestrator call MCP or `Agent()`? | Routing | `WANd.ROUTING.ASSIGNMENT.001` |
+| Is subagent output ROE-compliant? | Routing | `WANd.ROUTING.REVIEWER.001` |
+| Sync spawn, profile merge, transcript? | Execution | `WANd.RUN.EXECUTION.001` |
+| View Steps tree / blocked status? | Observability | `WANd.OBSERVE.DELEGATION.001` |
+
+**Rule:** Do not fix Execution admission in playbook prose, or Routing guards in View Steps components. Task: `07-09-work-routing-execution-contracts`.
 
 ---
 
@@ -361,6 +399,8 @@ RUNTIME (authoritative)                 AionUI View Steps (shipped B0)
 | `07-01-price-library-admin-agent` | `delegatable:false` phased orchestrator routing |
 | `07-03-platform-business-decoupling` | Package registry, agent ID decoupling |
 | `07-06-delegation-nested-view-steps` | View Steps nested delegation + **DelegationRun B0** (frontend reducer; B1 bridge deferred) |
+| `07-09-work-routing-execution-contracts` | Routing vs Execution domain docs + `agent-runtime-registry.yml` |
+| `07-09-idle-session-precipitation` | Idle 60s 五车道沉淀（Learning 域；子 task） |
 
 ---
 
@@ -370,6 +410,7 @@ RUNTIME (authoritative)                 AionUI View Steps (shipped B0)
 |-----|---------|
 | [`agents-unified-model.md`](./agents-unified-model.md) | Canonical deep reference (layers, hangs, ROE, encoding, deploy) |
 | [`agent-hooks-overview.md`](./agent-hooks-overview.md) | Per-agent hook matrix |
+| [`work-routing-execution-contracts.md`](./work-routing-execution-contracts.md) | Routing vs Execution domains + change decision tree |
 | [`../backend/acp-session-flow.md`](../backend/acp-session-flow.md) | `session/new`, permissions, employee profile |
 | [`aionui-ccb-boundary.md`](./aionui-ccb-boundary.md) | Profile handoff, warmup, idle |
 | [`../agent-expansion-template.md`](../agent-expansion-template.md) | Adding a new specialist |

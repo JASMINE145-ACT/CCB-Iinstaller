@@ -1,0 +1,28 @@
+{
+  "id": "07-09-work-routing-execution-contracts",
+  "name": "07-09-work-routing-execution-contracts",
+  "title": "Work Routing vs Execution domain contracts",
+  "description": "",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-09",
+  "completedAt": "2026-07-09",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "07-09-07-09-idle-session-precipitation"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

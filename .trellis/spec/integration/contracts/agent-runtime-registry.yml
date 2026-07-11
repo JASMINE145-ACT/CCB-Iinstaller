@@ -1,0 +1,224 @@
+# WanD agent runtime domain contracts
+# Format inspired by Rudder doc/product registry.yml
+# Maintainer: update when routing / execution / observability behavior changes
+
+contracts:
+  - id: WANd.ENTRY.IDENTITY.001
+    title: Default session is employee primary entry
+    domain: entry
+    description: >
+      wande-orchestrator identity is the employee's primary work assistant /
+      default entry. Agent() routing is a capability, not the sole identity.
+    code:
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.aionui.json
+    tests:
+      - manual#default-session-who-are-you
+    spec:
+      - .trellis/spec/integration/agent-team-architecture.md
+      - .trellis/tasks/07-11-orchestrator-employee-primary-entry/prd.md
+
+  - id: WANd.ENTRY.INTENT_SPLIT.001
+    title: Personal/workbench vs business intent split
+    domain: entry
+    description: >
+      Personal/workbench intents use profile/memory/clarify; task lists and
+      mutations delegate to work-tasks-agent. Business/domain intents delegate
+      to specialists. Main entry does not self-answer task inventories in v1.
+    code:
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md
+    tests:
+      - manual#intent-split-tasks-vs-quote
+    spec:
+      - .trellis/spec/integration/agent-team-architecture.md
+      - .trellis/tasks/07-11-orchestrator-employee-primary-entry/prd.md
+
+  - id: WANd.ENTRY.EXTENSION.001
+    title: Entry tools are additive extension slots
+    domain: entry
+    description: >
+      Future skills / thin employee MCP / EIL role bias may be added without
+      re-locking identity as router-only. Business MCP remain forbidden on entry.
+    code:
+      - .trellis/tasks/07-11-orchestrator-employee-primary-entry/research/extension-slots.md
+    tests: []
+    spec:
+      - .trellis/tasks/07-11-orchestrator-employee-primary-entry/prd.md
+
+  - id: WANd.ROUTING.ASSIGNMENT.001
+    title: Entry agent delegates business work via Agent(subagent_type)
+    domain: routing
+    rudder_ref: ROUTING.ASSIGNMENT.001
+    description: >
+      Employee primary entry (wande-orchestrator) must not call business MCP at
+      top level; it uses Agent() routing as a tool to send quotation/accurate/
+      office/work-tasks/research work to the matching specialist.
+    code:
+      - ccb-installer/src/services/acp/agentSessionProfile.ts
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md
+    tests:
+      - ccb-installer/src/services/acp/__tests__/agentSessionProfile.test.ts
+      - eval/agent_eval_cases.jsonl#orchestrator-quote-delegates
+      - eval/agent_eval_cases.jsonl#orchestrator-accurate-delegates
+    spec:
+      - .trellis/spec/integration/work-routing-execution-contracts.md
+      - .trellis/spec/integration/agent-team-architecture.md
+
+  - id: WANd.ROUTING.ASSIGNMENT.002
+    title: Orchestrator MCP server strip at session/new
+    domain: routing
+    description: Business MCP configs removed from orchestrator session; specialists keep L3.
+    code:
+      - ccb-installer/src/services/acp/agentSessionProfile.ts
+    tests:
+      - ccb-installer/src/services/acp/__tests__/agentSessionProfile.test.ts
+    spec:
+      - .trellis/spec/integration/agents-unified-model.md
+
+  - id: WANd.ROUTING.ASSIGNMENT.003
+    title: Delegatable agent catalog injection
+    domain: routing
+    description: Router prompt includes auto-generated delegation index from filterDelegatableCustomAgents.
+    code:
+      - ccb-installer/src/services/acp/agentSessionProfile.ts
+    tests:
+      - eval/agent_eval_cases.jsonl#direct-quotation-card-no-delegation
+    spec:
+      - .trellis/spec/integration/agent-team-architecture.md
+
+  - id: WANd.ROUTING.REVIEWER.001
+    title: ROE delivery gate on specialist Stop
+    domain: routing
+    rudder_ref: ROUTING.REVIEWER.001
+    description: Subagent Stop hook runs roe-judge via subagent-gate; blocks non-compliant delivery.
+    code:
+      - ccb-installer/config/agents/quotation-agent.md
+      - ccb-installer/scripts/hooks/subagent-gate.sh
+    tests:
+      - eval/agent_eval_cases.jsonl
+    spec:
+      - .trellis/spec/integration/agents-unified-model.md
+      - .trellis/spec/integration/agent-hooks-overview.md
+    related:
+      - WANd.RUN.EXECUTION.001
+
+  - id: WANd.RUN.EXECUTION.001
+    title: Sync Agent() spawn via runAgent.ts
+    domain: execution
+    rudder_ref: RUN.EXECUTION.001
+    description: >
+      Agent tool loads L1 body, registers Stop hooks, creates subagents/agent-*.jsonl,
+      returns full output same turn (verbatim forward).
+    code:
+      - ccb-installer/claude-code-b-src/packages/builtin-tools/src/tools/AgentTool/runAgent.ts
+    tests:
+      - eval/agent_eval_cases.jsonl#orchestrator-quote-delegates
+    spec:
+      - .trellis/spec/integration/agent-team-architecture.md
+      - .trellis/spec/integration/work-routing-execution-contracts.md
+
+  - id: WANd.RUN.ADMISSION.001
+    title: No background delegated agents
+    domain: execution
+    rudder_ref: RUN.ADMISSION.001
+    description: >
+      CLAUDE_CODE_DISABLE_BACKGROUND_TASKS + sanitizeOrchestratorAgentInput;
+      orchestrator Agent() calls are sync-wait only.
+    code:
+      - ccb-installer/src/services/acp/wanDEnvBootstrap.ts
+      - ccb-installer/src/services/acp/agentSessionProfile.ts
+    tests:
+      - ccb-installer/src/services/acp/__tests__/agentSessionProfile.test.ts
+    spec:
+      - .trellis/spec/integration/agents-unified-model.md
+
+  - id: WANd.RUN.EXECUTION.002
+    title: Employee profile merge on subagent spawn (P9)
+    domain: execution
+    description: mergeEmployeeProfileIntoResolvedUserContext in runAgent after omitClaudeMd.
+    code:
+      - ccb-installer/claude-code-b-src/packages/builtin-tools/src/tools/AgentTool/runAgent.ts
+    tests:
+      - eval/agent_eval_cases.jsonl
+    spec:
+      - .trellis/tasks/07-06-employee-profile-settings-prompt/prd.md
+
+  - id: WANd.RUN.HOOK.001
+    title: PreToolUse knowledge gate before match_quotation
+    domain: execution
+    description: >
+      Subagent PreToolUse denies match until Read(business knowledge); transcript path
+      must include derived subagent jsonl (hook_transcript.py).
+    code:
+      - ccb-installer/scripts/hooks/hook_transcript.py
+    tests:
+      - eval/agent_eval_cases.jsonl#quote-knowledge-select-direct50-b
+    spec:
+      - .trellis/spec/integration/agent-team-architecture.md
+      - .trellis/tasks/07-07-quotation-match-acp-upstream-error/prd.md
+    related:
+      - WANd.ROUTING.REVIEWER.001
+
+  - id: WANd.OBSERVE.DELEGATION.001
+    title: DelegationRun B0 + nested View Steps
+    domain: observability
+    description: >
+      Frontend reducer groups child tools under Agent() parent; no CCB protocol change.
+      Status running|done|blocked reflects child tool outcomes.
+    code:
+      - aionui-src/packages/desktop/src/common/chat/delegationRun.ts
+      - aionui-src/packages/desktop/src/common/chat/groupNormalizedToolCalls.ts
+    ui:
+      - aionui-src/packages/desktop/src/renderer/components/chat/MessageToolGroupSummary.tsx
+      - aionui-src/packages/desktop/src/renderer/components/chat/SubagentDrawer.tsx
+    tests:
+      - aionui-src/tests/unit/common/chat/delegationRun.test.ts
+      - aionui-src/tests/unit/renderer/messageToolGroupSummary.dom.test.tsx
+    spec:
+      - .trellis/tasks/07-06-delegation-nested-view-steps/prd.md
+      - .trellis/spec/integration/agent-team-architecture.md#ui-observability
+    related:
+      - WANd.RUN.EXECUTION.001
+    deferred:
+      - WANd.OBSERVE.DELEGATION.002  # B1 CCB _meta.delegationRun bridge
+
+  - id: WANd.OBSERVE.DELEGATION.002
+    title: CCB bridge _meta.delegationRun enrich (deferred)
+    domain: observability
+    status: deferred
+    description: Optional B1 enrich from CCB; not required for B0 UI acceptance.
+    spec:
+      - .trellis/tasks/07-06-delegation-nested-view-steps/prd.md
+
+  - id: WANd.LEARNING.IDLE.001
+    title: Idle 60s session precipitation (five-lane learning)
+    domain: learning
+    rudder_ref: LEARNING.PROMOTION.001
+    status: shipped
+    description: >
+      After 60s with no follow-up user message, AionUI spawns precipitation_worker.py
+      (separate process). Worker reads full transcript (+ subagents), MiniMax LLM
+      five-lane extract, dedup gates → Memory Inbox pending. All lanes require
+      approve before promote (org KB API / personal / golden_path / eval git).
+      LLM failure → no record. Stop hook (ccb-personal-memory) is no-op.
+    code:
+      - ccb-installer/config/skills/ccb-session-precipitation/scripts/precipitation_worker.py
+      - aionui-src/packages/desktop/src/common/config/ccbPrecipitation.ts
+    spec:
+      - .trellis/tasks/07-09-07-09-idle-session-precipitation/prd.md
+      - .trellis/tasks/07-09-07-09-idle-session-precipitation/research/idle-precipitation-design.md
+    related:
+      - WANd.LEARNING.PROMOTION.001
+      - WANd.ROUTING.REVIEWER.001
+    deferred:
+      - org /api/eval-cases cloud sync (eval path A = git merge script)
+
+  - id: WANd.LEARNING.PROMOTION.001
+    title: Feedback promotion gates (no silent skill/KB rewrite)
+    domain: learning
+    rudder_ref: LEARNING.PROMOTION.001
+    description: Business KB and eval require preview/approval; personal habits may auto-append with dedup.
+    spec:
+      - .trellis/tasks/07-09-07-09-idle-session-precipitation/prd.md
+    related:
+      - WANd.LEARNING.IDLE.001
