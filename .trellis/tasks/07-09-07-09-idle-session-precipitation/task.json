@@ -1,0 +1,30 @@
+{
+  "id": "07-09-idle-session-precipitation",
+  "name": "07-09-idle-session-precipitation",
+  "title": "Idle session precipitation (1min debounce learning)",
+  "description": "",
+  "status": "done",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-09",
+  "completedAt": "2026-07-09",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "07-09-07-09-work-routing-execution-contracts",
+  "relatedFiles": [
+    "ccb-installer/config/skills/ccb-session-precipitation/",
+    "ccb-installer/config/skills/ccb-personal-memory/scripts/post-personal-memory-stop.py",
+    ".trellis/spec/integration/contracts/agent-runtime-registry.yml"
+  ],
+  "notes": "P2 unified mainline: LLM five-lane precipitation + AionUI Inbox (aionui-src). Stop hook no-op. Org promote via append_business_rule + dedup. Eval path A (git merge script). LLM fail = no record.",
+  "meta": {}
+}

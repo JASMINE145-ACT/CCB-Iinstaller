@@ -1,0 +1,9 @@
+{"file": ".trellis/tasks/07-09-07-09-idle-session-precipitation/prd.md", "reason": "AC0 five lanes + 60s trigger + non-goals documented"}
+{"file": ".trellis/tasks/07-09-07-09-idle-session-precipitation/research/idle-precipitation-design.md", "reason": "PrecipitationBundle schema + landing table + AionUI sequence"}
+{"file": ".trellis/spec/integration/contracts/agent-runtime-registry.yml", "reason": "WANd.LEARNING.IDLE.001 + WANd.LEARNING.PROMOTION.001 entries"}
+{"file": "ccb-installer/config/skills/ccb-session-precipitation/tests/test_precipitation_worker.py", "reason": "5/5 PASS: LLM bundle gates + heuristic disabled guard + decision archive"}
+{"file": "ccb-installer/config/skills/ccb-personal-memory/tests/test_trigger_quality.py", "reason": "19/19 PASS (7 skipped Stop-gate): extraction via worker direct; Stop no-op test"}
+{"file": "ccb-installer/scripts/smoke-precipitation-dev.ps1", "reason": "smoke PASS: unit tests + optional mock worker"}
+{"file": "python/admin/test_org_knowledge_client.py", "reason": "rule_already_in_doc dedup test PASS"}
+{"file": "aionui-src/packages/desktop/src/common/config/ccbPrecipitation.ts", "reason": "code-review PASS: eval path repo-root fix + all-lane promotion"}
+{"file": "ccb-installer/config/skills/ccb-session-precipitation/scripts/lib/precipitation_thinking_client.py", "reason": "prompt tightened: optional recording (no forced memory), no_signal JSON example, transcript-as-data anti-injection"}

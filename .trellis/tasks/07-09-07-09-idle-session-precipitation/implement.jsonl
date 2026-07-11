@@ -1,0 +1,13 @@
+{"file": ".trellis/tasks/07-09-07-09-idle-session-precipitation/prd.md", "reason": "Idle 60s precipitation PRD: 5 lanes, promotion gates, phasing"}
+{"file": ".trellis/tasks/07-09-07-09-idle-session-precipitation/research/idle-precipitation-design.md", "reason": "Worker schema, AionUI embed points, eval dedup rules"}
+{"file": "docs/asda", "reason": "§5 Review→Learning + user five-point scheme"}
+{"file": ".trellis/spec/integration/work-routing-execution-contracts.md", "reason": "Learning domain parent; WANd.LEARNING.PROMOTION"}
+{"file": ".trellis/tasks/07-09-07-09-idle-session-precipitation/research/precipitation-inbox-ui.md", "reason": "Memory Inbox Tab UI: non-intrusive chat, approve/deny/edit, cold-start badge"}
+{"file": "ccb-installer/config/skills/ccb-session-precipitation/scripts/precipitation_worker.py", "reason": "P1 idle worker + P2 LLM primary extraction"}
+{"file": "ccb-installer/config/skills/ccb-session-precipitation/scripts/lib/precipitation_thinking_client.py", "reason": "P2 five-lane LLM agent (MiniMax HTTP, separate process)"}
+{"file": "ccb-installer/config/skills/ccb-session-precipitation/scripts/lib/precipitation_gates.py", "reason": "P2 post-LLM dedup gates → proposal rows"}
+{"file": "ccb-installer/config/skills/ccb-session-precipitation/scripts/lib/precipitation_excerpt.py", "reason": "P2 full transcript excerpt for LLM"}
+{"file": "ccb-installer/config/skills/ccb-personal-memory/scripts/post-personal-memory-stop.py", "reason": "P2 unified mainline: Stop hook no-op (no dual-track)"}
+{"file": "aionui-src/packages/desktop/src/common/config/ccbPrecipitation.ts", "reason": "IPC store, worker spawn, five-lane promotion on approve"}
+{"file": "aionui-src/packages/desktop/src/renderer/pages/memory/MemoryPage/MemoryInboxTab.tsx", "reason": "Memory 待沉淀 Tab + approve/deny"}
+{"file": "aionui-src/packages/desktop/src/renderer/hooks/useSessionPrecipitationSchedule.ts", "reason": "60s debounce on turnCompleted + sessionStorage resume"}
