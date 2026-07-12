@@ -272,3 +272,39 @@ Absorbed system-review: `research/seed-contract.md`, `research/match-fixtures.md
 User confirmed: Org **structured tables** SoT (not md+Grep); dedicated `supplier-directory-agent`.  
 `execution-plan.md` Status=**approved**; `research/storage.md` added. Await「执行」for Phase 1 code.
 
+
+
+## Session 6: Supplier directory 1.1.9 closeout
+
+**Date**: 2026-07-12
+**Task**: Supplier directory 1.1.9 closeout
+**Branch**: `main`
+
+### Summary
+
+Closed 07-12-supplier-directory-vs-price-library: Org tables+MCP+UI+Phase8 fidelity (023/distance/products), VPS bootstrap 27/10, Guid agent UTF-8 fix. Shipped in CCB-Wanding 1.1.9.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `cc9e3aa0` | (see git log) |
+| `891d9be2` | (see git log) |
+| `a6125838` | (see git log) |
+| `be8ff2c` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
