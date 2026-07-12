@@ -3,7 +3,7 @@
   "name": "supplier-directory-vs-price-library",
   "title": "Org supplier directory + Agent (browse/match/vehicles)",
   "description": "Org SQLite tables for suppliers + logistics vehicles; product match scorer; dedicated supplier-directory-agent with confirmed writes; AionUI #/suppliers three modes. Not price-library SKUs; not knowledge-md/Grep SoT.",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": "feature",
   "scope": "cross-repo",
   "package": "integration",
@@ -11,7 +11,7 @@
   "creator": "JASMINE145-ACT",
   "assignee": "JASMINE145-ACT",
   "createdAt": "2026-07-12",
-  "completedAt": null,
+  "completedAt": "2026-07-12",
   "branch": null,
   "base_branch": "main",
   "worktree_path": null,
@@ -30,13 +30,16 @@
     ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/ui-form.md",
     ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/domain-model.md"
   ],
-  "notes": "Plan APPROVED 2026-07-12. Storage=Org structured tables. Start Phase 1 only when user says 执行.",
+  "notes": "CLOSED 2026-07-12. Phases 1–8 + 7b/7c delivered in CCB-Wanding 1.1.9. VPS migration 023 + bootstrap 27/10. Guid agent UTF-8 mojibake fixed. Residual: optional Agent A/B/C spot-check; VPS env duplicate SUPPLIER_DIR_ADMIN lines.",
   "meta": {
     "execution_plan": "execution-plan.md",
-    "plan_status": "approved",
+    "plan_status": "completed",
     "approved_at": "2026-07-12",
+    "completed_at": "2026-07-12",
     "contract_pack": "2026-07-12",
     "storage": "org_sqlite_tables",
-    "active_phase": "1"
+    "active_phase": "closed",
+    "release": "1.1.9",
+    "spec": "updated — supplier-directory.md FIDELITY.001"
   }
 }

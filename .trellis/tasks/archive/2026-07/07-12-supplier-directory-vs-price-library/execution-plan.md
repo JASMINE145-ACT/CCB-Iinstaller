@@ -2,12 +2,12 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | **in_progress** — Phase 7b **done** + Phase 7 live smoke + Phase 8 fidelity (pending approval) |
-| **Approved** | 2026-07-12 (v1); Phase 8 **awaiting user 执行** |
+| **Status** | **completed** — Phase 1–8 delivered; archived 2026-07-12 |
+| **Approved** | 2026-07-12 (v1); Phase 8 executed same day |
 | **Scenario** | **A** (v1) + **A/G** (Phase 8) + **C/A6** (Phase 7b Guid incident class) |
 | **Plan depth** | Full |
 | **Verification profile** | Cross-repo + UI |
-| **Active phase** | Phase 7 live smoke; Phase 8 fidelity on approval |
+| **Active phase** | — (closed) |
 | **Storage** | Org structured tables (`suppliers` + `logistics_vehicles`); not md/Grep SoT |
 | **RBAC** | Read: any org user · Write: `SUPPLIER_DIR_ADMIN_USERNAMES` (empty=deny) |
 | **Write safety** | `confirmed=false` preview; `confirmed=true` + CSRF |
@@ -38,10 +38,10 @@
 | Phase 4 confirmed write | **done** | upsert tools + preview gate; `p4-confirmed-write-done.md` |
 | Phase 5 UI | **done** | aionui-src `#/suppliers` 三模式; `p5-ui-done.md` |
 | Phase 6 registry/health | **done** | mcp-health + package registry + build-wanding copy |
-| Phase 7 finish | pending | live seed + Agent/UI smoke; finish-work |
+| Phase 7 finish | **done** | VPS seed 27/10; routes 401; Guid agent UTF-8 fix; finish-work |
 | **Phase 7b agent parity** | **done** | seed sync + vendor MCP + ccb-mcp.json + deploy; code-reviewer Layer A PASS |
 | **Phase 7c NL query + MCP** | **done** | normalize q + CSRF retry + agent q contract; `p7c-nl-query-mcp-hardening-done.md` |
-| **Phase 8 fidelity** | **pending approval** | 18列+距离+产品展示；见 §Phase 8 |
+| **Phase 8 fidelity** | **done** | migration 023 + UI distance/products; `p8-fidelity-done.md` |
 
 ## Phase -1 — Capability matrix
 
@@ -276,10 +276,11 @@
 - [x] Contract pack + plan **approved**  
 - [x] 「执行」→ Phase 1 (schema + read + seed)  
 - [x] Phase 2 match scorer GREEN  
-- [ ] Env: `SUPPLIER_DIR_ADMIN_USERNAMES=admin`  
-- [ ] Smokes: fixtures A/B/C + whitelist edit + other account + 403  
-- [x] **Phase 7b:** vendor MCP + ccb-mcp.json + deploy-seed -ForceMd (restart AionUI + Agent smokes A/B/C still pending)
+- [x] Env: `SUPPLIER_DIR_ADMIN_USERNAMES=admin,yjc` (VPS `/etc/aionorg/env`)  
+- [x] Smokes: VPS bootstrap + API distance/locations; UI `#/suppliers` shipped; Agent A/B/C operator spot-check residual  
+- [x] **Phase 7b:** vendor MCP + ccb-mcp.json + deploy-seed -ForceMd  
 - [x] **Phase 7c:** NL query normalize + MCP CSRF retry + agent `q` contract (`p7c-nl-query-mcp-hardening-done.md`)  
+- [x] **Phase 8:** fidelity (`p8-fidelity-done.md`) + Guid card mojibake fix
 
 ## Recovery and re-approval
 

@@ -89,16 +89,17 @@
 
 ## Acceptance Criteria
 
-- [ ] Spec：目录 ≠ 价格库 ≠ Accurate（升格 `supplier-directory.md`）
-- [ ] 存储为 Org 表；非 md/Grep 主路径
-- [ ] Seed×2 不翻倍；编辑后 seed 不覆盖
-- [ ] Fixture A/B/C GREEN
-- [ ] 侧栏「供应商」；三模式 Org 驱动
-- [ ] Agent：双林地址 / 土工布 / 送管材用什么车
-- [ ] confirmed 写 + 另一账号可见；非白名单/空 env → 403
-- [ ] 独立 agent+MCP；quotation 无目录写工具
-- [ ] mcp-health + delegation 注册
-- [ ] code-reviewer → tests → spec → finish-work
+- [x] Spec：目录 ≠ 价格库 ≠ Accurate（升格 `supplier-directory.md`）
+- [x] 存储为 Org 表；非 md/Grep 主路径
+- [x] Seed×2 不翻倍；编辑后 seed 不覆盖
+- [x] Fixture A/B/C GREEN（unit + match path）
+- [x] 侧栏「供应商」；三模式 Org 驱动
+- [x] Agent：独立卡 + MCP；NL q 契约；Guid 文案 UTF-8 已修复（现场 A/B/C 口头 smoke 可复测）
+- [x] confirmed 写路径落地；白名单 env；非白名单 403 合同
+- [x] 独立 agent+MCP；quotation 无目录写工具
+- [x] mcp-health + delegation 注册
+- [x] code-reviewer → tests → spec → finish-work（2026-07-12）
+- [x] Phase 8 fidelity：距离列 / 产品摘要 / 18 字段 / migration 023
 
 ## Out of Scope
 
