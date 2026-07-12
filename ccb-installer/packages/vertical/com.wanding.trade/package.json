@@ -26,7 +26,7 @@
       "description": "Create, edit, and query organization work tasks via agent (RBAC)."
     },
     {
-      "id": "business.supplier_directory.read",
+      "id": "business.supplier-directory.read",
       "description": "Read organization supplier directory and logistics vehicles."
     }
   ],
@@ -95,7 +95,7 @@
       "id": "supplier-directory-agent",
       "source": "packages/vertical/com.wanding.trade/agents/supplier-directory-agent.md",
       "requiredCapabilities": [
-        "business.supplier_directory.read"
+        "business.supplier-directory.read"
       ],
       "mcpServers": [
         "supplier-directory"
@@ -224,7 +224,7 @@
       "id": "supplier-directory",
       "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json",
       "providesCapabilities": [
-        "business.supplier_directory.read"
+        "business.supplier-directory.read"
       ],
       "runtime": {
         "command": "node",
