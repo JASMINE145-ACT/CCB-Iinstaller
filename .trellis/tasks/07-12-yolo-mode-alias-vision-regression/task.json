@@ -1,0 +1,43 @@
+{
+  "id": "yolo-mode-alias-vision-regression",
+  "name": "07-12-yolo-mode-alias-vision-regression",
+  "title": "WeCom/desktop yolo mode alias + vision regression",
+  "description": "Map yolo→bypassPermissions for Claude/CCB before setMode; restore desktop Guid image understanding; WeCom history stitch fix (TURN.001).",
+  "status": "completed",
+  "dev_type": "bugfix",
+  "scope": "aionui-src mode normalize + vision; AionCore channel stream_relay; CCB ACP rehydrate",
+  "package": "integration",
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-12",
+  "completedAt": "2026-07-12",
+  "relatedFiles": [
+    "aionui-src/packages/desktop/src/common/types/agent/agentModes.ts",
+    "aionui-src/packages/desktop/src/common/config/ensureCcbSessionPreferredMode.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/guid/utils/assistantDefaults.ts",
+    "AionCore/crates/aionui-channel/src/stream_relay.rs",
+    ".trellis/spec/frontend/chat-acp-flow.md",
+    ".trellis/spec/integration/wecom-channel.md",
+    ".trellis/tasks/07-01-aionui-full-auto-permission-sync/prd.md",
+    ".trellis/tasks/07-05-wecom-channel-integration/research/wecom-aibot-media-capabilities.md"
+  ],
+  "notes": "2026-07-12 CLOSED. P0: mode alias + desktop vision PASS. P1: CCB agent.ts replayToClient:false on stale rehydrate (decisive); AionCore stream_relay Start-arm (defense). WeCom live AC-H1 PASS. Codex follow-up: sessionMcpConfig.ts extract + 06-30 Step2 rereview 8/10.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "UI",
+    "scenario": "C",
+    "related_tasks": [
+      "07-01-aionui-full-auto-permission-sync",
+      "07-05-wecom-channel-integration",
+      "07-11-knowledge-vs-price-library-routing"
+    ],
+    "contracts": [
+      "WANd.MODE.ALIAS.001",
+      "WANd.MODE.SEND_GATE.001",
+      "WANd.VISION.DESKTOP.001",
+      "WANd.CHANNEL.STREAM.TURN.001",
+      "WANd.WECOM.MEDIA.IN.001"
+    ]
+  }
+}

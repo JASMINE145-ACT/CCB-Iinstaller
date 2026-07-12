@@ -1,5 +1,11 @@
 # Architecture / Business Boundary Refactor
 
+> Consolidation note, 2026-07-11: this completed task has been absorbed into
+> `../06-30-full-system-review/` as the architecture/business boundary baseline.
+> Keep this directory as historical evidence and source material. Continue new
+> system-review findings, backlog items, and roadmap updates in
+> `06-30-full-system-review`.
+
 ## Goal
 
 在功能不变的前提下，把代码按职责切清楚，让后续 AI 和人类维护者能快速判断：

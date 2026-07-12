@@ -79,6 +79,21 @@
       },
       "notes": "Read probe works for any org-authenticated user. Draft/write tools require price_admin."
     },
+    "supplier-directory": {
+      "kind": "stdio",
+      "lazy": true,
+      "required_paths": [
+        "vendor/mcp-servers/supplier-directory/index.mjs",
+        "vendor/mcp-servers/supplier-directory/preview.mjs"
+      ],
+      "tool_prefix": "mcp__supplier-directory__",
+      "probe_timeout_ms": 30000,
+      "probe_tool_call": {
+        "tool": "suppliers_list",
+        "arguments": {}
+      },
+      "notes": "Requires Org SSO JWT. Read tools for any org user; writes (Phase 4) need SUPPLIER_DIR_ADMIN_USERNAMES."
+    },
     "work-tasks-agent": {
       "kind": "stdio",
       "lazy": true,
@@ -98,7 +113,9 @@
         "accurate",
         "office-word",
         "excel",
-        "work-tasks-agent"
+        "work-tasks-agent",
+        "supplier-directory",
+        "price-library"
       ],
       "notes": "Employee primary entry session with empty business MCP allowlist; Agent() routing is a tool."
     },
@@ -129,6 +146,14 @@
       ],
       "optional_mcp": [
         "excel"
+      ]
+    },
+    "supplier-directory-agent": {
+      "required_mcp": [
+        "supplier-directory"
+      ],
+      "tool_prefixes": [
+        "mcp__supplier-directory__"
       ]
     },
     "work-tasks-agent": {

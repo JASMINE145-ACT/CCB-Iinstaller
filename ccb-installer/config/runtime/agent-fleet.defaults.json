@@ -6,7 +6,7 @@
   "values": {
     "primaryPackageId": "com.wanding.trade",
     "defaultRouterCapability": "platform.agent.route",
-    "guidOnlyAgentIds": ["price-library-agent"],
+    "guidOnlyAgentIds": [],
     "officePresetAgentIds": [
       "cowork",
       "word-creator",

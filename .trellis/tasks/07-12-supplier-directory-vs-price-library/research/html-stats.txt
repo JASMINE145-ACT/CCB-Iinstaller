@@ -1,0 +1,6 @@
+﻿count 27
+with_code 0
+with_addr 21
+with_contact 17
+categories {'绠℃潗绠￠亾': 5, '寤烘潗浜旈噾': 14, '閽㈡潗鐩稿叧': 7, '鐢垫皵鐩稿叧': 1}
+names: 鍙屾灄, 涓変俊, SANFU, 鍑『寰? PT SENTUM TEKNOLOGI INDONESIA, 婧愭硥閽㈢, LCQH JAYA, HECTOR 鍜屾嫇, GSMI, JUXIN 鑱氶懌, JMG绱у浐浠? 涓床, 涓滄睙, Wangwang, 鎭掍俊, 瀹忔簮, Teguh, GUANJIE 鍐犳磥鍗荡, AN GROUP 鍗板凹閲戠墰, 鍑屽▉, 瀹忚开, PT.HOKI PAS, PT.EOBO MACHINERY INDONESIA, PT KUIXIN BAJA 濂庨懌鍗板凹, PT. JAYA MASHYUR GEMILANG, PT.SOMY, HAKUNA

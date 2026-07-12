@@ -225,3 +225,123 @@
 ## Ready to implement
 
 P0 decisions locked. Say **「执行 task」** to begin **EIL P1** (or **「先收尾 07-09」** to finish sibling task first — recommended).
+
+---
+
+## Focused slice — Org context + Settings + Subagent (explore 2026-07-11)
+
+> **User scope:** concerns #1, #6, #7 only — combine 1+6 in one delivery; #7 = upgrade existing P9 path.  
+> **Research:** `research/org-context-slice-2026-07-11.md`  
+> **Scenario:** B slice · **Plan depth:** Standard · **Verification profile:** UI + Security (read-only + no PII leak)
+
+### Skills invoked (this planning session)
+
+| Invocation | Type | Evidence |
+|------------|------|----------|
+| trellis-task-execution | Read: | `.cursor/skills/trellis-task-execution/SKILL.md` — Contract → TDD → Verification |
+| skill-selection | Read: | §二 explore → openspec-explore / trellis-research; implementation deferred |
+| PRD + contract | Read: | `prd.md`, `eil-contract.md` Q4, `07-06` prd + test-records |
+| Baseline inventory | Read: | `agent-team-architecture.md` § profile + subagent; `aioncore-work-tasks` PublicUser shape |
+| Slice research | Write: | `research/org-context-slice-2026-07-11.md` |
+
+### Already done (do not rebuild)
+
+| Item | Task | Evidence |
+|------|------|----------|
+| Settings → handoff → `session/new` merge | `07-06` | AC1–AC9 PASS; `p5-dev-smoke-done.md`, `test-records.md` P9 |
+| Subagent `runAgent` profile merge | `07-06` P9 | `mergeEmployeeProfileIntoResolvedUserContext`; 54/54 unit |
+| Spec wiring | `07-06` | `acp-session-flow.md`, `agents-unified-model.md`, `file-map.md` |
+| Orchestrator identity slot S5 | `07-11` | `extension-slots.md` — API owner = this slice |
+
+### Contract map
+
+| Contract | Behavior protected | Primary code | Tests / eval / smoke | Risk |
+|----------|--------------------|--------------|----------------------|------|
+| `WANd.EMPLOYEE.ORG_CONTEXT.001` | New ACP session injects **server** org identity (dept, manager, title, status, work_task_role); client JSON is supplemental notes only | `AionCore` context API; `aionui` warmup/handoff; `claude-code-B/employeeProfile.ts` | `cargo test` context route; `employeeProfile.test.ts` org-first merge | AI trusts wrong identity |
+| `WANd.EMPLOYEE.SETTINGS_MERGE.001` | Settings shows org fields **read-only**; user edits notes/email/phone only; save syncs handoff without overwriting org authority | `EmployeeProfileSettings/*`, `ccbEmployeeProfileSession.ts` | `bun test` form read-only + merge; manual Settings smoke | ACL drift / user overrides dept |
+| `WANd.EMPLOYEE.SUBAGENT_INHERIT.001` | `Agent()` subagents receive **same** org+client block as main session (07-06 P9 regression) | `runAgent.ts`, `employeeProfile.ts` | `employeeProfile.test.ts` 7/7 + P9 manual script | Delegation loses identity |
+
+### Contract cards
+
+#### Contract: WANd.EMPLOYEE.ORG_CONTEXT.001
+
+**Behavior protected:** AI identity at `session/new` comes from org API, not editable client fields.  
+**Primary code:** `AionCore/crates/aionui-work-tasks` or `aionui-auth` (new `GET /api/users/me/context`), `aionui-src/.../ccbEmployeeProfileSession.ts`, `claude-code-B/.../employeeProfile.ts`  
+**Tests:** `cargo test` context handler; `employeeProfile.test.ts` org block precedence  
+**Eval / smoke:** Org SSO login → new chat →「我是谁」shows VPS username + seeded dept (not stale Settings dept)  
+**Risk if broken:** User edits Settings dept; AI disagrees with company account
+
+#### Contract: WANd.EMPLOYEE.SETTINGS_MERGE.001
+
+**Behavior protected:** Org authority visible but not client-writable; notes remain editable.  
+**Primary code:** `EmployeeProfileSettings/`, `configKeys.ts`  
+**Tests:** vitest read-only attrs on org fields; save payload excludes org keys  
+**Eval / smoke:** Settings → dept field disabled; notes save persists; re-open shows org from server  
+**Risk if broken:** Client overrides org; dual source of truth returns
+
+#### Contract: WANd.EMPLOYEE.SUBAGENT_INHERIT.001
+
+**Behavior protected:** Delegated quotation/work-tasks agents know user identity from org block.  
+**Primary code:** `runAgent.ts` (unchanged hook point), `employeeProfile.ts` (shared formatter)  
+**Tests:** idempotent merge tests (existing 7/7) + fixture with org DTO  
+**Eval / smoke:** P9 script in `07-06/test-records.md` with org-seeded dept  
+**Risk if broken:** Subagent anonymous; wrong 您/你 or dept in specialist reply
+
+### Workstreams
+
+| Phase | Priority | Workstream | touches | Risk | Tool / agent | Files | Required output | Profile |
+|-------|----------|------------|---------|------|--------------|-------|-----------------|---------|
+| S1 | P0 | Minimal DB + seed | `WANd.EMPLOYEE.ORG_CONTEXT.001` | migration | trellis-implement | `aionui-db/migrations/021_*.sql` | `department`, `manager_user_id`, `job_title`, `employment_status` on `users`; seed pilot users from `scripts/org-phase0/env.local` | Security |
+| S2 | P0 | Context API | `WANd.EMPLOYEE.ORG_CONTEXT.001` | security | TDD → trellis-implement | auth or work-tasks routes | `GET /api/users/me/context` per `eil-contract.md` DTO (subset: no `is_admin` yet OK) | Security |
+| S3 | P0 | aionui fetch + handoff | `WANd.EMPLOYEE.ORG_CONTEXT.001` | cross-repo | trellis-implement | `ccbEmployeeProfileSession.ts`, warmup | Handoff file: `{ org: {...}, client: { notes, email, phone } }` | UI |
+| S4 | P0 | Settings read-only org (#6) | `WANd.EMPLOYEE.SETTINGS_MERGE.001` | ui | trellis-implement | `EmployeeProfileSettings/*` | Org section read-only; fetch on tab open or login | UI |
+| S5 | P0 | CCB merge upgrade | `WANd.EMPLOYEE.ORG_CONTEXT.001`, `WANd.EMPLOYEE.SUBAGENT_INHERIT.001` | cross-repo | trellis-implement | `employeeProfile.ts`, `agentSessionProfile.ts` | Merge order: assistant → **org block** → client notes → date | UI |
+| S6 | P1 | Spec + regression | all three | — | trellis-update-spec | `employee-intelligence-layer.md` §slice | Cross-links; AC1 slice `[x]` | Fast |
+
+**Out of slice:** `employee_audit_log`, lifecycle middleware, scope resolver, `is_admin` (add columns nullable/default; wire later).
+
+### TDD contract
+
+| Workstream | Contract | RED evidence | GREEN command | Refactor guard |
+|------------|----------|--------------|---------------|----------------|
+| S1 migration | ORG_CONTEXT | migration apply on empty DB | `cargo test -p aionui-db` | same |
+| S2 context API | ORG_CONTEXT | GET without JWT → 401; employee JWT → DTO with dept | `cargo test` route_tests + new context test | auth/user unchanged |
+| S3 handoff | ORG_CONTEXT | mock org API → handoff contains `org.department` | `bun test` ccbEmployeeProfileSession | 07-06 tombstone/clear |
+| S4 Settings | SETTINGS_MERGE | org field onChange fires → fail | `bun test` EmployeeProfileSettings | save round-trip |
+| S5 CCB merge | SUBAGENT_INHERIT | client dept overrides org → fail test | `employeeProfile.test.ts` | 54/54 ACP suite |
+| E2E | all | — | P9 manual +「我是谁」with mismatched client dept | user smoke |
+
+### Contract Verification (slice gate)
+
+| Contract | Verification command / smoke | Required evidence | Status |
+|----------|------------------------------|-------------------|--------|
+| ORG_CONTEXT | curl `GET /api/users/me/context` + new chat「我是谁」 | `cargo test t7_4` PASS; aionui vitest 3/3 | done (manual smoke pending) |
+| SETTINGS_MERGE | Settings UI + vitest | read-only Descriptions; save gated on org load | done (manual smoke pending) |
+| SUBAGENT_INHERIT | P9 manual script | CCB org-first merge tests added | done (manual smoke pending) |
+
+**Gate chain (slice):** code-reviewer PASS → targeted tests GREEN → manual smoke (3 rows above) → `trellis-update-spec` §slice only.
+
+### Manual steps (slice)
+
+1. Org SSO login (`yjc` / admin from `env.local`)
+2. Admin seeds `yjc.department = 采购部` on VPS (or migration seed)
+3. Settings still has old client dept → save notes only
+4. **New** conversation →「我是谁」→ must show **采购部** (server), not old client value
+5. Orchestrator delegates to quotation-agent → subagent uses same identity (P9 script)
+6. Settings: dept/manager fields greyed out; notes editable
+
+### Parallelization
+
+**Serial only** at handoff DTO boundary: S2 API shape → S3 fetch → S5 merge. S4 Settings can parallel after S2 frozen.
+
+### Recovery
+
+| Trigger | Action |
+|---------|--------|
+| Org VPS offline at warmup | Fallback: client profile + banner「组织信息暂不可用」; do not fake org fields |
+| Subagent regression | Stop; fix `employeeProfile.ts` before Settings polish |
+| User wants full EIL | Resume full P1 plan above; slice ACs remain subset |
+
+### Slice approval
+
+Say **「执行 slice」** to implement S1–S6 only. Say **「执行 task」** for full EIL P1+P2.

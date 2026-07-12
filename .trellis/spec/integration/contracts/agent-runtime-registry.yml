@@ -102,6 +102,64 @@ contracts:
     related:
       - WANd.RUN.EXECUTION.001
 
+  - id: WANd.ROUTING.KB_ORG.001
+    title: 知识库 means business knowledge append
+    domain: routing
+    description: >
+      User intent 「知识库 / 业务知识库」routes to quotation-agent append_business_rule.
+      Must not route to price-library upsert or price-library-edit.
+    code:
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md
+    tests:
+      - manual#kb-org-append-smoke
+    spec:
+      - .trellis/spec/integration/org-knowledge.md
+      - .trellis/spec/integration/work-routing-execution-contracts.md
+      - .trellis/tasks/07-11-knowledge-vs-price-library-routing/prd.md
+    related:
+      - WANd.ROUTING.ASSIGNMENT.001
+      - WANd.ROUTING.KB_PRICE.001
+      - WANd.ROUTING.KB_DISAMBIG.001
+
+  - id: WANd.ROUTING.KB_PRICE.001
+    title: 价格库 routes to price-library-agent
+    domain: routing
+    description: >
+      User intent 「价格库 / 价库」routes to price-library-agent (delegatable).
+      Must not use append_business_rule for SKU/price maintenance.
+    code:
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/price-library-agent.md
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/price-library-agent.aionui.json
+      - ccb-installer/packages/vertical/com.wanding.trade/skills/price-library-edit/SKILL.md
+    tests:
+      - manual#kb-price-upsert-smoke
+    spec:
+      - .trellis/spec/integration/price-library.md
+      - .trellis/spec/integration/work-routing-execution-contracts.md
+      - .trellis/tasks/07-11-knowledge-vs-price-library-routing/prd.md
+    related:
+      - WANd.ROUTING.ASSIGNMENT.001
+      - WANd.ROUTING.KB_ORG.001
+
+  - id: WANd.ROUTING.KB_DISAMBIG.001
+    title: Mixed 知识库/价格库 signals require one clarify
+    domain: routing
+    description: >
+      Only when signals mix (e.g. 知识库 + material_code/price), ask once
+      业务知识库 vs 价格库 before Agent(). Pure 知识库 does not clarify.
+    code:
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md
+    tests:
+      - manual#kb-mixed-clarify-smoke
+    spec:
+      - .trellis/spec/integration/work-routing-execution-contracts.md
+      - .trellis/tasks/07-11-knowledge-vs-price-library-routing/prd.md
+    related:
+      - WANd.ROUTING.KB_ORG.001
+      - WANd.ROUTING.KB_PRICE.001
+
   - id: WANd.RUN.EXECUTION.001
     title: Sync Agent() spawn via runAgent.ts
     domain: execution

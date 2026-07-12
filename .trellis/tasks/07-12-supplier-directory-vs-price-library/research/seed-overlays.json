@@ -1,0 +1,36 @@
+{
+  "凌威": {
+    "notes": "PT. Ling Wei Gong Cheng Jianzhu Maoyi",
+    "locations": [
+      {
+        "type": "仓库",
+        "type_id": "Gudang",
+        "address_from_field": true,
+        "distance_km": 7,
+        "phone": "858-6275-7220 / 081356278888"
+      },
+      {
+        "type": "门店",
+        "type_id": "Toko LTC",
+        "address": "Hayam Wuruk, Lindeteves Trade Center Lt.GF2, RA45, 127, Manga Besar, Taman Sari, Jakarta Barat, DKI Jakarta 11180",
+        "distance_km": 10,
+        "contact": "Wisnu",
+        "phone": "+62 857-7791-1063"
+      }
+    ]
+  },
+  "PT KUIXIN BAJA 奎鑫印尼": {
+    "locations": [
+      {
+        "type": "丹格朗",
+        "type_id": "Tangerang",
+        "address_from_field": true
+      },
+      {
+        "type": "勿加泗",
+        "type_id": "Bekasi",
+        "address": "Jln. KH Mamun Nawawi KP Pagualan, RT 011/002, Sukaresmi, Cikobar Barat"
+      }
+    ]
+  }
+}

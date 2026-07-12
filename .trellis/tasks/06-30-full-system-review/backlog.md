@@ -29,6 +29,8 @@
 | BE-P1-4 | sync-claude-code-b-mcp-prefetch 扩展文件清单 + upstream-only 文档 | backend + integration | **closed** (2026-07-02) |
 | BE-P1-5 | mcp-health.md Session 探针与 manifest 对齐 | backend + integration | **closed** (2026-07-02) |
 | INT-P1-5 | VPS manifest ops pending | ship | open |
+| INT-P1-11 | route-b acp-agent 源选择可能掩盖 repo patch 变更 | integration | open (2026-07-11 rereview) |
+| SHIP-P1-1 | CI release workflow 仍走 legacy installer.nsi，未接 build-wanding v2 gate | ship | open (2026-07-11 rereview) |
 
 ## P2
 
@@ -36,9 +38,11 @@
 |----|-----|-------|------|
 | INT-P2-1 | 缺 integration-smoke.ps1 | integration | open |
 | INT-P2-2 | CI 未覆盖 build-wanding v2 | ship | open |
+| XL-P2-1 | spec/index.md 成熟度快照与 Step 1 复审不一致 | cross-layer | open (2026-07-11 rereview) |
+| INT-P2-10 | dev-runtime-layers route-b 目标数表述仍有漂移 | integration | open (2026-07-11 rereview) |
 | FE-P2-1 | TODO(defensive) 可审计性 | frontend | open |
 | FE-P2-2 | Guid startup banner repair CTA (AC4 optional) | frontend | open |
-| BE-P2-1 | 从上游同步 agent.test.ts / bridge.test.ts 或 CI 指向上游 | backend | open |
+| BE-P2-1 | 从上游同步 agent.test.ts / bridge.test.ts 或 CI 指向上游 | backend | partial (2026-07-12: MCP merge helper extracted + direct helper test; upstream agent/bridge still open) |
 | BE-P2-2 | acp-session-flow greeting 职责写清（Backend vs Frontend） | backend + frontend | **closed** (2026-07-02) |
 | BE-P2-3 | price-library-agent ROE/Stop hook 策略评估 | backend | **closed** (2026-07-02 doc) |
 

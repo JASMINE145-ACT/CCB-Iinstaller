@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>万鼎供应商信息查询 | Info Supplier Wan Ding</title>
+<style>
+/* ── Reset & Base ── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei','PingFang SC',sans-serif;background:#eef3f8;color:#2c3e50;font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ── Header ── */
+#header{background:linear-gradient(135deg,#0d3b66 0%,#1a5fa8 40%,#2980b9 100%);color:#fff;padding:16px 32px;display:flex;align-items:center;gap:20px;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(13,59,102,.25)}
+#header h1{font-size:20px;font-weight:700;letter-spacing:.5px;white-space:nowrap;display:flex;align-items:center;gap:10px}
+#header h1 .logo-icon{width:36px;height:36px;background:rgba(255,255,255,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;backdrop-filter:blur(4px)}
+#global-search{flex:1;min-width:200px;max-width:560px;padding:10px 16px 10px 40px;border:2px solid transparent;border-radius:10px;font-size:14px;outline:none;background:rgba(255,255,255,.12);color:#fff;transition:all .25s}
+#global-search::placeholder{color:rgba(255,255,255,.55)}
+#global-search:focus{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.35);box-shadow:0 0 0 4px rgba(255,255,255,.06)}
+.search-wrap{position:relative;flex:1;max-width:560px;min-width:200px}
+.search-wrap .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;color:rgba(255,255,255,.5);pointer-events:none}
+
+/* ── Toolbar ── */
+#toolbar{background:#fff;padding:8px 32px;border-bottom:1px solid #e8edf2;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 4px rgba(0,0,0,.03);position:sticky;top:68px;z-index:99}
+#toolbar .stats{font-size:12px;color:#5a6d80;display:flex;align-items:center;gap:4px;white-space:nowrap}
+#toolbar .stats b{color:#1a5fa8;font-weight:700;margin:0 2px}
+.tb-body{display:flex;gap:14px;align-items:flex-start}
+#toolbar select{appearance:none;-webkit-appearance:none;padding:6px 28px 6px 10px;border:1.5px solid #d0dae5;border-radius:8px;font-size:12px;color:#3a5670;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2380a0c0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;cursor:pointer;outline:none;transition:all .15s;flex-shrink:0}
+#toolbar select:hover{border-color:#a0bdd8}
+#toolbar select:focus{border-color:#1a5fa8;box-shadow:0 0 0 3px rgba(26,95,168,.08)}
+
+/* ── Mode Toggle (vertical) ── */
+.mode-toggle{display:flex;flex-direction:column;gap:0;border-radius:10px;overflow:hidden;border:1.5px solid #d0dae5;flex-shrink:0}
+.mode-toggle button{padding:6px 14px;font-size:12px;font-weight:500;border:none;cursor:pointer;background:#fff;color:#5a7a99;transition:all .15s;white-space:nowrap;outline:none;text-align:left;border-bottom:1px solid #e8eef3}
+.mode-toggle button:last-child{border-bottom:none}
+.mode-toggle button:hover{background:#f5f9fd}
+.mode-toggle button.active{background:#1a5fa8;color:#fff}
+
+/* ── Toolbar right area ── */
+.tb-right{flex:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+
+/* ── Product Search Row ── */
+#product-search-row{display:none;background:#f8fafd;padding:10px 32px;border-bottom:1px solid #e8edf2;align-items:center;gap:12px;flex-wrap:wrap}
+#product-search-row.show{display:flex}
+#product-search-input{flex:1;min-width:260px;max-width:600px;padding:9px 14px;border:1.5px solid #d0dae5;border-radius:10px;font-size:14px;outline:none;color:#2c3e50;transition:all .2s}
+#product-search-input:focus{border-color:#1a5fa8;box-shadow:0 0 0 3px rgba(26,95,168,.08)}
+#product-search-input::placeholder{color:#b0c0d0}
+#match-hint{font-size:12px;color:#90a8c0}
+
+/* ── Product Match Result List ── */
+#match-list{display:none;flex-direction:column;gap:16px;padding:14px 32px 40px;max-width:1200px;margin:0 auto}
+#match-list.show{display:flex}
+@media(max-width:960px){#match-list{padding:10px 12px 30px;gap:12px}}
+
+/* ── Match Card ── */
+.match-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.05),0 0 0 1px rgba(0,0,0,.04);overflow:hidden;transition:all .2s;animation:fadeInUp .3s ease backwards}
+.match-card:hover{box-shadow:0 4px 18px rgba(0,0,0,.1),0 0 0 1px rgba(26,95,168,.12)}
+.match-card-hd{padding:12px 18px;background:linear-gradient(135deg,#f9fbfd 0%,#f1f5fa 100%);border-bottom:1px solid #eef2f8;display:flex;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer}
+.match-card-hd .mname{font-size:16px;font-weight:700;color:#0d3b66}
+.match-card-hd .mscore{font-size:11px;font-weight:600;color:#1a5fa8;background:#e6f0fe;padding:2px 10px;border-radius:10px;white-space:nowrap}
+.match-body{padding:10px 18px;display:flex;flex-direction:column;gap:6px}
+.match-products{font-size:13px;color:#3a5670;line-height:1.8}
+.match-products .mprod{display:inline-block;background:#f0f7e8;color:#3d6b20;padding:2px 10px;border-radius:6px;margin:2px 4px 2px 0;font-size:12px;font-weight:500}
+.match-products .mprod em{font-style:normal;background:#ffe08a;padding:1px 3px;border-radius:3px;font-weight:700;color:#8a5500}
+.match-products .mcat{display:inline-block;background:#e6f0fe;color:#4a7ab5;padding:2px 10px;border-radius:6px;margin:2px 4px 2px 0;font-size:12px}
+.match-meta{font-size:12px;color:#5a7288;display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:4px;border-top:1px solid #f2f5f9}
+.match-meta .mim{display:flex;align-items:center;gap:3px}
+.match-meta .mim .mlb{color:#a0b0c0}
+.match-card .prod-body{margin-top:0}
+.match-card .prod-body.open{max-height:3000px}
+
+/* ── Vehicle Table Section ── */
+#vehicle-list{display:none;padding:14px 32px 40px;max-width:1300px;margin:0 auto}
+#vehicle-list.show{display:block}
+@media(max-width:960px){#vehicle-list{padding:10px 12px 30px}}
+.vehicle-intro{font-size:13px;color:#5a7288;margin-bottom:14px;line-height:1.6;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.vehicle-intro .vi-icon{font-size:22px}
+.vehicle-table-wrap{overflow-x:auto;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06),0 0 0 1px rgba(0,0,0,.04);background:#fff}
+.vehicle-table{width:100%;border-collapse:collapse;font-size:13px;min-width:900px}
+.vehicle-table thead{background:linear-gradient(135deg,#0d3b66,#1a5fa8)}
+.vehicle-table thead th{padding:12px 14px;text-align:left;font-weight:600;color:#fff;font-size:13px;white-space:nowrap;border-right:1px solid rgba(255,255,255,.1)}
+.vehicle-table thead th:last-child{border-right:none}
+.vehicle-table thead th .th-sub{display:block;font-size:11px;font-weight:400;opacity:.8;margin-top:1px}
+.vehicle-table tbody td{padding:11px 14px;border-bottom:1px solid #eef2f8;vertical-align:top;color:#2c3e50;line-height:1.55}
+.vehicle-table tbody tr:nth-child(even){background:#f9fbfd}
+.vehicle-table tbody tr:hover{background:#f0f7fe}
+.vehicle-table .col-vno{text-align:center;font-weight:700;color:#1a5fa8;width:40px}
+.vehicle-table .col-vtype{font-weight:600;min-width:160px}
+.vehicle-table .col-vtype .vt-name{display:block;color:#0d3b66}
+.vehicle-table .col-vtype .vt-id{display:block;font-size:12px;color:#5a7a99;font-weight:400;margin-top:2px}
+.vehicle-table .col-vload{min-width:140px}
+.vehicle-table .col-vload .vl-zh{display:block;font-weight:600;color:#2c3e50}
+.vehicle-table .col-vload .vl-id{display:block;font-size:12px;color:#5a7a99;margin-top:1px}
+.vehicle-table .col-vsize{min-width:140px;font-family:'SF Mono','Cascadia Code',Consolas,monospace;font-size:12px}
+.vehicle-table .col-vuse{min-width:220px;font-size:12px;color:#3a5670;line-height:1.6}
+
+/* ── No Match ── */
+.no-match{text-align:center;padding:60px 20px;color:#a0b0c0;font-size:15px}
+.no-match .icon{font-size:48px;margin-bottom:12px;display:block;opacity:.5}
+
+/* ── Search Highlight ── */
+.hl{background:#ffe08a;padding:1px 2px;border-radius:2px;font-weight:700;color:#8a5500}
+
+/* ── Category Filter Chips ── */
+.cat-filter-wrap{display:flex;align-items:center;gap:8px;flex:1;overflow-x:auto;padding:2px 0;scrollbar-width:none}
+.cat-filter-wrap::-webkit-scrollbar{display:none}
+.cat-chip{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .18s;border:1.5px solid #dce5ef;background:#fff;color:#5a7a99;user-select:none}
+.cat-chip:hover{border-color:#a0bdd8;background:#f5f9fd;color:#1a5fa8}
+.cat-chip.active{background:#1a5fa8;color:#fff;border-color:#1a5fa8;box-shadow:0 2px 8px rgba(26,95,168,.25)}
+.cat-chip .chip-count{font-size:11px;opacity:.75;margin-left:2px}
+
+/* ── Category Group Header ── */
+.cat-group{margin-bottom:16px}
+.cat-group-header{display:flex;align-items:center;gap:10px;padding:6px 0 8px;font-size:15px;font-weight:700;color:#0d3b66}
+.cat-group-header::before{content:'';flex:1;height:1px;background:linear-gradient(to right,#d4dfe9,transparent)}
+.cat-group-header::after{content:'';flex:4;height:1px;background:linear-gradient(to right,#d4dfe9,transparent)}
+.cat-group-header .gname{white-space:nowrap;display:flex;align-items:center;gap:6px}
+.cat-group-header .gcount{font-size:12px;font-weight:500;color:#80a0c0;background:#eef3f8;padding:2px 10px;border-radius:10px}
+
+/* ── Card List (single column) ── */
+#card-list{display:flex;flex-direction:column;gap:20px;padding:14px 32px 40px;max-width:1200px;margin:0 auto}
+@media(max-width:960px){#card-list{padding:10px 12px 30px;gap:14px}}
+
+/* ── Card ── */
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.05),0 0 0 1px rgba(0,0,0,.04);overflow:hidden;transition:all .25s cubic-bezier(.4,0,.2,1)}
+.card:hover{box-shadow:0 6px 24px rgba(0,0,0,.1),0 0 0 1px rgba(26,95,168,.15)}
+
+/* Card header */
+.card-hd{padding:16px 22px;background:linear-gradient(135deg,#f9fbfd 0%,#f1f5fa 100%);border-bottom:1px solid #eef2f8;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.card-hd .name{font-size:18px;font-weight:700;color:#0d3b66;letter-spacing:.3px}
+.card-hd .tags{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.2px;white-space:nowrap}
+.badge-cat{background:#e6f0fe;color:#1a5fa8}
+.badge-dist{background:#f5f3ff;color:#6b5bb8}
+.badge-grade-a{background:#e6f7ee;color:#1d8a4e}
+.badge-grade-b{background:#fff8e6;color:#b0861e}
+.badge-grade-c{background:#fef0ef;color:#c0392b}
+
+/* Card meta bar (address, contact, etc) */
+.card-meta{padding:10px 22px;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#5a7288;border-bottom:1px solid #f2f5f9;background:#fafcfe}
+.card-meta .addr-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-meta .addr-row .mlbl{color:#95a8b8;white-space:nowrap;flex-shrink:0}
+.card-meta .addr-row .mval{color:#445566;word-break:break-word;line-height:1.6;flex:1;min-width:200px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;cursor:pointer}
+.card-meta .addr-row .mval:hover{-webkit-line-clamp:unset;overflow:visible}
+.card-meta .addr-row .mval+.mval{flex:0 1 auto;min-width:0;-webkit-line-clamp:1}
+.card-meta .info-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:12px}
+.card-meta .info-row .inf{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.card-meta .info-row .inf .ik{color:#a0b0c0}
+.card-meta .info-row .inf .iv{color:#556677;font-weight:500}
+
+.copy-btn{display:inline-block;vertical-align:-2px;border:none;background:#eef3f8;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;opacity:.6;transition:all .15s;line-height:1}
+.copy-btn:hover{opacity:1;background:#dce7f2}
+.dist-note{display:inline-block;vertical-align:-1px;font-size:11px;color:#8ca0b8;background:#f0f4f8;padding:1px 7px;border-radius:10px;margin:0 4px;white-space:nowrap}
+
+/* ── Product Accordion Toggle ── */
+.prod-toggle{display:flex;align-items:center;gap:8px;padding:10px 22px;cursor:pointer;user-select:none;border-top:1px solid #f2f5f9;transition:background .15s;font-size:13px;font-weight:500;color:#4a6a8a}
+.prod-toggle:hover{background:#f7fafd}
+.prod-toggle .arw{display:inline-flex;width:22px;height:22px;border-radius:50%;border:1.5px solid #c0d4e6;align-items:center;justify-content:center;font-size:10px;transition:all .25s;color:#80a0c0;flex-shrink:0}
+.prod-toggle.open .arw{background:#1a5fa8;border-color:#1a5fa8;color:#fff;transform:rotate(180deg)}
+.prod-toggle .plabel{flex:1}
+.prod-toggle .pcnt{font-size:11px;color:#a0b8d0;font-weight:400}
+
+/* ── Product Table Body ── */
+.prod-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.4,0,.2,1)}
+.prod-body.open{max-height:4000px}
+
+/* ── Sub-category Accordion ── */
+.subcat-wrap{padding:8px 16px}
+.subcat-toggle{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;cursor:pointer;user-select:none;background:#f4f7fc;margin-bottom:2px;transition:background .15s;font-size:13px;font-weight:500;color:#3d6080;border:1px solid #e8eef6}
+.subcat-toggle:hover{background:#eaf0f8;border-color:#ccd9e8}
+.subcat-toggle .sarw{display:inline-flex;width:18px;height:18px;border-radius:50%;border:1.5px solid #b0c8e0;align-items:center;justify-content:center;font-size:8px;transition:all .25s;color:#80a0c0;flex-shrink:0}
+.subcat-toggle.open .sarw{background:#1a5fa8;border-color:#1a5fa8;color:#fff;transform:rotate(180deg)}
+.subcat-toggle .slabel{flex:1;font-size:13px}
+.subcat-toggle .scnt{font-size:11px;color:#a0b8d0;font-weight:400}
+.subcat-body{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
+.subcat-body.open{max-height:3000px}
+.subcat-body .prod-table{margin:0;width:100%}
+.subcat-body .prod-table td{padding:7px 12px;font-size:12px}
+
+/* ── Product Table ── */
+.prod-section{padding:6px 0}
+.prod-detail-toggle{display:flex;align-items:center;gap:6px;margin:8px 16px 6px;padding:4px 10px;border-radius:6px;background:#f6f9fd;cursor:pointer;user-select:none;font-size:11px;color:#7a98b0;transition:all .15s;width:fit-content}
+.prod-detail-toggle:hover{background:#e8f0f8;color:#1a5fa8}
+.prod-detail-toggle .darw{display:inline-block;font-size:9px;transition:transform .25s}
+.prod-detail-toggle.open .darw{transform:rotate(180deg)}
+.prod-table{width:100%;border-collapse:collapse;table-layout:auto}
+.prod-table th{background:#f6f9fd;color:#5a7898;font-size:11px;font-weight:600;text-align:left;padding:8px 12px;border-bottom:2px solid #e2eaf3;white-space:nowrap}
+.prod-table th.col-seq{width:42px;text-align:center}
+.prod-table th.col-name{width:auto}
+.prod-table th.col-spec, .prod-table th.col-mat, .prod-table th.col-price, .prod-table th.col-moq, .prod-table th.col-delivery{width:100px}
+.prod-table th.col-detail{display:none}
+.prod-table th.col-detail.show{display:table-cell}
+.prod-table td{padding:9px 12px;border-bottom:1px solid #f0f4f9;font-size:13px;color:#3a5670;vertical-align:middle;line-height:1.5}
+.prod-table td.col-seq{text-align:center;color:#b0c0d0;font-size:11px;font-weight:500}
+.prod-table td.col-name .pn{font-weight:500;color:#2c4a6e;display:block}
+.prod-table td.col-name .pn-id{display:block;font-size:11px;color:#7a9ab8;font-style:italic;margin-top:2px;font-weight:400}
+.prod-table td.col-spec, .prod-table td.col-mat, .prod-table td.col-price, .prod-table td.col-moq, .prod-table td.col-delivery{display:none;color:#5a7288;font-size:12px}
+.prod-table td.col-spec.show, .prod-table td.col-mat.show, .prod-table td.col-price.show, .prod-table td.col-moq.show, .prod-table td.col-delivery.show{display:table-cell}
+.prod-table td.col-spec:empty::after, .prod-table td.col-mat:empty::after, .prod-table td.col-price:empty::after, .prod-table td.col-moq:empty::after, .prod-table td.col-delivery:empty::after{content:'—';color:#d0dae4}
+.prod-table tr:last-child td{border-bottom:none}
+.prod-table tr:hover td{background:#f9fbfd}
+.prod-table tr:hover td.col-name .pn{color:#1a5fa8}
+
+/* ── No Result ── */
+.no-result{text-align:center;padding:100px 20px;color:#a0b0c0;font-size:15px}
+.no-result .icon{font-size:56px;margin-bottom:16px;display:block;opacity:.5}
+
+/* ── Footer ── */
+#footer{text-align:center;padding:16px 20px;color:#a0b8d0;font-size:11px;border-top:1px solid #eef2f8;margin-top:20px}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar-track{background:#f0f4f8}
+::-webkit-scrollbar-thumb{background:#b8cfe6;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#9ab8d4}
+
+/* ── Animations ── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:fadeInUp .35s ease backwards}
+.card:nth-child(1){animation-delay:.00s}.card:nth-child(2){animation-delay:.025s}.card:nth-child(3){animation-delay:.05s}.card:nth-child(4){animation-delay:.075s}.card:nth-child(5){animation-delay:.10s}.card:nth-child(6){animation-delay:.125s}
+.card:nth-child(7){animation-delay:.15s}.card:nth-child(8){animation-delay:.175s}.card:nth-child(9){animation-delay:.20s}.card:nth-child(10){animation-delay:.225s}.card:nth-child(11){animation-delay:.25s}.card:nth-child(12){animation-delay:.275s}
+.card:nth-child(13){animation-delay:.30s}.card:nth-child(14){animation-delay:.325s}.card:nth-child(15){animation-delay:.35s}.card:nth-child(16){animation-delay:.375s}.card:nth-child(17){animation-delay:.40s}.card:nth-child(18){animation-delay:.425s}
+.card:nth-child(19){animation-delay:.45s}.card:nth-child(20){animation-delay:.475s}.card:nth-child(21){animation-delay:.50s}.card:nth-child(22){animation-delay:.525s}.card:nth-child(23){animation-delay:.55s}.card:nth-child(24){animation-delay:.575s}
+.card:nth-child(25){animation-delay:.60s}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <h1><span class="logo-icon">🏭</span>万鼎供应商信息 <span style="font-size:13px;font-weight:400;opacity:.7;margin-left:4px">| Info Supplier Wan Ding</span></h1>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input id="global-search" type="text" placeholder="搜索供应商 / Cari Supplier — 名称、产品、联系人、地址…" oninput="onSearch()">
+  </div>
+</div>
+
+<div id="toolbar">
+  <span class="stats">共 <b id="total-count">0</b> 家 / <span style="color:#80a0c0">Total</span> · 当前 <b id="filter-count">0</b> 家 / <span style="color:#80a0c0">Tampil</span></span>
+  <div class="tb-body">
+    <div class="mode-toggle" id="mode-toggle">
+      <button class="active" onclick="onMode('supplier')">📋 供应商浏览 / Supplier</button>
+      <button onclick="onMode('product')">🔗 产品匹配 / Cari Produk</button>
+      <button onclick="onMode('vehicle')">🚛 运输车辆 / Kendaraan</button>
+    </div>
+    <div class="tb-right" id="tb-right">
+      <div class="cat-filter-wrap" id="cat-filter-wrap"></div>
+      <select id="sort-sel" onchange="onSort()">
+        <option value="">📋 默认排序 / Urutan Default</option>
+        <option value="工厂全称">🔤 A→Z</option>
+        <option value="工厂全称_desc">🔤 Z→A</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div id="product-search-row">
+  <input id="product-search-input" type="text" placeholder="输入产品关键词，匹配供应商… / Cari supplier berdasarkan produk…" oninput="onProductSearch()">
+  <span id="match-hint"></span>
+</div>
+
+<div id="card-list"></div>
+
+<div id="match-list"></div>
+
+<div id="vehicle-list"></div>
+
+<div id="footer">万鼎供应商信息查询系统 · Info Supplier Wan Ding · 数据在 Excel 里维护，网页同步更新 / Data dikelola di Excel, situs web diperbarui otomatis</div>
+
+<script>
+// ============================================================
+// DATA — 25家印尼在地供应商
+// ============================================================
+const FIELD_KEYS = ['供应商编码','工厂全称','主营产品大类','产品名称','规格型号','详细技术参数','原材料材质','人民币单价/单位','MOQ最小起订量','标准交期（天）','工厂完整仓库地址','国内对接联系人','联系电话','WhatsApp账号','业务邮箱','工厂资质','供应商等级','备注'];
+
+let allData = [
+  {'供应商编码':'','工厂全称':'双林','主营产品大类':'管材管道','产品名称':';;双壁波纹管;;双壁波纹管 内径ID100-600mm 标准长度6米/根;;螺旋缠绕管;;螺旋缠绕管 内径ID800-1800mm 最大ID2000mm 4/6米定尺或定制;;实壁给水管;;实壁给水管 DN20-DN900及以上 多档压力等级;;单壁波纹管;;单壁波纹管 外径23-235mm 成卷供货;;波纹打孔渗滤管;;波纹打孔渗滤管 内径ID100-600mm;;光纤专用PE护套管;;光纤专用PE护套管 32/27mm、40/34mm HDPE电力和通信穿线管','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'KITIC DELTAMAS, KAWASAN INDUSTRI JOINT INDONESIA CHINA, Jl. Anggrek VII KAVLING NO 26, Nagasari, Serang Baru, Bekasi Regency, West Java 17330','国内对接联系人':'','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':'距仓库约70km'},
+  {'供应商编码':'','工厂全称':'三信','主营产品大类':'建材五金','产品名称':';;土工材料;;复合土工排水网 Indogeocomposite、HDPE各类管材 Indogeopipe、3D三维土工网垫 Indogeomat、短纤无纺土工布 Indogeotex、机织土工布 SAN CHU','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Jl Raya Cikande Serang No.Km 68, Nambo llir, Kec.Kibin, Kabupaten Serang, Banten 42185','国内对接联系人':'任总','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':'距仓库约56km'},
+  {'供应商编码':'','工厂全称':'SANFU','主营产品大类':'管材管道','产品名称':';;全品类管材产品;;PVC 管材、HDPE 聚乙烯管材、波纹管、复合管材、PPR 冷热给水管、金属波纹穿线管、PVC 波纹穿线管、电线套管、PVC 线槽管 10×10/10×15/10×20/15×30/16×16/16×25/19×39/25×25/25×40/40×40/50×50/40×60/50×80/50×100/60×60mm 2.9米;;管道施工焊接/加工设备;;PPR 热熔焊机 DN20-DN63、PPR 热熔焊机 DN75-DN110、PPR 热熔焊机 DN125-DN160、HDPE 电熔焊机 DN20-DN630、HDPE 对接热熔焊机 DN50-DN200、HDPE 对接热熔焊机 DN63-DN1000、HDPE 数控电熔控制主机 DN20-DN400、管材切割机 DN15-DN50、波纹管专用加工工具 DN200-DN600;;管道配套管件、阀门、密封五金件;;PPR 管件 直通/三通/异径接头 DN20-DN63、PPR 管件 直通/三通/异径接头 DN75-DN110、HDPE 电熔三通 DN20-DN630、HDPE 电熔异径三通 DN32-DN400、塑料压缩式快速接头 A类 DN20-DN110、塑料压缩式快速接头 B类 DN20-DN110、通用管道转换/过渡配件 DN15-DN315、法兰密封垫片 DN15-DN400、塑料阀门 DN15-DN300、水龙头 1/2寸转3/4寸、黄铜管件 DN15-DN80、黄铜 Y 型过滤器;;电气预埋配套产品;;86 型明装接线盒、配套盒盖、77×77暗装预埋接线盒、86×86暗装预埋接线盒;;HDPE新款管件+黄铜新品+气动配件;;HDPE 新款管件 DN20-DN110、HDPE 异径接头 63×2寸、HDPE 异径接头 110×4寸、黄铜五金管件新品、工业压力表','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Jalan H.Ahmad lumsar Beberan, Kec. Ciruas, Kabupaten Serang, Banten 42183, Indonesia','国内对接联系人':'','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':'距仓库约80km'},
+  {'供应商编码':'','工厂全称':'凯顺德','主营产品大类':'管材管道','产品名称':'钢丝软管、编织软管（蛇皮管）、螺旋管、水带、园艺软管、高压煤气管','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'KM.13.8 Blok, Kawasan Pergudangan dan Industri Tunas Bitung, Jl. Raya Serang No.C2 No.10, Pasir Jaya, Kec. Cikupa, Kabupaten Tangerang, Banten 15710','国内对接联系人':'电话: 08215836868','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':'距仓库约35km'},
+  {'供应商编码':'','工厂全称':'PT SENTUM TEKNOLOGI INDONESIA','主营产品大类':'管材管道','产品名称':';;电子制造（EMS）;;4条雅马哈 YSM20R 高速SMT生产线、2条自动化THT生产线;;管材产品;;PE给水管 20mm-1600mm（1/2-64寸）0.63-2.5MPa SDR26-SDR9、MPP电力电缆保护管 内径100-250mm（4-10寸）SN24/SN32/SN40、PE燃气管 PN16 20mm-630mm（1/2-24寸）5.8/6/11.8/12m定尺;;配套产品;;电熔焊接机、PE电熔管件（等径直通/90°弯头/45°弯头/等径三通/异径直通/异径三通/管帽/电熔法兰头）DN50-DN1600 PN10、法兰盘/橡胶垫片 EN1092-1 PN10 DN32-DN1600、螺栓组件 8.8级 DN32-DN1600（40Cr/Q355B/Q235B）','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Jl. Raya Salembaran, RT.003/RW.006, Kec. Kosambi, Kel. Salembaran, Kabupaten Tangerang, Banten 15211（唐格朗）','国内对接联系人':'谢总','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':'距仓库约27km'},
+  {'供应商编码':'','工厂全称':'源泉钢管','主营产品大类':'钢材相关','产品名称':';;管材类;;KBJ穿线管（镀锌穿线管） Ø20(0.7/0.8mm), Ø25(0.7/0.8mm) · JDC穿线管（JDG镀锌穿线管） Ø20(1.1~1.6mm), Ø25(1.1~1.6mm), Ø32(1.2~1.6mm);;直接;;直接（Sok Galvanis） Ø20/25/32(1.2/1.5mm);;盒接;;盒接（锁母/锁扣/Konektor Sekrup） Ø20/25/32(1.2/1.5mm);;弯头;;弯头（Elbow Galvanis） Ø20/25/32(0.6/1.5mm);;脚踏弯管器;;脚踏弯管器（Alat Penekuk Pipa Manual） Ø20, Ø25, Ø32;;铁离墙码;;铁离墙码（Saddle Clip Besi） Ø20, Ø25;;穿线盒;;穿线盒（Inbow Dus Galvanis） 86×50/60/70/80;;马鞍卡;;马鞍卡（Klem Pipa Galvanis） Ø20(0.6mm), Ø25(0.6mm), Ø32(0.7mm);;盖板;;盖板（Penutup Kotak） 86mm','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Cudang Laksana Business Park Kavling Blok FC No.35 Pakuaji, Tangerang','国内对接联系人':'曹总','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+  {'供应商编码':'','工厂全称':'LCQH JAYA','主营产品大类':'钢材相关','产品名称':'钢材、无缝钢管、管件弯头、不锈钢材料','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Jl. Raya Cukang Galih No.123, Tangerang','国内对接联系人':'卸货: Riki Setiadi / 发票: michelle','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+  {'供应商编码':'','工厂全称':'HECTOR 和拓','主营产品大类':'钢材相关','产品名称':'钢锭、钢坯、螺纹钢、盘条、热轧板卷、冷轧板卷、花纹板、角钢、槽钢、H型钢、工字钢、镀锌板卷、彩涂板卷、镀锌波纹瓦、无缝钢管、直缝焊管、镀锌钢管、HDPE波纹管、PPR管材、镀锌铁丝、黑铁丝、镀锌网片、胶合板','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'','国内对接联系人':'艾西','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+  {'供应商编码':'','工厂全称':'GSMI','主营产品大类':'钢材相关','产品名称':'钢管、方管、镀锌方管、不锈钢方管、钢跳板、扣件、顶托、镀锌架子管、钢板、花纹板、槽钢、角铁、不锈钢板、双层铁架床、折叠房、安全带','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Jl. KH. Hasyim Ashari No.64, RT.001/RW.002, Poris Plawad Indah, Kec. Cipondoh, Kota Tangerang, Banten 15141','国内对接联系人':'凌峰','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':'距仓库约17km'},
+  {'供应商编码':'','工厂全称':'JUXIN 聚鑫','主营产品大类':'钢材相关','产品名称':'夹心板（岩棉/玻璃棉/聚氨酯/EPS）、彩钢瓦、活动房/折叠房/集装箱房、C/Z型钢、楼承板、采光板、通风器、天沟、檩条、钢结构配件','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'','国内对接联系人':'','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+  {'供应商编码':'','工厂全称':'JMG紧固件','主营产品大类':'建材五金','产品名称':'螺栓、螺丝、螺母、垫圈','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'','国内对接联系人':'','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+
+  {'供应商编码':'','工厂全称':'中洲','主营产品大类':'钢材相关','产品名称':';;圆管 / PIPA BESI HITAM;;黑铁圆管 ERW 1/2"~5", Oslash;20~137mm, 壁厚1.60~4.30mm, 长6m;;方管 / HOLO BESI HITAM;;黑铁方管 ERW 40x40~125x125, 50x100/75x125/100x150, 壁厚1.35~4.30mm, 长6m;;钢跳板 / PAPAN ASIBA;;钢跳板 面板250x50mm, 壁厚1.20mm, 长1~4m;;扣件 / CLAM;;一字扣件、十字扣件、转向扣件;;盘扣架立杆 / RINGLOCK STANDARD;;盘扣架立杆 LG2/LG3/LG4/LG5, Oslash;48.3x3.2mm, 长1~2.5m;;盘扣架横杆 / RINGLOCK LEDGER;;盘扣架横杆 SG, Oslash;48.3x2.6mm, 长0.6~1.8m;;盘扣架斜杆 / RINGLOCK DIAGONAL;;盘扣架斜杆 XG, Oslash;42x2.2mm, 长1.14~1.86m;;挂钩踏板 / PAPAN KAIT;;挂钩踏板;;爬梯 / TANGGA;;爬梯','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Zhongzhou Steel, Parigi Kel., Cikande, Serang Kabupaten, 42186, Indonesia','国内对接联系人':'王总','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+  {'供应商编码':'','工厂全称':'东江','主营产品大类':'建材五金','产品名称':'五金配件、地脚螺栓、电缆、遮阳网','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'JALAN RAYA DKI NO.7 RT.003 RW.002 CIANGIR, LEGOK KAB.TANGERANG BANTEN','国内对接联系人':'','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+  {'供应商编码':'','工厂全称':'Wangwang','主营产品大类':'建材五金','产品名称':'工业制品（各类）、橡胶制品','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Jl. Raya Serang KM 15, Cikupa, Tangerang, Banten','国内对接联系人':'','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+  {'供应商编码':'','工厂全称':'恒信','主营产品大类':'管材管道','产品名称':'联塑PPR管材管道、联塑PVC管材管道、各类灯具','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Jalan Kapuk Utara 1 No. 88 Gudang C, RT.1/RW.3, Kapuk Muara, Kecamatan Penjaringan, Jkt Utara, Daerah Khusus Ibukota Jakarta 14460','国内对接联系人':'','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':'距仓库约6km'},
+  {'供应商编码':'','工厂全称':'宏源','主营产品大类':'建材五金','产品名称':'防水卷材（SBS/APP改性沥青/自粘/高分子）、防水涂料（聚氨酯/JS/水泥基渗透结晶）、密封膏、堵漏材料、界面剂','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'WTC Mangga Dua, Jalan Mangga Dua Raya, Jakarta Utara 14430, Indonesia','国内对接联系人':'马小磊','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':'距仓库约13km'},
+  {'供应商编码':'','工厂全称':'Teguh','主营产品大类':'建材五金','产品名称':';;装修装饰材料;;轻钢龙骨、吊顶、石膏板、PVC滴水线;;装修辅材;;玻璃胶-密封胶、发泡胶/泡沫胶-A2、硬胶枪、美工刀、编织袋(垃圾袋)、卷尺;;地板;;SPC石塑复合硬芯地板、LVT弹性乙烯基地板','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Pergudangan Green Sedayu Bizpark Jl. Daan Mogot KM 18 RT11/RW6 Blok DM10 No. 51L, RT.3/RW.8, Kalideres, Kec. Kalideres, Kota Jakarta Barat, Daerah Khusus Ibukota Jakarta 11840, Indonesia','国内对接联系人':'孔总','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+  {'供应商编码':'','工厂全称':'GUANJIE 冠洁卫浴','主营产品大类':'建材五金','产品名称':'蹲便器、坐便器、浴室柜、花洒、排气扇（天花板/侧墙）、地漏、不锈钢软管、角阀','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Jalan Industri Raya III Blok AC Nomor 5A, Desa/Kelurahan Bunder, Kec. Cikupa (Gerbang Biru)','国内对接联系人':'林总 / Alex','联系电话':'089602852000','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':'距仓库约30km'},
+  {'供应商编码':'','工厂全称':'AN GROUP 印尼金牛','主营产品大类':'建材五金','产品名称':'井盖、胶粘剂、办公家具、劳保用品、焊材、配电柜','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'','国内对接联系人':'','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+  {'供应商编码':'','工厂全称':'凌威','主营产品大类':'建材五金','产品名称':'钢筋机械（调直/弯曲/切断/弯箍/套丝）、混凝土设备（搅拌机/振动棒）、提升设备（卷扬机/电动葫芦/手拉葫芦）、切割设备、焊接设备（电焊机/二保焊机/等离子切割机）、发电设备（发电机/静音发电机组/玉柴发电机）、水泵（潜水泵/污水泵/清水泵/深井泵）、空压机、路面机械（冲击夯/平板夯/切割机/抹光机）、其他小型机械','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Jl. Pluit Karang Karya Tim. No.7a Blok D, RT.23/RW.8, Penjaringan, Jakarta Utara 14440','国内对接联系人':'Linda / Mrs.Gao','联系电话':'858-6275-7220 / 081356278888','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':'PT. Ling Wei Gong Cheng Jianzhu Maoyi'},
+  {'供应商编码':'','工厂全称':'宏迪','主营产品大类':'电气相关','产品名称':'开关、插座','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'','国内对接联系人':'','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+  {'供应商编码':'','工厂全称':'PT.HOKI PAS','主营产品大类':'建材五金','产品名称':'胶带（各类型）、热敏纸、胶水、清洁用品、包装材料','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'','国内对接联系人':'','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+
+  {'供应商编码':'','工厂全称':'PT.EOBO MACHINERY INDONESIA','主营产品大类':'建材五金','产品名称':';;水泵类产品;;清水自吸泵 CPM系列 0.75-2.2KW、电机自吸泵 DUS系列 2.2-7.5KW、潜水泵 QDX系列 0.37-2.2KW 1.5-65m³/h、不锈钢海水泵 QY系列 3.5-7.5KW 65-250m³/h、切割式污水泵 1.5-7.5KW 10-120m³/h、污水泵 WQ/WQD系列 0.75-55KW 10-800m³/h、高扬程污水泵 GWQ系列 1.5-7.5KW 28-70m、油浸泵 QY系列 2.2-22KW 10-250m³/h、泥浆泵 NL系列 1.5-22KW 12-25m、立式管道循环泵 0.75-37KW 4-200m³/h、卧式管道泵 1.5-45KW 10-200m³/h、抽粪泵 WQXC系列 0.75-3KW 20-80m³/h、不锈钢立式管道泵 IHG系列 0.75-15KW 5.6-100m³/h、不锈钢卧式管道泵 ISWH系列 0.75-15KW 5.6-100m³/h;;水泵配套配件与电控产品;;污水泵出水口 2-10寸、轻型耦合器 4-8寸、泵壳/叶轮/电联/轴套 1.5-22KW、压力罐+传感器+压力表套件 2-3寸、泵用变频器 4/5.5/7.5KW、软启动柜 SG系列 22-75KW、智能水泵控制器 MG-D1系列 4-15kW;;电机类产品;;三相异步电动机 YE3系列 0.75-250KW 2/4/6/8极、电磁制动电动机 YEJ3系列 0.75-7.5KW 4极、变频调速电动机 YVF3系列 0.55-7.5KW 4极、电磁调速电动机 YCT系列 0.75-30KW 4极、变频电机通风机 G系列 G80-G355、振动电机 YZS/VB系列 0.12-11KW 2/4/6极;;电机配件类;;电动机立式盖/门盖/接线盒/风叶/风罩/接线柱 Y2-80至Y2-355、电磁调速器 JD1A-40/JD1A-90;;管材类产品;;钢丝管 内径12-160mm 20-100米/捆、厚款有线管 SB系列 1/2-2.5寸 20-100米/捆、输水带 2-10寸;;真空泵及配件;;2BV系列真空泵 1.45-15KW 2061-5161、SK/2SK机械密封真空泵 2.2-22KW SK-0.8至2SK-12、真空泵底座 sk-3/sk-6/2sk-6/2sk-12','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Jl. Cengkeh Dalam No.16A RT.07/RW.07 Kelurahan Pinangsia, Kecamatan Tamansari, Jakarta Barat','国内对接联系人':'MRDONG','联系电话':'081234728886','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':'距仓库约10km'},
+  {'供应商编码':'','工厂全称':'PT KUIXIN BAJA 奎鑫印尼','主营产品大类':'钢材相关','产品名称':';;管材类;;方矩管：黑方管（空心方管）、热镀锌方矩管、、圆管：普通焊管、镀锌焊管、镀锌圆管;;型钢/建筑钢材类;;角钢、H型钢、槽钢（CNP/UNP）、螺纹钢（钢筋）、线材（盘圆）、钢板、钢筋网片（wiremesh）；;;建筑配套建材;;屋面材料、储水水箱、水泥、密封硅胶、焊接设备、焊丝、五金工具、工业配电柜、工业油漆（GUSANA品牌113色）；;;其他配套;;工具类、家具类配套产品','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Soho Wall Street Boulevard No. 002, PIK 2, Kelurahan Kosambi Barat, Kecamatan Kosambi; Jl. MH. Thamrin Jl. Kb. Nanas No. Kav. 29, Cikokol, Kota Tangerang, Banten 15117','国内对接联系人':'魏鑫 (微信: w13756566232)、刘总','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+  {'供应商编码':'','工厂全称':'PT. JAYA MASHYUR GEMILANG','主营产品大类':'建材五金','产品名称':'钢丝（Stelldrat）、膨胀螺栓套（Expansion Sleeve）','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Pergudangan 19, Jalan Kampung Sungai Turi Blok B. 8 Desa Laksana, Pakuhaji, Teluk Naga (Gerbang abu B5 No.4, Kalibaru, Kecamatan Pakuhaji, Kabupaten Tangerang, Banten 15570, Indonesia)','国内对接联系人':'蒋总','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':'距仓库约40km'},
+  {'供应商编码':'','工厂全称':'PT.SOMY','主营产品大类':'建材五金','产品名称':';;泵类 / Pompa;;IGP 系列自吸旋涡泵 / Pompa Vortex Self-Priming Seri IGP：0.37kW, 0.55kW, 0.75kW (IGP125/200/280) · WZB 系列自吸旋涡泵 / Pompa Vortex Self-Priming Seri WZB：0.26~1.5kW (WZB260~1500) · CPM 自吸清水泵 / Pompa Air Bersih Self-Priming CPM：0.37~1.5kW (CPM130~200) · HFM 卧式大流量离心泵 / Pompa Sentrifugal Horizontal HFM：0.55~3kW (5C~7BR, 2~4寸) · JET-A 家用喷射泵 / Pompa Jet Rumah Tangga JET-A：550W/750W/1100W · JET-S 轻型喷射泵 / Pompa Jet Ringan JET-S：550S/750S/1100S · JET-B 深井自吸喷射泵 / Pompa Jet Sumur Dalam JET-B：0.55~1.5kW (JET55B~1500B2), 吸程30m · A3 不锈钢喷射增压泵 / Pompa Booster Stainless A3：0.4~1.5kW (A3-400ZWS~A3-1500ZWS) · WQD-HS 带浮球污水潜水泵 / Pompa Submersible Air Kotor WQD-HS：0.5/0.75kW, 50/80mm · QYD 井用潜水泵 / Pompa Submersible Sumur QYD：1.5/1.8/2.2kW (QYD3-50/3, QYD3-65/4, QYD10-26/2, QYD10-40/3) · WQD-S 不锈钢单相污水泵 / Pompa Air Kotor Stainless 1-Phase WQD-S：0.55~1.5kW (304 不锈钢) · QDX 清水潜水泵 / Pompa Submersible Air Bersih QDX：ST/L/SL, 0.37~1.8kW, 25~100mm · WQD 普通单相排污泵 / Pompa Air Kotor 1-Phase WQD：0.37~1.5kW · WQ 国标法兰三相污水泵 / Pompa Air Kotor 3-Phase Flange WQ：0.75~110kW, 2~24寸, 6~3000m\u00B3/h · WQD-S 不锈钢搅拌/切割污水泵 / Pompa Stainless Cutter/Mixer WQD-S：0.75~11kW · QGD 立式不锈钢深井泵 / Pompa Sumur Dalam Stainless Vertikal QGD：0.75~2.2kW · 3SDM/3SD 3寸井泵 / Pompa Sumur 3 Inch 3SDM/3SD：0.18~1.5kW · 4SDM/4SD 4寸井泵 / Pompa Sumur 4 Inch 4SDM/4SD：4SD2/4/6/8, 0.25~7.5kW · 4SKm 小型家用深井泵 / Pompa Sumur Dalam Rumah Tangga 4SKm：0.75~1.5kW, 4寸 · CDL(F) 立式不锈钢多级管道增压泵 / Pompa Multistage Vertikal Stainless CDL(F)：CDL2/4/8/12/16/20/32/45, 0.37~45kW · IRG 立式热水管道泵 / Pompa Pipa Vertikal Air Panas IRG · ISW 卧式清水管道泵 / Pompa Pipa Horizontal Air Bersih ISW · IHG 不锈钢耐腐蚀管道泵 / Pompa Pipa Stainless Anti-Korosi IHG · B 型清水自吸离心泵 / Pompa Sentrifugal Self-Priming Type B：1.5~15kW · ZW 直联自吸污水泵 / Pompa Self-Priming Air Kotor ZW：1.5~30kW;;消防泵类 / Pompa Pemadam;;待补充 / Segera Dilengkapi;;阀门 / Valve;;待补充 / Segera Dilengkapi;;水带 / Selang;;待补充 / Segera Dilengkapi','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'Jalan Siliwangi, Gembor Kel., Periuk, Tangerang Kota, 15133, 印度尼西亚','国内对接联系人':'王总、孙总','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':'距仓库约28km'},
+  {'供应商编码':'','工厂全称':'HAKUNA','主营产品大类':'建材五金','产品名称':'石材、路沿石、土工布、电缆、水泥、道路沥青、地板','规格型号':'','详细技术参数':'','原材料材质':'','人民币单价/单位':'','MOQ最小起订量':'','标准交期（天）':'','工厂完整仓库地址':'PIK 2 Ruko Mega Kuningan Blok E No. 008 Kelurahan Selembaran Jaya, Kecamatan Kosambi, Kabupaten Tangerang, Provinsi Banten, Indonesia','国内对接联系人':'杜鹏','联系电话':'','WhatsApp账号':'','业务邮箱':'','工厂资质':'','供应商等级':'','备注':''},
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let catFilter  = '';
+let sortKey    = '';
+let sortAsc    = true;
+let currentMode = 'supplier'; // 'supplier' | 'product'
+
+// ============================================================
+// MODE TOGGLE
+// ============================================================
+function onMode(mode){
+  currentMode = mode;
+  document.querySelectorAll('#mode-toggle button').forEach(b => {
+    const t = b.textContent;
+    b.classList.toggle('active',
+      (mode==='supplier' && t.includes('供应商')) ||
+      (mode==='product' && t.includes('产品匹配')) ||
+      (mode==='vehicle' && t.includes('运输车辆'))
+    );
+  });
+  // Show/hide elements
+  const row = document.getElementById('product-search-row');
+  const list = document.getElementById('card-list');
+  const mlist = document.getElementById('match-list');
+  const vlist = document.getElementById('vehicle-list');
+  const tr = document.getElementById('tb-right');
+  if (mode === 'product'){
+    row.classList.add('show');
+    list.style.display = 'none';
+    mlist.classList.add('show');
+    vlist.classList.remove('show');
+    tr.style.display = 'none';
+    document.getElementById('product-search-input').focus();
+  } else if (mode === 'vehicle'){
+    row.classList.remove('show');
+    list.style.display = 'none';
+    mlist.classList.remove('show');
+    vlist.classList.add('show');
+    tr.style.display = 'none';
+    document.getElementById('product-search-input').value = '';
+    renderVehicleTable();
+  } else {
+    row.classList.remove('show');
+    list.style.display = '';
+    mlist.classList.remove('show');
+    vlist.classList.remove('show');
+    tr.style.display = '';
+    document.getElementById('product-search-input').value = '';
+    render();
+  }
+}
+
+// ============================================================
+// PRODUCT MATCHING ENGINE
+// ============================================================
+function flatProducts(row){
+  // Get all product names as flat array
+  const str = row['产品名称'] || '';
+  if (!str) return [];
+  let items = [];
+  if (/^;;/.test(str)){
+    // Grouped format: extract individual products from all groups
+    const parts = str.replace(/^;;/, '').split(/;;/);
+    for (let i = 1; i < parts.length; i += 2){
+      const prods = parts[i].split(/[、，]/).map(s=>s.trim()).filter(s=>s.length>0);
+      for (let p of prods) items.push(p);
+    }
+  } else {
+    items = str.split(/[、，；]/).map(s=>s.trim()).filter(s=>s.length>0);
+  }
+  return items;
+}
+
+function matchSuppliers(query){
+  if (!query || query.length < 1) return [];
+  
+  // Split query into keywords (space-separated)
+  const keywords = query.split(/\s+/).filter(k => k.length > 0);
+  if (keywords.length === 0) return [];
+  
+  // Category keyword mapping - if a keyword matches a category, add bonus
+  const catKeywords = {
+    '管材管道':['管','pipe','pipa','fitting','波纹','pvc','ppr','hdpe','pe','mpp','给水','排水','燃气','套管','护套','线槽'],
+    '钢材相关':['钢','baja','steel','钢管','方管','角钢','槽钢','型钢','h型','工字','螺纹','盘条','卷板','镀锌','花纹','彩钢','夹心板'],
+    '建材五金':['螺栓','螺母','垫圈','螺丝','紧固','防水','龙骨','吊顶','卫浴','蹲便器','坐便器','马桶','花洒','水泵','电动','电机','真空','工具','机械','发电','空压','编织','装修','水泥','胶带','胶水','清洁','包装','土工','石膏','baut','mur','pompa','motor'],
+    '电气相关':['开关','插座','灯','saklar','stop kontak','lampu'],
+  };
+  
+  const results = [];
+  for (const row of allData){
+    const products = flatProducts(row);
+    const cat = row['主营产品大类'] || '';
+    const prodStr = products.join(' ').toLowerCase();
+    const name = (row['工厂全称'] || '').toLowerCase();
+    
+    // Count keyword hits
+    let score = 0;
+    const matched = []; // matched product names
+    let catBonus = 0;
+    
+    for (const kw of keywords){
+      const kwLower = kw.toLowerCase();
+      let bestMatch = null;
+      let bestLen = Infinity;
+      
+      for (const p of products){
+        const pLower = p.toLowerCase();
+        if (pLower.includes(kwLower)){
+          // Find shortest matching product (most specific)
+          if (p.length < bestLen){
+            bestLen = p.length;
+            bestMatch = p;
+          }
+        }
+      }
+      
+      if (bestMatch){
+        score += 2; // exact product hit
+        matched.push(bestMatch);
+      } else if (name.includes(kwLower)){
+        score += 1; // hit in supplier name
+      }
+    }
+    
+    // Category bonus
+    if (catKeywords[cat]){
+      for (const kw of keywords){
+        const kwLower = kw.toLowerCase();
+        if (catKeywords[cat].some(ck => kwLower.includes(ck) || ck.includes(kwLower))){
+          catBonus += 3;
+          break;
+        }
+      }
+    }
+    
+    // Also check all categories for bonus
+    for (const [c, cks] of Object.entries(catKeywords)){
+      if (c === cat) continue;
+      for (const kw of keywords){
+        const kwLower = kw.toLowerCase();
+        if (cks.some(ck => kwLower.includes(ck) || ck.includes(kwLower))){
+          catBonus += 1; // cross-category small bonus
+          break;
+        }
+      }
+    }
+    
+    score += catBonus;
+    
+    if (score > 0 || matched.length > 0){
+      results.push({ row, score, matched });
+    }
+  }
+  
+  // Sort by score descending
+  results.sort((a,b)=> b.score - a.score);
+  return results;
+}
+
+function onProductSearch(){
+  const q = (document.getElementById('product-search-input').value || '').trim();
+  const hint = document.getElementById('match-hint');
+  if (!q){
+    hint.textContent = '';
+    document.getElementById('match-list').innerHTML = '';
+    return;
+  }
+  const matches = matchSuppliers(q);
+  hint.textContent = '匹配 '+matches.length+' 家供应商 / '+matches.length+' supplier cocok';
+  renderProductMatch(matches, q);
+}
+
+function renderProductMatch(matches, query){
+  const list = document.getElementById('match-list');
+  if (matches.length === 0){
+    list.innerHTML = '<div class="no-match"><span class="icon">🔍</span>暂无匹配供应商 / Tidak ada supplier yang cocok<br><span style="font-size:12px;color:#c0ccd8">试试其他关键词，如"螺栓""钢丝""钢管""水泵""PVC管" / Coba kata kunci lain</span></div>';
+    return;
+  }
+  
+  let html = '';
+  for (let i = 0; i < matches.length; i++){
+    const { row, score, matched } = matches[i];
+    html += buildMatchCard(row, matched, query, i, score);
+  }
+  list.innerHTML = html;
+}
+
+function highlightText(text, query){
+  // Highlight query keywords in text
+  if (!query) return escHtml(text);
+  const keywords = query.split(/\s+/).filter(k=>k.length>0);
+  let result = escHtml(text);
+  for (const kw of keywords){
+    // Case-insensitive replace
+    const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('('+escaped+')', 'gi');
+    result = result.replace(re, '<em>$1</em>');
+  }
+  return result;
+}
+
+function buildMatchCard(row, matched, query, idx, score){
+  const name   = row['工厂全称'] || '(未命名)';
+  const cat    = row['主营产品大类'] || '';
+  const addr   = row['工厂完整仓库地址'] || '';
+  const contact = row['国内对接联系人'] || '';
+  const phone  = row['联系电话'] || '';
+  const remark = row['备注'] || '';
+  const enName = SUPPLIER_EN[name];
+  
+  const CAT_ID_BADGE = {
+    '管材管道':'Pipa & Fitting',
+    '钢材相关':'Material Baja',
+    '建材五金':'Material Bangunan',
+    '电气相关':'Elektrikal',
+  };
+  
+  let html = '<div class="match-card" style="animation-delay:'+(idx*0.04)+'s">';
+  
+  // Header
+  html += '<div class="match-card-hd" onclick="var bd=this.nextElementSibling;bd.style.display=bd.style.display===\'none\'?\'\':\'none\'">';
+  html += '<span class="mname">'+(enName ? escHtml(enName)+' ' : '')+escHtml(name)+'</span>';
+  if (cat){
+    const catId = CAT_ID_BADGE[cat] || cat;
+    html += '<span class="badge badge-cat">'+escHtml(cat)+' / '+escHtml(catId)+'</span>';
+  }
+  html += '<span class="mscore">🔗 匹配度/Skor: '+score+'</span>';
+  html += '</div>';
+  
+  // Match body (visible by default)
+  html += '<div class="match-body">';
+  
+  // Matched products
+  if (matched.length > 0){
+    html += '<div class="match-products">';
+    html += '<span style="font-weight:600;color:#2c4a6e;margin-right:4px">✅ 匹配产品 / Produk Cocok:</span> ';
+    for (const p of matched){
+      html += '<span class="mprod">'+highlightText(p, query)+'</span>';
+    }
+    html += '</div>';
+  }
+  
+  // Meta: contact info
+  html += '<div class="match-meta">';
+  if (addr){
+    const shortAddr = addr.length > 60 ? addr.substring(0,60)+'...' : addr;
+    html += '<span class="mim"><span class="mlb">📍 Alamat</span> '+escHtml(shortAddr)+'</span>';
+  }
+  if (contact){
+    html += '<span class="mim"><span class="mlb">👤 Kontak</span> '+escHtml(contact)+'</span>';
+  }
+  if (phone){
+    html += '<span class="mim"><span class="mlb">☎</span> '+escHtml(phone)+'</span>';
+  }
+  if (remark){
+    const remarkId = remark.replace(/距仓库约(\d+)km/g, '距仓库约$1km / ±$1km dari gudang');
+    html += '<span class="mim"><span class="mlb">📏</span> '+escHtml(remarkId)+'</span>';
+  }
+  html += '<span style="font-size:11px;color:#a0b8d8;margin-left:auto;cursor:pointer" onclick="var c=this.closest(\'.match-card\').querySelector(\'.prod-body\');c.classList.toggle(\'open\')">展开全部产品 ▼ / Lihat Semua Produk</span>';
+  html += '</div>';
+  html += '</div>'; // .match-body
+  
+  // Full product accordion (hidden by default)
+  // Reuse buildCard logic for products
+  const prods = splitProducts(row['产品名称'] || '');
+  const prodsGrouped = (prods.length > 0 && typeof prods[0] === 'object');
+  const flatCount = prodsGrouped ? prods.reduce((s,g)=>s+g.prods.length,0) : prods.length;
+  const subCats = categorizeProducts(cat, prods);
+  
+  html += '<div class="prod-body">';
+  for (const [subName, subProds] of subCats){
+    html += '<div class="subcat-wrap">';
+    html += '<div class="subcat-toggle" onclick="this.classList.toggle(\'open\');this.nextElementSibling.classList.toggle(\'open\')">';
+    html += '<span class="sarw">▼</span>';
+    html += '<span class="slabel">'+escHtml(subName)+'</span>';
+    html += '<span class="scnt">'+subProds.length+' 项</span>';
+    html += '</div>';
+    html += '<div class="subcat-body">';
+    html += '<table class="prod-table"><thead><tr>';
+    html += '<th class="col-name">产品名称 / Nama Produk</th>';
+    html += '<th class="col-spec col-detail">规格型号</th>';
+    html += '<th class="col-mat col-detail">材质</th>';
+    html += '<th class="col-price col-detail">单价/单位</th>';
+    html += '<th class="col-moq col-detail">MOQ</th>';
+    html += '<th class="col-delivery col-detail">交期(天)</th>';
+    html += '</tr></thead><tbody>';
+    for (const prod of subProds){
+      const idTrans = getIdTrans(prod);
+      html += '<tr>';
+      html += '<td class="col-name"><span class="pn">'+highlightText(prod, query)+'</span>'+(idTrans?'<span class="pn-id">'+escHtml(idTrans)+'</span>':'')+'</td>';
+      html += '<td class="col-spec col-detail">—</td>';
+      html += '<td class="col-mat col-detail">—</td>';
+      html += '<td class="col-price col-detail">—</td>';
+      html += '<td class="col-moq col-detail">—</td>';
+      html += '<td class="col-delivery col-detail">—</td>';
+      html += '</tr>';
+    }
+    html += '</tbody></table>';
+    html += '</div></div>';
+  }
+  html += '</div>'; // .prod-body
+  
+  html += '</div>'; // .match-card
+  return html;
+}
+
+// ============================================================
+// CATEGORY FILTER
+// ============================================================
+function buildCatFilters(){
+  const CAT_ID = {
+    '管材管道':'Pipa & Fitting',
+    '钢材相关':'Material Baja',
+    '建材五金':'Material Bangunan & Hardware',
+    '电气相关':'Elektrikal',
+  };
+  const map = new Map();
+  allData.forEach(r => {
+    const cat = r['主营产品大类'] || '未分类';
+    map.set(cat, (map.get(cat)||0)+1);
+  });
+  let cats = [...map.entries()];
+  cats.sort((a,b)=>a[0].localeCompare(b[0],'zh'));
+
+  let html = '<span class="cat-chip active" onclick="onCatFilter(\'\')">全部 / Semua<span class="chip-count">'+allData.length+'</span></span>';
+  for (let [cat, cnt] of cats){
+    const idLabel = CAT_ID[cat] || cat;
+    html += '<span class="cat-chip" onclick="onCatFilter(\''+escAttr(cat)+'\')">'+escHtml(cat)+' <span style="opacity:.65;font-weight:400">/ '+escHtml(idLabel)+'</span><span class="chip-count">'+cnt+'</span></span>';
+  }
+  document.getElementById('cat-filter-wrap').innerHTML = html;
+}
+
+function onCatFilter(cat){
+  catFilter = cat;
+  document.querySelectorAll('.cat-chip').forEach(chip => {
+    const t = (chip.getAttribute('onclick')||'').includes("'"+cat+"'");
+    chip.classList.toggle('active', cat ? t : !cat || cat==='');
+  });
+  render();
+}
+
+// ============================================================
+// SEARCH / FILTER / SORT
+// ============================================================
+function onSearch(){ render(); }
+
+function onSort(){
+  const v = document.getElementById('sort-sel').value;
+  if (!v){ sortKey=''; render(); return; }
+  if (v.endsWith('_desc')){ sortKey=v.replace('_desc',''); sortAsc=false; }
+  else { sortKey=v; sortAsc=true; }
+  render();
+}
+
+function getFiltered(){
+  const q = (document.getElementById('global-search').value||'').trim().toLowerCase();
+  let filtered = [...allData];
+  if (catFilter) filtered = filtered.filter(r => (r['主营产品大类']||'') === catFilter);
+  if (q) filtered = filtered.filter(r => FIELD_KEYS.some(k => (r[k]||'').toLowerCase().includes(q)));
+  if (sortKey){
+    filtered.sort((a,b)=>{
+      const va = a[sortKey]||'', vb = b[sortKey]||'';
+      const na = parseFloat(va), nb = parseFloat(vb);
+      if (!isNaN(na)&&!isNaN(nb)) return sortAsc ? na-nb : nb-na;
+      return sortAsc ? va.localeCompare(vb, 'zh') : vb.localeCompare(va, 'zh');
+    });
+  }
+  return filtered;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function render(){
+  const filtered = getFiltered();
+  const total = filtered.length;
+
+  document.getElementById('total-count').textContent = allData.length;
+  document.getElementById('filter-count').textContent = total;
+
+  const list = document.getElementById('card-list');
+
+  if (total === 0){
+    list.innerHTML = '<div class="no-result"><span class="icon">📭</span>没有匹配的供应商 / Tidak ada supplier yang cocok<br><span style="font-size:12px;color:#c0ccd8">试试其他关键词或品类 / Coba kata kunci atau kategori lain</span></div>';
+    return;
+  }
+
+  if (!catFilter){
+    // Group by category
+    const groups = new Map();
+    filtered.forEach(r => {
+      const cat = r['主营产品大类'] || '未分类';
+      if (!groups.has(cat)) groups.set(cat, []);
+      groups.get(cat).push(r);
+    });
+    let sorted = [...groups.entries()];
+    sorted.sort((a,b)=>a[0].localeCompare(b[0],'zh'));
+    // Sort within each group by name
+    for (let [, rows] of sorted) rows.sort((a,b)=>(a['工厂全称']||'').localeCompare(b['工厂全称']||'', 'zh'));
+
+    const CAT_GROUP_ID = {
+      '管材管道':'Pipa & Fitting',
+      '钢材相关':'Material Baja',
+      '建材五金':'Material Bangunan & Hardware',
+      '电气相关':'Elektrikal',
+    };
+    let html = '';
+    for (let [cat, rows] of sorted){
+      const catId = CAT_GROUP_ID[cat] || cat;
+      html += '<div class="cat-group"><div class="cat-group-header"><span class="gname">'+escHtml(cat)+' <span style="font-size:12px;font-weight:500;color:#5a88bb;margin-left:4px">/ '+escHtml(catId)+'</span></span><span class="gcount">'+rows.length+' 家 / supplier</span></div>';
+      for (let row of rows) html += buildCard(row);
+      html += '</div>';
+    }
+    list.innerHTML = html;
+  } else {
+    let html = '';
+    for (let row of filtered) html += buildCard(row);
+    list.innerHTML = html;
+  }
+}
+
+// ============================================================
+// SUB-CATEGORY GROUPING — keyword-based auto-categorization
+// ============================================================
+function categorizeProducts(mainCat, products){
+  // If products is already grouped (from ;; grouped format), use directly
+  if (products.length > 0 && typeof products[0] === 'object' && products[0].cat){
+    return products.map(g => [g.cat, g.prods]);
+  }
+  const map = new Map();
+  for (const p of products){
+    let sub = matchSubCategory(mainCat, p);
+    if (!map.has(sub)) map.set(sub, []);
+    map.get(sub).push(p);
+  }
+  // sort sub-categories: 其他 last
+  let entries = [...map.entries()];
+  entries.sort((a,b)=>{
+    if (a[0]==='其他') return 1;
+    if (b[0]==='其他') return -1;
+    return a[0].localeCompare(b[0],'zh');
+  });
+  return entries;
+}
+
+function matchSubCategory(mainCat, p){
+  const lower = p.toLowerCase();
+  // Rules are evaluated in order, first match wins
+  const rulesets = {
+    '管材管道': [
+      ['线槽/套管', /线槽|套管|穿线管|护套管/],
+      ['软管/水带', /软管|蛇皮|水带|园艺|螺旋管|编织管|煤气管/],
+      ['阀门', /阀|过滤器|水龙头/],
+      ['管件/接头', /接头|弯头|三通|四通|法兰|垫片|转换|补芯|堵头|直接|丝扣|接线盒|管件|配件/],
+      ['工具/设备', /焊机|割刀|热熔|压力表|施工工具|切割机|切割|加工工具|电熔|控制主机/],
+      ['管道', /波纹管|给水管|排水管|电力管|复合管|[PpHh][DdPp][EeVvRr]管|[Pp][Vv][Cc]管|[Mm][Pp][Pp]管|钢管|方管|镀锌管|无缝管|管材|[Pp][Ee]管/],
+    ],
+    '钢材相关': [
+      ['不锈钢', /不锈钢/],
+      ['彩钢/活动房', /夹心板|彩钢瓦|活动房|折叠房|集装箱房|采光板|通风器|天沟/],
+      ['线材/丝网', /铁丝|网片|盘条|镀锌丝|钢丝/],
+      ['钢板/卷板', /钢板|花纹板|卷板|镀锌板|彩涂板|楼承板|镀锌波纹瓦/],
+      ['型钢', /角钢|槽钢|工字钢|H型钢|[CcZz]型钢|型钢|钢跳板|檩条/],
+      ['钢结构配件', /扣件|顶托|架子管|配件/],
+      ['钢管', /钢管|焊管|无缝管|方管/],
+      ['钢锭/钢坯', /钢锭|钢坯|螺纹钢/],
+      ['胶合板', /胶合板/],
+    ],
+    '建材五金': [
+      ['螺栓/螺丝', /螺栓|螺丝|螺钉/],
+      ['螺母', /螺母/],
+      ['垫圈', /垫圈|垫片/],
+      ['卫浴洁具', /蹲便器|坐便器|马桶|浴室柜|花洒|地漏|排气扇|角阀/],
+      ['防水材料', /防水|卷材|沥青|自粘|涂料|密封|堵漏|界面剂|聚氨酯|JS|软管/],
+      ['龙骨/吊顶', /龙骨|吊顶|石膏板/],
+      ['土工材料', /土工|排水网|网垫|土工布/],
+      ['钢筋机械', /钢筋/],
+      ['混凝土设备', /混凝土|搅拌|振动棒/],
+      ['提升设备', /卷扬机|电动葫芦|手拉葫芦|提升/],
+      ['切割/焊接', /焊接|电焊机|二保焊|等离子/],
+      ['发电设备', /发电/],
+      ['水泵', /水泵|潜水泵|污水泵|清水泵|深井泵/],
+      ['空压机', /空压/],
+      ['路面机械', /冲击夯|平板夯|抹光机/],
+      ['胶带', /胶带/],
+      ['包装/清洁', /清洁|包装|热敏纸|胶水/],
+      ['开关/插座', /开关|插座/],
+      ['电机', /电动|异步|制动|调速|振动|电磁|变频/],
+      ['真空泵', /真空/],
+      ['其他五金建材', /地脚|电缆|遮阳|橡胶|工业制品|井盖|胶粘剂|办公|劳保|焊材|配电|滴水线|装修|管材|[Pp][Vv][Cc]管|[Hh][Dd][Pp][Ee]管|[Pp][Pp][Rr]管/],
+    ],
+    '电气相关': [
+      ['开关/插座', /开关|插座/],
+      ['线缆', /线|缆|光纤|同轴/],
+    ],
+  };
+  const rules = rulesets[mainCat];
+  if (rules){
+    for (const [name, re] of rules){
+      if (re.test(p)) return name;
+    }
+  }
+  return '其他';
+}
+
+function buildCard(row){
+  const name    = row['工厂全称'] || '(未命名)';
+  const cat     = row['主营产品大类'] || '';
+  const addr    = row['工厂完整仓库地址'] || '';
+  const contact = row['国内对接联系人'] || '';
+  const phone   = row['联系电话'] || '';
+  const wa      = row['WhatsApp账号'] || '';
+  const email   = row['业务邮箱'] || '';
+  const grade   = row['供应商等级'] || '';
+  const remark  = row['备注'] || '';
+  const code    = row['供应商编码'] || '';
+  const prods   = splitProducts(row['产品名称'] || '');
+  const prodsGrouped = (prods.length > 0 && typeof prods[0] === 'object');
+  const flatCount = prodsGrouped ? prods.reduce((s,g)=>s+g.prods.length,0) : prods.length;
+  const subCats = categorizeProducts(cat, prods);
+
+  const CAT_ID_BADGE = {
+    '管材管道':'Pipa & Fitting',
+    '钢材相关':'Material Baja',
+    '建材五金':'Material Bangunan',
+    '电气相关':'Elektrikal',
+  };
+
+  let html = '<div class="card">';
+
+  // ── Header ──
+  html += '<div class="card-hd">';
+  const enName = SUPPLIER_EN[name];
+  html += '<span class="name">'+(enName ? escHtml(enName)+' ' : '')+escHtml(name)+'</span>';
+  html += '<span class="tags">';
+  if (cat){
+    const catId = CAT_ID_BADGE[cat] || cat;
+    html += '<span class="badge badge-cat">'+escHtml(cat)+' <span style="opacity:.7;font-weight:400">/ '+escHtml(catId)+'</span></span>';
+  }
+  if (remark){
+    // 备注里"距仓库约Xkm"加印尼语
+    const remarkId = remark.replace(/距仓库约(\d+)km/g, '距仓库约$1km (±$1 km dari gudang)');
+    html += '<span class="badge badge-dist">📍 '+escHtml(remarkId)+'</span>';
+  }
+  if (grade){
+    const gm = {'A':'badge-grade-a','B':'badge-grade-b','C':'badge-grade-c'};
+    html += '<span class="badge '+(gm[grade]||'badge-grade-b')+'">⭐ '+escHtml(grade)+'级 / Kelas '+escHtml(grade)+'</span>';
+  }
+  html += '</span></div>';
+
+  // ── Meta bar ──
+  let hasMeta = addr || contact || phone || wa || email || code || name==='凌威' || name==='PT KUIXIN BAJA 奎鑫印尼';
+  if (hasMeta){
+    html += '<div class="card-meta">';
+    if (name==='凌威'){
+      html += '<div class="addr-row"><span class="mlbl">🏭 仓库/Gudang</span><span class="mval" title="'+escAttr(addr)+'">'+escHtml(addr)+'</span><span class="dist-note">距仓库约7km / ±7km dari gudang</span><span class="mval" style="color:#4a7a9a;font-size:12px">☎ 858-6275-7220 / 081356278888</span><button class="copy-btn" onclick="copyAddr(this)" title="复制仓库地址">📋</button></div>';
+      html += '<div class="addr-row"><span class="mlbl">🏪 门店/Toko LTC</span><span class="mval">Hayam Wuruk, Lindeteves Trade Center Lt.GF2, RA45, 127, Manga Besar, Taman Sari, Jakarta Barat, DKI Jakarta 11180</span><span class="dist-note">距仓库约10km / ±10km dari gudang</span><span class="mval" style="color:#4a7a9a;font-size:12px">☎ Wisnu +62 857-7791-1063</span><button class="copy-btn" onclick="copyAddr(this)" title="复制门店地址">📋</button></div>';
+    } else if (name==='PT KUIXIN BAJA 奎鑫印尼'){
+      html += '<div class="addr-row"><span class="mlbl">🏭 丹格朗/Tangerang</span><span class="mval" title="'+escAttr(addr)+'">'+escHtml(addr)+'</span><button class="copy-btn" onclick="copyAddr(this)" title="复制丹格朗地址">📋</button></div>';
+      html += '<div class="addr-row"><span class="mlbl">🏭 勿加泗/Bekasi</span><span class="mval">Jln. KH Mamun Nawawi KP Pagualan, RT 011/002, Sukaresmi, Cikobar Barat</span><button class="copy-btn" onclick="copyAddr(this)" title="复制勿加泗地址">📋</button></div>';
+    } else {
+      html += '<div class="addr-row">';
+      if (addr) html += '<span class="mlbl">📍 地址/Alamat</span><span class="mval" title="'+escAttr(addr)+'">'+escHtml(addr)+'</span><button class="copy-btn" onclick="copyAddr(this)" title="复制地址">📋</button>';
+      if (phone) html += '<span class="mval" style="color:#4a7a9a;font-size:12px">☎ '+escHtml(phone)+'</span>';
+      html += '</div>';
+    }
+    let infoRow = [];
+    if (contact) infoRow.push('<span class="inf"><span class="ik">👤 联系人/Kontak</span><span class="iv">'+escHtml(contact)+'</span></span>');
+    if (wa) infoRow.push('<span class="inf"><span class="ik">WA</span><span class="iv">'+escHtml(wa)+'</span></span>');
+    if (email) infoRow.push('<span class="inf"><span class="ik">✉️ 邮箱/Email</span><span class="iv">'+escHtml(email)+'</span></span>');
+    if (code) infoRow.push('<span class="inf"><span class="ik">编码/Kode</span><span class="iv">'+escHtml(code)+'</span></span>');
+    if (infoRow.length) html += '<div class="info-row">'+infoRow.join('')+'</div>';
+    html += '</div>';
+  }
+
+  // ── Product accordion (level 1) ──
+  html += '<div class="prod-toggle" onclick="this.classList.toggle(\'open\');this.nextElementSibling.classList.toggle(\'open\')">';
+  html += '<span class="arw">▼</span>';
+  html += '<span class="plabel">📋 主营产品 / Produk Utama</span>';
+  html += '<span class="pcnt">'+flatCount+' 项/item · '+subCats.length+' 类/kategori</span>';
+  html += '</div>';
+  html += '<div class="prod-body">';
+
+  // Detail toggle (global for all sub-categories)
+  html += '<div class="prod-detail-toggle" onclick="var t=this;t.classList.toggle(\'open\');var bd=t.parentElement;bd.querySelectorAll(\'.col-detail\').forEach(function(c){c.classList.toggle(\'show\')});t.innerHTML=t.classList.contains(\'open\')?\'<span class=darw>▲</span> 📋 详细参数（收起）/ Detail (Tutup)\':\'<span class=darw>▼</span> 📋 详细参数（展开规格/材质/单价/MOQ/交期）/ Detail (Buka)\'">';
+  html += '<span class="darw">▼</span> 📋 详细参数（展开规格/材质/单价/MOQ/交期）/ Detail (Buka)';
+  html += '</div>';
+
+  // ── Sub-category accordions (level 2) ──
+  for (const [subName, subProds] of subCats){
+    html += '<div class="subcat-wrap">';
+    html += '<div class="subcat-toggle" onclick="this.classList.toggle(\'open\');this.nextElementSibling.classList.toggle(\'open\')">';
+    html += '<span class="sarw">▼</span>';
+    html += '<span class="slabel">'+escHtml(subName)+'</span>';
+    html += '<span class="scnt">'+subProds.length+' 项</span>';
+    html += '</div>';
+    html += '<div class="subcat-body">';
+    html += '<table class="prod-table"><thead><tr>';
+    html += '<th class="col-name">产品名称 / Nama Produk</th>';
+    html += '<th class="col-spec col-detail">规格型号 / Spesifikasi</th>';
+    html += '<th class="col-mat col-detail">材质 / Material</th>';
+    html += '<th class="col-price col-detail">单价/单位 / Harga Satuan</th>';
+    html += '<th class="col-moq col-detail">MOQ</th>';
+    html += '<th class="col-delivery col-detail">交期(天) / Lead Time (Hari)</th>';
+    html += '</tr></thead><tbody>';
+    for (const prod of subProds){
+      const idTrans = getIdTrans(prod);
+      html += '<tr>';
+      html += '<td class="col-name"><span class="pn">'+escHtml(prod)+'</span>'+(idTrans?'<span class="pn-id">'+escHtml(idTrans)+'</span>':'')+'</td>';
+      html += '<td class="col-spec col-detail">—</td>';
+      html += '<td class="col-mat col-detail">—</td>';
+      html += '<td class="col-price col-detail">—</td>';
+      html += '<td class="col-moq col-detail">—</td>';
+      html += '<td class="col-delivery col-detail">—</td>';
+      html += '</tr>';
+    }
+    html += '</tbody></table>';
+    html += '</div></div>'; // .subcat-body .subcat-wrap
+  }
+
+  html += '</div>'; // .prod-body
+  html += '</div>'; // .card
+  return html;
+}
+
+function splitProducts(str){
+  if (!str) return [];
+  // Detect grouped format: ;;catName;;prods;;catName2;;prods...
+  // Must check BEFORE delimiter normalization
+  if (/^;;/.test(str)) return splitProductsGrouped(str);
+  // Normalize delimiters (、、 → 、,  ，，→ ，,  ;; → ；)
+  str = str.replace(/、、/g, '、').replace(/，，/g, '、').replace(/;;/g, '；').replace(/；；/g, '；');
+  // Split by ； (semi) first, then by 、 or ， (Chinese comma)
+  // Note: / is NOT a splitter - it's used inline as "or" within product names
+  let items = [];
+  let parts = str.split(/[；]/);
+  for (let part of parts){
+    let sub = part.split(/[、，]/);
+    for (let s of sub){
+      let t = s.trim();
+      if (t.length > 0) items.push(t);
+    }
+  }
+  if (items.length <= 1){
+    items = str.split(/[、，；]/).map(s=>s.trim()).filter(s=>s.length>0);
+  }
+  return items;
+}
+
+function splitProductsGrouped(str){
+  // Format: ;;catName;;prod1、prod2;;catName2;;prod3...
+  str = str.replace(/^;;/, '');
+  const parts = str.split(/;;/);
+  const result = [];
+  for (let i = 0; i < parts.length; i += 2){
+    if (i + 1 < parts.length){
+      const cat = parts[i].trim().replace(/^\d+\.\s*/, '');
+      const prodsStr = parts[i+1].trim();
+      if (cat && prodsStr){
+        const prods = prodsStr.split(/[、，·]/).map(s=>s.trim()).filter(s=>s.length>0);
+        if (prods.length) result.push({cat, prods});
+      }
+    }
+  }
+  return result;
+}
+
+// ============================================================
+// INDONESIAN TRANSLATION DICTIONARY
+// ============================================================
+const ID_TRANS = {
+  // ── 管材/管道 ──
+  '双壁波纹管':'Pipa Corrugated Dinding Ganda',
+  '螺旋缠绕管':'Pipa Spiral Winding',
+  '实壁给水管':'Pipa Air Bersih Dinding Solid',
+  '单壁波纹管':'Pipa Corrugated Dinding Tunggal',
+  '波纹打孔渗滤管':'Pipa Corrugated Berlubang (Perforated)',
+  '光纤专用PE护套管':'Pipa Selubung PE Khusus Fiber Optik',
+  'PVC 管材':'Pipa PVC',
+  'HDPE 聚乙烯管材':'Pipa HDPE Polietilena',
+  '波纹管':'Pipa Corrugated',
+  '复合管材':'Pipa Komposit',
+  'PPR 冷热给水管':'Pipa PPR Air Dingin & Panas',
+  '金属波纹穿线管':'Pipa Fleksibel Metal (Conduit)',
+  'PVC 波纹穿线管':'Conduit PVC Corrugated',
+  '电线套管':'Conduit Kabel Listrik',
+  'PE给水管':'Pipa PE Air Bersih',
+  'MPP电力电缆保护管':'Pipa Pelindung Kabel Listrik MPP',
+  'PE燃气管':'Pipa Gas PE',
+  'HDPE管道':'Pipa HDPE',
+  '打孔渗透管':'Pipa Perforated',
+  '联塑PPR管材管道':'Pipa PPR Lesso',
+  '联塑PVC管材管道':'Pipa PVC Lesso',
+  '钢丝软管':'Selang Kawat Baja',
+  '编织软管（蛇皮管）':'Selang Flexi Anyaman',
+  '螺旋管':'Selang Spiral',
+  '水带':'Selang Air',
+  '园艺软管':'Selang Taman',
+  '高压煤气管':'Selang Gas Tekanan Tinggi',
+  '钢丝管':'Selang Kawat Baja',
+  '厚款有线管':'Selang Kabel Tebal (SB)',
+  '输水带':'Selang Air / Hose',
+  // ── 管件/接头 ──
+  'PPR 管件 直通/三通/异径接头':'Fitting PPR (Sambungan/T/Reduksi)',
+  'HDPE 电熔三通':'Fitting Elektrofusi HDPE Tee',
+  'HDPE 电熔异径三通':'Fitting Elektrofusi HDPE Tee Reduksi',
+  '塑料压缩式快速接头':'Fitting Kompresi Plastik',
+  '通用管道转换/过渡配件':'Fitting Transisi Universal',
+  '法兰密封垫片':'Gasket Flange',
+  '黄铜管件':'Fitting Kuningan',
+  '黄铜 Y 型过滤器':'Saringan Y Kuningan',
+  '塑料阀门':'Valve Plastik',
+  '水龙头':'Keran Air',
+  '接线盒':'Kotak Sambungan (Junction Box)',
+  'PE电熔管件':'Fitting Elektrofusi PE',
+  '法兰盘':'Flange',
+  '橡胶垫片':'Gasket Karet',
+  '螺栓组件':'Set Baut & Mur',
+  'HDPE 新款管件':'Fitting HDPE Baru',
+  'HDPE 异径接头':'Reduser HDPE',
+  '黄铜五金管件新品':'Fitting Kuningan Baru',
+  '工业压力表':'Manometer Industri',
+  // ── 焊机/设备 ──
+  'PPR 热熔焊机':'Mesin Las PPR',
+  'HDPE 电熔焊机':'Mesin Las Elektrofusi HDPE',
+  'HDPE 对接热熔焊机':'Mesin Las Butt Fusion HDPE',
+  'HDPE 数控电熔控制主机':'Kontroler Elektrofusi HDPE CNC',
+  '管材切割机':'Mesin Potong Pipa',
+  '波纹管专用加工工具':'Alat Pengerjaan Pipa Corrugated',
+  '电熔焊接机':'Mesin Las Elektrofusi',
+  // ── 电气预埋 ──
+  '86 型明装接线盒':'Kotak Saklar Tipe 86 Tanam Luar',
+  '配套盒盖':'Penutup Kotak Saklar',
+  '77×77暗装预埋接线盒':'Kotak Saklar Tanam 77×77mm',
+  '86×86暗装预埋接线盒':'Kotak Saklar Tanam 86×86mm',
+  // ── 钢材 ──
+  '钢锭':'Ingot Baja',
+  '钢坯':'Billet Baja',
+  '螺纹钢':'Baja Ulir (Rebar)',
+  '盘条':'Kawat Baja Gulung',
+  '热轧板卷':'Coil Baja HRC (Hot Rolled)',
+  '冷轧板卷':'Coil Baja CRC (Cold Rolled)',
+  '花纹板':'Plat Baja Bermotif',
+  '角钢':'Besi Siku',
+  '槽钢':'Besi UNP / CNP',
+  'H型钢':'Besi H / WF',
+  '工字钢':'Besi I',
+  '镀锌板卷':'Coil Baja Galvanis',
+  '彩涂板卷':'Coil Baja Warna',
+  '镀锌波纹瓦':'Atap Seng Gelombang Galvanis',
+  '无缝钢管':'Pipa Baja Seamless',
+  '直缝焊管':'Pipa Baja Las ERW',
+  '镀锌钢管':'Pipa Baja Galvanis',
+  'HDPE波纹管':'Pipa HDPE Corrugated',
+  'PPR管材':'Pipa PPR',
+  '镀锌铁丝':'Kawat Besi Galvanis',
+  '黑铁丝':'Kawat Besi Hitam',
+  '镀锌网片':'Wiremesh Galvanis',
+  '胶合板':'Triplex / Plywood',
+  '钢管':'Pipa Baja',
+  '方管':'Pipa Kotak (Hollow)',
+  '镀锌方管':'Pipa Kotak Galvanis',
+  '不锈钢方管':'Pipa Kotak Stainless',
+  '钢跳板':'Papan Injak Baja',
+  '扣件':'Klem / Coupler Scaffolding',
+  '顶托':'Jack Base / U-Head',
+  '镀锌架子管':'Pipa Scaffolding Galvanis',
+  '钢板':'Plat Baja',
+  '不锈钢板':'Plat Stainless Steel',
+  '双层铁架床':'Ranjang Susun Besi',
+  '折叠房':'Rumah Lipat (Portable)',
+  '安全带':'Safety Belt / Harness',
+  '不锈钢管':'Pipa Stainless Steel',
+  '不锈钢配件':'Fitting Stainless Steel',
+  '钢材':'Material Baja',
+  '管件弯头':'Elbow Fitting',
+  '不锈钢材料':'Material Stainless Steel',
+  '方矩管':'Pipa Hollow / Rectangular',
+  '黑方管（空心方管）':'Hollow Baja Hitam',
+  '热镀锌方矩管':'Hollow Galvanis',
+  '圆管：普通焊管':'Pipa Bundar Las',
+  '镀锌焊管':'Pipa Las Galvanis',
+  '镀锌圆管':'Pipa Galvanis',
+  '螺纹钢（钢筋）':'Besi Beton / Rebar',
+  '线材（盘圆）':'Kawat Baja Gulung (Wire Rod)',
+  '钢筋网片（wiremesh）':'Wiremesh',
+  '接线盒':'Junction Box',
+  '扁铁':'Plat Strip Baja',
+  '镀锌圆钢':'Besi Bulat Galvanis',
+  // ── 型钢/建材 ──
+  '夹心板（岩棉/玻璃棉/聚氨酯/EPS）':'Panel Sandwich (Rockwool/Glasswool/PU/EPS)',
+  '彩钢瓦':'Atap Baja Warna',
+  '活动房/折叠房/集装箱房':'Barak/Rumah Lipat/Container',
+  'C/Z型钢':'Baja Profil C/Z',
+  '楼承板':'Floor Deck',
+  '采光板':'Atap Transparan / Fiberglass',
+  '通风器':'Ventilator',
+  '天沟':'Talang Air',
+  '檩条':'Gording / Reng Baja',
+  '钢结构配件':'Aksesoris Struktur Baja',
+  '屋面材料':'Material Atap',
+  '储水水箱':'Tangki Air',
+  '水泥':'Semen',
+  '密封硅胶':'Silikon Sealant',
+  '焊接设备':'Mesin Las',
+  '焊丝':'Kawat Las',
+  '五金工具':'Perkakas / Hand Tools',
+  '工业配电柜':'Panel Distribusi Listrik',
+  '工业油漆（GUSANA品牌113色）':'Cat Industri GUSANA (113 Warna)',
+  '工具类':'Peralatan Umum',
+  '家具类配套产品':'Furnitur Pendukung',
+  '金属焊接加工':'Fabrikasi Las Logam',
+  '金属板材折弯':'Tekuk Plat Logam',
+  '激光切割板材':'Cutting Laser Plat',
+  '轻钢龙骨':'Rangka Baja Ringan',
+  '吊顶':'Plafon',
+  '石膏板':'Papan Gypsum',
+  'PVC滴水线':'List PVC',
+  '装修装饰材料':'Material Dekorasi & Finishing',
+  // ── 卫浴 ──
+  '蹲便器':'Kloset Jongkok',
+  '坐便器':'Kloset Duduk',
+  '浴室柜':'Lemari Kamar Mandi',
+  '花洒':'Shower Set',
+  '排气扇（天花板/侧墙）':'Kipas Ventilasi (Plafon/Dinding)',
+  '地漏':'Floor Drain',
+  '不锈钢软管':'Flexible Hose Stainless',
+  '角阀':'Stop Kran Sudut (Angle Valve)',
+  // ── 五金紧固 ──
+  '螺栓':'Baut',
+  '螺丝':'Sekrup',
+  '螺母':'Mur',
+  '垫圈':'Ring / Washer',
+  '地脚螺栓':'Anchor Bolt',
+  '电缆':'Kabel Listrik',
+  '遮阳网':'Jaring Paranet',
+  '五金配件':'Aksesoris Hardware',
+  '工业制品（各类）':'Produk Industri Umum',
+  '橡胶制品':'Produk Karet',
+  '井盖':'Tutup Got / Manhole Cover',
+  '胶粘剂':'Perekat / Adhesive',
+  '办公家具':'Furnitur Kantor',
+  '劳保用品':'Alat Pelindung Diri (APD)',
+  '焊材':'Elektroda Las',
+  '配电柜':'Panel Listrik',
+  // ── 防水材料 ──
+  '防水卷材（SBS/APP改性沥青/自粘/高分子）':'Membran Waterproofing (SBS/APP/Self-Adhesive/TPO)',
+  '防水涂料（聚氨酯/JS/水泥基渗透结晶）':'Cat Waterproofing (PU/JS/Kristal Semen)',
+  '密封膏':'Sealant',
+  '堵漏材料':'Material Anti Bocor',
+  '界面剂':'Bonding Agent',
+  // ── 机械设备 ──
+  '钢筋机械（调直/弯曲/切断/弯箍/套丝）':'Mesin Besi Beton (Lurus/Tekuk/Potong/Beugel/Ulir)',
+  '混凝土设备（搅拌机/振动棒）':'Peralatan Beton (Molen/Vibrator)',
+  '提升设备（卷扬机/电动葫芦/手拉葫芦）':'Alat Angkat (Hoist/Chain Block)',
+  '切割设备':'Mesin Potong',
+  '焊接设备（电焊机/二保焊机/等离子切割机）':'Mesin Las (SMAW/MIG/Plasma)',
+  '发电设备（发电机/静音发电机组/玉柴发电机）':'Genset (Silent/Yuchai)',
+  '水泵（潜水泵/污水泵/清水泵/深井泵）':'Pompa Air (Celup/Limbah/Bersih/Sumur)',
+  '空压机':'Kompresor Udara',
+  '路面机械（冲击夯/平板夯/切割机/抹光机）':'Mesin Jalan (Stamper/Pelat/Cutting/Trowel)',
+  '其他小型机械':'Mesin Kecil Lainnya',
+  // ── 水泵 ──
+  '清水自吸泵 CPM系列':'Pompa Self-Priming Air Bersih Seri CPM',
+  '电机自吸泵 DUS系列':'Pompa Self-Priming Motor Seri DUS',
+  '潜水泵 QDX系列':'Pompa Celup Seri QDX',
+  '不锈钢海水泵 QY系列':'Pompa Air Laut Stainless Seri QY',
+  '切割式污水泵':'Pompa Limbah Grinder',
+  '污水泵 WQ/WQD系列':'Pompa Limbah Seri WQ/WQD',
+  '高扬程污水泵 GWQ系列':'Pompa Limbah Head Tinggi Seri GWQ',
+  '油浸泵 QY系列':'Pompa Minyak (Oil Immersed) Seri QY',
+  '泥浆泵 NL系列':'Pompa Lumpur Seri NL',
+  '立式管道循环泵':'Pompa Sirkulasi Vertikal Inline',
+  '卧式管道泵':'Pompa Inline Horizontal',
+  '抽粪泵 WQXC系列':'Pompa Tinja Seri WQXC',
+  '不锈钢立式管道泵 IHG系列':'Pompa Inline Vertikal Stainless Seri IHG',
+  '不锈钢卧式管道泵 ISWH系列':'Pompa Inline Horizontal Stainless Seri ISWH',
+  // ── 水泵配件/电控 ──
+  '污水泵出水口':'Outlet Pompa Limbah',
+  '轻型耦合器':'Kopling Ringan',
+  '泵壳/叶轮/电联/轴套':'Casing/Impeller/Kopling/Sleeve Pompa',
+  '压力罐+传感器+压力表套件':'Tangki Tekan + Sensor + Manometer',
+  '泵用变频器':'Inverter Pompa',
+  '软启动柜 SG系列':'Panel Soft Starter Seri SG',
+  '智能水泵控制器 MG-D1系列':'Kontroler Pompa Cerdas Seri MG-D1',
+  // ── 电机 ──
+  '三相异步电动机 YE3系列':'Motor Listrik 3 Fasa Seri YE3',
+  '电磁制动电动机 YEJ3系列':'Motor Rem Elektromagnetik Seri YEJ3',
+  '变频调速电动机 YVF3系列':'Motor Inverter Seri YVF3',
+  '电磁调速电动机 YCT系列':'Motor Kopling Elektromagnetik Seri YCT',
+  '变频电机通风机 G系列':'Kipas Motor Inverter Seri G',
+  '振动电机 YZS/VB系列':'Motor Getar Seri YZS/VB',
+  '电动机立式盖/门盖/接线盒/风叶/风罩/接线柱 Y2-80至Y2-355':'Spare Part Motor (Tutup/Terminal Box/Fan/Konektor) Y2-80~355',
+  '电磁调速器 JD1A-40/JD1A-90':'Kontroler Kecepatan Elektromagnetik JD1A-40/JD1A-90',
+  // ── 真空泵 ──
+  '2BV系列真空泵':'Pompa Vakum Seri 2BV',
+  'SK/2SK机械密封真空泵':'Pompa Vakum Mechanical Seal SK/2SK',
+  '真空泵底座':'Dudukan Pompa Vakum',
+  // ── 土工/防水 ──
+  '复合土工排水网(Indogeocomposite)':'Geokomposit Drainase',
+  'HDPE各类管材(Indogeopipe)':'Pipa HDPE (Indogeopipe)',
+  '3D三维土工网垫(Indogeomat)':'Geomat 3D',
+  '短纤无纺土工布(Indogeotex)':'Geotextile Non-Woven',
+  '机织土工布(SAN CHU)':'Geotextile Woven (SAN CHU)',
+  // ── 电气 ──
+  '开关':'Saklar Listrik',
+  '插座':'Stop Kontak',
+  // ── 包装/清洁 ──
+  '胶带（各类型）':'Selotip / Tape (Berbagai Jenis)',
+  '热敏纸':'Kertas Thermal',
+  '胶水':'Lem',
+  '清洁用品':'Produk Kebersihan',
+  '包装材料':'Material Kemasan',
+  // ── 电子制造 ──
+  '4条雅马哈 YSM20R 高速SMT生产线':'4 Lini Produksi SMT Yamaha YSM20R',
+  '2条自动化THT生产线':'2 Lini Produksi THT Otomatis',
+  '电熔焊接机':'Mesin Las Elektrofusi',
+  '螺栓组件 8.8级 DN32-DN1600（40Cr/Q355B/Q235B）':'Set Baut Kelas 8.8 DN32-DN1600',
+  // ── 灯具 ──
+  '各类灯具':'Berbagai Jenis Lampu',
+  // ── SENTUM 分类名 ──
+  '电子制造（EMS）':'Elektronik Manufaktur (EMS)',
+  '管材产品':'Produk Pipa',
+  '配套产品':'Produk Aksesoris',
+  // ── 三信 分类名 ──
+  '土工材料':'Material Geotekstil',
+  '装修材料':'Material Renovasi',
+  // ── 装修材料 ──
+  '玻璃胶-密封胶':'Lem Kaca / Sealant',
+  '发泡胶/泡沫胶-A2':'Lem Busa / Foam A2',
+  '硬胶枪':'Pistol Lem',
+  '美工刀':'Pisau Cutter',
+  '编织袋(垃圾袋)':'Karung Plastik (Kantong Sampah)',
+  '卷尺':'Meteran Gulung',
+  // ── 地板 ──
+  'SPC石塑复合硬芯地板':'Lantai SPC (Stone Plastic Composite)',
+  'LVT弹性乙烯基地板':'Lantai Vinyl Elastis LVT',
+  // ── JAYA MASHYUR ──
+  '钢丝（Stelldrat）':'Kawat Baja (Stelldrat)',
+  '膨胀螺栓套（Expansion Sleeve）':'Selongsong Ekspansi (Expansion Sleeve)',
+  // ── 源泉钢管 ──
+  'KBJ穿线管（镀锌穿线管）':'Pipa Galvanis KBJ (Conduit)',
+  'JDC穿线管（JDG镀锌穿线管）':'Pipa Galvanis JDG (Conduit)',
+  '直接（Sok Galvanis）':'Sok Galvanis',
+  '盒接（锁母/锁扣/Konektor Sekrup）':'Konektor Sekrup',
+  '弯头（Elbow Galvanis）':'Elbow Galvanis',
+  '脚踏弯管器（Alat Penekuk Pipa Manual）':'Alat Penekuk Pipa Manual',
+  '铁离墙码（Saddle Clip Besi）':'Saddle Clip Besi',
+  '穿线盒（Inbow Dus Galvanis）':'Inbow Dus Galvanis',
+  '马鞍卡（Klem Pipa Galvanis）':'Klem Pipa Galvanis',
+  '盖板（Penutup Kotak）':'Penutup Kotak',
+  '管材类':'Pipa / Konduit',
+  // ── 中洲 ──
+  '黑铁圆管 ERW':'Pipa Besi Hitam ERW',
+  '黑铁方管 ERW':'Holo Besi Hitam ERW',
+  '钢跳板':'Papan Asiba',
+  '一字扣件':'Kopel Lurus',
+  '十字扣件':'Kopel Silang',
+  '转向扣件':'Kopel Putar',
+  '盘扣架立杆':'Ringlock Standard Vertikal',
+  '盘扣架横杆':'Ringlock Ledger Horizontal',
+  '盘扣架斜杆':'Ringlock Diagonal',
+  // ── PT.SOMY ──
+  'IGP系列自吸旋涡泵':'Pompa Vortex Self-Priming Seri IGP',
+  'WZB系列自吸旋涡泵':'Pompa Vortex Self-Priming Seri WZB',
+  'CPM自吸清水泵':'Pompa Air Bersih Self-Priming CPM',
+  'HFM卧式大流量离心泵':'Pompa Sentrifugal Horizontal HFM',
+  'JET-A家用喷射泵':'Pompa Jet Rumah Tangga JET-A',
+  'JET-S轻型喷射泵':'Pompa Jet Ringan JET-S',
+  'JET-B深井自吸喷射泵':'Pompa Jet Sumur Dalam JET-B',
+  'A3不锈钢喷射增压泵':'Pompa Booster Stainless A3',
+  'WQD-HS带浮球污水潜水泵':'Pompa Submersible Air Kotor WQD-HS',
+  'QYD井用潜水泵':'Pompa Submersible Sumur QYD',
+  'WQD-S不锈钢单相污水泵':'Pompa Air Kotor Stainless 1-Phase WQD-S',
+  'QDX清水潜水泵':'Pompa Submersible Air Bersih QDX',
+  'WQD普通单相排污泵':'Pompa Air Kotor 1-Phase WQD',
+  'WQ国标法兰三相污水泵':'Pompa Air Kotor 3-Phase Flange WQ',
+  'WQD-S不锈钢搅拌/切割污水泵':'Pompa Stainless Cutter/Mixer WQD-S',
+  'QGD立式不锈钢深井泵':'Pompa Sumur Dalam Stainless Vertikal QGD',
+  '3SDM/3SD(3寸井)':'Pompa Sumur 3 Inch 3SDM/3SD',
+  '4SDM/4SD(4寸,4SD2/4/6/8)':'Pompa Sumur 4 Inch 4SDM/4SD',
+  '4SKm小型家用深井泵':'Pompa Sumur Dalam Rumah Tangga 4SKm',
+  'CDL2/4/8/12/16/20/32/45':'Pompa Multistage Vertikal Stainless CDL',
+  'IRG立式热水管道泵':'Pompa Pipa Vertikal Air Panas IRG',
+  'ISW卧式清水管道泵':'Pompa Pipa Horizontal Air Bersih ISW',
+  'IHG不锈钢耐腐蚀管道泵':'Pompa Pipa Stainless Anti-Korosi IHG',
+  'B型清水自吸离心泵':'Pompa Sentrifugal Self-Priming Type B',
+  'ZW直联自吸污水泵':'Pompa Self-Priming Air Kotor Direct-Coupled ZW',
+  // ── HAKUNA ──
+  '石材':'Batu Alam',
+  '路沿石':'Kanstin / Batu Tepi Jalan',
+  '土工布':'Geotekstil',
+  '道路沥青':'Aspal Jalan',
+  '地板':'Lantai',
+};
+
+/**
+ * 从产品名称中提取"名称部分"（去掉规格数字参数），用于词典查找
+ * 逻辑：去掉字符串末尾 及 内部的 连续英文+数字+符号块（规格段）
+ * 保留中文/全角字符主干
+ */
+function extractProdName(prod){
+  // 先尝试完整匹配
+  if(ID_TRANS[prod]) return prod;
+  // 去掉尾部规格：遇到 第一个 [0-9DN] 之后的所有内容（但要保留中文核心）
+  // 策略：找最长的中文前缀
+  const m = prod.match(/^([\u4e00-\u9fa5A-Za-z\s（）\(\)/·]+)/);
+  if(m){
+    const core = m[1].trim().replace(/\s+$/,'');
+    if(ID_TRANS[core]) return core;
+  }
+  return null;
+}
+
+function getIdTrans(prod){
+  // 1. 完整匹配
+  if(ID_TRANS[prod]) return ID_TRANS[prod];
+  // 2. 提取名称前缀匹配
+  const key = extractProdName(prod);
+  if(key) return ID_TRANS[key];
+  // 3. 模糊：逐个词典key检查是否被prod包含
+  for(const [k,v] of Object.entries(ID_TRANS)){
+    if(k.length > 3 && prod.startsWith(k)) return v;
+  }
+  return null;
+}
+
+// ============================================================
+// SUPPLIER ENGLISH NAME MAPPING (for Chinese-only names)
+// ============================================================
+const SUPPLIER_EN = {
+  '双林':'Shuanglin',
+  '三信':'Sanxin',
+  '凯顺德':'Kaishunde',
+  '源泉钢管':'Yuanquan Steel',
+  '中洲':'Zhongzhou',
+  '东江':'Dongjiang',
+  '恒信':'Hengxin',
+  '宏源':'Hongyuan',
+  '凌威':'LING WEI',
+  '宏迪':'Hongdi',
+};
+
+// ============================================================
+// VEHICLE DATA — Lalamove印尼车型规格
+// ============================================================
+const VEHICLE_DATA = [
+  {no:1, zh:'摩托车', id:'Motor', load:'20 kg', loadId:'Maksimal Muatan: 20 kg', size:'40 × 40 × 50 cm', sizeId:'Dimensi Kabin: 40 × 40 × 50 cm', use:'小样品、小件配件，不适合卷材/建材', useId:'Sampel kecil, aksesoris kecil, tidak cocok untuk gulungan material/bahan bangunan'},
+  {no:2, zh:'小轿车', id:'Mobil Sedan', load:'100 kg', loadId:'Maksimal Muatan: 100 kg', size:'150 × 80 × 80 cm', sizeId:'Dimensi Kabin: 150 × 80 × 80 cm', use:'少量小件样品', useId:'Sampel kecil dalam jumlah sedikit'},
+  {no:3, zh:'MPV商务七座车', id:'Mobil MPV', load:'200 kg', loadId:'Maksimal Muatan: 200 kg', size:'175 × 100 × 85 cm', sizeId:'Dimensi Kabin: 175 × 100 × 85 cm', use:'少量工具、小型配件', useId:'Peralatan dalam jumlah sedikit, aksesoris kecil'},
+  {no:4, zh:'封闭厢式面包车', id:'Van', load:'600 kg', loadId:'Maksimal Muatan: 600 kg', size:'210 × 150 × 120 cm', sizeId:'Dimensi Kabin: 210 × 150 × 120 cm', use:'少量薄膜卷材、小型管材、五金配件', useId:'Gulungan film dalam jumlah sedikit, pipa kecil, aksesoris besi'},
+  {no:5, zh:'平板皮卡（无车厢）', id:'Pick Up Bak', load:'800 kg', loadId:'Maksimal Muatan: 800 kg', size:'200 × 160 × 120 cm', sizeId:'Dimensi Kabin: 200 × 160 × 120 cm', use:'混凝土养护膜、少量管材、建材，露天载货', useId:'Film perawatan beton, pipa dalam jumlah sedikit, bahan bangunan, pengangkutan terbuka'},
+  {no:6, zh:'封闭式厢式皮卡', id:'Pick Up Box', load:'1000 kg（1吨）', loadId:'Maksimal Muatan: 1000 kg (1 Ton)', size:'240 × 160 × 120 cm', sizeId:'Dimensi Kabin: 240 × 160 × 120 cm', use:'怕淋雨薄膜、开关、管件，密闭防水', useId:'Film yang tidak tahan hujan, sakelar, fitting pipa, tertutup rapat dan tahan air'},
+  {no:7, zh:'单排封闭厢货车', id:'Truk Engkel Box', load:'2000 kg（2吨）', loadId:'Maksimal Muatan: 2000 kg (2 Ton)', size:'310 × 170 × 170 cm', sizeId:'Dimensi Kabin: 310 × 170 × 170 cm', use:'大批量养护薄膜、整批PVC/PE管材、五金龙骨，防雨防尘', useId:'Film perawatan dalam jumlah besar, pipa PVC/PE sekaligus, rangka besi, tahan hujan dan debu'},
+  {no:8, zh:'单排平板敞篷货车', id:'Truk Engkel Bak', load:'2500 kg（2.5吨）', loadId:'Maksimal Muatan: 2500 kg (2,5 Ton)', size:'310 × 170 × 170 cm', sizeId:'Dimensi Kabin: 310 × 170 × 170 cm', use:'大件建材、长管材、大批量塑料膜，载货空间更高', useId:'Bahan bangunan besar, pipa panjang, film plastik dalam jumlah besar, ruang muat lebih tinggi'},
+  {no:9, zh:'CDD六轮中型货车', id:'Truk CDD Bak / Box', load:'5000 kg（5吨）', loadId:'Maksimal Muatan: 5000 kg (5 Ton)', size:'450 × 200 × 200 cm', sizeId:'Dimensi Kabin: 450 × 200 × 200 cm', use:'整柜建材、大量薄膜卷材、大批量管道，同城/跨城大批量送货', useId:'Bahan bangunan satu kontainer, gulungan film dalam jumlah banyak, pipa dalam jumlah besar, pengiriman dalam kota/antar kota dalam jumlah besar'},
+  {no:10, zh:'Fuso大型重货卡车', id:'Truk Fuso Bak / Box', load:'8000 kg（8吨）', loadId:'Maksimal Muatan: 8000 kg (8 Ton)', size:'570 × 250 × 250 cm', sizeId:'Dimensi Kabin: 570 × 250 × 250 cm', use:'超大批量建材、整批薄膜、大型工程物料，跨城长途配送', useId:'Bahan bangunan dalam jumlah sangat besar, film sekaligus, material proyek besar, pengiriman jarak jauh antar kota'},
+];
+
+function renderVehicleTable(){
+  const container = document.getElementById('vehicle-list');
+  let html = '';
+  html += '<div class="vehicle-intro">';
+  html += '<span class="vi-icon">🚛</span>';
+  html += '<span><b>Lalamove 印尼可用车型 / Kendaraan Tersedia Lalamove Indonesia</b> — 共 '+VEHICLE_DATA.length+' 种车型，按载重从小到大排列 / '+VEHICLE_DATA.length+' tipe, diurutkan dari muatan terkecil</span>';
+  html += '</div>';
+  html += '<div class="vehicle-table-wrap">';
+  html += '<table class="vehicle-table">';
+  html += '<thead><tr>';
+  html += '<th>序号<span class="th-sub">No</span></th>';
+  html += '<th>车型 / Tipe Kendaraan</th>';
+  html += '<th>最大载重<span class="th-sub">Muatan Maks</span></th>';
+  html += '<th>车厢尺寸 (长×宽×高 cm)<span class="th-sub">Dimensi Kabin</span></th>';
+  html += '<th>通用适用场景 / Penggunaan</th>';
+  html += '</tr></thead><tbody>';
+
+  for (const v of VEHICLE_DATA){
+    html += '<tr>';
+    html += '<td class="col-vno">'+v.no+'</td>';
+    html += '<td class="col-vtype"><span class="vt-name">'+escHtml(v.zh)+'</span><span class="vt-id">'+escHtml(v.id)+'</span></td>';
+    html += '<td class="col-vload"><span class="vl-zh">'+escHtml(v.load)+'</span><span class="vl-id">'+escHtml(v.loadId)+'</span></td>';
+    html += '<td class="col-vsize">'+escHtml(v.size)+'<br><span style="color:#7a8fa0">'+escHtml(v.sizeId)+'</span></td>';
+    html += '<td class="col-vuse">'+escHtml(v.use)+'<br><span style="color:#7a8fa0">'+escHtml(v.useId)+'</span></td>';
+    html += '</tr>';
+  }
+
+  html += '</tbody></table>';
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+function copyAddr(btn){
+  const row = btn.closest('.addr-row');
+  const txt = row ? row.querySelector('.mval').textContent : btn.previousElementSibling.textContent;
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(()=>{
+      btn.textContent='✅'; setTimeout(()=>btn.textContent='📋',1500);
+    }).catch(()=>fallbackCopy(btn,txt));
+  } else { fallbackCopy(btn,txt); }
+}
+function fallbackCopy(btn,txt){
+  const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed';ta.opacity=0;
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); btn.textContent='✅'; }catch(e){ btn.textContent='❌'; }
+  document.body.removeChild(ta);
+  setTimeout(()=>btn.textContent='📋',1500);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+buildCatFilters();
+render();
+</script>
+</body>
+</html>

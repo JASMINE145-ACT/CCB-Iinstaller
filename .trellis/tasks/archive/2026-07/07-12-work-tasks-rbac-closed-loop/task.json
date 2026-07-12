@@ -1,0 +1,38 @@
+{
+  "id": "work-tasks-rbac-closed-loop",
+  "name": "work-tasks-rbac-closed-loop",
+  "title": "Work Tasks RBAC closed-loop — manager/employee permission matrix",
+  "description": "Q1=B any manager team ops + Q2=A any manager force-close; Accept assignee-only.",
+  "status": "completed",
+  "dev_type": "feature",
+  "scope": "AionCore work-tasks rbac + aionui WorkTasks + org VPS",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-12",
+  "completedAt": "2026-07-12",
+  "parent": "07-09-agent-work-tasks-collaboration-system",
+  "relatedFiles": [
+    ".trellis/tasks/07-12-work-tasks-rbac-closed-loop/prd.md",
+    ".trellis/spec/integration/aioncore-work-tasks.md",
+    "AionCore/crates/aionui-work-tasks/src/rbac.rs",
+    "../aionui-src/packages/desktop/src/common/types/workTasks/workTaskTypes.ts"
+  ],
+  "notes": "2026-07-12 implemented. Evidence: cargo 14+11; vitest 19; code-reviewer PASS (A2 dialog fix). Await smoke; VPS deploy still needed for org API.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "Security",
+    "scenario": "A",
+    "locks": {
+      "Q1": "B",
+      "Q2": "A",
+      "ACCEPT_ACTOR": "assignee-only"
+    },
+    "review_agents": [
+      "a28d4886-0386-47c4-adfe-4a5aeea9d7a8",
+      "747e7010-a0d0-4113-9c4d-d593a614921e",
+      "0463a6cd-9d2d-4855-8502-00333ffcebf1"
+    ]
+  }
+}

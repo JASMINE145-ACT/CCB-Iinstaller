@@ -1,0 +1,42 @@
+{
+  "id": "supplier-directory-vs-price-library",
+  "name": "supplier-directory-vs-price-library",
+  "title": "Org supplier directory + Agent (browse/match/vehicles)",
+  "description": "Org SQLite tables for suppliers + logistics vehicles; product match scorer; dedicated supplier-directory-agent with confirmed writes; AionUI #/suppliers three modes. Not price-library SKUs; not knowledge-md/Grep SoT.",
+  "status": "in_progress",
+  "dev_type": "feature",
+  "scope": "cross-repo",
+  "package": "integration",
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-12",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    ".trellis/tasks/07-12-supplier-directory-vs-price-library/prd.md",
+    ".trellis/tasks/07-12-supplier-directory-vs-price-library/execution-plan.md",
+    ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/storage.md",
+    ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/seed-contract.md",
+    ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/match-fixtures.md",
+    ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/agent-write-path.md",
+    ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/ui-form.md",
+    ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/domain-model.md"
+  ],
+  "notes": "Plan APPROVED 2026-07-12. Storage=Org structured tables. Start Phase 1 only when user says 执行.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "plan_status": "approved",
+    "approved_at": "2026-07-12",
+    "contract_pack": "2026-07-12",
+    "storage": "org_sqlite_tables",
+    "active_phase": "1"
+  }
+}

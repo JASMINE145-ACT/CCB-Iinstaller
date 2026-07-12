@@ -1,0 +1,41 @@
+{
+  "id": "knowledge-vs-price-library-routing",
+  "name": "07-11-knowledge-vs-price-library-routing",
+  "title": "Knowledge vs price-library routing disambiguation",
+  "description": "知识库=业务知识库 -> append_business_rule; 价格库 -> price-library-agent; mixed signals clarify once.",
+  "status": "in_progress",
+  "dev_type": "bugfix",
+  "scope": "wande-orchestrator + quotation-agent + price-library-edit L1 routing",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-11",
+  "completedAt": null,
+  "relatedFiles": [
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md",
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md",
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/price-library-agent.md",
+    "ccb-installer/packages/vertical/com.wanding.trade/skills/price-library-edit/SKILL.md",
+    ".trellis/spec/integration/org-knowledge.md",
+    ".trellis/spec/integration/work-routing-execution-contracts.md",
+    ".trellis/spec/integration/contracts/agent-runtime-registry.yml"
+  ],
+  "notes": "2026-07-12 smoke#1 PASS (user): 更新知识库 → quotation ask_clarification, not price-library. AC1/4/5/6 partial. AC2/3 optional. code-reviewer PASS x2; packageRegistry 8/8.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "UI",
+    "scenario": "C",
+    "related_tasks": [
+      "06-28-org-knowledge-agent-write-path",
+      "07-01-price-library-admin-agent",
+      "07-04-orchestrator-dispatch-hardening",
+      "07-11-orchestrator-employee-primary-entry"
+    ],
+    "contracts": [
+      "WANd.ROUTING.KB_DISAMBIG.001",
+      "WANd.ROUTING.KB_ORG.001",
+      "WANd.ROUTING.KB_PRICE.001"
+    ]
+  }
+}

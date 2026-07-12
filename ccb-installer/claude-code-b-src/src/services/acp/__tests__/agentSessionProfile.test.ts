@@ -48,8 +48,8 @@ describe('filterDelegatableCustomAgents orchestrator bypass', () => {
     expect(orchestrator.map(a => a.filename)).toEqual(['word-creator'])
   })
 
-  it('does not bypass Guid-only agents outside router delegatable set', () => {
-    const configDir = mkdtempSync(join(tmpdir(), 'ccb-delegatable-guid-'))
+  it('keeps price-library-agent on orchestrator when in routerDelegatable set', () => {
+    const configDir = mkdtempSync(join(tmpdir(), 'ccb-delegatable-price-'))
     const agentsPath = join(configDir, 'agents')
     mkdirSync(agentsPath, { recursive: true })
     writeFileSync(
@@ -57,13 +57,38 @@ describe('filterDelegatableCustomAgents orchestrator bypass', () => {
       JSON.stringify({
         schema_version: 1,
         agent_id: 'price-library-agent',
-        delegatable: false,
+        delegatable: true,
+        requires_price_admin: true,
       }),
       'utf8',
     )
 
     const agents = [
       { agentType: 'price-library-agent', filename: 'price-library-agent' },
+    ] as Parameters<typeof filterDelegatableCustomAgents>[0]
+
+    const orchestrator = filterDelegatableCustomAgents(agents, configDir, {
+      orchestratorSession: true,
+    })
+    expect(orchestrator.map(a => a.filename)).toEqual(['price-library-agent'])
+  })
+
+  it('does not bypass agents outside router delegatable set (sidecar false)', () => {
+    const configDir = mkdtempSync(join(tmpdir(), 'ccb-delegatable-guid-'))
+    const agentsPath = join(configDir, 'agents')
+    mkdirSync(agentsPath, { recursive: true })
+    writeFileSync(
+      join(agentsPath, 'secret-guid-only-agent.aionui.json'),
+      JSON.stringify({
+        schema_version: 1,
+        agent_id: 'secret-guid-only-agent',
+        delegatable: false,
+      }),
+      'utf8',
+    )
+
+    const agents = [
+      { agentType: 'secret-guid-only-agent', filename: 'secret-guid-only-agent' },
     ] as Parameters<typeof filterDelegatableCustomAgents>[0]
 
     const orchestrator = filterDelegatableCustomAgents(agents, configDir, {
@@ -135,10 +160,25 @@ describe('evaluateOrchestratorToolGuard', () => {
       expect(result.message).toContain('Agent(quotation-agent)')
     }
   })
+
+  it('blocks supplier-directory MCP and SearchExtraTools discovery on orchestrator', () => {
+    const direct = evaluateOrchestratorToolGuard(
+      'mcp__supplier-directory__suppliers_list',
+      {},
+    )
+    expect(direct.blocked).toBe(true)
+    if (direct.blocked) {
+      expect(direct.message).toContain('supplier-directory-agent')
+    }
+    const search = evaluateOrchestratorToolGuard('SearchExtraTools', {
+      query: 'supplier-directory match',
+    })
+    expect(search.blocked).toBe(true)
+  })
 })
 
 describe('filterMcpConfigsForOrchestratorSession', () => {
-  it('strips business MCP from ACP param overlay on default router session', async () => {
+  it('strips business MCP from ACP param overlay on default entry session', async () => {
     const { filterMcpConfigsForOrchestratorSession } = await import(
       '../agentSessionProfile.js'
     )
@@ -146,6 +186,8 @@ describe('filterMcpConfigsForOrchestratorSession', () => {
       guide_mcp: { scope: 'dynamic' },
       quotation: { scope: 'dynamic' },
       'price-library': { scope: 'dynamic' },
+      'work-tasks-agent': { scope: 'dynamic' },
+      'supplier-directory': { scope: 'dynamic' },
     }
     const filtered = filterMcpConfigsForOrchestratorSession(
       configs,

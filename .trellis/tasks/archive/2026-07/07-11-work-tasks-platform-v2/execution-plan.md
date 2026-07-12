@@ -2,11 +2,13 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | in_progress (P6 contract locked — awaiting **批准计划 A**) |
+| **Status** | **completed** (P1–P3 + P6; P4 deferred) |
+| **Plan date** | 2026-07-11 |
+| **Closed** | 2026-07-11 (user smoke OK) |
 | **Scenario** | A (+ cross-repo UI) |
 | **Plan depth** | Standard → treat as **Full merge discipline** (serial gates) |
 | **Verification profile** | Cross-repo → **UI** for P6 |
-| **Active phase** | P6 impl done — manual AC-D* pending |
+| **Active phase** | — (closed) |
 | **Repos** | claude-code-best (AionCore + MCP + scripts) + aionui-src (UI) |
 | **Contract docs** | `research/api-contract-matrix.md`, `research/dashboard-data-contract.md` (P6 locked), `research/dashboard-drilldown-design.md`, `p6-contract-harden.md` |
 
@@ -170,10 +172,10 @@ Script: `scripts/test-work-tasks-agent-acceptance.mjs` — add cases as RED then
 | Contract | Verification | Evidence | Status |
 |----------|--------------|----------|--------|
 | WANd.TASKS.MCP_V2.001 | acceptance script | ALL PASS 2026-07-11 | PASS |
-| WANd.TASKS.MANAGER_DASHBOARD.001 | vitest + manual | vitest PASS; AC6 pending | partial |
-| WANd.TASKS.DASHBOARD_DRILLDOWN.001 | filterState + AC-D* | unit PASS; code-review PASS; manual pending | **impl done** |
+| WANd.TASKS.MANAGER_DASHBOARD.001 | vitest + manual | vitest PASS; AC6–8 user PASS 2026-07-11 | PASS |
+| WANd.TASKS.DASHBOARD_DRILLDOWN.001 | filterState + AC-D* | unit 17 PASS; code-review PASS; user smoke PASS | **PASS** |
 | WANd.TASKS.AGENT_RBAC.001 | V2-E2 | PASS | PASS |
-| WANd.TASKS.QUERY_SCOPE.001 | documented | P4 pending | PASS (P1–P3) |
+| WANd.TASKS.QUERY_SCOPE.001 | documented | P4 deferred (AC9) | PASS (P1–P3) |
 
 ---
 
@@ -190,10 +192,10 @@ Script: `scripts/test-work-tasks-agent-acceptance.mjs` — add cases as RED then
 
 ### Manual steps
 
-- [ ] admin: dashboard groups + overdue
-- [ ] yjc: no dashboard
-- [ ] agent assign / brief smokes
-- [ ] **P6:** click yjc → `/query` filtered list; chip clear push; Back restores; KPI; employee strip + no `/query`; unassigned warning if truncated
+- [x] admin: dashboard groups + overdue
+- [x] yjc: no dashboard
+- [x] agent assign / brief smokes
+- [x] **P6:** click yjc → filtered list; chip clear; overdue client (no query-failed); Soft UI compact
 
 ---
 
@@ -240,8 +242,8 @@ Script: `scripts/test-work-tasks-agent-acceptance.mjs` — add cases as RED then
 | P6 design | done | dashboard-drilldown-design.md |
 | **P6-0 contract harden** | **done** | `p6-contract-harden.md`; DASHBOARD_DRILLDOWN.001 locked |
 | **P6 impl** | **done** | `p6-done.md`; filterState 13 PASS; code-reviewer PASS |
-| Manual AC6–8 / AC-D* | pending | user smoke |
-| P4 EIL | deferred | AC9 |
+| Manual AC6–8 / AC-D* | **PASS** | user confirmed 2026-07-11 |
+| P4 EIL | deferred | AC9 → 07-14 |
 
 ---
 

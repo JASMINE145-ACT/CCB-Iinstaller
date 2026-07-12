@@ -532,17 +532,18 @@ quotation MCP (match_fuzzy, try_remote=True)
 
 **Guid visibility (P1):**
 
-- Sidecar `requires_price_admin: true`, `delegatable: false`
+- Sidecar `requires_price_admin: true`, `delegatable: true`（2026-07-11：默认会话可 `Agent(price-library-agent)`；仍须 price_admin）
 - Skill `price-library-edit` — bulk 三分法 + prepare script SOP (P2-Edit)
 - Hooks (P2-Edit): PreToolUse `data.Md` gate on upsert/apply; PostToolUse `post-data-md-read-mark.py` on Read (subagent + flush race, 2026-07-05); confirm nudge; Stop warn if draft applied without publish
 - AionUI catalog probes `GET /api/price-library/draft` — non-admin **no**「价格库管理」card
-- `CCB_GUID_ONLY_AGENT_IDS` excludes price-library from orchestrator delegation index
+- `guidOnlyAgentIds` **empty** for price-library（2026-07-11）— 允许进入 orchestrator delegation index；与「知识库≠价格库」路由配套（`WANd.ROUTING.KB_PRICE.001`）
 - Deploy: `deploy-seed-agents.ps1 -ForceMd` → `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\`
 
 **Wrong vs correct**
 
 | Wrong | Correct |
 |-------|---------|
+| 「知识库更新」走价库 upsert | 知识库 = 业务知识库 → `append_business_rule` |
 | Extend `quotation-server` with write tools | Independent `price-library` MCP + agent |
 | Upsert without `confirmed=true` | Preview first; user confirms; replay with `confirmed=true` |
 | Rely on hidden Guid card for security | AionCore 403 on non-admin JWT |

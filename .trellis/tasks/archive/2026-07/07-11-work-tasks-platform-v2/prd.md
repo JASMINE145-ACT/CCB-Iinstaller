@@ -1,9 +1,10 @@
 # PRD — Work Tasks Platform v2（MCP 工具 + 经理 Dashboard）
 
 > **Task:** `07-11-work-tasks-platform-v2`  
-> **Status:** draft (planning)  
+> **Status:** completed (P1–P3 + P6; P4 AC9 deferred to 07-14 EIL)  
 > **Priority:** P1  
-> **Date:** 2026-07-11
+> **Date:** 2026-07-11  
+> **Completed:** 2026-07-11 (user smoke OK)
 
 ## One-line definition
 
@@ -103,24 +104,24 @@ Employee 视图不变（无 dashboard 区块）。
 - [x] **AC5** Acceptance script includes V2-E*/M*/G* cases — ALL PASS 2026-07-11
 
 ### UI
-- [ ] **AC6** Manager login: per-assignee breakdown + overdue list; items capped (≤200) with banner if truncated — **manual pending**
-- [ ] **AC7** Employee login: no dashboard block; existing list unchanged; `/query` still 403 — **manual pending**
-- [ ] **AC8** Manual smoke: admin assigns via UI + agent; employee sees pending + AI tag — **manual pending**
+- [x] **AC6** Manager login: per-assignee breakdown + overdue list; items capped (≤200) with banner if truncated — **PASS 2026-07-11** (user smoke)
+- [x] **AC7** Employee login: no dashboard block; existing list unchanged; `/query` still 403 — **PASS 2026-07-11** (user smoke)
+- [x] **AC8** Manual smoke: admin assigns via UI + agent; employee sees pending + AI tag — **PASS 2026-07-11** (prior + this session)
 
 ### UI drill-down (P6 — Plan A; contract in dashboard-data-contract.md)
-- [x] **AC-D1** Manager clicks assignee row → list shows **only** that assignee’s tasks via `/query?assignee_id=`; URL has `assignee=` — **impl; manual smoke pending**
-- [x] **AC-D2** Filter chip clear **pushes** cleared URL — **impl; manual pending**
-- [x] **AC-D3** Browser **Back** restores previous filter; invalid params **replace** — **impl; manual pending**
-- [x] **AC-D4** KPI pending / overdue / status + Status Select via same helper — **impl; manual pending**
-- [x] **AC-D5** Employee strip + no `/query` when `!isManager` — **impl; manual network pending**
-- [x] **AC-D6** Unassigned client filter + truncation warning — **impl; manual pending**
-- [x] **AC-D7** Overdue panel compact when count=0 — **impl**
-- [x] **AC-D8** Unit: parse/serialize/toQueryParams/employee normalize — **13 PASS**
-- [x] **AC-D9** Known-assignee uses `/query` not cap-200 client-filter — **impl**
-- [x] **AC-D10** `queryTasks` IPC accepts query params — **impl**
+- [x] **AC-D1** Manager clicks assignee row → list shows **only** that assignee’s tasks via `/query?assignee_id=`; URL has `assignee=` — **PASS 2026-07-11**
+- [x] **AC-D2** Filter chip clear **pushes** cleared URL — **PASS 2026-07-11**
+- [x] **AC-D3** Browser **Back** restores previous filter; invalid params **replace** — **PASS 2026-07-11** (impl + user OK)
+- [x] **AC-D4** KPI pending / overdue / status + Status Select via same helper — **PASS 2026-07-11** (overdue client-side; no `/query?overdue=`)
+- [x] **AC-D5** Employee strip + no `/query` when `!isManager` — **PASS 2026-07-11** (impl + user OK)
+- [x] **AC-D6** Unassigned client filter + truncation warning — **PASS** (impl)
+- [x] **AC-D7** Overdue panel compact when count=0 — **PASS**
+- [x] **AC-D8** Unit: parse/serialize/toQueryParams/employee normalize — **17 PASS**
+- [x] **AC-D9** Known-assignee uses `/query` not cap-200 client-filter — **PASS**
+- [x] **AC-D10** `queryTasks` IPC accepts query params — **PASS** (`assignee_id`/`status` only)
 
-### EIL compatibility (P4 — defer if EIL P1 not ready)
-- [ ] **AC9** When `is_admin=true`: query scope = company; manager may narrow later per EIL
+### EIL compatibility (P4 — deferred)
+- [ ] **AC9** When `is_admin=true`: query scope = company — **DEFERRED** → `07-14-employee-intelligence-layer`
 - [x] **AC10** Spec + `work-tasks-agent.md` tool table updated; vendor MCP synced to `D:\CCB-Wanding\vendor\...`
 
 ## Non-goals

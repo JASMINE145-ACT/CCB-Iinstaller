@@ -1,0 +1,44 @@
+{
+  "id": "work-tasks-accept-acl",
+  "name": "work-tasks-accept-acl",
+  "title": "Work Tasks accept ACL — assignee-only vs manager force-accept",
+  "description": "Option A: pending_accept→accepted assignee-only. Backend can_apply_status_transition + UI canAcceptWorkTask/filterWorkTaskStatusOptions.",
+  "status": "completed",
+  "dev_type": "bugfix",
+  "scope": "AionCore work-tasks rbac + aionui WorkTasks Accept CTA",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-12",
+  "completedAt": "2026-07-12",
+  "parent": "07-09-agent-work-tasks-collaboration-system",
+  "relatedFiles": [
+    ".trellis/tasks/07-12-work-tasks-accept-acl/prd.md",
+    ".trellis/tasks/07-12-work-tasks-accept-acl/open-questions.md",
+    ".trellis/tasks/07-12-work-tasks-accept-acl/research/accept-acl-diagnosis.md",
+    ".trellis/spec/integration/aioncore-work-tasks.md",
+    "AionCore/crates/aionui-work-tasks/src/rbac.rs",
+    "AionCore/crates/aionui-work-tasks/src/service.rs",
+    "../aionui-src/packages/desktop/src/common/types/workTasks/workTaskTypes.ts",
+    "../aionui-src/packages/desktop/src/renderer/pages/workTasks/WorkTasksPage/WorkTaskDetailPage.tsx",
+    "../aionui-src/packages/desktop/src/renderer/pages/workTasks/WorkTasksPage/index.tsx"
+  ],
+  "notes": "2026-07-12 implemented Option A. Evidence: cargo 12+10 ok; vitest workTaskTypes 16 ok; code-reviewer PASS (Layer A/B). Await user smoke: admin→yjc pending no Accept.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "Security",
+    "scenario": "E",
+    "related_tasks": [
+      "07-09-agent-work-tasks-collaboration-system",
+      "07-11-work-tasks-platform-v2"
+    ],
+    "provisional_contracts": [
+      "WANd.TASKS.ACCEPT_ACTOR.001"
+    ],
+    "review_agents": [
+      "81be49ba-f542-4051-a7ae-86a89a102ff4",
+      "e62b50ab-885c-4f6e-b125-c117edcf31b4"
+    ]
+  }
+}

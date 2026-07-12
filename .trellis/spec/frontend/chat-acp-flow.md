@@ -170,6 +170,8 @@ Renders as: `MessageAcpPermission.tsx` with allow/deny buttons.
 
 **全自动 / bypassPermissions mode sync (2026-07-01, shipped in `aionui-src`):** UI label「全自动」= `bypassPermissions`. **Product contract:** user-selected mode must apply to the live CCP session before any tool runs; sync failure **blocks** `sendMessage` (no silent fallback to `default`).
 
+**Alias (2026-07-12, `WANd.MODE.ALIAS.001`):** Legacy / cross-backend literal `yolo` / `yoloNoSandbox` must pass through `normalizeAcpPermissionMode(backend, value)` before seed / persist / `setMode`. Claude/CCB → `bypassPermissions` via `getFullAutoMode('claude')`; Gemini/Qwen keep native `yolo`. Prevents `Value 'yolo' is not selectable for config option 'mode'`.
+
 | Layer | Mechanism |
 |-------|-----------|
 | Store (authority) | `common/config/ccbSessionPreferredModeStore.ts` — `seed` / `get` / `set` / `persist` / `clear` per `conversation_id` |
@@ -181,7 +183,7 @@ Renders as: `MessageAcpPermission.tsx` with allow/deny buttons.
 | UI selector | `AgentModeSelector` / mobile sheet: `setMode` success → `set` + `persistCcbSessionPreferredMode` |
 | Mount `getMode` | **UI only** (`setCurrentMode`) — **must not** `setCcbSessionPreferredMode` (would overwrite Guid seed with stale backend `default`) |
 
-**Files:** `ccbSessionPreferredModeStore.ts`, `resolveEffectiveAcpSessionMode.ts`, `ensureCcbSessionPreferredMode.ts` (`assertCcbSessionPreferredModeApplied`), `ensureCcbSessionPreferredModel.ts`, `acpConfigOptionsAdapter.ts`, `useAcpInitialMessage.ts`, `AcpSendBox.tsx`, `AgentModeSelector.tsx`.
+**Files:** `normalizeAcpPermissionMode.ts`, `ccbSessionPreferredModeStore.ts`, `resolveEffectiveAcpSessionMode.ts`, `ensureCcbSessionPreferredMode.ts` (`assertCcbSessionPreferredModeApplied`), `ensureCcbSessionPreferredModel.ts`, `acpConfigOptionsAdapter.ts`, `useAcpInitialMessage.ts`, `AcpSendBox.tsx`, `AgentModeSelector.tsx`.
 
 **aioncore 0.1.29+ route contract (2026-07-02):** Mode/model reads and writes for send-time sync **must** use `acpConfigOptionsAdapter` (`/api/conversations/{id}/config-options`), not `ipcBridge` legacy `/mode` or `/model` (removed → `404 Route not found.` → send blocked). Incident: [`.trellis/tasks/07-01-aionui-full-auto-permission-sync/research/route-not-found-config-options-2026-07-02.md`](../../tasks/07-01-aionui-full-auto-permission-sync/research/route-not-found-config-options-2026-07-02.md).
 
@@ -191,9 +193,9 @@ Renders as: `MessageAcpPermission.tsx` with allow/deny buttons.
 
 **Smoke:** Guid 万鼎报价专家 + 全自动 + 截图询价 → no `MessageAcpPermission` for `Read` on `%Temp%\aionui\` path; `default` mode still prompts for out-of-workspace Read.
 
-**Tests:** `tests/unit/common-config/resolveEffectiveAcpSessionMode.test.ts`, `ensureCcbSessionPreferredMode.test.ts`, `ensureCcbSessionPreferredModel.test.ts` (incl. assert throws; adapter mocks).
+**Tests:** `tests/unit/common-config/normalizeAcpPermissionMode.test.ts`, `resolveEffectiveAcpSessionMode.test.ts`, `ensureCcbSessionPreferredMode.test.ts` (incl. preferred=`yolo` → setMode `bypassPermissions`), `ensureCcbSessionPreferredModel.test.ts` (incl. assert throws; adapter mocks).
 
-Task: `.trellis/tasks/07-01-aionui-full-auto-permission-sync/`
+Tasks: `.trellis/tasks/07-01-aionui-full-auto-permission-sync/` · `.trellis/tasks/07-12-yolo-mode-alias-vision-regression/`
 
 ### 3.5b AskUserQuestion (candidate selection — not Allow/Reject)
 

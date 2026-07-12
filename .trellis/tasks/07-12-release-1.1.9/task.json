@@ -1,0 +1,13 @@
+{
+  "id": "07-12-release-1.1.9",
+  "title": "CCB-Wanding 1.1.9 Full NSIS 发布",
+  "status": "approved",
+  "created": "2026-07-12",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "baseline_release": "1.1.8",
+    "baseline_delivery": "ccb-installer/delivery-1.1.8-2026-07-07.md",
+    "trigger": "user /trellis-plan-execution 打包 1.1.9 — 囊括 dev 测试内容",
+    "parent_task": "07-12-supplier-directory-vs-price-library"
+  }
+}

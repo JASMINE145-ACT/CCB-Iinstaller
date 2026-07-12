@@ -10,6 +10,7 @@ import {
   formatEmployeeProfileClaudeMd,
   mergeEmployeeProfileIntoResolvedUserContext,
   readEmployeeProfile,
+  resolveEffectiveEmployeeProfile,
 } from '../employeeProfile.js'
 
 describe('employeeProfile', () => {
@@ -55,6 +56,40 @@ describe('employeeProfile', () => {
     )
     expect(merged?.claudeMd).toContain('# Specialist')
     expect(merged?.claudeMd).toContain('王五')
+  })
+
+  it('legacy flat department does not override org block', () => {
+    const handoff = {
+      org: { username: 'yjc', displayName: 'yjc', department: '采购部' },
+      department: '旧部门',
+      client: { notes: '习惯先查库存' },
+    }
+    const profile = resolveEffectiveEmployeeProfile(handoff)
+    expect(profile?.department).toBe('采购部')
+  })
+
+  it('org authority wins over legacy client department in handoff v2', () => {
+    const configDir = mkdtempSync(join(tmpdir(), 'ccb-employee-org-'))
+    writeFileSync(
+      join(configDir, CCB_EMPLOYEE_PROFILE_FILE),
+      JSON.stringify({
+        org: {
+          username: 'yjc',
+          displayName: 'yjc',
+          department: '采购部',
+          employmentStatus: 'active',
+        },
+        client: { notes: '习惯先查库存' },
+      }),
+      'utf8',
+    )
+    const profile = readEmployeeProfile(configDir)
+    expect(profile?.department).toBe('采购部')
+    expect(profile?.notes).toBe('习惯先查库存')
+    const merged = appendEmployeeProfileToUserContext({ claudeMd: '# Specialist' }, configDir)
+    expect(merged?.claudeMd).toContain('采购部')
+    expect(merged?.claudeMd).toContain('习惯先查库存')
+    expect(merged?.claudeMd).toContain('公司账号为准')
   })
 
   it('merge is idempotent when marker already present', () => {

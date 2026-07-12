@@ -2,7 +2,7 @@
   "id": "full-system-review",
   "name": "06-30-full-system-review",
   "title": "全项目系统审查 — 分模块 spec↔代码审计 + 改进路线",
-  "description": "按 Trellis 三层 + Business + Ship/Ops 分五步做 system-reviewer 式审计；Step 1 Integration 已完成（7.5/10）；后续 Backend / Frontend / Business Python / Ship 待审；并跟踪 Integration 层 P0/P1 修复项。",
+  "description": "按 Trellis 三层 + Business + Ship/Ops 分五步做 system-reviewer 式审计；Step 1 Integration 已完成并复审（8.0/10）；Step 2 Backend 已完成并复审（8/10）；Step 3 Frontend 已完成（7/10）；后续 Business Python / Ship 待审；并跟踪跨层 P0/P1 修复项。",
   "status": "in_progress",
   "dev_type": "research",
   "scope": "cross-layer",
@@ -25,6 +25,11 @@
     },
     {
       "id": "step-03-frontend",
+      "status": "completed"
+    },
+    {
+      "id": "architecture-boundary-baseline",
+      "title": "Absorb 06-25 architecture/business boundary map as the review baseline",
       "status": "completed"
     },
     {
@@ -71,6 +76,10 @@
     ".trellis/tasks/06-30-full-system-review/reviews/phase-02-vendor-sync-optimization-review.md",
     ".trellis/tasks/06-30-full-system-review/reviews/phase-02-1-exploration-2026-07-02.md",
     ".trellis/tasks/06-30-full-system-review/reviews/step-03-frontend.md",
+    ".trellis/tasks/06-30-full-system-review/reviews/step-02-backend-rereview-2026-07-12.md",
+    ".trellis/tasks/06-25-architecture-business-system-boundaries/boundary-map.md",
+    ".trellis/tasks/06-25-architecture-business-system-boundaries/cleanup-audit.md",
+    ".trellis/tasks/06-25-architecture-business-system-boundaries/prd.md",
     ".trellis/spec/index.md",
     ".trellis/spec/outline.md",
     ".trellis/spec/integration/index.md",
@@ -90,5 +99,5 @@
     ".trellis/spec/integration/dev-runtime-layers.md",
     ".trellis/spec/frontend/dev-test-ship.md"
   ],
-  "notes": "Step 1 Integration 7.5/10 ✅。Step 2 Backend 7/10 ✅。Step 3 Frontend 7/10 ✅。FE-P0-1 closed 2026-07-03 P2 smoke ✅。Phase 2.1 ✅。下一步 P5 spec/backlog 或 Step 4 Business。"
+  "notes": "Step 1 Integration 8.0/10 after 2026-07-11 rereview; Step 2 Backend 8/10 after 2026-07-12 rereview (initial 7/10, P0/P1 closed; live dist/CI proof deferred to Step 5); Step 3 Frontend 7/10; FE-P0-1 closed 2026-07-03 P2 smoke; Phase 2.1 complete. 2026-07-11 absorbed 06-25-architecture-business-system-boundaries as the architecture/business boundary baseline. Next: Step 4 Business or Step 5 Ship/Ops."
 }

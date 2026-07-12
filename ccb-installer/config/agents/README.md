@@ -18,7 +18,9 @@ Each agent is stored as a pair:
 | `excel-creator` | Excel 表格助手 | yes | `excel` | MCP-only Excel creation; delivery gate blocks invalid output |
 | `ppt-creator` | PPT 演示助手 | yes | `ppt-master` skill | Skill-only PPT creation; delivery gate blocks invalid output; avatar **📽️** (not 📊 — reserved for 账务) |
 | `research-agent` | 资料搜索助手 | yes | `exa`, `tavily` (+ optional `scrapling`) | Dual-source web research; skill `wanding-deep-research`; evidence `research/*.md` + `.sources.jsonl` |
-| `price-library-agent` | 价格库管理 | yes (price_admin) | `price-library`, `excel` | Org draft/import/publish; Guid-only (`delegatable: false`); avatar **🏷️** (not 📊 — reserved for 账务) |
+| `price-library-agent` | 价格库管理 | yes (`delegatable: true`, Guid needs `price_admin`) | `price-library`, `excel` | Org draft/import/publish; default session may `Agent(price-library-agent)`; writes still JWT `price_admin`; avatar **🏷️** (not 📊 — reserved for 账务). **知识库 ≠ 价格库** — 业务知识库走 quotation `append_business_rule` |
+| `supplier-directory-agent` | 供应商名录 | yes | `supplier-directory` | Org factories + vehicles; **≠** price-library SKU `supplier` column; avatar **🏭** |
+| `work-tasks-agent` | 工作任务助手 | yes | `work-tasks-agent` | Org work tasks RBAC |
 
 **Retired (2026-06-27):** `cowork`, `word-form-creator` removed from keep set and Guid cards — use `word-creator` / `ppt-creator` / `excel-creator` instead. Live prune list: `retired-agent-ids.json` (deployed automatically by `deploy-seed-agents.mjs`).
 
@@ -93,6 +95,8 @@ Expected essentials:
 - `excel-creator expected=[excel] actual=[excel]`
 - `research-agent expected=[exa] actual=[exa]` (Extended: `actual=[exa,scrapling]` when installed)
 - `wande-orchestrator expected=[] actual=[]`
+- `work-tasks-agent expected=[work-tasks-agent] actual=[work-tasks-agent]`
+- `supplier-directory-agent expected=[supplier-directory] actual=[supplier-directory]`
 
 UTF-8 smoke:
 

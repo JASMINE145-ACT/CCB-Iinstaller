@@ -1,0 +1,11 @@
+{"file": ".trellis/tasks/07-12-supplier-directory-vs-price-library/prd.md", "reason": "AC: three modes, Agent, whitelist, no price-library pollution"}
+{"file": ".trellis/tasks/07-12-supplier-directory-vs-price-library/execution-plan.md", "reason": "Contract Verification rows + serial gate order"}
+{"file": ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/domain-model.md", "reason": "Boundary checks vs price SKU supplier column"}
+{"file": ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/seed-contract.md", "reason": "Seed twice / edit-preserve checks"}
+{"file": ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/match-fixtures.md", "reason": "Fixture A/B/C/D must stay green"}
+{"file": ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/ui-form.md", "reason": "UI three-mode + Layer A sider entry"}
+{"file": ".trellis/spec/integration/price-library.md", "reason": "Do not substitute directory for SKU supplier; CSRF/confirmed template"}
+{"file": ".trellis/spec/integration/agent-team-architecture.md", "reason": "Delegation + Guid specialist rules for new agent"}
+{"file": ".trellis/spec/integration/mcp-health.md", "reason": "New MCP must register in health manifest"}
+{"file": ".trellis/spec/code-review-layer-a.md", "reason": "Sider/picker identity fields if UI entry added"}
+{"file": ".trellis/spec/frontend/layer-b-renderer-review.md", "reason": "Renderer smoke when aionui suppliers pages land"}

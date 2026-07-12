@@ -1,0 +1,12 @@
+{"file": ".trellis/tasks/07-12-supplier-directory-vs-price-library/prd.md", "reason": "Locked scope: A+B+whitelist+full 3-mode v1 + confirmed writes"}
+{"file": ".trellis/tasks/07-12-supplier-directory-vs-price-library/execution-plan.md", "reason": "Contracts, serial phases, verification gate"}
+{"file": ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/domain-model.md", "reason": "Directory ≠ price library ≠ Accurate"}
+{"file": ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/ui-form.md", "reason": "AionUI three-mode UX (browse/match/vehicle)"}
+{"file": ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/seed-contract.md", "reason": "Idempotent seed keys + upsert rules"}
+{"file": ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/storage.md", "reason": "Org SQLite tables SoT; reject md/Grep"}
+{"file": ".trellis/tasks/07-12-supplier-directory-vs-price-library/research/agent-write-path.md", "reason": "Dedicated supplier-directory-agent write path; reject quotation/md SoT"}
+{"file": ".trellis/spec/integration/price-library.md", "reason": "Mirror confirmed=false/true write + CSRF + admin gate pattern"}
+{"file": ".trellis/spec/integration/agent-team-architecture.md", "reason": "Orchestrator must Agent() delegate; no direct business MCP"}
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "Specialist SOP / mcp__ prefix / ROE"}
+{"file": ".trellis/spec/integration/work-routing-execution-contracts.md", "reason": "Routing contracts registry pattern for new SUPPLIER_DIR routes"}
+{"file": ".trellis/spec/frontend/file-map.md", "reason": "Sider org entries pattern (知识库/价格库 peers)"}

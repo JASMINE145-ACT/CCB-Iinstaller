@@ -107,12 +107,32 @@ if (Test-Path -LiteralPath $workTasksSrc) {
     Write-Host "[skip] missing work-tasks MCP source: $workTasksSrc" -ForegroundColor Yellow
 }
 
+$supplierDirMcpDst = Join-Path $vendor "mcp-servers\supplier-directory"
+$null = New-Item -ItemType Directory -Force -Path $supplierDirMcpDst
+$supplierDirSrc = Join-Path $RepoRoot "mcp_servers\supplier-directory-server"
+foreach ($name in @('index.mjs', 'preview.mjs')) {
+    $src = Join-Path $supplierDirSrc $name
+    if (Test-Path -LiteralPath $src) {
+        Copy-Item -LiteralPath $src -Destination (Join-Path $supplierDirMcpDst $name) -Force
+    } else {
+        Write-Host "[skip] missing supplier-directory MCP source: $src" -ForegroundColor Yellow
+    }
+}
+if (Test-Path -LiteralPath (Join-Path $supplierDirMcpDst 'index.mjs')) {
+    Write-Host "[copy] supplier-directory MCP -> $supplierDirMcpDst"
+}
+
 $priceLibNm = Join-Path $vendor "mcp-servers\price-library-server\node_modules"
 $quotNm = Join-Path $vendor "mcp-servers\quotation-server\node_modules"
 $workTasksNm = Join-Path $vendor "mcp-servers\work-tasks-agent\node_modules"
+$supplierDirNm = Join-Path $vendor "mcp-servers\supplier-directory\node_modules"
 if ((Test-Path -LiteralPath $quotNm) -and -not (Test-Path -LiteralPath $workTasksNm)) {
     Write-Host "[junction] work-tasks-agent node_modules -> quotation-server"
     New-Item -ItemType Junction -Path $workTasksNm -Target $quotNm -Force | Out-Null
+}
+if ((Test-Path -LiteralPath $quotNm) -and -not (Test-Path -LiteralPath $supplierDirNm)) {
+    Write-Host "[junction] supplier-directory node_modules -> quotation-server"
+    New-Item -ItemType Junction -Path $supplierDirNm -Target $quotNm -Force | Out-Null
 }
 if ((Test-Path -LiteralPath $quotNm) -and -not (Test-Path -LiteralPath $priceLibNm)) {
     Write-Host "[junction] price-library-server node_modules -> quotation-server"

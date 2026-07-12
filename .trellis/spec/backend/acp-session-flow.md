@@ -329,6 +329,8 @@ const models = shouldExposeMiniMaxM3Variants()
 
 **Image prompts (2026-06-29):** ACP advertises `promptCapabilities.image: true`, but Route-B previously used `promptToQueryInput()` (text-only) → MiniMax M3 never received pixels → agent replied「无法读取图片」. Fix: `promptToSubmitInput()` — no images → plain string; with `type: image` chunks → Anthropic blocks (base64 **or** http `uri` → url source). **Parity follow-up (same day):** `resource.text` + uri → `[@name](uri)` + `<context ref="uri">` (matches `acp-agent.js` `promptToClaude`). `agent.prompt()` calls `submitMessage(promptToSubmitInput(...))`. Overlay: `ccb-installer/src/services/acp/promptConversion.ts`; deploy via `sync-claude-code-b-mcp-prefetch.ps1 -Build -Deploy`. Quotation L1: `quotation-agent.md` §图片/截图询价.
 
+**AionCore attachment → image blocks (2026-07-12, `WANd.VISION.DESKTOP.001`):** Desktop/WeCom attach PNGs as path strings in `SendMessageData.files`. `prompt_existing_session` previously sent only `ContentBlock::from(content)` (text) → Route-B never saw `type:image`. Fix: `aionui-ai-agent` `prompt_attachments::build_acp_prompt_blocks` inlines png/jpeg/gif/webp as `ContentBlock::Image` (base64, `REMOTE_IMAGE_MAX_SIZE` pre-stat). Deploy AionCore; Guid smoke 截图识图. Research: `.trellis/tasks/07-12-yolo-mode-alias-vision-regression/research/desktop-vision-message-path-2026-07-12.md`.
+
 ### Capability parity audit (2026-06-29)
 
 Pattern: **advertise capability → inbound conversion must preserve payload**. Audit after image fix:

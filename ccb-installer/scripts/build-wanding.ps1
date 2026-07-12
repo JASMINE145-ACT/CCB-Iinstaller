@@ -620,6 +620,36 @@ $accurateSrc = Join-Path $installerRoot 'vendor\mcp-servers\accurate-mcp\server.
 Test-RequiredFile $accurateSrc 'accurate-mcp server.py'
 Copy-Item -LiteralPath $accurateSrc -Destination (Join-Path $mcpDest 'accurate-mcp\server.py') -Force
 
+# supplier-directory MCP (Node stdio; SoT = mcp_servers/supplier-directory-server)
+$supplierDirSrcDir = Join-Path $repoRoot 'mcp_servers\supplier-directory-server'
+Test-RequiredFile (Join-Path $supplierDirSrcDir 'index.mjs') 'supplier-directory-server index.mjs'
+Test-RequiredFile (Join-Path $supplierDirSrcDir 'preview.mjs') 'supplier-directory-server preview.mjs'
+$supplierDirDest = Join-Path $mcpDest 'supplier-directory'
+New-Item -ItemType Directory -Force -Path $supplierDirDest | Out-Null
+Copy-Item -LiteralPath (Join-Path $supplierDirSrcDir 'index.mjs') -Destination (Join-Path $supplierDirDest 'index.mjs') -Force
+Copy-Item -LiteralPath (Join-Path $supplierDirSrcDir 'preview.mjs') -Destination (Join-Path $supplierDirDest 'preview.mjs') -Force
+$quotNmDest = Join-Path $mcpDest 'quotation-server\node_modules'
+$supplierDirNmDest = Join-Path $supplierDirDest 'node_modules'
+if ((Test-Path -LiteralPath $quotNmDest) -and -not (Test-Path -LiteralPath $supplierDirNmDest)) {
+    Write-Host '  supplier-directory: junction node_modules -> quotation-server' -ForegroundColor DarkGray
+    New-Item -ItemType Junction -Path $supplierDirNmDest -Target $quotNmDest -Force | Out-Null
+}
+
+# work-tasks-agent MCP (Node stdio; SoT = mcp_servers/work-tasks-query-server)
+$workTasksSrc = Join-Path $repoRoot 'mcp_servers\work-tasks-query-server\index.mjs'
+if (Test-Path -LiteralPath $workTasksSrc) {
+    $workTasksDest = Join-Path $mcpDest 'work-tasks-agent'
+    New-Item -ItemType Directory -Force -Path $workTasksDest | Out-Null
+    Copy-Item -LiteralPath $workTasksSrc -Destination (Join-Path $workTasksDest 'index.mjs') -Force
+    $workTasksNmDest = Join-Path $workTasksDest 'node_modules'
+    if ((Test-Path -LiteralPath $quotNmDest) -and -not (Test-Path -LiteralPath $workTasksNmDest)) {
+        Write-Host '  work-tasks-agent: junction node_modules -> quotation-server' -ForegroundColor DarkGray
+        New-Item -ItemType Junction -Path $workTasksNmDest -Target $quotNmDest -Force | Out-Null
+    }
+} else {
+    Write-Warning "work-tasks MCP source missing: $workTasksSrc"
+}
+
 # Wanding python (filtered)
 $pyDest = Join-Path $vendorDest 'wanding\python'
 $pySrc = Join-Path $repoRoot 'python'

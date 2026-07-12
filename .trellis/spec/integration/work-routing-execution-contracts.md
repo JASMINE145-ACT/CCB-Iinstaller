@@ -63,6 +63,9 @@ Use this doc when you need to know whether a change belongs to **who does the wo
 | Rudder (reference) | WanD contract id | WanD implementation |
 |--------------------|------------------|---------------------|
 | `ROUTING.ASSIGNMENT.001` | `WANd.ROUTING.ASSIGNMENT.001` | Orchestrator intent → `Agent(subagent_type)`; guard blocks top-level business MCP |
+| _(knowledge vocab)_ | `WANd.ROUTING.KB_ORG.001` | 「知识库」= 业务知识库 → quotation `append_business_rule` |
+| _(knowledge vocab)_ | `WANd.ROUTING.KB_PRICE.001` | 「价格库」→ `price-library-agent`（delegatable） |
+| _(knowledge vocab)_ | `WANd.ROUTING.KB_DISAMBIG.001` | 混信号才澄清「业务知识库 vs 价格库」 |
 | `ROUTING.REVIEWER.001` | `WANd.ROUTING.REVIEWER.001` | Specialist `Stop:` → `:roe-judge` via `subagent-gate.sh` |
 | `RUN.EXECUTION.001` | `WANd.RUN.EXECUTION.001` | `runAgent.ts` sync spawn + verbatim same-turn forward |
 | `RUN.ADMISSION.001` | `WANd.RUN.ADMISSION.001` | `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` + `sanitizeOrchestratorAgentInput` + sync-wait playbooks |
@@ -99,6 +102,8 @@ Answer in order. First match wins.
 | Change | Domain | Contract |
 |--------|--------|----------|
 | Block `mcp__price-library__` on orchestrator top-level | Routing | `WANd.ROUTING.ASSIGNMENT.001` |
+| 「知识库更新」误走价库 upsert | Routing | `WANd.ROUTING.KB_ORG.001` + `KB_PRICE.001` |
+| 「知识库」+ 物料编码混信号 | Routing | `WANd.ROUTING.KB_DISAMBIG.001` |
 | Reorder `mergeEmployeeProfile` in `runAgent.ts` | Execution | `WANd.RUN.EXECUTION.001` |
 | Tune `:roe-judge` block message on Stop | Routing | `WANd.ROUTING.REVIEWER.001` |
 | Edit `wande-orchestrator.md`「报价委派 quotation-agent」 | Routing | L1 + `WANd.ROUTING.ASSIGNMENT.001` |

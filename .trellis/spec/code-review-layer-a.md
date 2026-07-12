@@ -20,6 +20,7 @@ Layer B asks: *Will the module load without crashing the route?*
 | **Persist** path added or changed | `configService.set`, prefs API, channel sync, DB row |
 | **Read** path consumes persisted identity | Route handler reads `custom_agent_id`, `assistant.id`, foreign key |
 | Refactor that **moves** data loading | extract hook, split component, new API wrapper |
+| New **cross-repo / cross-runtime capability** | Agent + MCP + Org API + desktop UI; registry without live deploy |
 
 ---
 
@@ -122,19 +123,47 @@ Require **at least one** evidence of contract wiring:
 
 ---
 
+### A6 — Consumer-plane completeness (消费平面完备)
+
+Some features are **not** delivered when a single file lands in git. They are **multi-plane capabilities**: the same intent must reach every **mandatory consumer plane** that actually selects, routes, or executes the behavior.
+
+| Plane (abstract) | Role |
+|------------------|------|
+| **Authoring** | Where engineers edit truth (crate, agent md, MCP source, migration) |
+| **Registration** | Where runtimes *discover* truth (package manifest, registry snapshot, health manifest) |
+| **Install / sync** | What copies truth into the user or server runtime (build, deploy script, route-b sync, seed) |
+| **Session / UI consumer** | What the user or session *reads* at click time (Guid live config, orchestrator delegate list, sider route, live dist) |
+
+**Core rule:** *Source written ≠ consumer reached.*  
+“Entity created in repo” must **not** be treated as “feature delivered” unless the diff or linked plan traces handoff to each **required** consumer plane.
+
+| Verdict | Condition |
+|---------|-----------|
+| **PASS** | Each mandatory plane for this feature is either updated in the diff **or** explicitly gated in plan/DoD with a named command + evidence (not “ops later”) |
+| **FAIL** | Only authoring (+ maybe registration) touched; a user-visible or session consumer plane is **implied** but has no sync step and no verification hook |
+| **FAIL** | Review would PASS on “agent/MCP/API exists” without naming **which plane** makes it selectable or callable |
+
+**Review question:** *Who consumes this artifact at runtime—and did this change reach that consumer, or only the git tree?*
+
+**Anti-pattern (abstract):** Collapsing a cross-boundary feature into one artifact (one md, one crate, one registry row) and inferring end-to-end delivery.
+
+**Incident class:** Specialist agent visible in packages but absent from Guid until live agent config is synced (authoring ≠ session consumer).
+
+---
+
 ## Reviewer workflow (code-reviewer / trellis-check)
 
-1. Classify change: does it touch a **picker**, **settings persist**, or **routing identity**? → Layer A mandatory.  
-2. Run A1–A5 as checklist; cite **file:line** for canonical path vs new path.  
+1. Classify change: does it touch a **picker**, **settings persist**, **routing identity**, or a **multi-plane capability** (agent/MCP/API spanning repos)? → Layer A mandatory.  
+2. Run A1–A6 as checklist; cite **file:line** for canonical path vs new path.  
 3. If renderer under `aionui-src/.../renderer/**` also changed → run Layer B ([`layer-b-renderer-review.md`](./frontend/layer-b-renderer-review.md)).  
-4. Verdict must state **Layer A: PASS/FAIL** with rule ids (e.g. `A3 FAIL — identity not persisted`).  
+4. Verdict must state **Layer A: PASS/FAIL** with rule ids (e.g. `A3 FAIL — identity not persisted`, `A6 FAIL — Guid consumer plane not synced`).  
 
 ---
 
 ## code-reviewer Custom Instructions (copy-paste)
 
 ```text
-Layer A mandatory when the diff adds/changes a picker, settings binding, or persist shape for an entity also selected elsewhere in the app.
+Layer A mandatory when the diff adds/changes a picker, settings binding, persist shape for an entity also selected elsewhere, or a capability that spans repos/runtimes (agent + MCP + Org API + desktop).
 
 Read: .trellis/spec/code-review-layer-a.md
 
@@ -144,12 +173,13 @@ Checklist (fail closed on any FAIL):
 - A3 Identity vs capability: if downstream routes on profile/id fields, picker must persist identity—not only runtime/backend slug.
 - A4 Persist-read symmetry: trace UI save → storage/sync → backend read; every consumer field must be written or have documented default.
 - A5 Evidence: require mapper/restore unit test or cited backend test—"dropdown renders" alone is insufficient.
+- A6 Consumer-plane completeness: name each mandatory consumer plane (authoring / registration / install-sync / session-UI); do not PASS on "file exists in repo" if session or live runtime consumer is untraced.
 
 Verdict format:
-  Layer A: PASS | FAIL (A1–A5: note failing rules)
+  Layer A: PASS | FAIL (A1–A6: note failing rules)
   Layer B: PASS | N/A | FAIL (renderer only — layer-b-renderer-review.md)
 
-Do not PASS Layer A on logic-only review when A3/A4 identity chain was not traced.
+Do not PASS Layer A on logic-only review when A3/A4 identity chain was not traced, or when A6 applies and only the authoring plane was updated.
 ```
 
 ---
@@ -159,5 +189,9 @@ Do not PASS Layer A on logic-only review when A3/A4 identity chain was not trace
 **Symptom:** Feature “works” in UI but wrong runtime behavior in production.  
 **Root cause class:** Multi-surface drift — canonical catalog wired on workflow A, capability-only list on workflow B.  
 **Prevention:** A1 + A2 + A3 on every new settings/channel picker; shared helper + mapper tests (A5).
+
+**Symptom:** Code merged, tests green, user cannot select or invoke the feature.  
+**Root cause class:** **Authoring-plane-only delivery** — artifact exists in repo/registry but mandatory **session or live-runtime consumer** was never synced.  
+**Prevention:** A6 on every cross-repo capability; execution plan must list consumer planes + deploy evidence, not imply completion from “agent created”.
 
 Concrete instance: task `07-05-wecom-channel-integration` — Channels agent picker used `getAgents()` only; Guid used `fetchAssistantsCatalog` + `getAgents`. Fixed via shared `channelAgentOptions.ts`.

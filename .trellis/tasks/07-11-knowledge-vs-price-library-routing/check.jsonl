@@ -1,0 +1,5 @@
+{"check":"manual-smoke","case":"kb-org-append","prompt":"更新知识库","result":"PASS","evidence":"Agent(quotation-agent) then ask_clarification A-D rule types; no price-library upsert","date":"2026-07-12","by":"user"}
+{"check":"manual-smoke","case":"kb-price-upsert","status":"pending-user"}
+{"check":"manual-smoke","case":"kb-mixed-clarify","status":"pending-user"}
+{"check":"unit","command":"bun test packageRegistry.test.ts","result":"8/8 PASS"}
+{"check":"code-reviewer","result":"PASS x2","layerA":"PASS","layerB":"N/A"}

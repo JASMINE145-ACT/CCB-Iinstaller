@@ -62,9 +62,26 @@ WeCom extension only delivers messages into the **generic agent routing layer**.
 |----------|-------------|
 | DM first message | Pairing flow |
 | Group @bot (unauthorized user) | Pairing / auth guidance only |
-| Group @bot (paired user) | Route to bound Agent |
+| Group @bot (paired user) | Route to bound Agent (**Mode A** — per user session) |
 | Group message without @bot | **Ignored** |
-| Group-as-shared-session | Defer |
+| Group-as-shared-session (**Mode B**) | **Out of scope** this task |
+
+### Mode A — per-person group sessions (2026-07-12)
+
+**Decision:** Agent memory is keyed by `(paired WeCom userId, group chatid)`. Replies remain **group-visible** (isolation ≠ private reply).
+
+| Contract | Behavior |
+|----------|----------|
+| `WANd.WECOM.SESSION.PER_USER.001` | Two group members → two channel sessions / ACP bindings |
+| `WANd.WECOM.REPLY.CTX.USER.001` | Concurrent @ cannot overwrite SDK reply frames (key by inbound `streamId`) |
+| `WANd.WECOM.REPLY.CTX.OUT.001` | Outbound send/edit correlates via `options.streamId` |
+| `WANd.WECOM.SLASH.NEW.SCOPE.001` | `/new` resets only issuer `(user, chat)` |
+| `WANd.WECOM.PRIVACY.GROUP.VIS.001` | Mode A isolates memory, not visibility |
+| `WANd.WECOM.PAIR.PER_USER.001` | Pairing per platform user id |
+
+**Manual blockers:** M-G1 (dual overlapping @), M-G2 (A `/new` leaves B intact). **M-G3** (unauthorized C) optional / non-blocking.
+
+Research: [`research/wecom-group-per-user-session-2026-07-12.md`](./research/wecom-group-per-user-session-2026-07-12.md)
 
 ### Identity namespacing
 
@@ -72,6 +89,8 @@ WeCom extension only delivers messages into the **generic agent routing layer**.
 conversation_id = {pluginId}:{botId}:{chatId}
 user_id         = {pluginId}:{botId}:{wecomUserId}
 platform_type   = extension id (not builtin wecom)
+session key     = (user_id, chat_id)   # Mode A — not chat_id alone
+reply context   = streamId             # not chat_id
 ```
 
 ## Acceptance criteria
@@ -108,8 +127,9 @@ Contracts: `WANd.WECOM.MEDIA.OUT.001` / `OUT.SECURITY.001` / `OUT.CTX.001` / `OU
 - [x] Validation/upload failure → `[文件发送失败]` text; stream still finishes
 - [x] `examples-wecom-dev` and `examples/ext-wecom-aibot` stay in sync
 - [x] Unit: `cargo test -p aionui-channel outgoing_to_json`; `vitest …/ext-wecom-aibot-outbound-media.test.ts`
+- [x] Inbound image/file — **implemented (P1)** — download + attachments + agent `files[]`
 - [ ] Manual **M2**: quotation Excel appears as WeCom **file** bubble (not text-only)
-- [ ] Inbound image/file — **out of P0** (see execution-plan rev 7 deferred)
+- [ ] Manual **M3**: send Excel in WeCom → agent parses (not placeholder-only)
 
 ### P2 — Compat security (production label gate)
 

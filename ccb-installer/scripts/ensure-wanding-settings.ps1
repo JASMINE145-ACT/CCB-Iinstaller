@@ -37,6 +37,7 @@ $officeWordSitePackages = Join-Path $InstallDir "vendor\mcp-servers\office-word-
 $excelFileServer = Join-Path $InstallDir "vendor\mcp-servers\excel-mcp-server\server.py"
 $excelFileSitePackages = Join-Path $InstallDir "vendor\mcp-servers\excel-mcp-server\site-packages"
 $workTasksAgentServer = Join-Path $InstallDir "vendor\mcp-servers\work-tasks-agent\index.mjs"
+$supplierDirectoryServer = Join-Path $InstallDir "vendor\mcp-servers\supplier-directory\index.mjs"
 $wandingRoot = Join-Path $InstallDir "vendor\wanding"
 $wandingDataDir = Join-Path $wandingRoot "data"
 $wandingPythonDir = Join-Path $wandingRoot "python"
@@ -649,6 +650,17 @@ $workTasksAgent = [pscustomobject]@{
     description = "Work tasks agent MCP: create/edit tasks; manager query via Org VPS JWT (role-gated)."
 }
 
+$supplierDirectory = [pscustomobject]@{
+    command     = "node"
+    args        = @($supplierDirectoryServer)
+    env         = [pscustomobject]@{
+        ORG_SERVER_URL           = $orgServerUrl
+        AIONUI_APPDATA_PROFILE   = $orgAppDataProfile
+        ORG_SESSION_TOKEN_FILE   = $orgSessionTokenFile
+    }
+    description = "Supplier directory MCP: list/match factories and logistics vehicles (Org JWT)."
+}
+
 Set-JsonProperty -Object $settings.mcpServers -Name "exa" -Value $exa
 Set-JsonProperty -Object $settings.mcpServers -Name "tavily" -Value $tavily
 Set-JsonProperty -Object $settings.mcpServers -Name "excel-mcp" -Value $excel
@@ -658,6 +670,7 @@ Set-JsonProperty -Object $settings.mcpServers -Name "accurate" -Value $accurate
 Set-JsonProperty -Object $settings.mcpServers -Name "office-word" -Value $officeWord
 Set-JsonProperty -Object $settings.mcpServers -Name "excel" -Value $excelFile
 Set-JsonProperty -Object $settings.mcpServers -Name "work-tasks-agent" -Value $workTasksAgent
+Set-JsonProperty -Object $settings.mcpServers -Name "supplier-directory" -Value $supplierDirectory
 
 # Python main.py loads vendor/wanding/.env.accurate (override=True) when MCP env omits AOL_*.
 if ($aolAccessToken -and $aolDatabaseId -and $aolSignatureSecret) {
@@ -708,6 +721,7 @@ else {
             "office-word" = $officeWord
             excel = $excelFile
             "work-tasks-agent" = $workTasksAgent
+            "supplier-directory" = $supplierDirectory
         }
     }
 }

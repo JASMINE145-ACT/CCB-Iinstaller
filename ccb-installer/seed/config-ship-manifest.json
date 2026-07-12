@@ -1,6 +1,6 @@
 {
-  "config_generation": 6,
-  "description": "Org-primary historical quotation mapping (learn-by-data Section D) + drat matcher — refresh agents, skills, commands on install/upgrade",
+  "config_generation": 7,
+  "description": "Supplier-directory MCP + agent seeds + WeCom docs fleet-hide — refresh agents, skills, MCP on install/upgrade",
   "reset_targets": [
     "agents",
     "aionui_runtime"

@@ -256,3 +256,19 @@ Manager agent lists assignable employees via `work_tasks_list_assignees` (Org `/
 
 [OK] **Completed — user smoke PASS**
 
+## 2026-07-12 — Supplier directory vs price library (explore)
+
+**Task**: `07-12-supplier-directory-vs-price-library` (Scenario E brainstorm)  
+Prior `list_assignees` task already archived; confirmed closed before explore.
+
+User supplied WanDing `index.html` supplier directory (27 factories). Domain split documented in `research/domain-model.md`.
+
+## 2026-07-12 — Supplier directory contract pack (pre-approve)
+
+Absorbed system-review: `research/seed-contract.md`, `research/match-fixtures.md` (土工布→HAKUNA+三信), confirmed write mirror price-library, implement/check jsonl filled, `task.json` priority **P0**, plan serial phases 1→5.
+
+## 2026-07-12 — Plan approved / task ready
+
+User confirmed: Org **structured tables** SoT (not md+Grep); dedicated `supplier-directory-agent`.  
+`execution-plan.md` Status=**approved**; `research/storage.md` added. Await「执行」for Phase 1 code.
+

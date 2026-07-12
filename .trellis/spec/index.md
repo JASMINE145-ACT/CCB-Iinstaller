@@ -28,17 +28,17 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 
 ---
 
-## Doc maturity (honest snapshot, 2026-06-26)
+## Doc maturity (honest snapshot, 2026-07-12)
 
 | Area | Rating | Good for | Gaps |
 |------|--------|----------|------|
-| **Integration** | **9/10** | route-b sync, boundary rules, ship/update runbooks, org SSO, dev sync | Some version examples still cite 1.0.x — refresh when shipping 1.1.3 |
-| **Backend (ACP / Route B)** | **9/10** | file-map, acp-session-flow, smoke, deploy, source-level MCP, assistant profiles | `route-b-status.md` snapshot date lags — refresh after dist changes |
+| **Integration** | **8.0/10** | route-b sync, boundary rules, dev vendor sync, org SSO, refreshed Step 1 evidence | Release/CI and cold-ship proof are still Step 5 risks |
+| **Backend (ACP / Route B)** | **8/10** | file-map, acp-session-flow, route-b-status, source-level MCP, assistant profiles, AUQ disabled contract | P0/P1 Step 2 findings closed; live dist proof, upstream-only modules, and CI gate remain below product-ready |
 | **Frontend (core)** | **8.5/10** | file-map, chat-acp-flow, coding-rules, dev-test-ship | `aionui-update-mechanism.md` / `ccb-model-settings-ui.md` not listed below — see `frontend/index.md` |
 | **outline.md** | **8/10** | Architecture + Primary strategy (Rule 0) | Not a structured handbook — use layer indexes for tasks |
 | **Runtime verification** | **7.5/10** | `test-native-acp-agent.mjs` documented; MCP/skills/command authority verified | Phase 4 cold build + install smoke vs 1.1.2 oracle pending |
 
-**Verdict:** **OK to ship as a handbook** for Route B + layer routing + CCB authority config. Refresh [`backend/route-b-status.md`](./backend/route-b-status.md) when live behavior changes.
+**Verdict:** **OK as an internal engineering handbook** for Route B + layer routing + CCB authority config. Not yet a product-release proof: Step 5 Ship/Ops still owns cold build, live dist, CI, installer/update, and rollback evidence. Refresh [`backend/route-b-status.md`](./backend/route-b-status.md) when live behavior changes.
 
 **Active work (2026-06-26):** [`06-26-aionui-source-level-recovery`](../tasks/06-26-aionui-source-level-recovery/status.md) — Phase 4 full cold build + install smoke (ship `1.1.3-dev`). Recovery guide: [`guides/mixing-meta-repo.md`](./guides/mixing-meta-repo.md).
 
@@ -120,7 +120,7 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 | Doc | Role |
 |-----|------|
 | [`../tasks/06-30-task-system-governance/prd.md`](../tasks/06-30-task-system-governance/prd.md) | **P1 in progress** — task hygiene: `report` / DASHBOARD / GOVERNANCE |
-| [`../tasks/06-30-full-system-review/prd.md`](../tasks/06-30-full-system-review/prd.md) | **P1 in progress** — system review；Phase 1 doc ✅；Phase 2 vendor sync ✅ [`delivery-phase-02-integration-vendor.md`](../tasks/06-30-full-system-review/delivery-phase-02-integration-vendor.md)；Phase 2 优化复审 7.5/10 [`phase-02-vendor-sync-optimization-review.md`](../tasks/06-30-full-system-review/reviews/phase-02-vendor-sync-optimization-review.md) |
+| [`../tasks/06-30-full-system-review/prd.md`](../tasks/06-30-full-system-review/prd.md) | **P1 in progress** — system review；Step 1 Integration 复审 8.0/10；Step 2 Backend 复审 8/10 [`step-02-backend-rereview-2026-07-12.md`](../tasks/06-30-full-system-review/reviews/step-02-backend-rereview-2026-07-12.md)；Phase 2 vendor sync ✅ [`delivery-phase-02-integration-vendor.md`](../tasks/06-30-full-system-review/delivery-phase-02-integration-vendor.md) |
 | [`../tasks/07-02-org-knowledge-dev-token-alignment/prd.md`](../tasks/07-02-org-knowledge-dev-token-alignment/prd.md) | **P1 in progress** — profile-strict `org_session.py` + MCP `AIONUI_APPDATA_PROFILE`; fix `append_business_rule` 401；spec [`integration/org-knowledge.md`](./integration/org-knowledge.md) § MCP `org_session` |
 | [`../tasks/07-01-aionui-full-auto-permission-sync/prd.md`](../tasks/07-01-aionui-full-auto-permission-sync/prd.md) | **P0 in progress** — 全自动 bypassPermissions 端到端同步；spec [`frontend/chat-acp-flow.md`](./frontend/chat-acp-flow.md) §3.5 · [`backend/acp-session-flow.md`](./backend/acp-session-flow.md) 2026-07-01 |
 | [`../tasks/06-28-app-startup-readiness-gate/prd.md`](../tasks/06-28-app-startup-readiness-gate/prd.md) | **P1 in progress** — app startup readiness gate; spec [`integration/mcp-health.md`](./integration/mcp-health.md) § App startup readiness gate |

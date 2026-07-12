@@ -4,7 +4,7 @@
   "display_name": "价格库管理",
   "avatar": "🏷️",
   "guid_primary": true,
-  "delegatable": false,
+  "delegatable": true,
   "requires_price_admin": true,
   "enabled": true,
   "sort_order": 90,

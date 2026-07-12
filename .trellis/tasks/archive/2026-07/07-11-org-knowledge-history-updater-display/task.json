@@ -1,0 +1,37 @@
+{
+  "id": "org-knowledge-history-updater-display",
+  "name": "07-11-org-knowledge-history-updater-display",
+  "title": "Org Knowledge history — show updater username",
+  "description": "Fix /org-knowledge history list showing raw user_* id instead of login username. Backend PublicUser join + UI display helper + listMembers fallback.",
+  "status": "completed",
+  "dev_type": "bugfix",
+  "scope": "AionCore org-knowledge API + aionui OrgKnowledgePage",
+  "package": "integration",
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-11",
+  "completedAt": "2026-07-11",
+  "relatedFiles": [
+    ".trellis/spec/integration/org-knowledge.md",
+    "AionCore/crates/aionui-api-types/src/org_knowledge.rs",
+    "AionCore/crates/aionui-org-knowledge/src/service.rs",
+    "AionCore/crates/aionui-app/src/router/state.rs",
+    "aionui-src/packages/desktop/src/common/types/orgKnowledge/orgKnowledgeDisplay.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/orgKnowledge/useOrgKnowledge.ts",
+    "aionui-src/packages/desktop/src/renderer/pages/orgKnowledge/OrgKnowledgePage/index.tsx"
+  ],
+  "notes": "2026-07-11 CLOSED. Plan A API updated_by + UI listMembers fallback. User smoke: 第11版 更新人:admin PASS. Evidence: done.md. VPS AionCore deploy deferred (frontend covers).",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "Cross-repo",
+    "scenario": "C",
+    "closed_reason": "user confirmed smoke OK",
+    "related_tasks": [
+      "06-28-org-knowledge-agent-write-path"
+    ],
+    "deferred": [
+      "VPS aioncore deploy for API-only path"
+    ]
+  }
+}

@@ -19,6 +19,43 @@ export type EmployeeProfile = {
   updatedAt?: string
 }
 
+type EmployeeOrgContext = {
+  userId?: string
+  username?: string
+  displayName?: string
+  department?: string
+  managerUserId?: string
+  managerUsername?: string
+  jobTitle?: string
+  workTaskRole?: string
+  employmentStatus?: string
+  dataScopeMax?: string
+}
+
+type EmployeeClientProfile = {
+  addressName?: string
+  email?: string
+  phone?: string
+  notes?: string
+  updatedAt?: string
+}
+
+type EmployeeProfileHandoff = {
+  org?: EmployeeOrgContext | null
+  client?: EmployeeClientProfile | null
+  cleared_at?: string
+  // legacy flat v1 fields
+  displayName?: string
+  addressName?: string
+  department?: string
+  jobTitle?: string
+  employeeId?: string
+  email?: string
+  phone?: string
+  notes?: string
+  updatedAt?: string
+}
+
 const MAX_NOTES_LENGTH = 500
 const MAX_ADDRESS_NAME_LENGTH = 20
 
@@ -90,6 +127,107 @@ export function normalizeEmployeeProfile(
   return isEmployeeProfileEmpty(profile) ? null : profile
 }
 
+function normalizeOrgContext(raw: unknown): EmployeeOrgContext | null {
+  if (!raw || typeof raw !== 'object') return null
+  const input = raw as Record<string, unknown>
+  const username = trimField(input.username)
+  const displayName = trimField(input.displayName ?? input.display_name)
+  if (!username && !displayName) return null
+
+  return {
+    ...(trimField(input.userId ?? input.user_id)
+      ? { userId: trimField(input.userId ?? input.user_id) }
+      : {}),
+    ...(username ? { username } : {}),
+    ...(displayName ? { displayName } : username ? { displayName: username } : {}),
+    ...(trimField(input.department)
+      ? { department: trimField(input.department) }
+      : {}),
+    ...(trimField(input.managerUserId ?? input.manager_user_id)
+      ? {
+          managerUserId: trimField(input.managerUserId ?? input.manager_user_id),
+        }
+      : {}),
+    ...(trimField(input.managerUsername ?? input.manager_username)
+      ? {
+          managerUsername: trimField(
+            input.managerUsername ?? input.manager_username,
+          ),
+        }
+      : {}),
+    ...(trimField(input.jobTitle ?? input.job_title)
+      ? { jobTitle: trimField(input.jobTitle ?? input.job_title) }
+      : {}),
+    ...(trimField(input.workTaskRole ?? input.work_task_role)
+      ? {
+          workTaskRole: trimField(input.workTaskRole ?? input.work_task_role),
+        }
+      : {}),
+    ...(trimField(input.employmentStatus ?? input.employment_status)
+      ? {
+          employmentStatus: trimField(
+            input.employmentStatus ?? input.employment_status,
+          ),
+        }
+      : {}),
+    ...(trimField(input.dataScopeMax ?? input.data_scope_max)
+      ? { dataScopeMax: trimField(input.dataScopeMax ?? input.data_scope_max) }
+      : {}),
+  }
+}
+
+function normalizeClientProfile(raw: unknown): EmployeeClientProfile | null {
+  if (!raw || typeof raw !== 'object') return null
+  const input = raw as EmployeeClientProfile
+  const profile: EmployeeClientProfile = {
+    ...(trimField(input.addressName)
+      ? {
+          addressName: trimField(input.addressName)!.slice(
+            0,
+            MAX_ADDRESS_NAME_LENGTH,
+          ),
+        }
+      : {}),
+    ...(trimField(input.email) ? { email: trimField(input.email) } : {}),
+    ...(trimField(input.phone) ? { phone: trimField(input.phone) } : {}),
+    ...(trimField(input.notes)
+      ? { notes: trimField(input.notes)!.slice(0, MAX_NOTES_LENGTH) }
+      : {}),
+    ...(trimField(input.updatedAt)
+      ? { updatedAt: trimField(input.updatedAt) }
+      : {}),
+  }
+  return Object.keys(profile).length === 0 ? null : profile
+}
+
+/** Org authority wins over legacy flat client fields for org-owned keys. */
+export function resolveEffectiveEmployeeProfile(
+  handoff: EmployeeProfileHandoff | null | undefined,
+): EmployeeProfile | null {
+  if (!handoff || typeof handoff !== 'object') return null
+  if ('cleared_at' in handoff && handoff.cleared_at) return null
+
+  const org = normalizeOrgContext(handoff.org)
+  const client = normalizeClientProfile(handoff.client)
+
+  if (org || client) {
+    const merged: EmployeeProfile = {
+      ...(org?.displayName ? { displayName: org.displayName } : {}),
+      ...(client?.addressName ? { addressName: client.addressName } : {}),
+      ...(org?.department ? { department: org.department } : {}),
+      ...(org?.jobTitle ? { jobTitle: org.jobTitle } : {}),
+      ...(org?.username ? { employeeId: org.username } : {}),
+      ...(client?.email ? { email: client.email } : {}),
+      ...(client?.phone ? { phone: client.phone } : {}),
+      ...(client?.notes ? { notes: client.notes } : {}),
+      updatedAt: client?.updatedAt ?? new Date().toISOString(),
+    }
+    return normalizeEmployeeProfile(merged)
+  }
+
+  return normalizeEmployeeProfile(handoff as EmployeeProfile)
+}
+
 export function isEmployeeProfileEmpty(
   profile: EmployeeProfile | null | undefined,
 ): boolean {
@@ -108,6 +246,7 @@ export function isEmployeeProfileEmpty(
 
 export function formatEmployeeProfileClaudeMd(
   profile: EmployeeProfile | null | undefined,
+  org?: EmployeeOrgContext | null,
 ): string | undefined {
   const normalized = normalizeEmployeeProfile(profile)
   if (!normalized) return undefined
@@ -115,6 +254,13 @@ export function formatEmployeeProfileClaudeMd(
   const addressName = derivePreferredAddressName(normalized)
 
   const lines = [EMPLOYEE_PROFILE_CLAUDE_MD_MARKER, '']
+
+  if (org) {
+    lines.push(
+      '- 组织身份信息以公司账号为准（服务器同步）；个人补充说明见下方登记信息。',
+      '',
+    )
+  }
 
   if (addressName) {
     lines.push('## 对话称呼 / Addressing the user', '')
@@ -140,6 +286,10 @@ export function formatEmployeeProfileClaudeMd(
     lines.push(`- **职位 / Title:** ${normalized.jobTitle}`)
   if (normalized.employeeId)
     lines.push(`- **工号 / Employee ID:** ${normalized.employeeId}`)
+  if (org?.managerUsername)
+    lines.push(`- **直属上级 / Manager:** ${org.managerUsername}`)
+  if (org?.employmentStatus)
+    lines.push(`- **在职状态 / Status:** ${org.employmentStatus}`)
   if (normalized.email) lines.push(`- **邮箱 / Email:** ${normalized.email}`)
   if (normalized.phone) lines.push(`- **电话 / Phone:** ${normalized.phone}`)
   if (normalized.notes) lines.push(`- **补充 / Notes:** ${normalized.notes}`)
@@ -147,19 +297,33 @@ export function formatEmployeeProfileClaudeMd(
   return lines.join('\n')
 }
 
-export function readEmployeeProfile(
+function readEmployeeProfileHandoff(
   configDir = getClaudeConfigHomeDir(),
-): EmployeeProfile | null {
+): EmployeeProfileHandoff | null {
   const filePath = join(configDir, CCB_EMPLOYEE_PROFILE_FILE)
   if (!existsSync(filePath)) return null
   try {
-    const raw = JSON.parse(
+    return JSON.parse(
       readFileSync(filePath, 'utf8').replace(/^\uFEFF/, ''),
-    ) as EmployeeProfile
-    return normalizeEmployeeProfile(raw)
+    ) as EmployeeProfileHandoff
   } catch {
     return null
   }
+}
+
+export function readEmployeeProfile(
+  configDir = getClaudeConfigHomeDir(),
+): EmployeeProfile | null {
+  const handoff = readEmployeeProfileHandoff(configDir)
+  return resolveEffectiveEmployeeProfile(handoff)
+}
+
+export function readEmployeeProfileOrgContext(
+  configDir = getClaudeConfigHomeDir(),
+): EmployeeOrgContext | null {
+  const handoff = readEmployeeProfileHandoff(configDir)
+  if (!handoff?.org) return null
+  return normalizeOrgContext(handoff.org)
 }
 
 export function userContextHasEmployeeProfile(
@@ -172,9 +336,10 @@ export function appendEmployeeProfileToUserContext(
   base: { [k: string]: string } | undefined,
   configDir = getClaudeConfigHomeDir(),
 ): { [k: string]: string } | undefined {
-  const employeeBlock = formatEmployeeProfileClaudeMd(
-    readEmployeeProfile(configDir),
-  )
+  const handoff = readEmployeeProfileHandoff(configDir)
+  const profile = resolveEffectiveEmployeeProfile(handoff)
+  const org = handoff?.org ? normalizeOrgContext(handoff.org) : null
+  const employeeBlock = formatEmployeeProfileClaudeMd(profile, org)
   if (!employeeBlock) return base
   if (!base) return { claudeMd: employeeBlock }
   const mergedClaudeMd = base.claudeMd

@@ -44,3 +44,8 @@
 {"ts":"2026-07-10T11:42:00+08:00","file":"AionCore/crates/aionui-channel/src/manager.rs","reason":"P1d: plugin_status_errors + sanitize_plugin_status_error"}
 {"ts":"2026-07-10T11:42:00+08:00","file":"AionCore/crates/aionui-api-types/src/channel.rs","reason":"P1d: PluginStatusResponse.error field"}
 {"ts":"2026-07-10T11:42:00+08:00","file":"D:/Projects/aionui-src/tests/unit/wecom/sdk-runtime-auth-log.test.ts","reason":"P1d: 2/2 PASS"}
+{"ts":"2026-07-12T00:15:00+08:00","file":"AionCore/crates/aionui-ai-agent/src/factory/acp_assembler.rs","reason":"session/new _meta.ccbAgentId from preset/custom; overlay merge for resume"}
+{"ts":"2026-07-12T00:15:00+08:00","file":"AionCore/crates/aionui-ai-agent/src/manager/acp/agent_session_flow.rs","reason":"Claude resume merges onto CCB profile meta"}
+{"ts":"2026-07-12T00:15:00+08:00","file":"AionCore/crates/aionui-channel/src/action.rs","reason":"/new|/reset|/status|/help slash ¡ú system actions; session.new stages handoff"}
+{"ts":"2026-07-12T00:15:00+08:00","file":".trellis/tasks/07-05-wecom-channel-integration/research/wecom-agent-profile-handoff-race-2026-07-12.md","reason":"Root cause: handoff race + missing _meta; Settings already quotation-agent"}
+{"ts":"2026-07-12T00:15:00+08:00","file":".trellis/spec/integration/wecom-channel.md","reason":"Agent routing: _meta bind hard requirement + /new reset"}

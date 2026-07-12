@@ -27,7 +27,7 @@
     ".trellis/spec/integration/aioncore-work-tasks.md",
     ".trellis/spec/integration/agents-unified-model.md"
   ],
-  "notes": "2026-07-09 wrap-up complete: MCP audit+metadata, CCB package/settings/vendor sync, UI source tag, acceptance script ALL PASS. 2026-07-09 user manual UI smoke PASS (Guid+conversation+/tasks AI tag). Unified audit table deferred to 07-14 EIL P2. Evidence: p09-wrap-up-done.md",
+  "notes": "2026-07-09 wrap-up complete: MCP audit+metadata, CCB package/settings/vendor sync, UI source tag, acceptance script ALL PASS. 2026-07-09 user manual UI smoke PASS (Guid+conversation+/tasks AI tag). Unified audit table deferred to 07-14 EIL P2. Evidence: p09-wrap-up-done.md. FOLLOW-UP 2026-07-12: accept ACL explore → task 07-12-work-tasks-accept-acl (manager-creator UpdateStatus + UI Accept ungated).",
   "meta": {
     "execution_plan": "execution-plan.md",
     "verification_profile": "Cross-repo",

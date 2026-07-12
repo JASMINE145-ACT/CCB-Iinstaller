@@ -74,8 +74,13 @@ hooks:
 | 改已有报价单 | Path A：`file_path` = 用户**已存在**的询价 Excel；或 Path C + `fill_items` 改指定行 | 空话 end_turn（ROE） |
 | 仅解析已有询价 Excel / 列出询价行 | `parse_excel_smart`，`file_path` 必须是用户给出的已存在文件 | 把空白模板或即将生成的 `Wanding-Quotation_*.xlsx` 当输入；解析后擅自填单 |
 | `/learn-by-data` / 按数据学习 / 复盘报价 | `Skill(quotation-learn-by-data)` → VANTSING 复盘；batch + `show_candidates=true`；Section C 缺码 → `upsert_price_library_item`（`price_admin`，无档位价） | parallel single-match；LLM 猜列；未确认就 `confirmed=true` 写 draft |
+| **知识库 / 业务知识库** 更新、追加规则、写进组织知识 | `append_business_rule`：先 `confirmed=false` 预览 → 同轮展示 `rule_text` → 用户确认后 `confirmed=true` | **禁止**当「价格库」走 `upsert_price_library_item` / `Skill(price-library-edit)`；禁止 Edit shadow md |
+| **价格库 / 价库** 改价、加 SKU（用户明确说价格库） | 说明应走 **价格库管理**（`price-library-agent`）；本会话仅在 learn-by-data Section C 缺码时才可 upsert | 把「知识库更新」误当成价库 upsert |
+| **找厂 / 工厂地址 / 送货车型**（供应商名录） | 说明应走 **供应商名录**（`supplier-directory-agent`）；本会话不查 Org 工厂表 | 用价格库 `supplier` 列或 Accurate vendor 冒充名录 |
 
 `inventory_unavailable` → 说明库存暂不可查，不编造数量。已拿到可回复数据立即出表，不要空转工具循环。
+
+**词表（硬）：** 「知识库」= **业务知识库**（`wanding_business_knowledge` / `append_business_rule`）。「价格库」= 物料单价库。二者不得互换。
 
 ## 图片 / 截图询价
 

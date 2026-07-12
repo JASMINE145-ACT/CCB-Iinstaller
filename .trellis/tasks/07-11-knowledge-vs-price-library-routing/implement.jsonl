@@ -1,0 +1,7 @@
+{"path":".trellis/spec/integration/org-knowledge.md","note":"vocab 知识库 vs 价格库"}
+{"path":".trellis/spec/integration/work-routing-execution-contracts.md","note":"KB_* contracts"}
+{"path":".trellis/spec/integration/contracts/agent-runtime-registry.yml","note":"WANd.ROUTING.KB_ORG/PRICE/DISAMBIG.001"}
+{"path":".trellis/spec/integration/price-library.md","note":"delegatable + guidOnly empty"}
+{"path":"ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md","note":"routing L1"}
+{"path":"ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md","note":"append decision row"}
+{"path":"ccb-installer/config/runtime/agent-fleet.defaults.json","note":"guidOnlyAgentIds []"}

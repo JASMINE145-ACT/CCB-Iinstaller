@@ -77,8 +77,8 @@ Independent login/logout in Phase 0; 401 on one domain clears only that domain's
 | GET | `/api/org-knowledge` | List docs |
 | GET | `/api/org-knowledge/{slug}` | Full doc |
 | PUT | `/api/org-knowledge/{slug}` | `title`, `content`, `expected_version` → **409** on conflict |
-| GET | `/api/org-knowledge/{slug}/history` | Revision list |
-| GET | `/api/org-knowledge/{slug}/history/{version}` | Revision body |
+| GET | `/api/org-knowledge/{slug}/history` | Revision list; each item includes `updated_by_id` + optional `updated_by: PublicUser` (username for UI) |
+| GET | `/api/org-knowledge/{slug}/history/{version}` | Revision body; same `updated_by` enrichment |
 | POST | `/api/org-knowledge/{slug}/revert` | `{ target_version }` |
 
 WS event: `org-knowledge.updated` `{ slug, version }`.
@@ -253,12 +253,22 @@ This preserves the stable Agent Read path while making center edits propagate to
 
 **Shadow is read-only for agents (2026-06-28):** `quotation-agent` may **Read** the shadow path only. **Do not** Edit/Write/Bash the shadow file for shared updates — that changes one machine only and may be overwritten on the next sync. Append shared rules via MCP `append_business_rule`; delete or full-doc edit via `#/org-knowledge` UI.
 
+### Vocabulary vs 价格库 (2026-07-11)
+
+| 用户说法 | 含义 | Path |
+|----------|------|------|
+| **知识库** / **业务知识库** | 本页文档 / `wanding_business_knowledge` | `append_business_rule` 或 `#/org-knowledge` |
+| **价格库** / **价库** | 物料单价 SKU 库 | `price-library-agent` — **not** this write path |
+
+Contracts: `WANd.ROUTING.KB_ORG.001` / `KB_PRICE.001` / `KB_DISAMBIG.001` — task [`07-11-knowledge-vs-price-library-routing`](../../tasks/07-11-knowledge-vs-price-library-routing/).
+
 ---
 
 ## Common mistakes
 
 | Wrong | Correct |
 |-------|---------|
+| 「知识库更新」→ `upsert_price_library_item` / `price-library-edit` | 知识库 = 业务知识库 → `append_business_rule` |
 | Agent Edit/Write `vendor/.../wanding_business_knowledge.md` for fleet update | `#/org-knowledge` Save (delete/full edit) or MCP `append_business_rule` (append only) |
 | Python has `append_business_rule` in `tool_dispatch` → assume MCP exposes it | Verify `mcp_servers/quotation-server/dist/index.js` ListTools + live `vendor/mcp-servers/.../index.js` after `sync-dev-wanding-vendor.ps1` |
 | Changed `ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md` only | Also `deploy-seed-agents.ps1 -ForceMd` — default deploy skips existing user `.md` |

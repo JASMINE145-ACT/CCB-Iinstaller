@@ -1,13 +1,15 @@
 ---
 name: price-library-edit
 description: >
-  Organization price library edit SOP: single-item upsert, export-edit-import bulk,
-  and full prepare-price-library-import.py workflow. Use for 改价, 批量维护, 导入发布, 回滚.
+  Organization 价格库 / 价库 edit SOP only: single-item upsert, export-edit-import bulk,
+  and prepare-price-library-import.py. Use for 价格库, 价库, 改价, 批量维护, 导入发布, 回滚.
+  Do NOT use for 知识库 / 业务知识库 / append_business_rule / org-knowledge rules.
 ---
 
 # Price Library Edit / 价格库维护 SOP
 
 > **Authority:** org MCP write path only. Never edit bundled seed xlsx as source of truth.
+> **Not this skill:** 「知识库 / 业务知识库」更新 → `append_business_rule`（quotation），不是本 SOP。
 
 ## Route by scope (三分法)
 

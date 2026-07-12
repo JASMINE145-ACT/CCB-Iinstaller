@@ -243,6 +243,37 @@ Migration: `014_work_task_roles.sql` — first real user + `system_default_user`
 
 UI transition guards: `canTransitionWorkTaskStatus()` in `workTaskTypes.ts`. **Backend enforces the same graph** in `aionui-work-tasks/src/rbac.rs` — illegal transitions → `400 InvalidStatus`.
 
+### Accept actor (`WANd.TASKS.ACCEPT_ACTOR.001` — Option A)
+
+「接受」= **assignee confirms** the handoff. Managers do **not** force-accept.
+
+| Edge / UI | Who |
+|-----------|-----|
+| `pending_accept → accepted` | **Assignee only** |
+
+### RBAC matrix (`WANd.TASKS.RBAC_MATRIX.001` — Q1=B + Q2=A, 2026-07-12)
+
+Axes: **role** (`manager`|`employee`) × **relation** (`creator`|`assignee`|unrelated).
+
+| Action | employee assignee | employee unrelated | **any manager** |
+|--------|-------------------|--------------------|-----------------|
+| Team `/query` | ✗ | ✗ | ✓ |
+| Read detail (`MANAGER_READ.001`) | ✓ | ✗ | ✓ |
+| Accept | ✓ | ✗ | ✗ |
+| Defer / complete / incomplete / resume | ✓ | ✗ | ✓ |
+| Edit meta / reassign / due | creator only* | ✗ | ✓ |
+| Delete | creator∧assignee | ✗ | ✓ |
+| Attachments | creator\|assignee | ✗ | only if also creator\|assignee |
+
+\*Employee creators are typically self-assigned (assignee=self).
+
+| Layer | Enforcement |
+|-------|-------------|
+| Backend | `can_access_task` — any manager for Read/UpdateStatus/UpdateMeta/Delete; `can_apply_status_transition` keeps accept assignee-only |
+| UI | `canAcceptWorkTask`, `filterWorkTaskStatusOptions`, `canEditWorkTaskMeta`, `canDeleteWorkTask`, `canCompleteWorkTask`, `canManageWorkTaskAttachments` |
+
+Tests: `other_manager_can_team_ops_but_not_accept`, `any_manager_can_read_*`, vitest manager ops helpers.
+
 ---
 
 ## WebSocket events
@@ -296,7 +327,7 @@ sqlite3 "$env:APPDATA\AionUi-Dev\aionui\aionui-backend.db" "PRAGMA table_info(us
 | `pages/workTasks/WorkTasksPage/index.tsx` | Scope tabs + status filter + **manager team overview** + **P6 drill-down** (`?assignee=&status=&overdue=`). Assignee/status → `/query`; **`overdue` client-only** (never on `/query` wire — AionCore rejects it) |
 | `pages/workTasks/components/WorkTaskManagerDashboard.tsx` | KPI cards, workload bars, overdue panel; clickable assignee/KPI; Soft UI `compact` when filter active |
 | `common/types/workTasks/workTaskFilterState.ts` | URL filter parse/serialize + list-mode mapping (`WANd.TASKS.DASHBOARD_DRILLDOWN.001`); `overdueClient` / `overview_client` / `unassigned_client` |
-| `pages/workTasks/WorkTasksPage/WorkTaskDetailPage.tsx` | Detail, accept CTA, **了解任务**（agent picker + new chat handoff）, assignee/creator/due, attachments open/download |
+| `pages/workTasks/WorkTasksPage/WorkTaskDetailPage.tsx` | Detail, **assignee-only** accept CTA (`canAcceptWorkTask`), status select via `filterWorkTaskStatusOptions`, **了解任务**（agent picker + new chat handoff）, assignee/creator/due, attachments open/download |
 | `pages/workTasks/components/CreateWorkTaskDialog.tsx` | Assignee picker (manager), due date |
 | `pages/workTasks/components/WorkTaskStatusTag.tsx` | 5-state tag |
 | `pages/workTasks/useWorkTasks.ts` | SWR + scope + members + query + pending badge count |

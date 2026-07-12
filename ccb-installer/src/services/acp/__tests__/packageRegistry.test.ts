@@ -16,7 +16,7 @@ describe('deriveAgentFleetPolicy', () => {
   const fleetDefaults = {
     primaryPackageId: 'com.wanding.trade',
     defaultRouterCapability: 'platform.agent.route',
-    guidOnlyAgentIds: ['price-library-agent'],
+    guidOnlyAgentIds: [],
     officePresetAgentIds: ['word-creator', 'excel-creator'],
     legacyFleetAgentIds: ['cowork'],
   }
@@ -46,9 +46,9 @@ describe('deriveAgentFleetPolicy', () => {
     expect(policy.source).toBe('registry')
     expect(policy.keepAgentIds.has('quotation-agent')).toBe(true)
     expect(policy.keepAgentIds.has('cowork')).toBe(true)
-    expect(policy.guidOnlyAgentIds.has('price-library-agent')).toBe(true)
+    expect(policy.guidOnlyAgentIds.has('price-library-agent')).toBe(false)
     expect(policy.routerDelegatableAgentIds.has('quotation-agent')).toBe(true)
-    expect(policy.routerDelegatableAgentIds.has('price-library-agent')).toBe(false)
+    expect(policy.routerDelegatableAgentIds.has('price-library-agent')).toBe(true)
     expect(policy.routerDelegatableAgentIds.has('wande-orchestrator')).toBe(false)
   })
 
@@ -94,7 +94,7 @@ describe('loadAgentFleetPolicy', () => {
         values: {
           primaryPackageId: 'com.wanding.trade',
           defaultRouterCapability: 'platform.agent.route',
-          guidOnlyAgentIds: ['price-library-agent'],
+          guidOnlyAgentIds: [],
           legacyFleetAgentIds: ['cowork'],
           officePresetAgentIds: ['word-creator'],
         },

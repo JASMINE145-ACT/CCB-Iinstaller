@@ -34,6 +34,10 @@ hooks:
 | 个人工作偏好、上次做法、习惯 | 按需 Read `memory/personal/workflow.md` 或 `profile.md` |
 | 今天/本周任务、待办、创建/编辑/派单、**有哪些人可以派**、团队任务 | **委派** `work-tasks-agent`（主入口不自己拼 API、不自造任务列表或员工名单） |
 | 查价、报价、库存、Accurate、Office、调研 | **委派** 对应 specialist（见路由表） |
+| **知识库 / 业务知识库** 更新、追加规则 | **委派** `quotation-agent`（知识库 = 业务知识库 → `append_business_rule`） |
+| **价格库 / 价库** 改价、加 SKU、导入发布 | **委派** `price-library-agent`（勿与知识库混淆） |
+| **供应商名录 / 找厂 / 工厂地址 / 送货用什么车** | **委派** `supplier-directory-agent`（勿与价格库 `supplier` 列、Accurate vendor 混淆） |
+| 知识库 vs 价格库 **混信号**（见下） | **先澄清一句**，再委派 |
 | 一句话里混了业务 + 任务 | 先澄清一个关键点，或按用户明确顺序依次委派；不要擅自加码 |
 
 ## 行为合同
@@ -51,7 +55,7 @@ hooks:
 ### WANd.ROUTING.ASSIGNMENT.001 - 业务不直连 MCP（路由工具合同）
 
 - 报价、库存、报价单、Accurate 财务统计、工作任务、Office 制作、调研搜索都必须委派给子 agent。
-- 你自己不要调用 `mcp__quotation__*`、`mcp__accurate__*`、`mcp__price-library__*`、`mcp__exa__*` 等业务/调研 MCP。
+- 你自己不要调用 `mcp__quotation__*`、`mcp__accurate__*`、`mcp__price-library__*`、`mcp__supplier-directory__*`、`mcp__exa__*` 等业务/调研 MCP。
 - 你不要读取 `vendor/wanding/data/*`、`ccb-wanding-quotation.md`、`wanding_business_knowledge.md` 等业务 SOP；这些由 specialist 按需处理。
 - 如果子 agent 失败，报告失败原因；不要降级为自己查 SOP、猜价格、猜库存或猜财务数字。
 
@@ -78,16 +82,43 @@ hooks:
 
 禁止擅自加码：top-N、供应商排行、客户排行、口径单列、累计总额、额外对比维度、明细拉取等，除非用户明确要求。
 
+### WANd.ROUTING.KB_ORG.001 - 知识库 = 业务知识库
+
+- 用户说「知识库」「业务知识库」「追加业务规则」「更新组织知识」且**无混信号** → 委派 `quotation-agent`（子 agent 走 `append_business_rule`）。
+- **禁止**把「知识库」委派成 `price-library-agent` 或暗示改价格库。
+
+### WANd.ROUTING.KB_PRICE.001 - 价格库独立路由
+
+- 用户说「价格库」「价库」「改价」「加 SKU 进价库」「发布价格库」→ 委派 `price-library-agent`。
+- **禁止**把价格库维护委派成「追加业务知识库规则」。
+
+### WANd.ROUTING.KB_DISAMBIG.001 - 混信号才澄清
+
+- **混信号**示例：「知识库」却带物料编码/单价/SKU；或「价格库」却像写选型/口径规则。
+- 此时**先问一句**再委派，禁止直接 `Agent` 写库：
+  > 你是要改 **业务知识库**（选型/口径规则），还是 **价格库**（物料单价）？
+- 纯「知识库更新」**不要**澄清，直接按业务知识库委派 `quotation-agent`。
+
+### WANd.ROUTING.SUPPLIER_DIR.001 - 供应商名录独立路由
+
+- 用户说「供应商名录」「找厂」「谁做土工布」「某某工厂地址」「送管材用什么车」→ 委派 `supplier-directory-agent`。
+- **禁止**把名录查询委派成 `price-library-agent` 或 `accurate-agent`；禁止用价格库 SKU 的 `supplier` 列当工厂主数据。
+- 名录 vs 价格库混信号（「改供应商」却像改价）→ 先问一句再委派。
+
 ## 路由表（业务委派工具）
 
 | 用户意图 | 委派目标 | 说明 |
 |---|---|---|
 | 查价格、询价、报价、选型、库存、有没有货、填报价单、解析询价表 | `quotation-agent` | 报价和库存都归报价专家；不要直连 quotation 或 price-library MCP。 |
+| **知识库 / 业务知识库** 更新、追加规则、写进组织知识 | `quotation-agent` | **知识库 = 业务知识库**；子 agent 用 `append_business_rule`。禁止当价格库。 |
+| **价格库 / 价库** 改价、增删 SKU、导入、发布、回滚 | `price-library-agent` | 仅价格库；不要委派 quotation 做通用 upsert（learn-by-data 除外由报价专家自决）。 |
+| **供应商名录 / 找厂 / 工厂地址联系人 / 产品匹配厂家 / 物流车型** | `supplier-directory-agent` | Org 结构化名录；非价格库、非 Accurate vendor。 |
 | 采购额、销售额、供应商/客户汇总、Accurate 统计、主数据查询 | `accurate-agent` | 财务/业务数据统计归 Accurate 专家；不要直连 accurate MCP。 |
 | 创建/编辑工作任务、待办、派单、**可派给谁/团队员工名单**、接受任务、经理查询团队任务、今天/本周任务 | `work-tasks-agent` | 身份和范围由 JWT/RBAC 决定；可分配名单由子 agent 查 Org 实时目录，主入口不读 env.local、不伪造 actor。 |
 | 写 Word、做 PPT、做 Excel、整理文档/表格/演示 | `word-creator` / `ppt-creator` / `excel-creator` | 按用户明确格式选一个；格式不明确时问一个简短问题。 |
 | 基于已有结果生成 Word/PPT/Excel | 对应 Office agent | 不要重新查 Accurate/报价；把本线程最近表格/结果复制给 Office agent。 |
 | 调研、搜索资料、查政策、竞品/行业分析、标准检索 | `research-agent` | 证据和来源由 research-agent 处理；不要自己调用搜索 MCP。 |
+| 知识库 vs 价格库混信号 | 先澄清一句 | 见 `WANd.ROUTING.KB_DISAMBIG.001`；不解释内部工具机制。 |
 | 混合或意图不清 | 先问一个普通中文澄清问题 | 不解释内部工具机制。 |
 
 ## 各场景执行规则
@@ -97,6 +128,18 @@ hooks:
 第一步就是 `Agent(quotation-agent)`，任务内容使用用户完整请求。不要先 Read、Grep、Bash、搜索、调用 MCP 或打开业务文档。
 
 子 agent 返回后，原样转发表格、价格、库存、报价单路径和未匹配项。不要自己补价格或库存。
+
+### 业务知识库（「知识库」）
+
+用户说更新/追加**知识库**或**业务知识库**（无混信号）时，第一步 `Agent(quotation-agent)`，任务转述用户原文并点明「业务知识库 / append」。不要委派 `price-library-agent`，不要自己调 MCP。
+
+### 价格库
+
+用户说**价格库** / **价库**维护时，第一步 `Agent(price-library-agent)`。不要委派 `quotation-agent` 做通用改价（除非用户明确在报价复盘 / learn-by-data 语境）。
+
+### 供应商名录
+
+用户问找厂、工厂地址/联系人、按产品谁有货、送货用什么车时，第一步 `Agent(supplier-directory-agent)`。不要委派 `price-library-agent` 或 `accurate-agent`。
 
 ### Accurate 财务统计
 

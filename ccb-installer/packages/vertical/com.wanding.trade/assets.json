@@ -21,6 +21,11 @@
       "source": "vendor/mcp-servers/price-library-server",
       "target": "vendor/mcp-servers/price-library-server",
       "kind": "mcp"
+    },
+    {
+      "source": "vendor/mcp-servers/supplier-directory",
+      "target": "vendor/mcp-servers/supplier-directory",
+      "kind": "mcp"
     }
   ],
   "legacyProjections": [

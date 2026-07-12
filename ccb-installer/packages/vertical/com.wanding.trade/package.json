@@ -24,6 +24,10 @@
     {
       "id": "business.worktasks.manage",
       "description": "Create, edit, and query organization work tasks via agent (RBAC)."
+    },
+    {
+      "id": "business.supplier_directory.read",
+      "description": "Read organization supplier directory and logistics vehicles."
     }
   ],
   "agents": [
@@ -84,6 +88,17 @@
       ],
       "mcpServers": [
         "work-tasks-agent"
+      ],
+      "skills": []
+    },
+    {
+      "id": "supplier-directory-agent",
+      "source": "packages/vertical/com.wanding.trade/agents/supplier-directory-agent.md",
+      "requiredCapabilities": [
+        "business.supplier_directory.read"
+      ],
+      "mcpServers": [
+        "supplier-directory"
       ],
       "skills": []
     }
@@ -203,6 +218,25 @@
           "ORG_SESSION_TOKEN_FILE": "${orgSessionTokenFile}"
         },
         "description": "Work tasks agent MCP: create/edit tasks; manager query via Org VPS JWT (role-gated)."
+      }
+    },
+    {
+      "id": "supplier-directory",
+      "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json",
+      "providesCapabilities": [
+        "business.supplier_directory.read"
+      ],
+      "runtime": {
+        "command": "node",
+        "args": [
+          "${installDir}/vendor/mcp-servers/supplier-directory/index.mjs"
+        ],
+        "env": {
+          "ORG_SERVER_URL": "${orgServerUrl}",
+          "AIONUI_APPDATA_PROFILE": "${appDataProfile}",
+          "ORG_SESSION_TOKEN_FILE": "${orgSessionTokenFile}"
+        },
+        "description": "Supplier directory MCP: list/match factories and logistics vehicles (Org JWT)."
       }
     }
   ],

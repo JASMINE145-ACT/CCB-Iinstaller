@@ -67,6 +67,10 @@ import {
 } from './mcpManifest.js'
 import { omitLazySessionMcpServers } from './mcpSessionPrefetch.js'
 import {
+  mergeSessionMcpConfigs,
+  type AcpParamMcpServer,
+} from './sessionMcpConfig.js'
+import {
   consumeNextAssistantProfileId,
   filterCommandsForAssistantProfile,
   filterMcpConfigsForAssistantProfile,
@@ -158,27 +162,6 @@ type PendingPrompt = {
   resolve: (cancelled: boolean) => void
 }
 
-type AcpParamMcpServer = { name: string } & Record<string, unknown>
-
-function loadMcpConfigsFromParams(
-  paramServers: AcpParamMcpServer[],
-): Record<string, ScopedMcpServerConfig> {
-  const mcpConfigs: Record<string, ScopedMcpServerConfig> = {}
-  for (const server of paramServers) {
-    if (
-      server &&
-      typeof server === 'object' &&
-      typeof server.name === 'string'
-    ) {
-      const { name, ...rest } = server
-      mcpConfigs[name] = {
-        ...rest,
-        scope: 'dynamic',
-      } as ScopedMcpServerConfig
-    }
-  }
-  return mcpConfigs
-}
 
 /** User MCP from settings.json, overlaid by ACP client servers (e.g. AionUI guide_mcp). */
 export function resolveSessionMcpConfigs(
@@ -187,13 +170,13 @@ export function resolveSessionMcpConfigs(
   sessionProfileId?: string,
 ): Record<string, ScopedMcpServerConfig> {
   const paramServers = (params.mcpServers ?? []) as AcpParamMcpServer[]
-  const merged = {
-    ...filterMcpConfigsForAssistantProfile(
+  const merged = mergeSessionMcpConfigs(
+    filterMcpConfigsForAssistantProfile(
       loadMcpConfigsFromSettings(),
       assistantProfile ?? null,
     ),
-    ...loadMcpConfigsFromParams(paramServers),
-  }
+    paramServers,
+  )
   return filterMcpConfigsForOrchestratorSession(merged, sessionProfileId)
 }
 
@@ -333,6 +316,12 @@ export class AcpAgent implements Agent {
       cwd: activeSession.cwd,
       mcpServers: bootstrap.mcpServers ?? [],
       _meta: bootstrap._meta,
+      // This restore happens inside session/prompt after AionCore has already
+      // emitted Start for the live turn. Replaying transcript chunks to the ACP
+      // client here makes channel relays stitch old assistant text into the
+      // current WeCom reply bubble. Keep the history only as QueryEngine
+      // initialMessages.
+      replayToClient: false,
     })
 
     const session = this.sessions.get(requestedSessionId)
@@ -1081,6 +1070,7 @@ export class AcpAgent implements Agent {
     cwd: string
     mcpServers?: NewSessionRequest['mcpServers']
     _meta?: NewSessionRequest['_meta']
+    replayToClient?: boolean
   }): Promise<NewSessionResponse> {
     const meta = params._meta as Record<string, unknown> | null | undefined
     const { profileId: requestedProfileId } = resolveSessionProfileIdForCreate(
@@ -1108,7 +1098,9 @@ export class AcpAgent implements Agent {
         setOriginalCwd(params.cwd)
         publishActiveWorkspace(params.cwd)
 
-        await this.replaySessionHistory(params)
+        if (params.replayToClient !== false) {
+          await this.replaySessionHistory(params)
+        }
 
         // Reused in-memory sessions may still carry legacy effort-tier model
         // lists from an older CCB build — refresh before aioncore caches them.
@@ -1176,7 +1168,11 @@ export class AcpAgent implements Agent {
     )
 
     // Replay history to client if loaded
-    if (initialMessages && initialMessages.length > 0) {
+    if (
+      params.replayToClient !== false &&
+      initialMessages &&
+      initialMessages.length > 0
+    ) {
       const session = this.sessions.get(params.sessionId)
       if (session) {
         await replayHistoryMessages(

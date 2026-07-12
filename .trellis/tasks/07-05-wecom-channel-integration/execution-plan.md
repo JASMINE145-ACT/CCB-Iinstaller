@@ -1,16 +1,196 @@
+# Execution Plan — `07-05-wecom-channel-integration` (rev 8)
+
+> **ACTIVE PLAN = rev 8 only.** Everything below the “Rev 7 archive” marker is **read-only history**. Do not execute rev 7/5/4 phases. System-review accepted 2026-07-12: full contract IDs in Workstreams; M-G3 optional/non-blocking; Mode A Phase 0→3 only.
+
+| Field | Value |
+|-------|--------|
+| **Status** | `in_progress` — Mode A code done; awaiting **M-G1/M-G2** manual |
+| **Plan revision** | 8 (2026-07-12 — Mode A: `(userid, groupId)` sessions + reply-context isolation) |
+| **Scenario** | **A** (clear Mode A) + **L** (research done) + **D** optional (JS + Rust workstreams) |
+| **Plan depth** | Full |
+| **Verification profile** | Cross-repo + UI |
+| **Repos** | `aionui-src` (ext-wecom-aibot ×2) + `claude-code-best` (AionCore channel relay) |
+| **Active phase** | **Phase 3** — Dual-@ manual smoke (M-G1/M-G2 blockers) |
+| **Approach** | **A** — per-person sessions (recommended); shared-session remains deferred |
+
+**Decision lock:** Mode A = agent memory per `(paired user, group chatid)`. Replies stay **group-visible**. Concurrent @mentions must not overwrite SDK reply frames.
+
+**Research:** [`research/wecom-group-per-user-session-2026-07-12.md`](./research/wecom-group-per-user-session-2026-07-12.md)  
+**Related:** [`research/wecom-agent-profile-handoff-race-2026-07-12.md`](./research/wecom-agent-profile-handoff-race-2026-07-12.md) · media M2/M3 still pending from rev 7
+
+**PRD:** [`prd.md`](./prd.md) · **Spec:** [`.trellis/spec/integration/wecom-channel.md`](../../spec/integration/wecom-channel.md)
+
+**Prior revs:** Rev 7 media P0/P1 — code done, M2 manual pending · Rev 5/4 enable — done · Rev 8 **supersedes** “group session product” ambiguity with Mode A lock.
+
+---
+
+## Skills invoked (this planning session)
+
+| Invocation | Type | Evidence |
+|------------|------|----------|
+| trellis-task-execution + skill-selection | Read: | Contract→TDD→Verify; scenario A+L+D; matrix: research → trellis-research |
+| trellis-before-dev / get_context | Shell: | packages → integration; current task `07-05-wecom-channel-integration` |
+| wecom-channel.md + identity/state | Read: | Session `(user, chat)`; `replyContextByChat` keyed by chatId only |
+| trellis-research (Mode A) | Agent: | [`research/wecom-group-per-user-session-2026-07-12.md`](./research/wecom-group-per-user-session-2026-07-12.md) |
+| openspec-explore | Read: | Stance only — requirements already Mode A (no propose) |
+
+---
+
+## Progress snapshot
+
+| Phase | State | Delivery / evidence |
+|-------|-------|---------------------|
+| Phase -1 | **done** | Capability matrix; research persisted |
+| Phase 0 Spec lock | **done** | PRD Mode A + wecom-channel.md contracts; vitest reply-context |
+| Phase 1 Reply CTX JS | **done** | Dual-tree rekey by streamId; fail-closed without options.streamId |
+| Phase 2 Outbound correlation | **done** | `reply_stream_id` + `stream_finish` → options; extract `__streamId` |
+| Phase 3 Concurrency smoke | **pending user** | **M-G1/M-G2** manual (blockers); M-G3 optional |
+| plan structure | **PASS** | lint PASS |
+| code-reviewer | **PASS** | Layer A PASS; Layer B N/A (finish=false Critical fixed) |
+
+---
+
+## Phase -1 capability matrix
+
+| Capability | Tool | Status | Fallback |
+|------------|------|--------|----------|
+| Session per-user assert | `cargo test -p aionui-channel` session | available | Add WeCom-focused unit |
+| Reply-context rekey | vitest + dual-tree | available | Block ship if SYNC fails |
+| Relay options plumbing | AionCore channel | available | — |
+| Layer A review | `Agent: code-reviewer` | available | — |
+| Manual dual-@ smoke | WeCom internal group | **required** | Block Mode A done |
+| Shared-session Mode B | — | **out of scope** | Deferred |
+
+**Plan depth:** Full · **Verification profile:** Cross-repo + UI
+
+---
+
+## Contract map
+
+| Contract | Behavior protected | Primary code | Tests / eval / smoke | Risk |
+|----------|-------------------|--------------|----------------------|------|
+| `WANd.WECOM.SESSION.PER_USER.001` | Group: two members → two `(user, chat)` sessions / ACP bindings | `session.rs`, `action.rs`, `sqlite_channel.rs` | cargo: two users same chat_id → two sessions | Cross-talk of quotation context |
+| `WANd.WECOM.REPLY.CTX.USER.001` | Concurrent @ in same group cannot overwrite each other’s SDK reply `frame` | `state.js`, `ext-wecom-aibot-channel.js` | vitest: two setReplyContext same chatId different streamId | Wrong reply / empty / crossed streams |
+| `WANd.WECOM.REPLY.CTX.OUT.001` | Outbound send/edit resolves context by inbound `streamId`, not group chatId alone | `sdk-runtime.js`, `orchestrator.rs`, `stream_relay.rs`, `plugin.rs` | unit + relay options assert | Edits land on wrong frame |
+| `WANd.WECOM.SLASH.NEW.SCOPE.001` | `/new` resets only issuer `(user, chat)` | `action.rs` | cargo: A /new does not delete B | Accidental group wipe |
+| `WANd.WECOM.PRIVACY.GROUP.VIS.001` | Mode A isolates memory, not visibility — replies stay group-visible | docs + help text | Manual AC note | False privacy expectation |
+| `WANd.WECOM.PAIR.PER_USER.001` | Pairing per platform user id; unauthorized @ → pairing only | pairing + inbound | existing pairing tests | Shared pairing codes in group |
+| `WANd.WECOM.MEDIA.OUT.SYNC.001` | Dual-tree stay identical for reply-context changes | both `ext-wecom-aibot` trees | hash/diff gate | Dev vs install drift |
+| `WANd.WECOM.MEDIA.OUT.CTX.001` | Media before finish — **per streamId** after rekey | sdk + outbound-file | existing + concurrency | File send fail under dual-@ |
+
+### Contract cards (P0)
+
+#### Contract: WANd.WECOM.SESSION.PER_USER.001
+
+**Behavior protected:** In an internal group, each paired WeCom user gets an independent channel session and ACP conversation for that `chatid`.  
+**Primary code:** `AionCore/.../session.rs`, `action.rs`  
+**Tests:** `cargo test -p aionui-channel --lib session` (+ new assert if missing)  
+**Eval / smoke:** Two users @bot → different contexts (no shared prior turns)  
+**Risk if broken:** Alice’s询价混进 Bob’s session
+
+#### Contract: WANd.WECOM.REPLY.CTX.USER.001
+
+**Behavior protected:** Concurrent group @mentions keep distinct SDK reply frames.  
+**Primary code:** `state.js` (rekey Map by `streamId`), inbound `setReplyContext`  
+**Tests:** `tests/unit/wecom/ext-wecom-aibot-reply-context.test.ts` (new)  
+**Eval / smoke:** Dual-@ overlapping streams  
+**Risk if broken:** Crossed replies / `no active reply context`
+
+#### Contract: WANd.WECOM.REPLY.CTX.OUT.001
+
+**Behavior protected:** Stream relay / file outbound correlates to the correct inbound `streamId`.  
+**Primary code:** `sdk-runtime.js`, `orchestrator.rs`, `stream_relay.rs`, `extension_channel/plugin.rs`  
+**Tests:** Rust options passthrough + JS lookup-by-streamId  
+**Eval / smoke:** Dual-@ + file bubble  
+**Risk if broken:** Chunks/files attach to wrong user’s turn
+
+---
+
+## Workstreams
+
+| Phase | Priority | Workstream | touches | Risk | Tool / agent | Files | Required output | Profile |
+|-------|----------|------------|---------|------|--------------|-------|-----------------|---------|
+| 0 | P0 | Spec + PRD Mode A lock | `WANd.WECOM.SESSION.PER_USER.001`, `WANd.WECOM.PRIVACY.GROUP.VIS.001`, `WANd.WECOM.PAIR.PER_USER.001`, `WANd.WECOM.SLASH.NEW.SCOPE.001` | docs | trellis-update-spec | `prd.md`, `wecom-channel.md` | Mode A AC; shared deferred | Fast |
+| 0 | P0 | RED tests (reply race) | `WANd.WECOM.REPLY.CTX.USER.001` | ui | TDD | new vitest | fails before fix | Cross-repo |
+| 1 | P0 | Rekey reply context by streamId | `WANd.WECOM.REPLY.CTX.USER.001`, `WANd.WECOM.MEDIA.OUT.CTX.001`, `WANd.WECOM.MEDIA.OUT.SYNC.001` | concurrency | trellis-implement | `state.js`, `sdk-runtime.js`, channel.js ×2 trees | GREEN vitest | Cross-repo |
+| 2 | P0 | Pass streamId through relay | `WANd.WECOM.REPLY.CTX.OUT.001` | backend | trellis-implement | orchestrator, stream_relay, plugin.rs | GREEN cargo | Cross-repo |
+| 3 | P1 | Docs/help + optional config note | `WANd.WECOM.PRIVACY.GROUP.VIS.001`, `WANd.WECOM.SLASH.NEW.SCOPE.001` | docs | docs | help text / README | Mode A semantics | Fast |
+| 3 | P0 | Dual-@ manual smoke | `WANd.WECOM.REPLY.CTX.USER.001`, `WANd.WECOM.REPLY.CTX.OUT.001`, `WANd.WECOM.SESSION.PER_USER.001` | ui | user | WeCom group | **M-G1/M-G2** PASS (blockers) | UI |
+| 4 | — | Shared-session Mode B | docs-only/no-runtime-contract | — | — | — | **out** | — |
+
+**Parallel:** Phase 1 (JS) and Phase 2 (Rust) can run in parallel after RED tests exist; merge owner: streamId contract (options + Map key) must agree before green.
+
+---
+
+## TDD contract
+
+| Workstream | Contract | RED evidence | GREEN command | Refactor guard |
+|------------|----------|--------------|---------------|----------------|
+| Reply rekey | REPLY.CTX.USER.001 | Two contexts same chatId/different streamId — second overwrites (current) | `pnpm test tests/unit/wecom/ext-wecom-aibot-reply-context.test.ts` | same |
+| Session per-user | SESSION.PER_USER.001 | N/A if existing green — add assert | `cargo test -p aionui-channel --lib session` | same |
+| Outbound correlation | REPLY.CTX.OUT.001 | send_message options `{}` — no streamId | `cargo test -p aionui-channel` + vitest lookup | same |
+| Slash scope | SLASH.NEW.SCOPE.001 | N/A if existing — add A≠B assert | `cargo test -p aionui-channel --lib slash_new` / session reset | same |
+| Dual-tree | SYNC.001 | hash mismatch | file hash equal both trees | same |
+
+---
+
+## Contract Verification
+
+| Contract | Verification command / smoke | Required evidence | Status |
+|----------|------------------------------|-------------------|--------|
+| SESSION.PER_USER.001 | cargo session tests + dual-user @ | two sessions | unit path OK; M-G1 pending |
+| REPLY.CTX.USER.001 | vitest reply-context | no clobber | **PASS** (4 tests) |
+| REPLY.CTX.OUT.001 | cargo + vitest | streamId in options + lookup | **PASS** (unit); M-G1 pending |
+| SLASH.NEW.SCOPE.001 | cargo /new | A reset ≠ B | pending M-G2 |
+| PRIVACY.GROUP.VIS.001 | PRD/spec + help | accepted risk recorded | **PASS** (spec) |
+| MEDIA.OUT.CTX/SYNC | existing + dual-tree | PASS | **PASS** (hash sync) |
+| Manual **M-G1** (blocker) | Two users @ overlapping | correct interleaved replies | pending |
+| Manual **M-G2** (blocker) | User A `/new`; B continues | B context intact | pending |
+| Manual **M-G3** | Unauthorized C @bot | pairing only | **optional / non-blocking** |
+| plan structure | `python ./.trellis/scripts/lint_execution_plan.py .trellis/tasks/07-05-wecom-channel-integration/execution-plan.md` | PASS | **PASS** |
+| Gate chain | code-reviewer → tests → UI smoke (M-G1/G2) → trellis-update-spec | — | review+unit **PASS**; UI pending |
+
+---
+
+## Manual steps (Mode A)
+
+| ID | Blocking? | Steps | Pass |
+|----|-----------|-------|------|
+| **M-G1** | **Yes** — Mode A done gate | Internal group; User A and B both paired; both @bot with different queries overlapping | Each reply matches issuer; no crossed content |
+| **M-G2** | **Yes** — Mode A done gate | A sends `/new`; B continues prior thread | B session intact; A starts clean |
+| **M-G3** | **No** — optional / non-blocking this round | Unauthorized C @bot | Pairing only; no agent leak into A/B sessions |
+
+**Explicit non-goals:** private group replies; group-as-shared-session; renaming `conversationId` to include userid (unless UI needs later).
+
+---
+
+## Conditional recovery
+
+- If dual-@ still crosses after JS rekey → verify Phase 2 streamId plumbing before more JS.
+- If pairing codes flood group → product decision (DM pairing) — separate task.
+- Profile handoff race under dual session create → keep `_meta.ccbAgentId` (already fixed).
+
+---
+
+## Rev 7 archive (media — historical)
+
+> **READ-ONLY ARCHIVE.** Do not execute phases below. Active Mode A work is **rev 8 only** (above). Retained for media M2/M3 evidence and enable history.
+
 # Execution Plan — `07-05-wecom-channel-integration` (rev 7)
 
 | Field | Value |
 |-------|--------|
-| **Status** | `active` — P0 outbound file **implemented** (awaiting manual M2) |
+| **Status** | `active` — P0 outbound + P1 inbound media done; **agent-profile bind fix** 2026-07-12 (awaiting WeCom `/new` smoke) |
 | **Plan revision** | 7 (2026-07-11 — harden contracts; MVP = outbound file; inbound deferred) |
 | **Scenario** | **B** (large spec extension) + **L** (research done) + **H** (path allowlist) |
 | **Plan depth** | Full |
 | **Verification profile** | Cross-repo + UI manual smoke |
 | **Repos** | `aionui-src` (ext-wecom-aibot ×2 trees) + `claude-code-best` (AionCore bridge + Trellis) |
 | **Parked** | 2026-07-04 — resumed 2026-07-06 for P1b |
-| **Active phase** | **P1e-P0** — WeCom outbound file (**code done**; manual **M2** pending) |
+| **Active phase** | **Agent-profile bind** (2026-07-12) + media M2/M3 pending |
 | **Approach** | **B** — contracts locked; P0 implemented 2026-07-11 |
+
+**Hotfix (2026-07-12):** Channel Settings already `quotation-agent`, but ACP bound `wande-orchestrator` via shared handoff race. Fixed `_meta.ccbAgentId` on `session/new` + WeCom `/new` → `session.new`. Research: [`research/wecom-agent-profile-handoff-race-2026-07-12.md`](./research/wecom-agent-profile-handoff-race-2026-07-12.md).
 
 **PRD:** [`prd.md`](./prd.md) · **Gap:** [`research/gap-analysis-ext-wecom-bot.md`](./research/gap-analysis-ext-wecom-bot.md) · **Media research:** [`research/wecom-aibot-media-capabilities.md`](./research/wecom-aibot-media-capabilities.md)
 
@@ -19,6 +199,7 @@
 ---
 
 ## Rev 7 — Decision lock (MVP cut)
+
 
 | Layer | In this ship (P0) | Explicitly out |
 |-------|-------------------|----------------|

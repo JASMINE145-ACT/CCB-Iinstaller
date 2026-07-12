@@ -138,7 +138,7 @@ WARN items appear in UI optional collapse layer and in MiniMax prompt (`collectC
 | `word-creator` | `office-word` | |
 | `excel-creator` | `excel` | |
 | `research-agent` | `exa` | optional `scrapling` when Extended profile installed |
-| `price-library-agent` | `price-library` | Guid-only; optional `excel` |
+| `price-library-agent` | `price-library` | Delegatable + Guid (`price_admin`); optional `excel` |
 | `ppt-creator` | *(skill-only)* | `optional: true` — `ppt-master` skill |
 | `wande-orchestrator` | *(none — allowlist empty)* | |
 

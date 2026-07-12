@@ -17,6 +17,7 @@
 | Adding a defensive fix to renderer / chatLib | [`defensive-fix-policy.md`](./defensive-fix-policy.md) — must include `// TODO(defensive)` |
 | **Adding a new AionCore crate** (work-tasks / org-knowledge / price-library / …) | [`aioncore-work-tasks.md`](./aioncore-work-tasks.md) § AionCore Development Model — self-built fork is primary; next migration = 018 |
 | **Org price library** (API + AionUI read-only MVP) | [`price-library.md`](./price-library.md) — incl. **LKG pollution** vs **expected** org_knowledge 401 / AOL degradations (§ Dev / smoke triage) |
+| **Org supplier directory** (factories + vehicles; ≠ price-library `supplier` column) | [`supplier-directory.md`](./supplier-directory.md) |
 | **Org knowledge agent write** (append MCP, shadow read-only, **preview UX**) | [`org-knowledge.md`](./org-knowledge.md) § Agent write path + § Preview UX (2026-06-29) + Common mistakes |
 | **VPS org API deploy** (knowledge + price + work-task routes) | [`../../../scripts/org-phase0/vps-org-api-deploy-checklist.md`](../../../scripts/org-phase0/vps-org-api-deploy-checklist.md) |
 | **Agent team — main vs subagent calling model**（路由、Guid 直连、委派、`Agent()`、hooks 总览；**View Steps 平铺 vs 运行时嵌套**见 § UI observability） | [`agent-team-architecture.md`](./agent-team-architecture.md) — entry map; deep dive [`agents-unified-model.md`](./agents-unified-model.md) |

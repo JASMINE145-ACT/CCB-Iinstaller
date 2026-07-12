@@ -37,7 +37,7 @@
     ".trellis/spec/integration/wecom-channel.md",
     ".trellis/tasks/07-05-wecom-channel-integration/research/p0-extension-channel-runtime-trace.md"
   ],
-  "notes": "2026-07-09: rev 4 — enable false-success (Layer A5); agent picker done; manual smoke blocked on P1c. See execution-plan.md rev 4 + research/enable-false-success-2026-07-09.md",
+  "notes": "2026-07-12: agent-profile handoff race — Settings quotation-agent but ACP bound wande-orchestrator via shared handoff; fix session/new _meta + /new. See research/wecom-agent-profile-handoff-race-2026-07-12.md. Prior: 2026-07-09 rev4 enable false-success; media P0/P1.",
   "meta": {
     "execution_plan": "execution-plan.md",
     "verification_profile": "Cross-repo",

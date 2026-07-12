@@ -6,6 +6,32 @@
 
 **不是**一次性大 refactor；**是**可追踪的审计 backlog + 按优先级落地的修复计划。
 
+## Consolidated Architecture Baseline
+
+本 task 是持续系统 review 的主台账。历史 task
+`06-25-architecture-business-system-boundaries` 已并入本 task，作为 Step 4/Step 5 之前的架构地图与边界基线使用，不再作为并行的系统审查入口。
+
+并入内容：
+
+- 架构/业务/UI/App 分层模型：`../06-25-architecture-business-system-boundaries/boundary-map.md`
+- Python / MCP business vs system adapter 拆分记录：`../06-25-architecture-business-system-boundaries/prd.md`
+- generated / vendor / runtime payload 边界与 cleanup audit：`../06-25-architecture-business-system-boundaries/cleanup-audit.md`
+
+使用规则：
+
+1. 做新的 `$system-review` 时，从本 task 进入。
+2. 涉及业务层、Python、MCP、vendor、generated/runtime payload 时，先引用 06-25 的 boundary map 作为 evidence。
+3. 新发现的风险、缺口、改进项统一写回本 task 的 `backlog.md` / `reviews/step-0N-*.md`，不要再扩展 06-25 为新的主线。
+
+## Operating Model
+
+详细执行逻辑见 [`review-plan.md`](./review-plan.md)。本 task 的工作方式是：
+
+```text
+架构边界基线 -> 分层 system-review -> backlog 增量 -> 独立修复 task -> spec 回写 -> 周期性复审
+```
+
+审查默认只读；修复必须单独进入修改模式或拆成子 task。
 ## 审查方法论
 
 | 维度 | 每步必查 |
@@ -25,10 +51,10 @@
 
 ```text
 Step 1  Integration   ✅ 已完成 — reviews/step-01-integration.md
-Step 2  Backend       ⏳ CCB-Wanding / claude-code-B / ACP / MCP
-Step 3  Frontend      ⏳ AionUI desktop / IPC / chat / Guid / Settings
-Step 4  Business      ⏳ python/ + mcp_servers/ + data/
-Step 5  Ship/Ops      ⏳ build-wanding / internal-update / Phase 4 冷构建
+Step 2  Backend       ✅ 已完成 + 复审 — reviews/step-02-backend.md + reviews/step-02-backend-rereview-2026-07-12.md
+Step 3  Frontend      ✅ 已完成 — reviews/step-03-frontend.md + delivery-step-03-closure.md
+Step 4  Business      ⏳ 下一步 — python/ + mcp_servers/ + data/（以 06-25 boundary-map 为基线）
+Step 5  Ship/Ops      ⏳ 待 Step 4 后或发版链前 — build-wanding / internal-update / Phase 4 冷构建（含 generated/vendor/runtime 边界复核）
 ```
 
 每步完成后：
@@ -43,9 +69,11 @@ Step 5  Ship/Ops      ⏳ build-wanding / internal-update / Phase 4 冷构建
 - **P0：** route-b 同步目标数不一致；dev 未自动 vendor sync；Phase 4 `1.1.3-dev` 冷构建未闭环
 - **详情：** [`reviews/step-01-integration.md`](./reviews/step-01-integration.md)
 
-## Step 2–5 预审范围（待 system-reviewer 填充）
+## Step 2–5 审查范围（Step 2/3 已完成，Step 4/5 待执行）
 
 ### Step 2 — Backend
+
+**结论：** 初审 7/10（2026-07-02），P0/P1 修复交付后复审 8/10（2026-07-12）。Backend ACP 合同已足够支撑内部工具；live dist / CI / release proof 归入 Step 5 Ship/Ops。
 
 **Spec 入口：** `.trellis/spec/backend/index.md`、`acp-session-flow.md`、`route-b-status.md`、`build-deploy-verify.md`、`mcp-business.md`
 
@@ -53,7 +81,7 @@ Step 5  Ship/Ops      ⏳ build-wanding / internal-update / Phase 4 冷构建
 
 - `D:\claude-code-B\src\` ACP session / MCP 注册 / permission 事件
 - `agent.ts` `resolveSessionMcpConfigs`、greeting、tool loop
-- `route-b-status.md` 快照滞后（仍 2026-06-12）vs 当前 MCP 29/29 基线
+- `route-b-status.md` 快照刷新与 live dist 漂移防线
 - assistant profile handoff 消费路径
 - 与 Integration 契约：route-b env、seed agents、health manifest probes
 
@@ -75,7 +103,7 @@ Step 5  Ship/Ops      ⏳ build-wanding / internal-update / Phase 4 冷构建
 
 **重点：**
 
-- `python/system/tool_dispatch.py` 与各 dispatch 模块边界（对照 task `06-25-architecture`）
+- `python/system/tool_dispatch.py` 与各 dispatch 模块边界（对照已并入的 task `06-25-architecture-business-system-boundaries`）
 - 价库三档 fallback、`LKG_MIN_PRODUCTS`
 - 并行查价+库存 `match_quotation_union`
 - `quotation-agent.md` L1 硬约束 vs MCP 工具面
@@ -107,7 +135,10 @@ Step 5  Ship/Ops      ⏳ build-wanding / internal-update / Phase 4 冷构建
 ## Acceptance
 
 - [x] Trellis task + `review-plan.md` + Step 1 完整审查 artifact
-- [ ] Step 2–5 各有一份 `reviews/step-0N-*.md`（含成熟度、差距表、风险、MVP 路线）
+- [x] 架构边界基线已并入：`06-25-architecture-business-system-boundaries/boundary-map.md`
+- [x] Step 2–3 已有 `reviews/step-0N-*.md` 与 closure 证据
+- [x] Step 2 Backend P0/P1 修复后复审已完成（8/10，`reviews/step-02-backend-rereview-2026-07-12.md`）
+- [ ] Step 4–5 各有一份 `reviews/step-0N-*.md`（含成熟度、差距表、风险、MVP 路线）
 - [ ] `backlog.md` 汇总全项目 P0/P1，按 layer 标注 owner
 - [ ] 五步完成后更新 `.trellis/spec/index.md` 成熟度表与 refresh policy
 - [x] Integration Phase 1 doc 对齐（`delivery-phase-01-integration-docs.md`）
@@ -126,5 +157,5 @@ Step 5  Ship/Ops      ⏳ build-wanding / internal-update / Phase 4 冷构建
 | `06-26-aionui-source-level-recovery` | Phase 4 冷构建 ship 依赖 |
 | `06-28-app-startup-readiness-gate` | Integration P0 竞态；Frontend 审查必查 |
 | `06-27-quotation-mcp-health` | MCP 29/29 基线；Backend/Business 审查引用 |
-| `06-25-architecture-business-system-boundaries` | Business 层边界已完成 refactor；审查验证是否 hold |
+| `06-25-architecture-business-system-boundaries` | **已并入本 task**；作为架构/业务边界 baseline，不再作为并行 review 主线 |
 | `06-18-quotation-runtime-stability-audit` | 报价路径专项审计；与本 task 互补 |

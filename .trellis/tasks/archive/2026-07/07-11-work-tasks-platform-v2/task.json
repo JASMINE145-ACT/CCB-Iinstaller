@@ -3,7 +3,7 @@
   "name": "work-tasks-platform-v2",
   "title": "Work Tasks Platform v2 — MCP tools + manager dashboard",
   "description": "Unified upgrade: work-tasks-agent MCP v2 (list_mine/brief/get/resolve_assignee) + /tasks manager dashboard; EIL is_admin scope in P4 when ready.",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": "feature",
   "scope": "AionCore work-tasks API + MCP + aionui /tasks UI",
   "package": "integration",
@@ -11,7 +11,7 @@
   "creator": "JASMINE145-ACT",
   "assignee": "JASMINE145-ACT",
   "createdAt": "2026-07-11",
-  "completedAt": null,
+  "completedAt": "2026-07-11",
   "branch": null,
   "base_branch": "main",
   "worktree_path": null,
@@ -32,13 +32,14 @@
     ".trellis/spec/integration/aioncore-work-tasks.md",
     "mcp_servers/work-tasks-query-server/index.mjs"
   ],
-  "notes": "2026-07-11 P6 Plan A impl done. filterState + IPC query params + dashboard drill-down. Evidence: p6-done.md. Unit 13 PASS; code-reviewer PASS. Manual AC-D* / AC6-8 pending. P4 EIL deferred.",
+  "notes": "2026-07-11 CLOSED. P2 MCP v2 + P3 dashboard + P6 drill-down PASS (user smoke). overdue client-only (no /query?overdue=). Soft UI compact. Evidence: p6-done.md. AC9/P4 EIL deferred → 07-14. P7 out of scope. spec: aioncore-work-tasks.md updated.",
   "meta": {
     "execution_plan": "execution-plan.md",
     "verification_profile": "Cross-repo",
     "scenario": "A",
-    "plan_revision": 3,
+    "plan_revision": 4,
     "plan_depth": "Standard+Full-merge-gates",
+    "closed_reason": "user confirmed smoke OK; P4 AC9 deferred",
     "risks": [
       "security",
       "cross-repo",
@@ -63,7 +64,12 @@
       "P2b agent+deploy",
       "P3 UI dashboard",
       "P4 EIL is_admin",
-      "P5 spec/smoke"
+      "P5 spec/smoke",
+      "P6 drill-down"
+    ],
+    "deferred": [
+      "AC9 P4 is_admin → 07-14",
+      "P7 Drawer/People page"
     ]
   }
 }

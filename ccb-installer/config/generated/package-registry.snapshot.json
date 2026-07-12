@@ -26,6 +26,10 @@
         {
           "id": "business.worktasks.manage",
           "description": "Create, edit, and query organization work tasks via agent (RBAC)."
+        },
+        {
+          "id": "business.supplier_directory.read",
+          "description": "Read organization supplier directory and logistics vehicles."
         }
       ],
       "contributions": [
@@ -159,6 +163,19 @@
       "requiredCapabilities": [
         "business.worktasks.manage"
       ]
+    },
+    {
+      "id": "supplier-directory-agent",
+      "packageId": "com.wanding.trade",
+      "source": "ccb-installer/packages/vertical/com.wanding.trade/agents/supplier-directory-agent.md",
+      "displayName": "供应商名录",
+      "mcpServers": [
+        "supplier-directory"
+      ],
+      "skills": [],
+      "requiredCapabilities": [
+        "business.supplier_directory.read"
+      ]
     }
   ],
   "mcpServers": [
@@ -200,6 +217,14 @@
       "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json",
       "providesCapabilities": [
         "business.pricing.manage"
+      ]
+    },
+    {
+      "id": "supplier-directory",
+      "packageId": "com.wanding.trade",
+      "source": "packages/vertical/com.wanding.trade/health/mcp-health-manifest.json",
+      "providesCapabilities": [
+        "business.supplier_directory.read"
       ]
     },
     {

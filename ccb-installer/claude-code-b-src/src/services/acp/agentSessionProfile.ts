@@ -522,9 +522,13 @@ export function filterDelegatableCustomAgents(
 
 const WAN_D_DELEGATION_INTENT: Record<string, string> = {
   'quotation-agent':
-    'pricing, inventory, product match, quotation sheets (e.g. 查价, 询价, 库存)',
+    'pricing, inventory, product match, quotation sheets, 业务知识库 append (e.g. 查价, 询价, 库存, 知识库更新)',
   'accurate-agent':
     'Accurate purchase/sales totals, vendor/customer search (e.g. 采购额, 销售额)',
+  'price-library-agent':
+    '组织价格库/价库维护: upsert SKU, import, publish (e.g. 价格库, 价库, 改价) — not 业务知识库',
+  'supplier-directory-agent':
+    '供应商名录: 找厂, 工厂地址/联系人, 产品匹配厂家, 物流车型 (e.g. 土工布谁有, 双林地址, 送管材用什么车) — not 价格库 supplier 列',
   cowork: 'general autonomous tasks, file ops, multi-step workflows',
   'word-creator': 'Word document creation and editing',
   'word-form-creator': 'fillable Word forms (.docx)',
@@ -577,6 +581,7 @@ const ORCHESTRATOR_BLOCKED_MCP_PREFIXES = [
   'mcp__accurate__',
   'mcp__price-library__',
   'mcp__work-tasks-agent__',
+  'mcp__supplier-directory__',
 ] as const
 
 /** Business MCP server ids — must not appear on wande-orchestrator sessions (incl. ACP param overlay). */
@@ -585,6 +590,7 @@ export const ORCHESTRATOR_FORBIDDEN_MCP_SERVER_IDS = new Set([
   'accurate',
   'price-library',
   'work-tasks-agent',
+  'supplier-directory',
   'excel',
   'excel-mcp',
   'exa',
@@ -693,8 +699,8 @@ export function evaluateOrchestratorToolGuard(
   if (isBlockedOrchestratorMcpToolName(toolName)) {
     return {
       blocked: true,
-      message:
-        'wande-orchestrator 不得直接调用业务 MCP。查价/询价请使用 Agent(quotation-agent)；账务请使用 Agent(accurate-agent)。',
+        message:
+          'wande-orchestrator 不得直接调用业务 MCP。查价/询价请使用 Agent(quotation-agent)；账务请使用 Agent(accurate-agent)；供应商名录请使用 Agent(supplier-directory-agent)。',
     }
   }
 
@@ -705,7 +711,7 @@ export function evaluateOrchestratorToolGuard(
       return {
         blocked: true,
         message:
-          'wande-orchestrator 不得通过 ExecuteExtraTool 调用 quotation/accurate MCP。请委派 quotation-agent 或 accurate-agent。',
+          'wande-orchestrator 不得通过 ExecuteExtraTool 调用业务 MCP。请委派 quotation-agent、accurate-agent 或 supplier-directory-agent。',
       }
     }
   }
@@ -716,14 +722,16 @@ export function evaluateOrchestratorToolGuard(
       query.includes('mcp__quotation') ||
       query.includes('mcp__accurate') ||
       query.includes('mcp__price-library') ||
+      query.includes('mcp__supplier-directory') ||
       query.includes('quotation') ||
       query.includes('accurate') ||
-      query.includes('price-library')
+      query.includes('price-library') ||
+      query.includes('supplier-directory')
     ) {
       return {
         blocked: true,
         message:
-          'wande-orchestrator 不得搜索业务 MCP。请使用 Agent(quotation-agent) 或 Agent(accurate-agent)。',
+          'wande-orchestrator 不得搜索业务 MCP。请使用 Agent(quotation-agent)、Agent(accurate-agent) 或 Agent(supplier-directory-agent)。',
       }
     }
   }
