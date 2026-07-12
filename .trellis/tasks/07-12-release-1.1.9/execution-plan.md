@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | **in_progress** — user 执行 + manifest 2026-07-12 |
+| **Status** | **done** — installer built; VPS/manifest skipped per user |
 | **Approved** | 2026-07-12 |
 | **Scenario** | **J**（发布打包） |
 | **Plan depth** | **Full** |
@@ -31,13 +31,13 @@
 |-------|-------|---------------------|
 | Phase -1 | done | capability matrix + scenario J locked |
 | Phase 0 plan lint | done | `lint_execution_plan.py` PASS |
-| Phase 0 approve | done | user: Phase8 列入；双仓 commit OK；WeCom 文档链接 fleet 默认关 |
-| Phase 0 WeCom docs gate | pending | `CCB_WANDING_WECOM_DEV_DOCS=1` 仅本机；见 §B8 |
-| Phase 0 commit + gen 7 | pending | dual-repo SHA + `config-ship-manifest.json` |
-| Phase 1 pre-build tests | pending | cargo 9 + bun 4 + health split + eval schema |
-| Phase 2 Full NSIS | pending | `CCB-Wanding-1.1.9.exe` |
-| Phase 3 verification | pending | code-reviewer + checklist + delivery |
-| Phase 4 VPS/manifest | deferred | ops + user confirm |
+| Phase 0 approve | done | user: Phase8 列入；双仓 commit OK；WeCom 文档链接 fleet 默认关；**manifest 要做** |
+| Phase 0 WeCom docs gate | done | preload `__wecomDevDocs` + code-reviewer PASS |
+| Phase 0 commit + gen 7 | done | aionui `be8ff2c`; ccb `cc9e3aa0`+`891d9be2`; AionCore `750e28d`; gen 7 |
+| Phase 1 pre-build tests | done | cargo 9 + bun 4 + health 2/2 + eval 80/80 |
+| Phase 2 Full NSIS | done | `CCB-Wanding-1.1.9.exe` sha256 `94DE17B1…0E6998` |
+| Phase 3 verification | done | staging supplier ✅; delivery written; manual checklist on install |
+| Phase 4 VPS/manifest | **skipped** | user 2026-07-12：不需要上传 VPS，打包 1.1.9 即可 |
 
 ---
 
