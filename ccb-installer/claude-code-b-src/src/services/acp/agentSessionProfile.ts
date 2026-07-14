@@ -18,6 +18,7 @@ import type { AssistantMessage } from '../../types/message.js'
 import { getClaudeConfigHomeDir } from '../../utils/envUtils.js'
 import { parseFrontmatter } from '../../utils/frontmatterParser.js'
 import { agentIdLookupCandidates, normalizeAgentId } from './agentIds.js'
+import { normalizeHandoffBriefPrompt } from './handoffBrief.js'
 import {
   agentsDir,
   isAgentDelegatable,
@@ -528,7 +529,7 @@ const WAN_D_DELEGATION_INTENT: Record<string, string> = {
   'price-library-agent':
     '组织价格库/价库维护: upsert SKU, import, publish (e.g. 价格库, 价库, 改价) — not 业务知识库',
   'supplier-directory-agent':
-    '供应商名录: 找厂, 工厂地址/联系人, 产品匹配厂家, 物流车型 (e.g. 土工布谁有, 双林地址, 送管材用什么车) — not 价格库 supplier 列',
+    'LEGACY alias → quotation-agent（独立 Guid 卡已移除）: 找厂/地址/车型走 quotation-agent + supplier-directory MCP',
   cowork: 'general autonomous tasks, file ops, multi-step workflows',
   'word-creator': 'Word document creation and editing',
   'word-form-creator': 'fillable Word forms (.docx)',
@@ -676,11 +677,13 @@ export function sanitizeOrchestratorAgentInput(
   if (toolName !== ORCHESTRATOR_AGENT_TOOL_NAME) {
     return input
   }
-  if (!('run_in_background' in input)) {
-    return input
+  const next: Record<string, unknown> = { ...input }
+  if ('run_in_background' in next) {
+    delete next.run_in_background
   }
-  const next = { ...input }
-  delete next.run_in_background
+  if (typeof next.prompt === 'string') {
+    next.prompt = normalizeHandoffBriefPrompt(next.prompt).prompt
+  }
   return next
 }
 
@@ -700,7 +703,7 @@ export function evaluateOrchestratorToolGuard(
     return {
       blocked: true,
         message:
-          'wande-orchestrator 不得直接调用业务 MCP。查价/询价请使用 Agent(quotation-agent)；账务请使用 Agent(accurate-agent)；供应商名录请使用 Agent(supplier-directory-agent)。',
+          'wande-orchestrator 不得直接调用业务 MCP。查价/询价/供应商名录请使用 Agent(quotation-agent)；账务请使用 Agent(accurate-agent)。',
     }
   }
 
@@ -711,7 +714,7 @@ export function evaluateOrchestratorToolGuard(
       return {
         blocked: true,
         message:
-          'wande-orchestrator 不得通过 ExecuteExtraTool 调用业务 MCP。请委派 quotation-agent、accurate-agent 或 supplier-directory-agent。',
+          'wande-orchestrator 不得通过 ExecuteExtraTool 调用业务 MCP。请委派 quotation-agent、accurate-agent 或办公子助手。',
       }
     }
   }
@@ -731,7 +734,7 @@ export function evaluateOrchestratorToolGuard(
       return {
         blocked: true,
         message:
-          'wande-orchestrator 不得搜索业务 MCP。请使用 Agent(quotation-agent)、Agent(accurate-agent) 或 Agent(supplier-directory-agent)。',
+          'wande-orchestrator 不得搜索业务 MCP。请使用 Agent(quotation-agent)、Agent(accurate-agent) 或办公子助手。',
       }
     }
   }

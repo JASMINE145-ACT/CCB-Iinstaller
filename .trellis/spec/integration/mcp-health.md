@@ -436,22 +436,42 @@ App open (CCB authority)
     │
     ├─ Layer 1: runCcbMcpHealthCheck({ probe: false })  ~5s
     │
-    ├─ Layer 2: warm-wanding-mcp.mjs (quotation + accurate)  ~30s–120s
-    │       └── 120s timeout → soft_ready (warn + allow send)
+    ├─ Layer 2: warm-wanding-mcp.mjs (quotation + accurate)  ~10–60s when healthy
+    │       ├── child exit without id=2 → FAIL + stderr immediately (no fake 120s)
+    │       └── soft_ready banner only if **core** warm fails (quotation); accurate best-effort
     │
-    └─ Guid: banner + send disabled until isCcbStartupSendAllowed
+    └─ Guid: banner + send disabled until isCcbStartupSendAllowed; soft_ready → dismiss/retry
+```
+
+### Accurate / pywin32 (2026-07-14, task `07-14-07-14-startup-mcp-soft-ready-banner`)
+
+`PYTHONNOUSERSITE=1` accurate MCP needs real `pywin32` under `vendor/python-wanding`. Office-word stub quarantine (`pywintypes.py` → `.stub-bak`) can leave accurate unable to `import mcp` → warm fake-timeout → permanent「MCP 预热未完成」.
+
+| Fix | Artifact |
+|-----|----------|
+| Repair | `ensure-python-wanding-pywin32.ps1` (pip `--target` site-packages; `$shipScripts` + `Get-WandingShipScripts`) |
+| Call sites | `install-office-word-mcp.ps1` (after quarantine); bootstrap Full even when office-word SKIP; `start-dev-full.ps1` |
+| Warm honesty | `warm-wanding-mcp.mjs` listens `close`/`stderr` |
+| Soft UX | quotation-gated `mcp_ok`; banner detail + 重试/关闭; IPC `retryStartupReadiness` |
+
+```powershell
+$env:PYTHONNOUSERSITE='1'
+& D:\CCB-Wanding\vendor\python-wanding\python.exe -c "import mcp, pywintypes; print('OK')"
+node D:\CCB-Wanding\lib\warm-wanding-mcp.mjs --servers=accurate
+# Expect PASS … warmed (typically <30s)
 ```
 
 ### Artifacts
 
 | Layer | File | Role |
 |-------|------|------|
-| Warm script | `ccb-installer/lib/warm-wanding-mcp.mjs` | stdio spawn; mirrors `wanDMcpWarmup.ts` |
-| Main pipeline | `aionui-src/.../ccbStartupReadiness.ts` | orchestrates L1+L2; kills warm child on timeout |
-| Shared | `ccbStartupReadinessShared.ts` | renderer-safe types + `isCcbStartupSendAllowed` |
-| IPC | `ccbMcpBridge.ts` | `getStartupReadiness`, `ensureStartupReadiness`; **sync** `if (isCcbMcpAuthorityActive()) startPipeline()` |
-| UI | `useCcbStartupReadiness`, `CcbStartupReadinessBanner`, `GuidPage`, `useGuidSend`, `AcpSendBox`, `useAcpInitialMessage` | banner + send gate |
-| Dev sync | `start-dev-full.ps1` | copies warm script → `{install}/lib/warm-wanding-mcp.mjs` |
+| Warm script | `ccb-installer/lib/warm-wanding-mcp.mjs` | stdio spawn; fail-fast on child exit; mirrors `wanDMcpWarmup.ts` |
+| Pywin32 ensure | `ensure-python-wanding-pywin32.ps1` | accurate / PYTHONNOUSERSITE runtime |
+| Main pipeline | `aionui-src/.../ccbStartupReadiness.ts` | L1+L2; quotation-gated mcp_ok; `retryCcbStartupReadiness` |
+| Shared | `ccbStartupReadinessShared.ts` | `isCcbStartupSendAllowed`, `isCcbStartupCoreMcpOk`, soft-ready helper |
+| IPC | `ccbMcpBridge.ts` | `getStartupReadiness`, `ensureStartupReadiness`, `retryStartupReadiness`; **sync** start on authority |
+| UI | `useCcbStartupReadiness`, `CcbStartupReadinessBanner`, `GuidPage`, … | banner + dismiss/retry + send gate |
+| Dev sync | `start-dev-full.ps1` | warm script → `{install}/lib/` + pywin32 ensure |
 
 ### Init trap (fixed 2026-06-28)
 
@@ -461,19 +481,18 @@ App open (CCB authority)
 
 ```powershell
 .\ccb-installer\scripts\start-dev-full.ps1 -SkipBootstrap
-# Expect log: [ok] Synced startup MCP warm script -> D:\CCB-Wanding\lib
-# Login → Guid: 「正在检查配置…」→「正在预热报价 MCP…」→ send enabled
-# bun test tests/unit/common-config/ccbStartupReadinessShared.test.ts  # 4/4
+# Expect: Synced warm script + [ok] python-wanding pywin32
+# Login → Guid: 「正在检查配置…」→「正在预热…」→ no permanent soft_ready when warm PASS
+# bun test tests/unit/common-config/ccbStartupReadinessShared.test.ts  # 7/7
 ```
 
 ### Still open (not MVP)
 
 - Layer 3 anchor ACP session (deferred)
-- NSIS/hot zip: ship `{install}/lib/warm-wanding-mcp.mjs` on employee machines
 - Config error banner → one-click `repairHealth` CTA
 - Remove duplicate warm: `scheduleWanDMcpWarmup` still runs at `session/new`
 
-Task: [`progress-2026-06-28.md`](../../tasks/06-28-app-startup-readiness-gate/progress-2026-06-28.md) · PRD: [`prd.md`](../../tasks/06-28-app-startup-readiness-gate/prd.md).
+Tasks: [`06-28-app-startup-readiness-gate`](../../tasks/06-28-app-startup-readiness-gate/prd.md) · [`07-14-07-14-startup-mcp-soft-ready-banner`](../../tasks/07-14-07-14-startup-mcp-soft-ready-banner/prd.md).
 
 ---
 
@@ -502,6 +521,20 @@ Task: [`progress-2026-06-28.md`](../../tasks/06-28-app-startup-readiness-gate/pr
 | ccb-subagent-gate + ROE hooks | — | `smoke-roe-deploy.ps1` |
 | ppt-master skill | ✅ optional layer (config + vendor SKILL.md) | UI quick check; run `install-ppt-master.ps1` if missing |
 | Org price library VPS | — | `price-library.md` / manual UI |
+
+### Closed-loop capability evidence (2026-07-14)
+
+**Rule:** When a claim is a **conversion / closed loop** (e.g. DOCX→PDF, not merely “MCP connected”), `tools/list` green and an **unrelated** deep probe (e.g. office-word `list_available_documents`) are **not** FULL PASS evidence. You must `tools/call` the **target** conversion tool and assert the **output artifact** exists (byte floor).
+
+| Claim | Insufficient | Required evidence |
+|-------|--------------|-------------------|
+| Word→PDF outbound (`WANd.OFFICE.WORD.CLOSED_LOOP.001`) | `-Probe` office-word only | `node ccb-installer/scripts/smoke-word-creator-outbound.mjs` → DOCX + PDF |
+| Quotation match path | tools/list only | `match_quotation` deep call (already in `-Probe`) |
+| Accurate summarize | tools/list only | `accurate_summarize_records` deep call (already in `-Probe`) |
+
+**PARTIAL OK:** environment missing MS Word / COM → record PARTIAL + failure message; do **not** mark CLOSED_LOOP FULL PASS.
+
+**Packaging note:** office-word PDF needs `docx2pdf`/`pywin32` under MCP `site-packages` and must not be shadowed by tiny stubs in bundled `python-wanding/Lib/site-packages` — see `install-office-word-mcp.ps1` quarantine + `site.addsitedir`.
 
 **After aionui-src health UI change:**
 

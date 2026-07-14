@@ -299,6 +299,7 @@ D:\Projects\claude-code-best\ccb-installer\start-local.cmd
 |------|------|
 | `D:\Projects\claude-code-best\ccb-installer\scripts\ensure-wanding-settings.ps1` | Bootstrap `$CONFIG\settings.json` |
 | `D:\Projects\claude-code-best\ccb-installer\scripts\install-office-word-mcp.ps1` | pip office-word |
+| `D:\Projects\claude-code-best\ccb-installer\scripts\ensure-python-wanding-pywin32.ps1` | real pywin32 under `python-wanding` after Word stub quarantine（accurate `PYTHONNOUSERSITE`）；`$shipScripts` + bootstrap SKIP path |
 | `D:\Projects\claude-code-best\ccb-installer\scripts\install-excel-mcp-server.ps1` | pip excel (haris) |
 | `D:\Projects\claude-code-best\ccb-installer\scripts\install-ppt-master.ps1` | ppt skill + gate + partial agents |
 | `D:\Projects\claude-code-best\ccb-installer\scripts\deploy-ppt-master-skill.ps1` | |
@@ -335,10 +336,13 @@ build-wanding.ps1, sync-aionui-ccb-patch.ps1, test-mcp-health.ps1, test-native-a
 ```text
 sync-aionui-ccb-route-b.ps1, run-wanding-bootstrap.ps1, test-install-health.ps1,
 ensure-wanding-settings.ps1, deploy-seed-agents.ps1, deploy-seed-agents.mjs,
-patch-subagent-gate-hooks.ps1, smoke-wanding-e2e.ps1
+patch-subagent-gate-hooks.ps1, smoke-wanding-e2e.ps1,
+build-wanding-lib.ps1, deploy-session-precipitation-skill.ps1
 ```
 
 **Build-time drift guard (2026-06-21):** `build-wanding.ps1` keeps `$shipScripts` as the authoritative SHIP whitelist and adds a `$devOnlyScripts` denylist (the "Never ship" + "Optional / not in main WanD package" names above). After staging, any `scripts\*.ps1` / `*.mjs` in **neither** list triggers a **non-fatal** WARN ("unclassified — add to `$shipScripts` or `$devOnlyScripts`"), so a newly added script can't be silently dropped from the package. Whitelist stays authoritative (denylist would risk auto-shipping dev/CI helpers).
+
+**Bootstrap / deploy runtime closure (2026-07-13):** Any script that `run-wanding-bootstrap.ps1` **dotsources** or that a **shipped** deploy/install script invokes via `$PSScriptRoot` must itself be in `$shipScripts` and present under `staging/scripts/` before NSIS. Missing members → clean-install bootstrap exit 1. Same class as ppt/gate closure (§17.5). Verify: `Test-Path staging/scripts/<name>.ps1` after staging; Full bootstrap EXIT=0.
 
 ---
 
@@ -412,6 +416,15 @@ D:\Projects\claude-code-best\ccb-installer\config\agents\cowork.aionui.json
 
 **Hot-update IN (when skill changes):** add `seed/skills/quotation-learn-by-data/**` to §16.1 (pending 1.1.4.1 packaging fix).
 
+### 8.2.2 ccb-session-precipitation skill
+
+**Source:** `ccb-installer\config\skills\ccb-session-precipitation\` (or package path used by `build-wanding.ps1` seed copy)  
+**Staging:** `staging\seed\skills\ccb-session-precipitation\`  
+**Deploy:** `deploy-session-precipitation-skill.ps1` (must be in `$shipScripts`) → `$CONFIG\skills\ccb-session-precipitation\`  
+**NSIS:** explicit `File` for `staging\seed\skills\ccb-session-precipitation`  
+**Quick gate:** id must appear in `run-wanding-bootstrap.ps1` `$requiredSeedSkills`  
+**Release verify:** [`wanding-release-standard.md`](./wanding-release-standard.md) §2.3–2.4 (closed in 1.1.9 repack)
+
 ### 8.3 Quotation MCP health (#20)
 
 **Source:** `mcp_servers/quotation-server/dist/config.js` + **`python-spawner.js`** + `ccb-installer/config/mcp-health-manifest.json` + `ccb-installer/lib/mcp-stdio-probe.mjs` + `ccb-installer/scripts/ensure-wanding-settings.ps1`  
@@ -424,8 +437,9 @@ D:\Projects\claude-code-best\ccb-installer\config\agents\cowork.aionui.json
 **Staging:** `{install}/lib/warm-wanding-mcp.mjs` (same path AionUI main reads via `ccbStartupReadiness.ts`)  
 **Build:** `build-wanding.ps1` mirrors `ccb-installer/lib/` → `staging/lib/`; NSIS `File /r staging\lib\*.*`  
 **Manifest gate:** `install-health-manifest.json` → `lib/warm-wanding-mcp.mjs`  
-**Dev sync:** dev slot `%LOCALAPPDATA%\Programs\CCB-Wanding\lib\` or symlink from repo until repack  
-**Verify:** Guid banner L1→L2 clears (no permanent「MCP 预热未完成」); first send no `Failed to fetch`; `bun test ccbStartupReadinessShared.test.ts`. Spec: [`mcp-health.md`](./mcp-health.md) § App startup readiness gate.
+**Runtime dep:** `ensure-python-wanding-pywin32.ps1` in `$shipScripts` / `Get-WandingShipScripts`; bootstrap Full runs it even when office-word is SKIP  
+**Dev sync:** `start-dev-full.ps1` copies warm script + runs ensure  
+**Verify:** Guid banner L1→L2 clears (no permanent「MCP 预热未完成」); `PYTHONNOUSERSITE=1` `import mcp` OK; `warm --servers=accurate` PASS; `bun test ccbStartupReadinessShared.test.ts` (7/7). Spec: [`mcp-health.md`](./mcp-health.md) § App startup readiness gate.
 
 ---
 
@@ -766,11 +780,13 @@ NSIS：非空且无 `.ccb-wanding-install-root` → 拒绝安装。
 
 ### 17.5 Shipped scripts（最小集）
 
-IN: `ensure-wanding-settings`, `install-office-word-mcp`, `install-excel-mcp-server`, `install-ppt-master`, `deploy-ppt-master-skill`, `deploy-subagent-gate-skill`, `sync-ppt-master-agents`, `ensure-ppt-master-deps`, `deploy-seed-agents`(+mjs), `patch-subagent-gate-hooks`, `sync-aionui-ccb-route-b`, `test-install-health`, `run-wanding-bootstrap`, `smoke-wanding-e2e`, `ccb-diagnose`, `ccb-check-update`, `verify-update-server`, `internal-upgrade`
+IN: `ensure-wanding-settings`, `install-office-word-mcp`, `ensure-python-wanding-pywin32`, `install-excel-mcp-server`, `install-ppt-master`, `deploy-ppt-master-skill`, `deploy-subagent-gate-skill`, `sync-ppt-master-agents`, `ensure-ppt-master-deps`, `deploy-seed-agents`(+mjs), `patch-subagent-gate-hooks`, `sync-aionui-ccb-route-b`, `test-install-health`, `run-wanding-bootstrap`, `build-wanding-lib`, `deploy-session-precipitation-skill`, `smoke-wanding-e2e`, `ccb-diagnose`, `ccb-check-update`, `verify-update-server`, `internal-upgrade`
 
 > **ppt/gate 运行时闭包（2026-06-21）：** `install-ppt-master` 在 Full bootstrap 用 `$PSScriptRoot` 调 `deploy-ppt-master-skill` / `deploy-subagent-gate-skill` / `sync-ppt-master-agents` / `ensure-ppt-master-deps` —— 运行时依赖，必须同包。这四个 + office-word/excel **site-packages** 写进平台 `platform_required_files`，由 manifest-driven gate 强制（缺则构建失败）。
+>
+> **通用闭包（2026-07-13）：** 同上规则适用于 **任何** bootstrap dotsource（如 `build-wanding-lib.ps1`）与 ship deploy 调用链（如 `deploy-ccb-skills` → `deploy-session-precipitation-skill.ps1`）。漏 ship → 干净安装 bootstrap exit 1。详见 §7 Must-ship 与 [`wanding-release-standard.md`](./wanding-release-standard.md) §2.3 / §5.5。
 
-OUT: `build-wanding*`, `vendor-ppt-master`（联网抓 skill，仅 `-VendorIfMissing`）, `sync-aionui-ccb-patch`, `test-mcp-health`（dev/CI）
+OUT: `build-wanding.ps1`（打包机编排，不是 lib）, `vendor-ppt-master`（联网抓 skill，仅 `-VendorIfMissing`）, `sync-aionui-ccb-patch`, `test-mcp-health`（dev/CI）
 
 ### 17.6 Install health — 单一事实源（manifest）
 
@@ -803,6 +819,7 @@ OUT: `build-wanding*`, `vendor-ppt-master`（联网抓 skill，仅 `-VendorIfMis
 
 | Date | Item |
 |------|------|
+| 2026-07-13 | §7/§8.2.2/§17.5: bootstrap runtime closure + `build-wanding-lib` / precip deploy+seed; OUT 澄清仅 `build-wanding.ps1`（不含 lib）；对齐 release-standard rev.3 |
 | 2026-06-21 | §6: `ccb-wanding-versions.cmd` OUT→IN（员工更新入口「检查更新 / 版本选择」→ `ccb-check-update.ps1 -Select`）；§1/§13 root 启动器补齐实况（launch-aionui / check-install / verify-update）；配合 internal-update Phase 1 §1.2 + §3.7 |
 | 2026-06-21 | build: **anti-drift guards** — `dist/BUILD-INFO.json` provenance（git commit/branch/dirty × claude-code-B + aionui-src）+ `-SkipBuild`/`-SkipAionUiBuild` 陈旧 WARN（§4）；`data\*.md` 枚举减黑名单（新 SOP md 自动 ship，§5.4）；scripts 白名单漂移 WARN（§7） |
 | 2026-06-21 | health: **单一事实源** — `install-health-manifest.required_files` 加 site-packages + ppt/gate 闭包 + bundled pptx（21 项）；`Test-StagingWanDInstall` 改读 manifest，与 Check Install 同源不漂移（§17.6） |

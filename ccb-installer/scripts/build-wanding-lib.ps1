@@ -61,6 +61,7 @@ function Get-WandingShipScripts {
         'compile-runtime-config.mjs',
         'package-lifecycle.mjs',
         'install-office-word-mcp.ps1',
+        'ensure-python-wanding-pywin32.ps1',
         'install-ppt-master.ps1',
         'deploy-ppt-master-skill.ps1',
         'deploy-subagent-gate-skill.ps1',
@@ -83,6 +84,7 @@ function Get-WandingShipScripts {
         'verify-update-server.ps1',
         'internal-upgrade.ps1',
         'repair-wanding-install-dir.ps1',
+        'find-wanding-installs.ps1',
         'rollback-last-update.ps1'
     )
 }

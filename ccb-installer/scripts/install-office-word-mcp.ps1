@@ -7,6 +7,7 @@ $ErrorActionPreference = "Stop"
 $targetRoot = Join-Path $InstallDir "vendor\mcp-servers\office-word-mcp"
 $sitePackages = Join-Path $targetRoot "site-packages"
 $serverPy = Join-Path $targetRoot "server.py"
+$pythonSite = Join-Path $InstallDir "vendor\python-wanding\Lib\site-packages"
 
 New-Item -ItemType Directory -Force -Path $sitePackages | Out-Null
 
@@ -15,27 +16,75 @@ if (-not (Test-Path -LiteralPath $pythonExe)) {
     throw "Bundled Python required (no system Python needed): $pythonExe"
 }
 
+function Invoke-PipTarget {
+    param([string[]]$Packages)
+    Write-Host "[office-word-mcp] pip install $($Packages -join ' ') -> $sitePackages"
+    $prevEa = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    & $pythonExe -m pip install --upgrade @Packages --target $sitePackages
+    $pipExit = $LASTEXITCODE; $ErrorActionPreference = $prevEa
+    if ($pipExit -ne 0) { throw "pip install failed (exit $pipExit): $($Packages -join ' ')" }
+}
+
 $wordMain = Join-Path $sitePackages "word_document_server\main.py"
 if (Test-Path -LiteralPath $wordMain) {
-    Write-Host "[office-word-mcp] site-packages already present; skip pip."
+    Write-Host "[office-word-mcp] site-packages already present; skip core pip."
 }
 else {
-    Write-Host "[office-word-mcp] Installing office-word-mcp-server into $sitePackages ..."
-    $prevEa = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
-    & $pythonExe -m pip install `
-        --upgrade `
-        office-word-mcp-server==1.1.11 `
-        fastmcp `
-        python-docx `
-        lxml `
-        mcp `
-        --target $sitePackages
-    $pipExit = $LASTEXITCODE; $ErrorActionPreference = $prevEa
-    if ($pipExit -ne 0) { throw "pip install office-word-mcp failed (exit $pipExit)" }
-
+    Invoke-PipTarget -Packages @(
+        'office-word-mcp-server==1.1.11',
+        'fastmcp',
+        'python-docx',
+        'lxml',
+        'mcp'
+    )
     if (-not (Test-Path -LiteralPath $wordMain)) {
         throw "office-word-mcp install incomplete: word_document_server missing"
     }
+}
+
+# PDF export (convert_to_pdf) needs docx2pdf + a working pywin32 under --target installs.
+$docx2pdfMarker = Join-Path $sitePackages "docx2pdf\__init__.py"
+$pywin32Pth = Join-Path $sitePackages "pywin32.pth"
+if (-not (Test-Path -LiteralPath $docx2pdfMarker) -or -not (Test-Path -LiteralPath $pywin32Pth)) {
+    Invoke-PipTarget -Packages @('docx2pdf', 'pywin32')
+}
+
+# Bundled python-wanding sometimes ships tiny stub modules (e.g. pywintypes.py 37 B,
+# win32api.py 85 B) that shadow real pywin32 from MCP site-packages and break docx2pdf:
+#   AttributeError: module 'pywintypes' has no attribute '__import_pywin32_system_module__'
+#   AttributeError: module 'win32api' has no attribute 'RegOpenKey'
+# Side effect: these stubs live under shared vendor/python-wanding (not MCP-only).
+# Quarantine is intentional so Word PDF export works; rename is idempotent (.stub-bak).
+if (Test-Path -LiteralPath $pythonSite) {
+    $stubNames = @(
+        'pywintypes.py',
+        'pythoncom.py',
+        'win32api.py',
+        'win32con.py',
+        'win32job.py',
+        'win32gui.py',
+        'win32process.py'
+    )
+    foreach ($name in $stubNames) {
+        $stubPath = Join-Path $pythonSite $name
+        if (-not (Test-Path -LiteralPath $stubPath)) { continue }
+        $stubLen = (Get-Item -LiteralPath $stubPath).Length
+        # Real pywin32 modules are large; stubs are tiny shims.
+        if ($stubLen -ge 2048) { continue }
+        $bak = "$stubPath.stub-bak"
+        Move-Item -LiteralPath $stubPath -Destination $bak -Force
+        Write-Host "[office-word-mcp] quarantined stub $name ($stubLen B) -> $bak"
+    }
+}
+
+# Accurate / other PYTHONNOUSERSITE MCPs need real pywin32 on python-wanding after stub quarantine.
+$ensurePywin32 = Join-Path $PSScriptRoot 'ensure-python-wanding-pywin32.ps1'
+if (-not (Test-Path -LiteralPath $ensurePywin32)) {
+    throw "ensure-python-wanding-pywin32.ps1 missing next to install-office-word-mcp.ps1 (packaging gap)"
+}
+& $ensurePywin32 -InstallDir $InstallDir
+if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+    throw "ensure-python-wanding-pywin32 failed (exit $LASTEXITCODE)"
 }
 
 $launcher = @'
@@ -45,12 +94,15 @@ from __future__ import annotations
 
 import builtins
 import os
+import site
 import sys
 
 _ROOT = os.path.dirname(os.path.abspath(__file__))
 _SITE = os.path.join(_ROOT, "site-packages")
 if os.path.isdir(_SITE):
+    # Prefer MCP site-packages; process .pth (pywin32.pth) so win32/ + bootstrap load.
     sys.path.insert(0, _SITE)
+    site.addsitedir(_SITE)
 
 # Upstream prints boot messages to stdout, which breaks MCP stdio transport.
 _real_print = builtins.print

@@ -49,6 +49,10 @@ function Invoke-BootstrapStep {
 
     Write-BootstrapLog "START $Name"
     try {
+        # Clear residual native exit codes from prior steps/process so a successful
+        # PowerShell-only child is not misclassified as failure (PS does not reset
+        # $LASTEXITCODE when a .ps1 returns without `exit`).
+        $global:LASTEXITCODE = 0
         & $scriptPath @BoundArgs | Out-Null
         if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
             throw "exit code $LASTEXITCODE"
@@ -120,6 +124,10 @@ if ($Mode -eq 'Full') {
     }
     else {
         Write-BootstrapLog 'SKIP office-word-mcp (site-packages present)'
+        # Still repair python-wanding pywin32 — office-word stub quarantine can leave accurate broken.
+        $failures += Invoke-BootstrapStep -Name 'python-wanding-pywin32' -ScriptRel 'ensure-python-wanding-pywin32.ps1' -BoundArgs @{
+            InstallDir = $InstallDir
+        }
     }
     if (-not (Test-Path -LiteralPath $excelSite)) {
         $failures += Invoke-BootstrapStep -Name 'excel-mcp-server' -ScriptRel 'install-excel-mcp-server.ps1' -BoundArgs @{
@@ -182,6 +190,7 @@ $skillsDir = Join-Path $ConfigDir 'skills'
 $requiredSeedSkills = @(
     'ccb-subagent-gate',
     'ccb-personal-memory',
+    'ccb-session-precipitation',
     'quotation-learn-by-data',
     'price-library-edit',
     'wanding-deep-research'

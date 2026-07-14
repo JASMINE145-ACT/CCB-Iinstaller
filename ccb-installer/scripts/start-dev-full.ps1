@@ -234,6 +234,15 @@ if (Test-Path -LiteralPath $warmLibSrc) {
     Write-Host "[ok] Synced startup MCP warm script -> $warmLibDstDir" -ForegroundColor Green
 }
 
+$ensurePywin32 = Join-Path $repoRoot 'ccb-installer\scripts\ensure-python-wanding-pywin32.ps1'
+if (Test-Path -LiteralPath $ensurePywin32) {
+    & $ensurePywin32 -InstallDir $InstallDir
+    if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+        throw "ensure-python-wanding-pywin32 failed (exit $LASTEXITCODE)"
+    }
+    Write-Host '[ok] python-wanding pywin32 (accurate MCP / PYTHONNOUSERSITE)' -ForegroundColor Green
+}
+
 Write-Host 'Injecting self-built aioncore into bundled slot (dev resolver prefers bundled)...' -ForegroundColor Cyan
 $syncArgs = @{ InstallDir = $InstallDir; RepoRoot = $repoRoot }
 if ($BuildAioncore) { $syncArgs.Build = $true }

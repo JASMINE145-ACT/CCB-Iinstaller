@@ -55,6 +55,14 @@ function loadSettingsMcpServer(name, configDir) {
   }
 }
 
+function truncateDetail(text, max = 240) {
+  const oneLine = String(text || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!oneLine) return '';
+  return oneLine.length > max ? `${oneLine.slice(0, max)}…` : oneLine;
+}
+
 function warmOneMcpServer(serverName, configDir) {
   const cfg = loadSettingsMcpServer(serverName, configDir);
   const warmupCall = WARMUP_CALL[serverName];
@@ -69,9 +77,12 @@ function warmOneMcpServer(serverName, configDir) {
       env: cfg.env,
     });
     let settled = false;
+    let stdout = '';
+    let stderr = '';
     const finish = (ok, detail) => {
       if (settled) return;
       settled = true;
+      clearTimeout(timer);
       try {
         child.kill();
       } catch {
@@ -79,49 +90,68 @@ function warmOneMcpServer(serverName, configDir) {
       }
       resolve({ server: serverName, ok, detail, ms: Date.now() - started });
     };
+
     const timer = setTimeout(() => finish(false, 'timeout 120s'), 120_000);
-    child.stdout.on('data', (chunk) => {
-      if (String(chunk).includes('"id":2')) {
-        clearTimeout(timer);
+
+    child.stdout?.on('data', (chunk) => {
+      const text = String(chunk);
+      stdout += text;
+      if (text.includes('"id":2')) {
         finish(true, 'warmed');
       }
     });
+    child.stderr?.on('data', (chunk) => {
+      stderr += String(chunk);
+    });
     child.on('error', (err) => {
-      clearTimeout(timer);
       finish(false, err.message);
     });
-    child.stdin.write(
-      `${JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'initialize',
-        params: {
-          protocolVersion: '2024-11-05',
-          capabilities: {},
-          clientInfo: { name: 'wande-mcp-warmup', version: '1' },
-        },
-      })}\n`,
-    );
-    child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' })}\n`);
-    child.stdin.write(
-      `${JSON.stringify(
-        warmupCall.toolName
-          ? {
-              jsonrpc: '2.0',
-              id: 2,
-              method: 'tools/call',
-              params: {
-                name: warmupCall.toolName,
-                arguments: warmupCall.arguments ?? {},
+    // Fail fast when the process dies before tools/call responds (e.g. missing pywintypes).
+    child.on('close', (code, signal) => {
+      if (settled) return;
+      const hint =
+        truncateDetail(stderr) ||
+        truncateDetail(stdout) ||
+        (signal ? `signal ${signal}` : `exit ${code ?? 'unknown'}`);
+      finish(false, hint || `exit ${code ?? 'unknown'}`);
+    });
+
+    try {
+      child.stdin.write(
+        `${JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'initialize',
+          params: {
+            protocolVersion: '2024-11-05',
+            capabilities: {},
+            clientInfo: { name: 'wande-mcp-warmup', version: '1' },
+          },
+        })}\n`,
+      );
+      child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' })}\n`);
+      child.stdin.write(
+        `${JSON.stringify(
+          warmupCall.toolName
+            ? {
+                jsonrpc: '2.0',
+                id: 2,
+                method: 'tools/call',
+                params: {
+                  name: warmupCall.toolName,
+                  arguments: warmupCall.arguments ?? {},
+                },
+              }
+            : {
+                jsonrpc: '2.0',
+                id: 2,
+                method: 'tools/list',
               },
-            }
-          : {
-              jsonrpc: '2.0',
-              id: 2,
-              method: 'tools/list',
-            },
-      )}\n`,
-    );
+        )}\n`,
+      );
+    } catch (err) {
+      finish(false, err instanceof Error ? err.message : String(err));
+    }
   });
 }
 

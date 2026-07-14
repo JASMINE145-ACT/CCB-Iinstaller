@@ -115,7 +115,7 @@ describe('orchestrator Agent delegation guard', () => {
     ).toBe(false)
   })
 
-  it('strips run_in_background from Agent calls', () => {
+  it('strips run_in_background from Agent calls and wraps prompt as Brief', () => {
     const input = {
       subagent_type: 'word-creator',
       prompt: 'x',
@@ -128,7 +128,10 @@ describe('orchestrator Agent delegation guard', () => {
     )
     expect(sanitized.run_in_background).toBeUndefined()
     expect(sanitized.subagent_type).toBe('word-creator')
-    expect(sanitized.prompt).toBe('x')
+    expect(typeof sanitized.prompt).toBe('string')
+    expect(String(sanitized.prompt)).toContain('<!-- WANd.HANDOFF.BRIEF.001 -->')
+    expect(String(sanitized.prompt)).toContain('## Goal')
+    expect(String(sanitized.prompt)).toContain('x')
   })
 
   it('leaves non-Agent tools unchanged', () => {
@@ -168,7 +171,7 @@ describe('evaluateOrchestratorToolGuard', () => {
     )
     expect(direct.blocked).toBe(true)
     if (direct.blocked) {
-      expect(direct.message).toContain('supplier-directory-agent')
+      expect(direct.message).toContain('Agent(quotation-agent)')
     }
     const search = evaluateOrchestratorToolGuard('SearchExtraTools', {
       query: 'supplier-directory match',

@@ -193,6 +193,7 @@ function Test-NsisPayloadCoverage {
         'staging\seed\skills\price-library-edit',
         'staging\seed\skills\wanding-deep-research',
         'staging\seed\skills\ccb-personal-memory',
+        'staging\seed\skills\ccb-session-precipitation',
         'staging\resources',
         'staging\config',
         'staging\packages\vertical\com.wanding.trade'
@@ -204,6 +205,7 @@ function Test-NsisPayloadCoverage {
         'seed\skills\price-library-edit\SKILL.md',
         'seed\skills\wanding-deep-research\SKILL.md',
         'seed\skills\ccb-personal-memory\SKILL.md',
+        'seed\skills\ccb-session-precipitation\SKILL.md',
         'resources\commands\learn-by-data.md',
         'resources\memory\MEMORY.md',
         'resources\memory\personal\workflow.md',
@@ -728,6 +730,10 @@ $personalMemorySkillSrc = Join-Path $installerRoot 'config\skills\ccb-personal-m
 $personalMemorySkillDest = Join-Path $StagingDir 'seed\skills\ccb-personal-memory'
 Invoke-RobocopyMirror $personalMemorySkillSrc $personalMemorySkillDest @('/XD', 'tests', '__pycache__', '/XF', '*.pyc')
 
+$sessionPrecipitationSkillSrc = Join-Path $installerRoot 'config\skills\ccb-session-precipitation'
+$sessionPrecipitationSkillDest = Join-Path $StagingDir 'seed\skills\ccb-session-precipitation'
+Invoke-RobocopyMirror $sessionPrecipitationSkillSrc $sessionPrecipitationSkillDest @('/XD', 'tests', '__pycache__', '/XF', '*.pyc')
+
 $learnSkillSrc = Join-Path $installerRoot 'packages\vertical\com.wanding.trade\skills\quotation-learn-by-data'
 $learnSkillDest = Join-Path $StagingDir 'seed\skills\quotation-learn-by-data'
 Invoke-RobocopyMirror $learnSkillSrc $learnSkillDest
@@ -757,6 +763,8 @@ $shipScripts = @(
     'compile-runtime-config.mjs',
     'package-lifecycle.mjs',
     'install-office-word-mcp.ps1',
+    # install-office-word-mcp.ps1 calls this after stub quarantine (accurate MCP / PYTHONNOUSERSITE)
+    'ensure-python-wanding-pywin32.ps1',
     'install-ppt-master.ps1',
     # install-ppt-master.ps1 calls these four from $PSScriptRoot at install time
     # (run-wanding-bootstrap Full); they are runtime deps now asserted by
@@ -768,6 +776,7 @@ $shipScripts = @(
     'deploy-quotation-learn-by-data-skill.ps1',
     'deploy-price-library-edit-skill.ps1',
     'deploy-wanding-deep-research-skill.ps1',
+    'deploy-session-precipitation-skill.ps1',
     'deploy-ccb-skills.ps1',
     'deploy-wanding-commands.ps1',
     'sync-ppt-master-agents.ps1',
@@ -780,6 +789,7 @@ $shipScripts = @(
     'sync-aionui-ccb-route-b.ps1',
     'test-install-health.ps1',
     'run-wanding-bootstrap.ps1',
+    'build-wanding-lib.ps1',
     'apply-ship-config-reset.ps1',
     'smoke-wanding-e2e.ps1',
     'ccb-diagnose.ps1',
@@ -789,6 +799,7 @@ $shipScripts = @(
     'verify-update-server.ps1',
     'internal-upgrade.ps1',
     'repair-wanding-install-dir.ps1',
+    'find-wanding-installs.ps1',
     'rollback-last-update.ps1',
     'probe-research-capabilities.ps1',
     'install-research-toolstack.ps1'
@@ -839,7 +850,6 @@ $devOnlyScripts = @(
     'ccb-update-info.ps1',
     'smoke-hot-update-trial.ps1',
     'publish-update-bundle.ps1',
-    'build-wanding-lib.ps1',
     'ensure-mcp-settings.ps1',
     'start-dev-full.ps1',
     'smoke-roe-deploy.ps1',
@@ -971,6 +981,7 @@ if (Test-Path -LiteralPath $binSrc) {
 }
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-wanding-versions.cmd') -Destination (Join-Path $StagingDir 'ccb-wanding-versions.cmd') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-check-install.cmd') -Destination (Join-Path $StagingDir 'ccb-check-install.cmd') -Force
+Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-list-installs.cmd') -Destination (Join-Path $StagingDir 'ccb-list-installs.cmd') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-verify-update.cmd') -Destination (Join-Path $StagingDir 'ccb-verify-update.cmd') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'resources\install-health-manifest.json') -Destination (Join-Path $StagingDir 'install-health-manifest.json') -Force
 
