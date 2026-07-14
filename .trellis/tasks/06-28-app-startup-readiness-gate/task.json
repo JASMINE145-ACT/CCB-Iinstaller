@@ -18,7 +18,9 @@
   "commit": null,
   "pr_url": null,
   "subtasks": [],
-  "children": [],
+  "children": [
+    "07-14-07-14-startup-mcp-soft-ready-banner"
+  ],
   "parent": null,
   "relatedFiles": [
     "ccb-installer/src/services/acp/wanDMcpWarmup.ts",
