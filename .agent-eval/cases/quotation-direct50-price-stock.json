@@ -79,17 +79,17 @@
           },
           {
             "source": "inventory.query.input.code",
-            "target": "assistant.table.rows[*].material_code",
+            "target": "assistant.table.output.rows[*].material_code",
             "operator": "equals"
           },
           {
             "source": "quotation.match.output.candidates[code=$inventory.query.input.code].unit_price",
-            "target": "assistant.table.rows[*].price",
+            "target": "assistant.table.output.rows[*].price",
             "operator": "equals"
           },
           {
             "source": "inventory.query.output.qty_available",
-            "target": "assistant.table.rows[*].inventory",
+            "target": "assistant.table.output.rows[*].inventory",
             "operator": "equals"
           }
         ]
@@ -155,6 +155,6 @@
   },
   "schema_version": "eval.case/v1",
   "status": "locked",
-  "confirmed_at": "2026-07-15T12:00:00.000Z",
-  "case_hash": "sha256:f9ce71471ad01a7b7e00b66fa9127f08001f90386401311e65e55c01e123e0bf"
+  "confirmed_at": "2026-07-15T12:30:00.000Z",
+  "case_hash": "sha256:bfe640adb01acad48c5adbba88f43828db855e1adcb0d6043e245a1c0885307b"
 }

@@ -91,12 +91,12 @@
 - Create: `agent-eval-plugin/test/event-log.test.mjs`
 - Create: `agent-eval-plugin/test/graders.test.mjs`
 
-- [ ] **Step 3.1 — RED events:** Test append-only sequence numbers, raw/derived provenance, valid event references, and rejection of derived success based only on assistant claims.
-- [ ] **Step 3.2 — RED graders:** For each hard grader, add one passing fixture and at least one focused failure: missing tool, forbidden tool, wrong order, wrong args, inventory code outside match candidates, and malformed/inconsistent table.
-- [ ] **Step 3.3 — Verify RED:** Run `npm test --prefix agent-eval-plugin`; expect missing event/grader implementations.
-- [ ] **Step 3.4 — GREEN events:** Implement `createEventLog(traceId)` with `appendRaw`, `appendDerived`, and `snapshot`.
-- [ ] **Step 3.5 — GREEN graders:** Implement the six registry entries returning `{ grader_id, severity, status, evidence_refs, reason_code, details }` without throwing for an Agent business failure.
-- [ ] **Step 3.6 — Verify GREEN:** Run `npm test --prefix agent-eval-plugin`; expect all negative and positive grader cases green.
+- [x] **Step 3.1 — RED events:** Test append-only sequence numbers, raw/derived provenance, valid event references, and rejection of derived success based only on assistant claims.
+- [x] **Step 3.2 — RED graders:** For each hard grader, add one passing fixture and at least one focused failure: missing tool, forbidden tool, wrong order, wrong args, inventory code outside match candidates, and malformed/inconsistent table.
+- [x] **Step 3.3 — Verify RED:** Run `npm test --prefix agent-eval-plugin`; expect missing event/grader implementations.
+- [x] **Step 3.4 — GREEN events:** Implement `createEventLog(traceId)` with `appendRaw`, `appendDerived`, and `snapshot`.
+- [x] **Step 3.5 — GREEN graders:** Implement the six registry entries returning `{ grader_id, severity, status, evidence_refs, reason_code, details }` without throwing for an Agent business failure.
+- [x] **Step 3.6 — Verify GREEN:** Run `npm test --prefix agent-eval-plugin`; expect all negative and positive grader cases green.
 
 ## Task 4: Build the CCB ACP adapter and golden deterministic run
 

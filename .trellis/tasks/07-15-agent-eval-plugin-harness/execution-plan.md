@@ -7,7 +7,7 @@
 | **Scenario** | A — standard feature |
 | **Plan depth** | Standard |
 | **Verification profile** | Standard, with Claude Code live E2E and three manual host smokes at v1 closeout |
-| **Active phase** | P2 — standard Event model and six deterministic hard graders |
+| **Active phase** | P3 — CCB ACP adapter normalization and golden deterministic run |
 | **Detailed TDD plan** | `docs/superpowers/plans/2026-07-15-agent-eval-plugin-harness.md` |
 
 ## Progress snapshot
@@ -17,8 +17,8 @@
 | Design | completed | `Agent eval system/eval-harness-plugin-design.md`; commit `ad4ec09e` |
 | P0 ACP evidence | completed | Recorder RED/GREEN 3/3; full match output 5,301 chars; inventory output captured; sanitized 11-line fixture; `research/phase-0-acp-raw-output-spike.md` |
 | P1 contracts/storage | completed | 12/12 tests; three host manifests; five schemas; stable Case lock; CCB golden Case; plugin validator PASS |
-| P2 events/graders | in_progress | Pending event log and six hard graders |
-| P3 CCB adapter | pending | Pending fixture and live golden deterministic run |
+| P2 events/graders | completed | 22/22 tests; append-only provenance; six positive/negative hard graders; locked evidence paths |
+| P3 CCB adapter | in_progress | Pending fixture normalization and live golden deterministic run |
 | P4 judgment/reporting | pending | Pending hard-only, Judge Packet, metrics, baseline, reports |
 | P5 Claude Code MVP | pending | Pending three-trial E2E |
 | P6 migration/cross-host | pending | Pending legacy import and Codex/Cursor contract plus smoke |
@@ -35,6 +35,7 @@
 | plugin-creator | Read: | Plugin scaffold/manifest validation is bound to P1; no personal marketplace mutation is planned |
 | superpowers:executing-plans | Read: | Phased execution, checkpoints, and stop-on-blocker rules are encoded here |
 | superpowers:using-git-worktrees | Read: | Main is dirty; execution is isolated on a feature worktree before production edits |
+| superpowers:systematic-debugging | Read: | Traced the lone evidence-link failure to three locked Case paths missing the standard Event `output` segment; regenerated and re-locked the Case without weakening the grader |
 
 ## Phase -1 — Capability matrix
 
@@ -90,7 +91,7 @@
 | Contract | Verification command / smoke | Required evidence | Status |
 |----------|------------------------------|-------------------|--------|
 | `WANd.EVAL.CASE_LOCK.001` | `npm test --prefix agent-eval-plugin` | Stable hash, explicit confirmation, mutation rejection, safe path, locked CCB Case | complete |
-| `WANd.EVAL.HARD_GATE.001` | `npm test --prefix agent-eval-plugin` | Six negative reason codes plus hard precedence | pending |
+| `WANd.EVAL.HARD_GATE.001` | `npm test --prefix agent-eval-plugin` | Six hard graders PASS golden evidence; six focused negative reason codes | grader layer complete; decision precedence pending |
 | `WANd.EVAL.TRACE.001` | recorder test + live `CCB_TEST_EVENT_LOG` spike | 3/3 tests; match `rawOutput` 5,301 chars; inventory `rawOutput` 173 chars; 11-line sanitized fixture | P0 complete; adapter normalization pending |
 | `WANd.EVAL.CCB_QUOTE.001` | fixture golden test + live quotation run | Read/match/inventory/table evidence refs | pending |
 | `WANd.EVAL.JUDGE.001` | judgment tests + one batch host judgment | Fingerprint/rubric hash and `independent_trials:false` | pending |
