@@ -7,7 +7,7 @@
 | **Scenario** | A — standard feature |
 | **Plan depth** | Standard |
 | **Verification profile** | Standard, with Claude Code live E2E and three manual host smokes at v1 closeout |
-| **Active phase** | P0 — ACP evidence seam and live rawOutput spike |
+| **Active phase** | P1 — plugin scaffold, schemas, Case lock, and project storage |
 | **Detailed TDD plan** | `docs/superpowers/plans/2026-07-15-agent-eval-plugin-harness.md` |
 
 ## Progress snapshot
@@ -15,8 +15,8 @@
 | Phase | State | Delivery / evidence |
 |-------|-------|---------------------|
 | Design | completed | `Agent eval system/eval-harness-plugin-design.md`; commit `ad4ec09e` |
-| P0 ACP evidence | in_progress | Pending recorder RED/GREEN and `research/phase-0-acp-raw-output-spike.md` |
-| P1 contracts/storage | pending | Pending schemas, plugin manifests, case lock, `.agent-eval/` pack |
+| P0 ACP evidence | completed | Recorder RED/GREEN 3/3; full match output 5,301 chars; inventory output captured; sanitized 11-line fixture; `research/phase-0-acp-raw-output-spike.md` |
+| P1 contracts/storage | in_progress | Pending schemas, plugin manifests, case lock, `.agent-eval/` pack |
 | P2 events/graders | pending | Pending event log and six hard graders |
 | P3 CCB adapter | pending | Pending fixture and live golden deterministic run |
 | P4 judgment/reporting | pending | Pending hard-only, Judge Packet, metrics, baseline, reports |
@@ -91,7 +91,7 @@
 |----------|------------------------------|-------------------|--------|
 | `WANd.EVAL.CASE_LOCK.001` | `npm test --prefix agent-eval-plugin` | Stable hash and mutation-rejection tests | pending |
 | `WANd.EVAL.HARD_GATE.001` | `npm test --prefix agent-eval-plugin` | Six negative reason codes plus hard precedence | pending |
-| `WANd.EVAL.TRACE.001` | recorder test + live `CCB_TEST_EVENT_LOG` spike | Untruncated output byte/key evidence and sanitized fixture | pending |
+| `WANd.EVAL.TRACE.001` | recorder test + live `CCB_TEST_EVENT_LOG` spike | 3/3 tests; match `rawOutput` 5,301 chars; inventory `rawOutput` 173 chars; 11-line sanitized fixture | P0 complete; adapter normalization pending |
 | `WANd.EVAL.CCB_QUOTE.001` | fixture golden test + live quotation run | Read/match/inventory/table evidence refs | pending |
 | `WANd.EVAL.JUDGE.001` | judgment tests + one batch host judgment | Fingerprint/rubric hash and `independent_trials:false` | pending |
 | `WANd.EVAL.STATUS.001` | orchestration/hard-only tests | FAIL/ERROR/BLOCKED/NEEDS_REVIEW matrix | pending |

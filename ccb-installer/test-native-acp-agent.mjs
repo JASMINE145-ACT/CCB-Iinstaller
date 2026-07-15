@@ -15,6 +15,7 @@ import {
   ndJsonStream,
   PROTOCOL_VERSION,
 } from '@agentclientprotocol/sdk'
+import { createAcpUpdateRecorder } from './lib/acp-update-recorder.mjs'
 
 const install =
   process.env.CCB_TEST_INSTALL_DIR ||
@@ -40,6 +41,9 @@ if (!existsSync(join(configDir, 'settings.json'))) {
 
 const settings = JSON.parse(readFileSync(join(configDir, 'settings.json'), 'utf8').replace(/^\uFEFF/, ''))
 const handoffPath = join(configDir, '.aionui-next-assistant-profile.json')
+const eventRecorder = process.env.CCB_TEST_EVENT_LOG
+  ? createAcpUpdateRecorder({ filePath: process.env.CCB_TEST_EVENT_LOG })
+  : null
 
 if (testProfile) {
   writeFileSync(
@@ -70,6 +74,7 @@ class MockClient {
   completedTools = []
 
   async sessionUpdate(params) {
+    eventRecorder?.record(params.update)
     const update = params.update?.sessionUpdate || 'unknown'
     this.updates.push(update)
     if (
@@ -222,6 +227,7 @@ try {
   agent.kill('SIGTERM')
   process.exit(1)
 } finally {
+  eventRecorder?.close()
   if (testProfile) {
     try {
       unlinkSync(handoffPath)

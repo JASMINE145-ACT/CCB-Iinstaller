@@ -22,14 +22,14 @@
 - Create: `.trellis/tasks/07-15-agent-eval-plugin-harness/research/phase-0-acp-raw-output-spike.md`
 - Create: `agent-eval-plugin/test/fixtures/ccb-acp/tool-call-updates.jsonl`
 
-- [ ] **Step 0.1 — RED:** Add tests proving the recorder writes one complete JSON object per line, preserves `tool_call_update.rawOutput` beyond 3,000 characters, and redacts configured secret fields.
-- [ ] **Step 0.2 — Verify RED:** Run `node --test ccb-installer/test/acp-update-recorder.test.mjs`; expect module-not-found or missing-export failure for `acp-update-recorder.mjs`.
-- [ ] **Step 0.3 — GREEN:** Implement `createAcpUpdateRecorder({ filePath, redactKeys })` with `record(update)` and `close()`; write append-only UTF-8 JSONL without console truncation.
-- [ ] **Step 0.4 — Verify GREEN:** Run `node --test ccb-installer/test/acp-update-recorder.test.mjs`; expect all recorder tests to pass.
-- [ ] **Step 0.5 — Integrate:** In `test-native-acp-agent.mjs`, enable the recorder only when `CCB_TEST_EVENT_LOG` is set, record every raw `params.update` before display truncation, and close it in `finally`.
-- [ ] **Step 0.6 — Live spike:** Run the quotation prompt through the native ACP runner with `CCB_TEST_EVENT_LOG` targeting `$tmp`; verify completed match/inventory updates contain parseable, untruncated outputs. Persist exact command, environment fingerprint, observed keys, byte lengths, and conclusion in the research file.
-- [ ] **Step 0.7 — Freeze fixture:** Store a sanitized minimal JSONL fixture containing Read, match, inventory, assistant-table, and completion updates; verify no token, customer, or credential data remains.
-- [ ] **Step 0.8 — Contract checkpoint:** If live ACP lacks `rawOutput`, stop Phase 0 and revise the plan to use a bridge patch or MCP/state snapshot. Do not silently weaken `evidence_link`.
+- [x] **Step 0.1 — RED:** Add tests proving the recorder writes one complete JSON object per line, preserves `tool_call_update.rawOutput` beyond 3,000 characters, and redacts configured secret fields.
+- [x] **Step 0.2 — Verify RED:** Run `node --test ccb-installer/test/acp-update-recorder.test.mjs`; expect module-not-found or missing-export failure for `acp-update-recorder.mjs`.
+- [x] **Step 0.3 — GREEN:** Implement `createAcpUpdateRecorder({ filePath, redactKeys })` with `record(update)` and `close()`; write append-only UTF-8 JSONL without console truncation.
+- [x] **Step 0.4 — Verify GREEN:** Run `node --test ccb-installer/test/acp-update-recorder.test.mjs`; expect all recorder tests to pass.
+- [x] **Step 0.5 — Integrate:** In `test-native-acp-agent.mjs`, enable the recorder only when `CCB_TEST_EVENT_LOG` is set, record every raw `params.update` before display truncation, and close it in `finally`.
+- [x] **Step 0.6 — Live spike:** Run the quotation prompt through the native ACP runner with `CCB_TEST_EVENT_LOG` targeting `$tmp`; verify completed match/inventory updates contain parseable, untruncated outputs. Persist exact command, environment fingerprint, observed keys, byte lengths, and conclusion in the research file.
+- [x] **Step 0.7 — Freeze fixture:** Store a sanitized minimal JSONL fixture containing Read, match, inventory, assistant-table, and completion updates; verify no token, customer, or credential data remains.
+- [x] **Step 0.8 — Contract checkpoint:** Live ACP contains complete `rawOutput`, so no bridge patch or snapshot fallback is needed; `evidence_link` remains a hard gate.
 
 ## Task 1: Scaffold the cross-host plugin and contract schemas
 
