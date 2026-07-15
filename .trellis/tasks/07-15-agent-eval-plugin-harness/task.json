@@ -3,7 +3,7 @@
   "name": "agent-eval-plugin-harness",
   "title": "Agent Eval Plugin Harness design",
   "description": "Design and implement an embedded Agent Eval Plugin with a shared harness core, CCB ACP adapter, evidence-based hard gates, and current-host AI judgment without a second judge API.",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": "implementation",
   "scope": "agent-eval-plugin",
   "package": "eval+ccb-installer",
