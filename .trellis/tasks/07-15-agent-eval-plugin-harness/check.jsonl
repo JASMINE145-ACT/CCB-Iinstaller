@@ -1,0 +1,6 @@
+{"file":".trellis/spec/code-review-layer-a.md","reason":"Review semantic contracts, authority boundaries, and multi-surface parity for the Plugin and adapter."}
+{"file":".trellis/spec/backend/acp-session-flow.md","reason":"Verify structured ACP event and rawOutput capture against the producer contract."}
+{"file":".trellis/spec/backend/mcp-business.md","reason":"Verify quotation/inventory evidence links and forbidden tool behavior."}
+{"file":".trellis/spec/integration/agents-unified-model.md","reason":"Verify Read-first behavior, profile authority, and source-versus-live consistency."}
+{"file":"Agent eval system/eval-harness-plugin-design.md","reason":"Check implementation and tests against the approved Case, Trace, Judgment, metric, and safety contracts."}
+{"file":".trellis/tasks/07-15-agent-eval-plugin-harness/research/review-verification-2026-07-15.md","reason":"Use verified Read-first, rawOutput, candidate evidence, host, and judge constraints from the design review."}

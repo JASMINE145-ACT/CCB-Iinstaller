@@ -1,0 +1,7 @@
+{"file":".trellis/spec/backend/index.md","reason":"Route CCB ACP and MCP implementation work to the correct backend authority layer."}
+{"file":".trellis/spec/backend/acp-session-flow.md","reason":"Implement CCB ACP event capture and isolated session execution against the documented session contract."}
+{"file":".trellis/spec/backend/mcp-business.md","reason":"Preserve quotation and inventory tool contracts used by the first golden Eval case."}
+{"file":".trellis/spec/integration/index.md","reason":"Apply cross-layer ownership rules when the Plugin, adapter, runtime, and live install interact."}
+{"file":".trellis/spec/integration/agents-unified-model.md","reason":"Use the authoritative quotation-agent profile, Read-first knowledge gate, and live deployment model."}
+{"file":"Agent eval system/eval-harness-plugin-design.md","reason":"Authoritative approved architecture, schemas, safety boundaries, MVP scope, and migration decisions."}
+{"file":".trellis/tasks/07-15-agent-eval-plugin-harness/research/review-verification-2026-07-15.md","reason":"Use verified Read-first, rawOutput, candidate evidence, host, and judge constraints from the design review."}
