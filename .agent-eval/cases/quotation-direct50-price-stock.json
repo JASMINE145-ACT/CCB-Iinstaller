@@ -1,0 +1,160 @@
+{
+  "id": "quotation-direct50-price-stock",
+  "title": "直接50 B级报价并查库存",
+  "objective": "基于业务知识、报价候选和库存工具证据，返回价格与库存一致的表格。",
+  "prompt": "查询直接50的B级价格并查库存，请用表格列出结果。",
+  "risk_level": "read_only",
+  "agent": {
+    "id": "quotation-agent",
+    "adapter": "ccb-acp"
+  },
+  "ideal_process": [
+    "knowledge.read",
+    "quotation.match",
+    "inventory.query",
+    "assistant.table"
+  ],
+  "graders": [
+    {
+      "id": "required_actions",
+      "type": "tool_presence",
+      "severity": "hard",
+      "config": {
+        "actions": [
+          "knowledge.read",
+          "quotation.match",
+          "inventory.query"
+        ]
+      }
+    },
+    {
+      "id": "forbidden_actions",
+      "type": "tool_forbidden",
+      "severity": "hard",
+      "config": {
+        "actions": [
+          "agent.delegate",
+          "quotation.search_inventory"
+        ]
+      }
+    },
+    {
+      "id": "golden_sequence",
+      "type": "sequence",
+      "severity": "hard",
+      "config": {
+        "actions": [
+          "knowledge.read",
+          "quotation.match",
+          "inventory.query",
+          "assistant.table"
+        ]
+      }
+    },
+    {
+      "id": "business_arguments",
+      "type": "tool_args",
+      "severity": "hard",
+      "config": {
+        "assertions": [
+          {
+            "action": "quotation.match",
+            "path": "input.customer_level",
+            "operator": "equals",
+            "value": "B"
+          }
+        ]
+      }
+    },
+    {
+      "id": "evidence_provenance",
+      "type": "evidence_link",
+      "severity": "hard",
+      "config": {
+        "assertions": [
+          {
+            "source": "quotation.match.output.candidates[*].code",
+            "target": "inventory.query.input.code",
+            "operator": "contains"
+          },
+          {
+            "source": "inventory.query.input.code",
+            "target": "assistant.table.rows[*].material_code",
+            "operator": "equals"
+          },
+          {
+            "source": "quotation.match.output.candidates[code=$inventory.query.input.code].unit_price",
+            "target": "assistant.table.rows[*].price",
+            "operator": "equals"
+          },
+          {
+            "source": "inventory.query.output.qty_available",
+            "target": "assistant.table.rows[*].inventory",
+            "operator": "equals"
+          }
+        ]
+      }
+    },
+    {
+      "id": "quotation_table",
+      "type": "structured_output",
+      "severity": "hard",
+      "config": {
+        "format": "markdown_table",
+        "required_columns": [
+          "产品",
+          "规格",
+          "物料编码",
+          "B级价格",
+          "库存"
+        ]
+      }
+    }
+  ],
+  "judge": {
+    "mode": "current_ai_process",
+    "required": true,
+    "rubric": [
+      {
+        "id": "requirement_satisfaction",
+        "description": "是否完整满足报价和库存需求",
+        "weight": 40
+      },
+      {
+        "id": "selection_reasoning",
+        "description": "候选选择是否符合业务知识",
+        "weight": 35
+      },
+      {
+        "id": "clarity",
+        "description": "表格和说明是否清晰",
+        "weight": 25
+      }
+    ],
+    "threshold": 80
+  },
+  "decision": {
+    "policy": "all_hard_and_soft_threshold",
+    "hard": {
+      "require": "all"
+    },
+    "soft": {
+      "aggregate": "weighted_average",
+      "threshold": 80
+    }
+  },
+  "trials": {
+    "count": 3,
+    "metrics": [
+      "pass_at_1",
+      "pass_at_3",
+      "pass_power_3",
+      "flaky_rate",
+      "latency"
+    ]
+  },
+  "schema_version": "eval.case/v1",
+  "status": "locked",
+  "confirmed_at": "2026-07-15T12:00:00.000Z",
+  "case_hash": "sha256:f9ce71471ad01a7b7e00b66fa9127f08001f90386401311e65e55c01e123e0bf"
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "eval.trace/v1",
+  "type": "object",
+  "required": ["schema_version", "trace_id", "case_id", "case_version", "adapter", "events", "artifacts", "metrics"],
+  "properties": {
+    "schema_version": { "const": "eval.trace/v1" },
+    "trace_id": { "type": "string" },
+    "case_id": { "type": "string" },
+    "case_version": { "type": "string" },
+    "adapter": { "type": "string" },
+    "agent_version": { "type": "string" },
+    "model": { "type": "string" },
+    "events": { "type": "array", "items": { "type": "object" } },
+    "artifacts": { "type": "array", "items": { "type": "object" } },
+    "metrics": {
+      "type": "object",
+      "required": ["turns", "tool_calls", "latency_ms"],
+      "properties": {
+        "turns": { "type": "integer", "minimum": 0 },
+        "tool_calls": { "type": "integer", "minimum": 0 },
+        "latency_ms": { "type": "number", "minimum": 0 }
+      }
+    }
+  }
+}

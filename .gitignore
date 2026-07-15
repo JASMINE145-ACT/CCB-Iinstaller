@@ -85,3 +85,7 @@ python/test_*_report.json
 docs/reference/rudder/
 
 ccb-installer/config/skills/ccb-subagent-gate/tests/fixtures/.roe-*/
+# Agent Eval Plugin runtime artifacts
+.agent-eval/runs/
+.agent-eval/reports/private/
+.agent-eval/artifacts/

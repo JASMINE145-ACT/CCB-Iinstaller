@@ -49,12 +49,12 @@
 - Create: `agent-eval-plugin/core/canonical-json.mjs`
 - Create: `agent-eval-plugin/test/schema-contracts.test.mjs`
 
-- [ ] **Step 1.1 — Scaffold:** Use the plugin-creator scaffold for `agent-eval-plugin` in the repository, without a personal marketplace entry; add Claude Code and Cursor manifests using the same name/version/skills path.
-- [ ] **Step 1.2 — RED:** Add contract tests for valid/invalid Case, Event, Trace, Judgment, and Report objects plus canonical JSON key ordering and stable SHA-256 hashes.
-- [ ] **Step 1.3 — Verify RED:** Run `npm test --prefix agent-eval-plugin`; expect missing schemas/validator/hash exports.
-- [ ] **Step 1.4 — GREEN:** Add the five schema documents and implement `validateContract(schemaVersion, value)`, `canonicalStringify(value)`, and `sha256Canonical(value)` using Node built-ins.
-- [ ] **Step 1.5 — Verify GREEN:** Run `npm test --prefix agent-eval-plugin`; expect schema and canonicalization tests green.
-- [ ] **Step 1.6 — Validate manifests:** Run the plugin-creator validator for the Codex manifest and parse all three manifests in the contract test.
+- [x] **Step 1.1 — Scaffold:** Use the plugin-creator scaffold for `agent-eval-plugin` in the repository, without a personal marketplace entry; add Claude Code and Cursor manifests using the same name/version/skills path.
+- [x] **Step 1.2 — RED:** Add contract tests for valid/invalid Case, Event, Trace, Judgment, and Report objects plus canonical JSON key ordering and stable SHA-256 hashes.
+- [x] **Step 1.3 — Verify RED:** Run `npm test --prefix agent-eval-plugin`; expect missing schemas/validator/hash exports.
+- [x] **Step 1.4 — GREEN:** Add the five schema documents and implement `validateContract(schemaVersion, value)`, `canonicalStringify(value)`, and `sha256Canonical(value)` using Node built-ins.
+- [x] **Step 1.5 — Verify GREEN:** Run `npm test --prefix agent-eval-plugin`; expect schema and canonicalization tests green.
+- [x] **Step 1.6 — Validate manifests:** Run the plugin-creator validator for the Codex manifest and parse all three manifests in the contract test.
 
 ## Task 2: Implement case confirmation, locking, and project storage
 
@@ -68,12 +68,12 @@
 - Create: `.agent-eval/suites/smoke.json`
 - Modify: `.gitignore`
 
-- [ ] **Step 2.1 — RED:** Test that a draft can be normalized and previewed, but cannot run before explicit confirmation; confirmation writes `case_hash`; mutation after locking is rejected; equivalent key ordering yields the same hash.
-- [ ] **Step 2.2 — Verify RED:** Run `npm test --prefix agent-eval-plugin -- --test-name-pattern="case"`; expect missing case-store behavior.
-- [ ] **Step 2.3 — GREEN:** Implement `createCaseDraft`, `confirmCase`, `verifyCaseLock`, and project store path resolution under `.agent-eval/`.
-- [ ] **Step 2.4 — Add CCB pack:** Encode the golden sequence `knowledge.read -> quotation.match -> inventory.query -> assistant.table`, six hard graders, required current-AI rubrics, three trials, and read-only side-effect policy.
-- [ ] **Step 2.5 — Ignore runtime data:** Ignore `.agent-eval/runs/`, `.agent-eval/reports/private/`, and raw artifacts while leaving versioned cases/suites visible.
-- [ ] **Step 2.6 — Verify GREEN:** Run the focused case tests and `git check-ignore .agent-eval/runs/probe.json`; both must pass.
+- [x] **Step 2.1 — RED:** Test that a draft can be normalized and previewed, but cannot run before explicit confirmation; confirmation writes `case_hash`; mutation after locking is rejected; equivalent key ordering yields the same hash.
+- [x] **Step 2.2 — Verify RED:** Run `npm test --prefix agent-eval-plugin -- --test-name-pattern="case"`; expect missing case-store behavior.
+- [x] **Step 2.3 — GREEN:** Implement `createCaseDraft`, `confirmCase`, `verifyCaseLock`, and project store path resolution under `.agent-eval/`.
+- [x] **Step 2.4 — Add CCB pack:** Encode the golden sequence `knowledge.read -> quotation.match -> inventory.query -> assistant.table`, six hard graders, required current-AI rubrics, three trials, and read-only side-effect policy.
+- [x] **Step 2.5 — Ignore runtime data:** Ignore `.agent-eval/runs/`, `.agent-eval/reports/private/`, and raw artifacts while leaving versioned cases/suites visible.
+- [x] **Step 2.6 — Verify GREEN:** Run the focused case tests and `git check-ignore .agent-eval/runs/probe.json`; both must pass.
 
 ## Task 3: Normalize events and implement the six deterministic graders
 

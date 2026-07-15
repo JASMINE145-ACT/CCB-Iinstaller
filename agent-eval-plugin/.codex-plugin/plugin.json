@@ -1,0 +1,16 @@
+{
+  "name": "agent-eval-plugin",
+  "version": "0.1.0",
+  "description": "Evidence-based agent evaluation in the current AI host process.",
+  "author": { "name": "Wanding" },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agent Eval",
+    "shortDescription": "Create and run evidence-based Agent evals.",
+    "longDescription": "Draft real-business eval Cases, run isolated target Agents, enforce deterministic hard gates, and let the current host AI judge open rubrics without a second model API.",
+    "developerName": "Wanding",
+    "category": "Developer Tools",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "defaultPrompt": "Create an Agent eval from my real business scenario and ideal process."
+  }
+}

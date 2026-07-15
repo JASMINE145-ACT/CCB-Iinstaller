@@ -1,0 +1,7 @@
+{
+  "name": "agent-eval-plugin",
+  "description": "Evidence-based agent evaluation in the current Claude Code process.",
+  "version": "0.1.0",
+  "author": { "name": "Wanding" },
+  "keywords": ["agent", "eval", "grader", "trace", "regression"]
+}

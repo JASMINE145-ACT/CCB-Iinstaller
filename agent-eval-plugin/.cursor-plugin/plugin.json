@@ -1,0 +1,9 @@
+{
+  "name": "agent-eval-plugin",
+  "displayName": "Agent Eval",
+  "description": "Evidence-based agent evaluation in the current Cursor process.",
+  "version": "0.1.0",
+  "author": { "name": "Wanding" },
+  "keywords": ["agent", "eval", "grader", "trace", "regression"],
+  "skills": "./skills/"
+}

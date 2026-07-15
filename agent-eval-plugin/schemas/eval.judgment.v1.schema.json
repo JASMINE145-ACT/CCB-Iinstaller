@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "eval.judgment/v1",
+  "type": "object",
+  "required": ["schema_version", "judge", "batch", "scores", "evidence_refs", "reason", "confidence", "needs_human_review"],
+  "properties": {
+    "schema_version": { "const": "eval.judgment/v1" },
+    "judge": {
+      "type": "object",
+      "required": ["host", "model", "version", "rubric_hash"],
+      "properties": {
+        "host": { "type": "string" },
+        "model": { "type": "string" },
+        "version": { "type": "string" },
+        "rubric_hash": { "type": "string" }
+      }
+    },
+    "batch": {
+      "type": "object",
+      "required": ["batch_id", "trial_order_randomized", "independent_trials"],
+      "properties": {
+        "batch_id": { "type": "string" },
+        "trial_order_randomized": { "type": "boolean" },
+        "independent_trials": { "const": false }
+      }
+    },
+    "scores": { "type": "object" },
+    "evidence_refs": { "type": "array", "items": { "type": "string" } },
+    "reason": { "type": "string" },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "needs_human_review": { "type": "boolean" }
+  }
+}
