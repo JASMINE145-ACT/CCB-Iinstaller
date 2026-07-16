@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 
 import { createCcbAcpAdapter } from '../adapters/ccb-acp/index.mjs'
 import { createNativeRunnerTransport } from '../adapters/ccb-acp/native-runner.mjs'
-import { promoteBaseline } from '../core/baseline.mjs'
+import { compareBaseline, promoteBaseline } from '../core/baseline.mjs'
 import { confirmCase, createCaseDraft } from '../core/case-store.mjs'
 import { runEvaluation, submitEvaluationJudgments } from '../core/evaluation.mjs'
 import { renderMarkdownReport } from '../core/report.mjs'
@@ -17,6 +17,7 @@ Operations:
   run      --case-file <json> (--fixture <jsonl> | native adapter options) [--trials 3]
   review   --run-dir <dir> --judgments-file <json>
   report   --run-dir <dir>
+  baseline --run-dir <dir> --fingerprints-file <json> --compare-file <json>
   baseline --run-dir <dir> --fingerprints-file <json> --confirmed [--baseline-dir <dir>]
 
 The script performs deterministic work only. The current host AI reads the Judge Packet
@@ -82,12 +83,23 @@ function nativeAdapterFactory(options) {
   })
 }
 
+function judgeFingerprint(options) {
+  const values = ['judge-host', 'judge-model', 'judge-version'].map((key) => options[key])
+  if (values.every((value) => value === undefined)) return undefined
+  if (!values.every((value) => typeof value === 'string' && value.length > 0)) {
+    throw new Error('--judge-host, --judge-model, and --judge-version must be provided together')
+  }
+  return { host: values[0], model: values[1], version: values[2] }
+}
+
 function saveRun(runDir, state, report) {
   mkdirSync(runDir, { recursive: true })
   writeJson(join(runDir, 'state.json'), state)
   writeJson(join(runDir, 'report.json'), report)
   writeFileSync(join(runDir, 'report.md'), renderMarkdownReport(report), 'utf8')
-  if (state.judge_packet) writeJson(join(runDir, 'judge-packet.json'), state.judge_packet)
+  const packetPath = join(runDir, 'judge-packet.json')
+  if (state.judge_packet) writeJson(packetPath, state.judge_packet)
+  else if (existsSync(packetPath)) unlinkSync(packetPath)
 }
 
 async function main() {
@@ -111,11 +123,7 @@ async function main() {
   if (operation === 'run') {
     const caseDefinition = readJson(required(options, 'case-file'))
     const adapterFactory = options.fixture ? fixtureAdapterFactory(options.fixture) : nativeAdapterFactory(options)
-    const judge = {
-      host: options['judge-host'] ?? 'current-host',
-      model: options['judge-model'] ?? 'current-host-model',
-      version: options['judge-version'] ?? 'host-reported',
-    }
+    const judge = judgeFingerprint(options)
     const result = await runEvaluation({
       caseDefinition,
       adapterFactory,
@@ -143,9 +151,22 @@ async function main() {
   if (operation === 'baseline') {
     const runDir = resolve(required(options, 'run-dir'))
     const report = readJson(join(runDir, 'report.json'))
+    const fingerprints = readJson(required(options, 'fingerprints-file'))
+    if (options['compare-file']) {
+      const comparison = compareBaseline(readJson(options['compare-file']), {
+        case_id: report.case_id,
+        fingerprints,
+        metrics: report.metrics,
+      })
+      const updatedReport = { ...report, baseline: comparison }
+      writeJson(join(runDir, 'report.json'), updatedReport)
+      writeFileSync(join(runDir, 'report.md'), renderMarkdownReport(updatedReport), 'utf8')
+      emit(comparison)
+      return
+    }
     const baseline = promoteBaseline({
       report,
-      fingerprints: readJson(required(options, 'fingerprints-file')),
+      fingerprints,
       directory: resolve(options['baseline-dir'] ?? join('.agent-eval', 'baselines')),
       confirmed: options.confirmed === true,
     })

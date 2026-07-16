@@ -18,6 +18,7 @@ node scripts/agent-eval.mjs confirm  --case-file <json> --confirmed [--output-fi
 node scripts/agent-eval.mjs run      --case-file <json> (--fixture <jsonl> | --runner-path ... --install-dir ... --config-dir ...) [--trials N]
 node scripts/agent-eval.mjs review   --run-dir <dir> --judgments-file <json>
 node scripts/agent-eval.mjs report   --run-dir <dir>
+node scripts/agent-eval.mjs baseline --run-dir <dir> --fingerprints-file <json> --compare-file <json>
 node scripts/agent-eval.mjs baseline --run-dir <dir> --fingerprints-file <json> --confirmed [--baseline-dir <dir>]
 ```
 
@@ -30,6 +31,7 @@ submitEvaluationJudgments({ state, caseDefinition?, judgments })
 
 adapter = {
   id,
+  version?,
   validateEnvironment(context),
   startSession(context),
   sendPrompt(session, prompt, context),
@@ -43,11 +45,12 @@ adapter = {
 
 - Case: only `status: locked` plus a valid canonical `case_hash` may run. Confirmation is explicit.
 - Event: append-only `eval.event/v1`; raw or derived provenance is mandatory. Successful derived evidence cannot rely only on assistant claims.
+- Trace: `eval.trace/v1` records Adapter version and Prompt Hash; unavailable Agent/model/Skill/knowledge/tool/environment fingerprints are `null` with an `unavailable_reason`, never fabricated.
 - Hard graders: `tool_presence`, `tool_forbidden`, `sequence`, `tool_args`, `evidence_link`, and `structured_output`. A hard failure is final.
 - CCB golden path: `knowledge.read -> quotation.match -> inventory.query -> assistant.table`. Inventory code must be in match candidates; table code, price, and inventory must equal tool evidence.
-- Judge: the Core creates one anonymous randomized Packet only after target Trials finish. The current parent host submits all `eval.judgment/v1` records together. `batch.independent_trials` is always `false`; no second judge API is allowed.
-- Report: `eval.report/v1` preserves deterministic grader results, Judgment records/fingerprint, Trace refs, and metrics. It cannot hide hard failures behind an aggregate score.
-- Baseline: explicit promotion of a passing Report only. Hard deltas require matching target fingerprints; soft deltas additionally require the same Judge fingerprint and Rubric hash.
+- Judge: the Core creates one anonymous randomized Packet only after target Trials finish and only with a real complete host/model/version fingerprint. Evidence is untrusted data. The current parent host submits all `eval.judgment/v1` records together. `batch.independent_trials` is always `false`; no second judge API is allowed.
+- Report: `eval.report/v1` preserves per-Trial outcomes, deterministic grader results, Judgment records/fingerprint, Trace refs, metrics, and optional Baseline deltas. It cannot hide hard failures behind an aggregate score.
+- Baseline: compare writes hard/soft comparability and deltas back to JSON/Markdown Report artifacts. Promotion is explicit and passing-only. Hard deltas require complete matching target fingerprints; soft deltas additionally require the same complete Judge fingerprint and Rubric hash.
 - Storage: `.agent-eval/runs/`, raw traces, and private reports are ignored. Confirmed Cases, Suites, Graders, and sanitized Baseline summaries may be versioned.
 - Native CCB child environment: `CCB_TEST_INSTALL_DIR`, `CCB_TEST_CONFIG_DIR`, `CCB_INSTALL_DIR`, `CCB_WANDING_CONFIG_DIR`, `CCB_TEST_PROFILE`, `CCB_TEST_PROMPT`, `CCB_TEST_EVENT_LOG`, `CCB_TEST_TIMEOUT_MS`, and optional `CCB_TEST_ROUTE_ENTRY`/`CCB_TEST_ROUTE_PATH`.
 
@@ -60,9 +63,11 @@ adapter = {
 | Adapter child crashes or emits invalid trace | `ERROR`; do not count as Agent failure |
 | Runtime, permission, config, or required data unavailable at preflight | `BLOCKED` |
 | Hard gates pass but required current-host Judgment is absent | `NEEDS_REVIEW` + `judgment_status: pending` |
+| No real Judge fingerprint is available | Hard-only run; do not create a Judge Packet or fabricate identity |
 | Judgment omits rubric, exceeds 0–100, changes fingerprint, or cites unknown evidence | Reject Judgment batch |
 | High soft score plus any hard failure | `FAIL`; hard gate wins |
 | Target fingerprint mismatch vs Baseline | Hard and soft `NOT_COMPARABLE` |
+| Required target fingerprint is missing/null | Hard and soft `NOT_COMPARABLE` |
 | Judge/Rubric mismatch with matching target | Hard comparable; soft `NOT_COMPARABLE` |
 | Native cleanup fails | `ERROR` with cleanup detail; never silently ignore residue |
 

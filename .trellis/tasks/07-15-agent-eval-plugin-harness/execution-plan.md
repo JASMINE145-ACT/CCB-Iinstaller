@@ -22,7 +22,7 @@
 | P4 judgment/reporting | completed | 41/41 tests; anonymous batch packet; validated Judgment; decision precedence; metrics; baseline; JSON/Markdown report |
 | P5 Claude Code MVP | completed | 46/46 tests; internal run/review/report E2E; hard-failure E2E; current Codex batch Judgment PASS on sanitized fixture |
 | P6 migration/cross-host | in_progress | Importer/legacy alignment/cross-host contracts complete; Codex smoke PASS; Claude/Cursor human conversation smokes outstanding |
-| Gate | pending | Pending primary review, contract verification, spec update, PRD closeout |
+| Gate | in_progress | System review and automated gates complete (57/57 plugin, 3/3 recorder, 80/80 legacy, 16/16 smoke); real Route B target ERROR and Claude/Cursor human smokes keep closeout open |
 
 ## Skills invoked (this planning session)
 
@@ -36,6 +36,8 @@
 | superpowers:executing-plans | Read: | Phased execution, checkpoints, and stop-on-blocker rules are encoded here |
 | superpowers:using-git-worktrees | Read: | Main is dirty; execution is isolated on a feature worktree before production edits |
 | superpowers:systematic-debugging | Read: | Traced the lone evidence-link failure to three locked Case paths missing the standard Event `output` segment; regenerated and re-locked the Case without weakening the grader |
+| system-review | Read: | Completed implementation/system audit; fixed hard-only, Baseline, Trace, Report, mixed-Trial, and Judge safety gaps; recorded remaining product blockers |
+| superpowers:verification-before-completion | Read: | Re-ran every required gate after final edits and recorded fresh results before commit |
 
 ## Phase -1 — Capability matrix
 
@@ -110,6 +112,14 @@
 7. Update `.trellis/spec/` with permanent contracts and complete `implement.jsonl`, `check.jsonl`, and PRD checkboxes.
 8. Commit only the task-scoped files, as already authorized by the user.
 9. Finish the Trellis task only when all required evidence is present.
+
+## Final audit evidence (2026-07-16)
+
+- `research/final-system-review-2026-07-16.md` classifies the result as an Internal MVP and records resolved/open risks.
+- Final plugin suite: 57/57 PASS, including Windows child-process-tree timeout cleanup.
+- ACP recorder: 3/3 PASS; legacy eval: 80/80 PASS; legacy smoke: 16/16 PASS.
+- Official plugin validator, JavaScript syntax, `git diff --check`, and Trellis context validation: PASS.
+- Real Route B: `D:\tmp\agent-eval-final-live2-20260716` completed as `ERROR / ADAPTER_EXECUTION_ERROR / CHILD_EXIT(1)`, no Judge Packet, no recent process or Temp residue. This validates Harness failure handling, not the target Agent golden path.
 
 ## Manual steps
 

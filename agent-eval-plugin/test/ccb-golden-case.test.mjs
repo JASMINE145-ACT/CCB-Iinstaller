@@ -5,6 +5,7 @@ import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
 import { createCcbAcpAdapter } from '../adapters/ccb-acp/index.mjs'
+import { sha256Canonical } from '../core/canonical-json.mjs'
 import { runCase } from '../core/run-case.mjs'
 import { validateContract } from '../core/schema-validator.mjs'
 
@@ -44,6 +45,13 @@ test('runs the locked golden Case deterministically through the CCB ACP adapter'
   assert.equal(validateContract('eval.trace/v1', result.trace).valid, true)
   assert.equal(result.trace.events.length, 5)
   assert.equal(result.trace.metrics.tool_calls, 3)
+  assert.equal(result.trace.adapter, 'ccb-acp')
+  assert.equal(result.trace.adapter_version, '1.0.0')
+  assert.equal(result.trace.prompt_hash, sha256Canonical(caseDefinition.prompt))
+  for (const field of ['agent_version', 'model', 'skill_hash', 'knowledge_hash', 'tools_hash', 'environment_hash']) {
+    assert.equal(result.trace[field], null)
+    assert.match(result.trace.unavailable_reasons[field], /not reported/u)
+  }
 })
 
 test('maps environment unavailability to BLOCKED without grading the Agent', async () => {
@@ -68,7 +76,7 @@ test('maps environment unavailability to BLOCKED without grading the Agent', asy
 test('maps adapter execution faults to ERROR and still attempts cleanup', async () => {
   let cleaned = false
   const transport = fixtureTransport({
-    async sendPrompt() { throw new Error('child process crashed') },
+    async sendPrompt() { throw Object.assign(new Error('child process crashed'), { code: 'CHILD_EXIT', exitCode: 9 }) },
     async cleanup() { cleaned = true },
   })
 
@@ -76,5 +84,7 @@ test('maps adapter execution faults to ERROR and still attempts cleanup', async 
   assert.equal(result.verdict, 'ERROR')
   assert.equal(result.reason_code, 'ADAPTER_EXECUTION_ERROR')
   assert.match(result.error.message, /child process crashed/u)
+  assert.equal(result.error.code, 'CHILD_EXIT')
+  assert.equal(result.error.exit_code, 9)
   assert.equal(cleaned, true)
 })

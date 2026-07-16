@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { spawnSync } from 'node:child_process'
 import {
   existsSync,
   mkdirSync,
@@ -121,4 +122,47 @@ test('native runner rejects a non-zero child exit with bounded diagnostics', asy
     transport.sendPrompt(session, 'fixture prompt'),
     (error) => error.code === 'CHILD_EXIT' && error.exitCode === 7 && /synthetic child failure/u.test(error.stderr),
   )
+})
+test('native runner timeout terminates the complete Windows child process tree', { skip: process.platform !== 'win32' }, async (t) => {
+  const paths = sandbox()
+  t.after(() => rmSync(paths.root, { recursive: true, force: true }))
+  const pidFile = join(paths.root, 'tree-pids.json')
+  const grandchildPath = join(paths.root, 'grandchild.mjs')
+  const runnerPath = join(paths.root, 'tree-runner.mjs')
+  writeFileSync(grandchildPath, "setInterval(() => {}, 1000)\n", 'utf8')
+  writeFileSync(runnerPath, [
+    "import { spawn } from 'node:child_process'",
+    "import { writeFileSync } from 'node:fs'",
+    "const child = spawn(process.execPath, [process.env.GRANDCHILD_PATH], { stdio: 'ignore' })",
+    "writeFileSync(process.env.PID_FILE, JSON.stringify({ runner: process.pid, grandchild: child.pid }))",
+    "setInterval(() => {}, 1000)",
+  ].join('\n'), 'utf8')
+  let pids
+  t.after(() => {
+    if (!pids) return
+    for (const pid of [pids.runner, pids.grandchild]) {
+      spawnSync('taskkill.exe', ['/pid', String(pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' })
+    }
+  })
+  const transport = createNativeRunnerTransport({
+    runnerPath,
+    installDir: paths.installDir,
+    configDir: paths.configDir,
+    tempRoot: paths.workDir,
+    timeoutMs: 1000,
+    environment: { ...process.env, PID_FILE: pidFile, GRANDCHILD_PATH: grandchildPath },
+  })
+  const session = await transport.startSession({ traceId: 'trace-tree-timeout' })
+  t.after(() => transport.cleanup(session))
+
+  await assert.rejects(transport.sendPrompt(session, 'fixture prompt'), (error) => error.code === 'CHILD_TIMEOUT')
+  pids = JSON.parse(readFileSync(pidFile, 'utf8'))
+  const isAlive = (pid) => {
+    try { process.kill(pid, 0); return true } catch { return false }
+  }
+  for (let attempt = 0; attempt < 20 && (isAlive(pids.runner) || isAlive(pids.grandchild)); attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 50))
+  }
+  assert.equal(isAlive(pids.runner), false)
+  assert.equal(isAlive(pids.grandchild), false)
 })

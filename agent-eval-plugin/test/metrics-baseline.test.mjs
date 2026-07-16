@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import { spawnSync } from 'node:child_process'
 import test from 'node:test'
+import { fileURLToPath } from 'node:url'
 
 import { compareBaseline, promoteBaseline } from '../core/baseline.mjs'
 import { aggregateTrials } from '../core/metrics.mjs'
@@ -23,6 +25,7 @@ const fingerprints = {
     rubric_hash: 'sha256:rubric',
   },
 }
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
 
 function trial(verdict, latency, toolCalls = 3, softScore) {
   return {
@@ -82,6 +85,12 @@ test('baseline promotion is explicit, requires PASS, and writes a versioned summ
   assert.throws(() => promoteBaseline({
     report: { ...report, verdict: 'FAIL' }, fingerprints, directory: root, confirmed: true,
   }), /passing report/u)
+  assert.throws(() => promoteBaseline({
+    report, fingerprints: { ...fingerprints, environment: null }, directory: root, confirmed: true,
+  }), /environment fingerprint/u)
+  assert.throws(() => promoteBaseline({
+    report, fingerprints: { ...fingerprints, judge: { host: 'codex' } }, directory: root, confirmed: true,
+  }), /judge fingerprint/u)
 })
 
 test('compares hard metrics by target fingerprint and soft metrics only by judge fingerprint', () => {
@@ -113,6 +122,72 @@ test('compares hard metrics by target fingerprint and soft metrics only by judge
   assert.equal(blocked.soft.status, 'NOT_COMPARABLE')
 })
 
+test('does not treat missing or null fingerprints as comparable', () => {
+  const baseline = {
+    schema_version: 'eval.baseline/v1',
+    fingerprints: { ...fingerprints, environment: null, judge: null },
+    metrics: { pass_at_1: 1, soft_score_mean: 90 },
+  }
+  const comparison = compareBaseline(baseline, {
+    fingerprints: { ...fingerprints, environment: null, judge: null },
+    metrics: { pass_at_1: 1, soft_score_mean: 90 },
+  })
+
+  assert.deepEqual(comparison.hard, {
+    status: 'NOT_COMPARABLE',
+    reason_code: 'TARGET_FINGERPRINT_UNAVAILABLE',
+  })
+  assert.deepEqual(comparison.soft, comparison.hard)
+
+  const missingJudge = compareBaseline(
+    { ...baseline, fingerprints: { ...fingerprints, judge: null } },
+    { fingerprints: { ...fingerprints, judge: null }, metrics: baseline.metrics },
+  )
+  assert.equal(missingJudge.hard.status, 'COMPARABLE')
+  assert.deepEqual(missingJudge.soft, {
+    status: 'NOT_COMPARABLE',
+    reason_code: 'JUDGE_FINGERPRINT_UNAVAILABLE',
+  })
+
+  const differentCase = compareBaseline(
+    { ...baseline, case_id: 'case-1', fingerprints },
+    { case_id: 'case-2', fingerprints, metrics: baseline.metrics },
+  )
+  assert.equal(differentCase.hard.reason_code, 'CASE_ID_MISMATCH')
+})
+
+test('internal baseline operation compares a report through the shared host interface', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'agent-eval-baseline-compare-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const runDir = join(root, 'run')
+  mkdirSync(runDir)
+  writeFileSync(join(runDir, 'report.json'), JSON.stringify({
+    schema_version: 'eval.report/v1', run_id: 'run-current', case_id: 'case-1', verdict: 'PASS',
+    judgment_status: 'complete', outcomes: [], grader_results: [], judgments: [], trace_refs: [],
+    metrics: { pass_at_1: 0, soft_score_mean: 95 },
+  }), 'utf8')
+  const fingerprintsPath = join(root, 'fingerprints.json')
+  writeFileSync(fingerprintsPath, JSON.stringify(fingerprints), 'utf8')
+  const baselinePath = join(root, 'baseline.json')
+  writeFileSync(baselinePath, JSON.stringify({
+    schema_version: 'eval.baseline/v1', case_id: 'case-1', fingerprints,
+    metrics: { pass_at_1: 1, soft_score_mean: 90 },
+  }), 'utf8')
+
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'agent-eval-plugin', 'scripts', 'agent-eval.mjs'), 'baseline',
+    '--run-dir', runDir, '--fingerprints-file', fingerprintsPath, '--compare-file', baselinePath,
+  ], { encoding: 'utf8' })
+
+  assert.equal(result.status, 0, result.stderr)
+  const comparison = JSON.parse(result.stdout)
+  assert.deepEqual(comparison.hard.delta, { pass_at_1: -1 })
+  assert.deepEqual(comparison.soft.delta, { soft_score_mean: 5 })
+  const updatedReport = JSON.parse(readFileSync(join(runDir, 'report.json'), 'utf8'))
+  assert.deepEqual(updatedReport.baseline, comparison)
+  assert.match(readFileSync(join(runDir, 'report.md'), 'utf8'), /hard: COMPARABLE/u)
+})
+
 test('creates contract-valid JSON and Markdown reports without hiding hard failures', () => {
   const metrics = aggregateTrials([trial('FAIL', 120)])
   const report = createReport({
@@ -131,4 +206,31 @@ test('creates contract-valid JSON and Markdown reports without hiding hard failu
   const markdown = renderMarkdownReport(report)
   assert.match(markdown, /Verdict: FAIL/u)
   assert.match(markdown, /required_actions/u)
+})
+test('reports actionable ERROR outcomes without exposing raw child diagnostics', () => {
+  const report = createReport({
+    runId: 'run-error',
+    caseId: 'quotation-case',
+    trialResults: [{
+      verdict: 'ERROR',
+      judgment_status: 'not_started',
+      reason_code: 'ADAPTER_EXECUTION_ERROR',
+      reason: 'ACP runner exited with code 9',
+      error: { name: 'Error', message: 'ACP runner exited with code 9', code: 'CHILD_EXIT', exit_code: 9 },
+      grader_results: [],
+      trace: null,
+    }],
+    metrics: aggregateTrials([trial('ERROR', 0, 0)]),
+  })
+
+  assert.deepEqual(report.outcomes[0], {
+    trial: 1,
+    verdict: 'ERROR',
+    judgment_status: 'not_started',
+    reason_code: 'ADAPTER_EXECUTION_ERROR',
+    reason: 'ACP runner exited with code 9',
+    error: { name: 'Error', message: 'ACP runner exited with code 9', code: 'CHILD_EXIT', exit_code: 9 },
+  })
+  assert.match(renderMarkdownReport(report), /ADAPTER_EXECUTION_ERROR.*CHILD_EXIT/u)
+  assert.equal(JSON.stringify(report).includes('stderr'), false)
 })

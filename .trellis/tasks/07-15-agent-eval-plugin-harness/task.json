@@ -23,6 +23,6 @@
   "relatedFiles": [
     ".trellis/spec/agent-eval/index.md"
   ],
-  "notes": "2026-07-16: spec updated - .trellis/spec/agent-eval/index.md: executable Plugin/Core/Adapter/Judge/status/baseline/host contracts.",
+  "notes": "2026-07-16: Internal MVP system review complete; final automated gates PASS (57 plugin, 3 recorder, 80 legacy, 16 smoke). Real Route B remains ERROR and Claude/Cursor human smokes remain open; task stays in_progress.",
   "meta": {}
 }

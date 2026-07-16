@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url'
 
 import { createCcbAcpAdapter } from '../../adapters/ccb-acp/index.mjs'
 import { runEvaluation, submitEvaluationJudgments } from '../../core/evaluation.mjs'
+import { runCase } from '../../core/run-case.mjs'
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
 const caseDefinition = JSON.parse(readFileSync(
@@ -76,6 +77,61 @@ test('Claude wrapper flow runs three isolated trials and accepts one current-AI 
   assert.equal(completed.report.judgments.length, 3)
   assert.equal(completed.report.judgments.every(({ judge }) => judge.host === 'claude-code'), true)
 })
+
+test('hard-only evaluation preserves pending soft review without fabricating a Judge', async () => {
+  const initial = await runEvaluation({
+    caseDefinition,
+    adapterFactory,
+    trialCount: 1,
+    runId: 'run-hard-only-fixture',
+  })
+
+  assert.equal(initial.report.verdict, 'NEEDS_REVIEW')
+  assert.equal(initial.report.judgment_status, 'pending')
+  assert.equal(initial.state.status, 'judgment_pending')
+  assert.equal(initial.state.judge_packet, null)
+  assert.equal(initial.state.trial_map, null)
+})
+
+test('mixed infrastructure faults judge only pending evidence Trials and still complete', async () => {
+  const judge = { host: 'claude-code', model: 'current-host-model', version: 'host-reported' }
+  const initial = await runEvaluation({
+    caseDefinition,
+    adapterFactory,
+    trialCount: 2,
+    runId: 'run-mixed-fixture',
+    judge,
+    random: () => 0,
+    trialRunner: async ({ caseDefinition: currentCase, adapter, traceId }) => (
+      traceId.endsWith('-1')
+        ? runCase({ caseDefinition: currentCase, adapter, traceId })
+        : {
+            verdict: 'ERROR', judgment_status: 'not_started', reason_code: 'ADAPTER_EXECUTION_ERROR',
+            reason: 'fixture child crashed', grader_results: [], trace: null,
+          }
+    ),
+  })
+
+  assert.equal(initial.state.judge_packet.trials.length, 1)
+  const packetTrial = initial.state.judge_packet.trials[0]
+  const completed = submitEvaluationJudgments({
+    state: initial.state,
+    judgments: [{
+      schema_version: 'eval.judgment/v1',
+      trial_alias: packetTrial.trial_alias,
+      judge: { ...judge, rubric_hash: initial.state.judge_packet.case.rubric_hash },
+      batch: { ...initial.state.judge_packet.batch },
+      scores: { requirement_satisfaction: 95, selection_reasoning: 90, clarity: 90 },
+      evidence_refs: [packetTrial.evidence[0].ref],
+      reason: 'The evidence Trial satisfies the Case rubric.', confidence: 0.95, needs_human_review: false,
+    }],
+  })
+
+  assert.deepEqual(completed.state.trials.map(({ verdict }) => verdict), ['PASS', 'ERROR'])
+  assert.equal(completed.state.status, 'complete')
+  assert.equal(completed.report.verdict, 'ERROR')
+})
+
 test('internal host script persists run, review, and final report artifacts end to end', (t) => {
   const root = mkdtempSync(join(tmpdir(), 'agent-eval-wrapper-e2e-'))
   t.after(() => rmSync(root, { recursive: true, force: true }))
@@ -119,6 +175,29 @@ test('internal host script persists run, review, and final report artifacts end 
   assert.equal(report.metrics.pass_power_3, 1)
   assert.match(readFileSync(join(runDir, 'report.md'), 'utf8'), /Verdict: PASS/u)
 })
+
+test('internal host script runs hard-only without invented Judge identity', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'agent-eval-wrapper-hard-only-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const runDir = join(root, 'run')
+  mkdirSync(runDir)
+  writeFileSync(join(runDir, 'judge-packet.json'), '{"stale":true}', 'utf8')
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'agent-eval-plugin', 'scripts', 'agent-eval.mjs'), 'run',
+    '--case-file', join(repoRoot, '.agent-eval', 'cases', 'quotation-direct50-price-stock.json'),
+    '--fixture', fileURLToPath(new URL('../fixtures/ccb-acp/tool-call-updates.jsonl', import.meta.url)),
+    '--trials', '1', '--output-dir', runDir,
+  ], { encoding: 'utf8' })
+
+  assert.equal(result.status, 0, result.stderr)
+  const state = JSON.parse(readFileSync(join(runDir, 'state.json'), 'utf8'))
+  assert.equal(state.status, 'judgment_pending')
+  assert.equal(state.judge_packet, null)
+  assert.equal(state.trial_map, null)
+  assert.equal(existsSync(join(runDir, 'judge-packet.json')), false)
+  assert.equal(readFileSync(join(runDir, 'report.json'), 'utf8').includes('current-host-model'), false)
+})
+
 test('internal wrapper preserves a hard FAIL when required tool evidence is missing', (t) => {
   const root = mkdtempSync(join(tmpdir(), 'agent-eval-wrapper-fail-'))
   t.after(() => rmSync(root, { recursive: true, force: true }))

@@ -41,7 +41,23 @@ const contracts = {
     trace_id: 'trace-1',
     case_id: 'quotation-direct50-price-stock',
     case_version: 'sha256:case',
-    adapter: 'ccb-acp@0.1.0',
+    adapter: 'ccb-acp',
+    adapter_version: '0.1.0',
+    agent_version: null,
+    model: null,
+    prompt_hash: 'sha256:prompt',
+    skill_hash: null,
+    knowledge_hash: null,
+    tools_hash: null,
+    environment_hash: null,
+    unavailable_reasons: {
+      agent_version: 'not reported by adapter',
+      model: 'not reported by adapter',
+      skill_hash: 'not reported by adapter',
+      knowledge_hash: 'not reported by adapter',
+      tools_hash: 'not reported by adapter',
+      environment_hash: 'not reported by adapter',
+    },
     events: [],
     artifacts: [],
     metrics: { turns: 1, tool_calls: 0, latency_ms: 1 },
@@ -71,6 +87,7 @@ const contracts = {
     case_id: 'quotation-direct50-price-stock',
     verdict: 'PASS',
     judgment_status: 'complete',
+    outcomes: [],
     grader_results: [],
     trace_refs: ['trace://trace-1'],
     metrics: {},
@@ -102,6 +119,14 @@ test('each v1 contract rejects a value missing its identity field', () => {
     assert.equal(result.valid, false, schemaVersion)
     assert.match(result.errors.join('\n'), new RegExp(identityField))
   }
+})
+
+test('Trace rejects missing reproducibility metadata', () => {
+  const invalid = structuredClone(contracts['eval.trace/v1'])
+  delete invalid.prompt_hash
+  const result = validateContract('eval.trace/v1', invalid)
+  assert.equal(result.valid, false)
+  assert.match(result.errors.join('\n'), /prompt_hash/u)
 })
 
 test('rejects unknown schema versions instead of guessing a contract', () => {

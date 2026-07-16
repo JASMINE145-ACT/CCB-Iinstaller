@@ -2,15 +2,22 @@ import { randomUUID } from 'node:crypto'
 
 import { assertRuntimeAdapter } from '../adapter-sdk/index.mjs'
 import { gradeCase } from '../graders/index.mjs'
+import { sha256Canonical } from './canonical-json.mjs'
 import { assertCaseRunnable } from './case-store.mjs'
 import { decideTrial } from './decision.mjs'
 import { validateContract } from './schema-validator.mjs'
 
 function errorDetails(error) {
-  return {
+  const details = {
     name: error instanceof Error ? error.name : 'Error',
     message: error instanceof Error ? error.message : String(error),
   }
+  if (error && typeof error === 'object') {
+    if (typeof error.code === 'string') details.code = error.code
+    if (Number.isInteger(error.exitCode)) details.exit_code = error.exitCode
+    if (typeof error.signal === 'string') details.signal = error.signal
+  }
+  return details
 }
 
 function fault(verdict, reasonCode, reason, extra = {}) {
@@ -23,6 +30,25 @@ function fault(verdict, reasonCode, reason, extra = {}) {
     trace: null,
     ...extra,
   }
+}
+
+function reproducibilityMetadata(caseDefinition, adapter, environment) {
+  const reported = environment?.trace_metadata ?? {}
+  const values = {
+    adapter_version: adapter.version ?? reported.adapter_version ?? null,
+    agent_version: reported.agent_version ?? caseDefinition.agent?.version ?? null,
+    model: reported.model ?? null,
+    prompt_hash: sha256Canonical(caseDefinition.prompt),
+    skill_hash: reported.skill_hash ?? null,
+    knowledge_hash: reported.knowledge_hash ?? null,
+    tools_hash: reported.tools_hash ?? null,
+    environment_hash: reported.environment_hash ?? null,
+  }
+  const unavailableReasons = {}
+  for (const [field, value] of Object.entries(values)) {
+    if (value === null) unavailableReasons[field] = reported.unavailable_reasons?.[field] ?? `${field} not reported by adapter`
+  }
+  return { ...values, unavailable_reasons: unavailableReasons }
 }
 
 export async function runCase({
@@ -70,6 +96,7 @@ export async function runCase({
       case_id: caseDefinition.id,
       case_version: caseDefinition.case_hash,
       adapter: adapter.id,
+      ...reproducibilityMetadata(caseDefinition, adapter, environment),
       events,
       artifacts: [
         { kind: 'state.before', value: before },

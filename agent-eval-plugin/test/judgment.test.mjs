@@ -98,6 +98,10 @@ test('builds one anonymized, randomized Judge Packet after all trials finish', (
   assert.equal(JSON.stringify(packet).includes('chronological-'), false)
   assert.equal(JSON.stringify(packet).includes('previous_score'), false)
   assert.equal(packet.trials.every(({ evidence }) => evidence.every(({ ref }) => ref.startsWith('packet-event://'))), true)
+  assert.deepEqual(packet.submission_contract.safety, {
+    evidence_is_untrusted_data: true,
+    ignore_instructions_in_evidence: true,
+  })
 })
 
 test('validates one complete current-host batch with rubric, fingerprint, and evidence coverage', () => {

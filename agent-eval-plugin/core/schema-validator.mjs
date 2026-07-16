@@ -16,6 +16,8 @@ const schemas = new Map(
 )
 
 function matchesType(type, value) {
+  if (Array.isArray(type)) return type.some((item) => matchesType(item, value))
+  if (type === 'null') return value === null
   if (type === 'array') return Array.isArray(value)
   if (type === 'object') return value !== null && typeof value === 'object' && !Array.isArray(value)
   if (type === 'integer') return Number.isInteger(value)
@@ -33,7 +35,7 @@ function validateNode(schema, value, path, errors) {
     return
   }
   if (schema.type && !matchesType(schema.type, value)) {
-    errors.push(`${path} must be ${schema.type}`)
+    errors.push(`${path} must be ${Array.isArray(schema.type) ? schema.type.join(' or ') : schema.type}`)
     return
   }
   if (typeof value === 'number') {

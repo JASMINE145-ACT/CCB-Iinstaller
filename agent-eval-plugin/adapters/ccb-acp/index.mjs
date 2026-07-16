@@ -17,6 +17,7 @@ export function createCcbAcpAdapter({ transport }) {
 
   return assertRuntimeAdapter({
     id: 'ccb-acp',
+    version: '1.0.0',
     validateEnvironment(context) {
       return transport.validateEnvironment(context)
     },

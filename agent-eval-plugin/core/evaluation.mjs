@@ -30,8 +30,10 @@ export async function runEvaluation({
 
   let judgePacket = null
   let trialMap = null
-  if (caseDefinition.judge?.required && trials.every(({ trace }) => trace?.events)) {
-    const created = createJudgePacket({ caseDefinition, trialResults: trials, judge, random })
+  const judgmentTrials = trials.filter(({ judgment_status: status }) => status === 'pending')
+  const judgmentPending = judgmentTrials.length > 0
+  if (judgmentPending && judge && judgmentTrials.every(({ trace }) => trace?.events)) {
+    const created = createJudgePacket({ caseDefinition, trialResults: judgmentTrials, judge, random })
     judgePacket = created.packet
     trialMap = created.trial_map
   }
@@ -43,7 +45,7 @@ export async function runEvaluation({
       run_id: runId,
       case_id: caseDefinition.id,
       case_hash: caseDefinition.case_hash,
-      status: judgePacket ? 'judgment_pending' : 'complete',
+      status: judgmentPending ? 'judgment_pending' : 'complete',
       case_definition: structuredClone(caseDefinition),
       trials,
       judge_packet: judgePacket,
@@ -61,6 +63,7 @@ export function submitEvaluationJudgments({ state, caseDefinition = state?.case_
     judgment,
   ]))
   const trials = state.trials.map((trial) => {
+    if (trial.judgment_status !== 'pending') return structuredClone(trial)
     const judgment = judgmentByTrial.get(trial.trial_id)
     if (!judgment) throw new Error(`Missing mapped Judgment for ${trial.trial_id}`)
     const decision = decideTrial({
