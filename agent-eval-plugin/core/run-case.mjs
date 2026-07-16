@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { assertRuntimeAdapter } from '../adapter-sdk/index.mjs'
 import { gradeCase } from '../graders/index.mjs'
 import { assertCaseRunnable } from './case-store.mjs'
+import { decideTrial } from './decision.mjs'
 import { validateContract } from './schema-validator.mjs'
 
 function errorDetails(error) {
@@ -62,8 +63,7 @@ export async function runCase({
     })
     const after = await adapter.snapshotState(session, { phase: 'after', caseDefinition, traceId })
     const graderResults = gradeCase(caseDefinition, events)
-    const hardFailed = graderResults.some(({ severity, status }) => severity === 'hard' && status !== 'PASS')
-    const judgePending = !hardFailed && caseDefinition.judge?.required === true
+    const decision = decideTrial({ caseDefinition, graderResults })
     const trace = {
       schema_version: 'eval.trace/v1',
       trace_id: traceId,
@@ -96,8 +96,7 @@ export async function runCase({
     }
 
     return {
-      verdict: hardFailed ? 'FAIL' : judgePending ? 'NEEDS_REVIEW' : 'PASS',
-      judgment_status: hardFailed ? 'not_started' : judgePending ? 'pending' : 'not_required',
+      ...decision,
       grader_results: graderResults,
       trace,
     }

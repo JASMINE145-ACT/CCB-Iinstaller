@@ -130,12 +130,12 @@
 - Create: `agent-eval-plugin/test/judgment.test.mjs`
 - Create: `agent-eval-plugin/test/metrics-baseline.test.mjs`
 
-- [ ] **Step 5.1 — RED judgment:** Test anonymized randomized batch packets, complete rubric coverage, score ranges, valid evidence refs, judge fingerprint, and hard-gate precedence.
-- [ ] **Step 5.2 — RED hard-only:** Test that required soft rubrics without a judgment produce `NEEDS_REVIEW` plus `judgment_pending`, while hard-only cases can pass.
-- [ ] **Step 5.3 — RED metrics/baseline:** Test pass@1, pass@3, pass^3, flaky rate, latency quantiles, explicit baseline promotion, and `NOT_COMPARABLE` soft deltas when fingerprints differ.
-- [ ] **Step 5.4 — Verify RED:** Run focused judgment/metrics tests; expect missing implementations.
-- [ ] **Step 5.5 — GREEN:** Implement packet generation, judgment validation, verdict decision, three-trial aggregation, Markdown/JSON reports, and explicit baseline promotion.
-- [ ] **Step 5.6 — Verify GREEN:** Run all plugin tests and confirm a forced hard failure cannot be changed to PASS by a high soft score.
+- [x] **Step 5.1 — RED judgment:** Test anonymized randomized batch packets, complete rubric coverage, score ranges, valid evidence refs, judge fingerprint, and hard-gate precedence.
+- [x] **Step 5.2 — RED hard-only:** Test that required soft rubrics without a judgment produce `NEEDS_REVIEW` plus `judgment_pending`, while hard-only cases can pass.
+- [x] **Step 5.3 — RED metrics/baseline:** Test pass@1, pass@3, pass^3, flaky rate, latency quantiles, explicit baseline promotion, and `NOT_COMPARABLE` soft deltas when fingerprints differ.
+- [x] **Step 5.4 — Verify RED:** Run focused judgment/metrics tests; expect missing implementations.
+- [x] **Step 5.5 — GREEN:** Implement packet generation, judgment validation, verdict decision, three-trial aggregation, Markdown/JSON reports, and explicit baseline promotion.
+- [x] **Step 5.6 — Verify GREEN:** Run all plugin tests and confirm a forced hard failure cannot be changed to PASS by a high soft score.
 
 ## Task 6: Deliver the Claude Code end-to-end wrapper
 

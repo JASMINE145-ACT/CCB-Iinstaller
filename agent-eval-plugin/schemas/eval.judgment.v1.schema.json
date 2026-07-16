@@ -5,6 +5,7 @@
   "required": ["schema_version", "judge", "batch", "scores", "evidence_refs", "reason", "confidence", "needs_human_review"],
   "properties": {
     "schema_version": { "const": "eval.judgment/v1" },
+    "trial_alias": { "type": "string" },
     "judge": {
       "type": "object",
       "required": ["host", "model", "version", "rubric_hash"],
