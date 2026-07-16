@@ -148,11 +148,11 @@
 - Create: `agent-eval-plugin/test/e2e/claude-code-golden.test.mjs`
 - Create: `agent-eval-plugin/README.md`
 
-- [ ] **Step 6.1 — RED wrapper contract:** Test that the skill exposes create, confirm, run, review, report, and baseline operations and always delegates deterministic work to the same Core entry point.
-- [ ] **Step 6.2 — GREEN wrapper:** Implement the internal script interface and skill instructions for natural-language Case drafting, explicit confirmation, isolated trials, Judge Packet submission, and report rendering.
-- [ ] **Step 6.3 — E2E:** Run the golden quotation Case through Claude Code/CCB ACP with three trials; complete one batch current-AI judgment; save sanitized JSON and Markdown reports.
-- [ ] **Step 6.4 — Failure E2E:** Run at least one deliberately invalid fixture/Case and verify a stable hard `FAIL` reason and evidence references.
-- [ ] **Step 6.5 — Documentation:** Document install, create/confirm/run/review/report/baseline, hard-only behavior, privacy, troubleshooting, and the distinction between Plugin entry and internal script.
+- [x] **Step 6.1 — RED wrapper contract:** Test that the skill exposes create, confirm, run, review, report, and baseline operations and always delegates deterministic work to the same Core entry point.
+- [x] **Step 6.2 — GREEN wrapper:** Implement the internal script interface and skill instructions for natural-language Case drafting, explicit confirmation, isolated trials, Judge Packet submission, and report rendering.
+- [x] **Step 6.3 — E2E:** Run the golden quotation Case through Claude Code/CCB ACP with three trials; complete one batch current-AI judgment; save sanitized JSON and Markdown reports.
+- [x] **Step 6.4 — Failure E2E:** Run at least one deliberately invalid fixture/Case and verify a stable hard `FAIL` reason and evidence references.
+- [x] **Step 6.5 — Documentation:** Document install, create/confirm/run/review/report/baseline, hard-only behavior, privacy, troubleshooting, and the distinction between Plugin entry and internal script.
 
 ## Task 7: Migrate safely and complete cross-host v1 contracts
 

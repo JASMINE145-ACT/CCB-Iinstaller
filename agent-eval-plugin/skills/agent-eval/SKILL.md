@@ -34,3 +34,9 @@ Use this skill when the user wants to evaluate an existing or future Agent from 
 For the CCB quotation golden Case, require the Case-specific hard path `Read business knowledge -> match_quotation -> inventory query -> evidence-consistent Markdown table`. The inventory code must come from the match candidates; the table code, price, and inventory must agree with tool evidence.
 
 All host wrappers delegate deterministic validation, grading, metrics, and reporting to the same Core implementation. Do not copy business rules into this Skill or a host manifest.
+
+## Internal host protocol
+
+Resolve `scripts/agent-eval.mjs` relative to this plugin and use it only as the Skill's deterministic interface. `run` must finish every target Trial before the current AI sees `judge-packet.json`. Submit all trial Judgments together with `review`, then show the generated report. Never generate Judgment JSON inside the target Agent session.
+
+Use `create`, `confirm`, `run`, `review`, `report`, and explicit `baseline` promotion from this shared script. Do not ask the user to operate it as a separate Agent CLI.

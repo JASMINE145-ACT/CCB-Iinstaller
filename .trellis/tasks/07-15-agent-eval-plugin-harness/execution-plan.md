@@ -7,7 +7,7 @@
 | **Scenario** | A — standard feature |
 | **Plan depth** | Standard |
 | **Verification profile** | Standard, with Claude Code live E2E and three manual host smokes at v1 closeout |
-| **Active phase** | P5 — Claude Code end-to-end wrapper |
+| **Active phase** | P6 — legacy import and cross-host v1 contracts |
 | **Detailed TDD plan** | `docs/superpowers/plans/2026-07-15-agent-eval-plugin-harness.md` |
 
 ## Progress snapshot
@@ -20,8 +20,8 @@
 | P2 events/graders | completed | 22/22 tests; append-only provenance; six positive/negative hard graders; locked evidence paths |
 | P3 CCB adapter | completed | 32/32 tests; fixture six-gate pass; live hard-only business FAIL with zero tool calls |
 | P4 judgment/reporting | completed | 41/41 tests; anonymous batch packet; validated Judgment; decision precedence; metrics; baseline; JSON/Markdown report |
-| P5 Claude Code MVP | in_progress | Core complete; wrapper contract and three-trial E2E next |
-| P6 migration/cross-host | pending | Pending legacy import and Codex/Cursor contract plus smoke |
+| P5 Claude Code MVP | completed | 46/46 tests; internal run/review/report E2E; hard-failure E2E; current Codex batch Judgment PASS on sanitized fixture |
+| P6 migration/cross-host | in_progress | Non-destructive importer, legacy alignment, thin host docs, and smoke records |
 | Gate | pending | Pending primary review, contract verification, spec update, PRD closeout |
 
 ## Skills invoked (this planning session)
@@ -94,10 +94,10 @@
 | `WANd.EVAL.HARD_GATE.001` | `npm test --prefix agent-eval-plugin` | Six hard graders plus forced hard failure with perfect soft score | complete; AI judgment cannot override |
 | `WANd.EVAL.TRACE.001` | recorder, normalizer, native transport, and live hard-only run | 32/32 plugin tests; full tool inputs/outputs normalized; child cleanup verified | P3 complete |
 | `WANd.EVAL.CCB_QUOTE.001` | fixture golden test + live quotation run | Fixture passes all six hard gates; live run correctly FAILS with zero tool calls | P3 complete; target runtime/persona remains a product issue |
-| `WANd.EVAL.JUDGE.001` | judgment tests + one batch host judgment | Anonymous randomized batch, full rubric/ref/fingerprint validation, `independent_trials:false` | Core complete; live host submission pending P5 |
+| `WANd.EVAL.JUDGE.001` | judgment tests + one current-host batch submission | Anonymous randomized batch, full rubric/ref/fingerprint validation, 3 Codex Judgments, `independent_trials:false` | complete on sanitized fixture; production target still hard FAIL |
 | `WANd.EVAL.STATUS.001` | orchestration/hard-only tests | FAIL/ERROR/BLOCKED/NEEDS_REVIEW and hard-only pending matrix | complete |
 | `WANd.EVAL.METRIC.001` | metrics/baseline tests | pass@1/pass@3/pass^3/flaky, latency, soft quantiles, explicit promotion, comparability | complete |
-| `WANd.EVAL.HOST.001` | manifest contract tests + host smoke records | Three manifests share name/version/Skill; official Codex validator PASS | contract complete; host smokes pending |
+| `WANd.EVAL.HOST.001` | manifest/wrapper contract tests + host smoke records | Three manifests share Core; internal script run/review E2E; official plugin validator PASS | Claude wrapper complete; human cross-host smokes pending P6 |
 
 ## Verification gate
 

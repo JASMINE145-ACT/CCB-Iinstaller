@@ -17,6 +17,9 @@ export function createReport({ runId, caseId, trialResults, metrics, baseline = 
     verdict,
     judgment_status: judgmentStatus,
     grader_results: trialResults.flatMap((trial, index) => trial.grader_results.map((result) => ({ trial: index + 1, ...structuredClone(result) }))),
+    judgments: trialResults.flatMap((trial, index) => trial.judgment
+      ? [{ trial: index + 1, ...structuredClone(trial.judgment) }]
+      : []),
     trace_refs: trialResults.filter(({ trace }) => trace?.trace_id).map(({ trace }) => `trace://${trace.trace_id}`),
     metrics: structuredClone(metrics),
     ...(baseline ? { baseline: structuredClone(baseline) } : {}),

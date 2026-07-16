@@ -10,6 +10,7 @@
     "verdict": { "enum": ["PASS", "FAIL", "ERROR", "BLOCKED", "NEEDS_REVIEW"] },
     "judgment_status": { "enum": ["complete", "pending", "not_required"] },
     "grader_results": { "type": "array", "items": { "type": "object" } },
+    "judgments": { "type": "array", "items": { "type": "object" } },
     "trace_refs": { "type": "array", "items": { "type": "string" } },
     "metrics": { "type": "object" }
   }
