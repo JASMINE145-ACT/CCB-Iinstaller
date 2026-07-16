@@ -7,7 +7,7 @@
 | **Scenario** | A — standard feature |
 | **Plan depth** | Standard |
 | **Verification profile** | Standard, with Claude Code live E2E and three manual host smokes at v1 closeout |
-| **Active phase** | P3 — CCB ACP adapter normalization and golden deterministic run |
+| **Active phase** | P4 — current-host judgment, reports, metrics, and baselines |
 | **Detailed TDD plan** | `docs/superpowers/plans/2026-07-15-agent-eval-plugin-harness.md` |
 
 ## Progress snapshot
@@ -18,8 +18,8 @@
 | P0 ACP evidence | completed | Recorder RED/GREEN 3/3; full match output 5,301 chars; inventory output captured; sanitized 11-line fixture; `research/phase-0-acp-raw-output-spike.md` |
 | P1 contracts/storage | completed | 12/12 tests; three host manifests; five schemas; stable Case lock; CCB golden Case; plugin validator PASS |
 | P2 events/graders | completed | 22/22 tests; append-only provenance; six positive/negative hard graders; locked evidence paths |
-| P3 CCB adapter | in_progress | Pending fixture normalization and live golden deterministic run |
-| P4 judgment/reporting | pending | Pending hard-only, Judge Packet, metrics, baseline, reports |
+| P3 CCB adapter | completed | 32/32 tests; fixture six-gate pass; live hard-only business FAIL with zero tool calls |
+| P4 judgment/reporting | in_progress | Current-host Judge Packet contracts, decision, metrics, baseline, and reports |
 | P5 Claude Code MVP | pending | Pending three-trial E2E |
 | P6 migration/cross-host | pending | Pending legacy import and Codex/Cursor contract plus smoke |
 | Gate | pending | Pending primary review, contract verification, spec update, PRD closeout |
@@ -92,8 +92,8 @@
 |----------|------------------------------|-------------------|--------|
 | `WANd.EVAL.CASE_LOCK.001` | `npm test --prefix agent-eval-plugin` | Stable hash, explicit confirmation, mutation rejection, safe path, locked CCB Case | complete |
 | `WANd.EVAL.HARD_GATE.001` | `npm test --prefix agent-eval-plugin` | Six hard graders PASS golden evidence; six focused negative reason codes | grader layer complete; decision precedence pending |
-| `WANd.EVAL.TRACE.001` | recorder test + live `CCB_TEST_EVENT_LOG` spike | 3/3 tests; match `rawOutput` 5,301 chars; inventory `rawOutput` 173 chars; 11-line sanitized fixture | P0 complete; adapter normalization pending |
-| `WANd.EVAL.CCB_QUOTE.001` | fixture golden test + live quotation run | Read/match/inventory/table evidence refs | pending |
+| `WANd.EVAL.TRACE.001` | recorder, normalizer, native transport, and live hard-only run | 32/32 plugin tests; full tool inputs/outputs normalized; child cleanup verified | P3 complete |
+| `WANd.EVAL.CCB_QUOTE.001` | fixture golden test + live quotation run | Fixture passes all six hard gates; live run correctly FAILS with zero tool calls | P3 complete; target runtime/persona remains a product issue |
 | `WANd.EVAL.JUDGE.001` | judgment tests + one batch host judgment | Fingerprint/rubric hash and `independent_trials:false` | pending |
 | `WANd.EVAL.STATUS.001` | orchestration/hard-only tests | FAIL/ERROR/BLOCKED/NEEDS_REVIEW matrix | pending |
 | `WANd.EVAL.METRIC.001` | metrics/baseline tests | pass@1/pass@3/pass^3/flaky and comparability | pending |

@@ -109,12 +109,12 @@
 - Create: `agent-eval-plugin/test/ccb-golden-case.test.mjs`
 - Create: `agent-eval-plugin/core/run-case.mjs`
 
-- [ ] **Step 4.1 — RED normalizer:** Using the sanitized fixture, test mapping of Read, match input/output, inventory input/output, assistant text, raw refs, parent spans, failure updates, and completion.
-- [ ] **Step 4.2 — RED orchestration:** Test adapter `validateEnvironment`, `startSession`, `sendPrompt`, `collectEvents`, `snapshotState`, and `cleanup` boundaries with a fixture transport; adapter faults must map to `ERROR`/`BLOCKED`, not `FAIL`.
-- [ ] **Step 4.3 — Verify RED:** Run `npm test --prefix agent-eval-plugin -- --test-name-pattern="CCB|golden"`; expect missing adapter/orchestrator behavior.
-- [ ] **Step 4.4 — GREEN:** Implement the normalizer, child-process transport, trace construction, cleanup reporting, and deterministic grading pipeline.
-- [ ] **Step 4.5 — Golden negative matrix:** Prove each omitted/reordered/mismatched step fails with the intended reason code; prove the fixture golden path passes every hard grader.
-- [ ] **Step 4.6 — Verify GREEN:** Run all plugin tests, then one live hard-only run against the isolated `quotation-agent` child session and save its report outside Git.
+- [x] **Step 4.1 — RED normalizer:** Using the sanitized fixture, test mapping of Read, match input/output, inventory input/output, assistant text, raw refs, parent spans, failure updates, and completion.
+- [x] **Step 4.2 — RED orchestration:** Test adapter `validateEnvironment`, `startSession`, `sendPrompt`, `collectEvents`, `snapshotState`, and `cleanup` boundaries with a fixture transport; adapter faults must map to `ERROR`/`BLOCKED`, not `FAIL`.
+- [x] **Step 4.3 — Verify RED:** Run `npm test --prefix agent-eval-plugin -- --test-name-pattern="CCB|golden"`; expect missing adapter/orchestrator behavior.
+- [x] **Step 4.4 — GREEN:** Implement the normalizer, child-process transport, trace construction, cleanup reporting, and deterministic grading pipeline.
+- [x] **Step 4.5 — Golden negative matrix:** Prove each omitted/reordered/mismatched step fails with the intended reason code; prove the fixture golden path passes every hard grader.
+- [x] **Step 4.6 — Verify GREEN:** Run all plugin tests, then one live hard-only run against the isolated `quotation-agent` child session and save its report outside Git.
 
 ## Task 5: Add current-host judgment, reports, metrics, and baselines
 
