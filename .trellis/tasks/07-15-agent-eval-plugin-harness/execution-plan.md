@@ -21,7 +21,7 @@
 | P3 CCB adapter | completed | 32/32 tests; fixture six-gate pass; live hard-only business FAIL with zero tool calls |
 | P4 judgment/reporting | completed | 41/41 tests; anonymous batch packet; validated Judgment; decision precedence; metrics; baseline; JSON/Markdown report |
 | P5 Claude Code MVP | completed | 46/46 tests; internal run/review/report E2E; hard-failure E2E; current Codex batch Judgment PASS on sanitized fixture |
-| P6 migration/cross-host | in_progress | Non-destructive importer, legacy alignment, thin host docs, and smoke records |
+| P6 migration/cross-host | in_progress | Importer/legacy alignment/cross-host contracts complete; Codex smoke PASS; Claude/Cursor human conversation smokes outstanding |
 | Gate | pending | Pending primary review, contract verification, spec update, PRD closeout |
 
 ## Skills invoked (this planning session)

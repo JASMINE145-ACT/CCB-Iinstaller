@@ -15,6 +15,15 @@ test('Claude Code wrapper exposes the shared six-operation Skill contract', () =
   assert.match(skill, /current host AI/u)
   assert.match(skill, /Do not call a second LLM judge API/u)
   assert.equal(existsSync(join(pluginRoot, 'hosts', 'claude-code', 'README.md')), true)
+  assert.equal(existsSync(join(pluginRoot, 'hosts', 'codex', 'README.md')), true)
+  assert.equal(existsSync(join(pluginRoot, 'hosts', 'cursor', 'README.md')), true)
+  for (const host of ['claude-code', 'codex', 'cursor']) {
+    const hostDoc = readFileSync(join(pluginRoot, 'hosts', host, 'README.md'), 'utf8')
+    for (const operation of ['create', 'confirm', 'run', 'review', 'report', 'baseline']) {
+      assert.match(hostDoc, new RegExp(`\\b${operation}\\b`, 'u'))
+    }
+    assert.equal(hostDoc.includes('match_quotation'), false)
+  }
 })
 
 test('internal script delegates evaluation to the shared Core and documents every operation', () => {

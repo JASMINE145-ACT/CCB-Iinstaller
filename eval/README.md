@@ -52,6 +52,12 @@ Live runs invoke `ccb-installer/test-native-acp-agent.mjs` with `CCB_TEST_PROFIL
 | `retry` | Re-run on `BAD_TURN` / empty tool log when smoke exits 1 (also `CCB_EVAL_RETRY` env) |
 | `fix_note` | Human-readable note on why the case shape changed |
 
+## Legacy runner and Agent Eval Plugin coexistence
+
+The legacy JSONL runner remains available during migration. On 2026-07-16, seven stale match-first descriptions were aligned to the authoritative Read-first Agent/Hook contract while preserving Case IDs and suite references. The legacy runner does not machine-enforce `must_not` order; the new plugin expresses Read-before-match with a deterministic `sequence` grader.
+
+`../agent-eval-plugin/core/legacy-import.mjs` is read-only: it creates an unconfirmed `eval.case/v1` draft, records retired or unmapped assertions, and rejects unsupported `pass_if_any` branches for manual migration. It never mutates or auto-confirms the source JSONL.
+
 ## Fix log
 
 ### 2026-07-06 — `orchestrator-accurate-purchase-monthly-convergence` (R3, task 07-06-accurate-delegation-convergence)
@@ -108,7 +114,7 @@ Live runs invoke `ccb-installer/test-native-acp-agent.mjs` with `CCB_TEST_PROFIL
 ### 2026-06-19 — `quote-tee50-post-hook-golden`
 
 - **Purpose:** Same hook chain as direct50; locks「查询 三通50 价格」after `[Tool use interrupted]` investigation.
-- **Judge (human):** Recommend **8020022784** (短型顺水三通 D排水 DN50, B 4869); Read KB after match; no interrupt mid-`match_quotation`.
+- **Judge (human):** Recommend **8020022784** (短型顺水三通 D排水 DN50, B 4869); Read KB before match; no interrupt mid-`match_quotation`.
 
 ### 2026-06-19 — ACP `query.next` timeout (cold-start interrupt)
 
@@ -119,7 +125,7 @@ Live runs invoke `ccb-installer/test-native-acp-agent.mjs` with `CCB_TEST_PROFIL
 ### 2026-06-19 — `quote-direct50-post-hook-golden`
 
 - **Purpose:** Lock PostToolUse + Stop knowledge-read flow after user smoke on「查询直接50价格」.
-- **Tools:** `match_quotation` → `Read`(`wanding_business_knowledge.md`) → reply.
+- **Tools:** `Read`(`wanding_business_knowledge.md`) → `match_quotation` → reply.
 - **Judge (human):** Recommend **8020020755** (Sock 50mm, B 1219); cite KB §5.1/5.2 D排水白色; 1 row + 「其他可能」bullets; no candidate dump / pick-number menu.
 
 ### 2026-06-19 — `quote-show-candidates`

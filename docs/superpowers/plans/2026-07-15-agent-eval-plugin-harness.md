@@ -168,10 +168,10 @@
 - Create: `.trellis/tasks/07-15-agent-eval-plugin-harness/research/host-smoke-codex.md`
 - Create: `.trellis/tasks/07-15-agent-eval-plugin-harness/research/host-smoke-cursor.md`
 
-- [ ] **Step 7.1 — RED importer:** Test non-destructive conversion of one legacy quotation Case and explicit retirement/translation of match-first assertions.
-- [ ] **Step 7.2 — GREEN importer:** Implement read-only import producing new drafts without mutating source JSONL.
-- [ ] **Step 7.3 — Align legacy assets:** Update only factually conflicting Read-first descriptions while preserving old runner compatibility; run its offline/smoke validation commands.
-- [ ] **Step 7.4 — Cross-host contracts:** Validate all manifests, one shared Case/Report contract, and thin wrapper documentation for Codex/Cursor.
+- [x] **Step 7.1 — RED importer:** Test non-destructive conversion of one legacy quotation Case and explicit retirement/translation of match-first assertions.
+- [x] **Step 7.2 — GREEN importer:** Implement read-only import producing new drafts without mutating source JSONL.
+- [x] **Step 7.3 — Align legacy assets:** Update only factually conflicting Read-first descriptions while preserving old runner compatibility; run its offline/smoke validation commands.
+- [x] **Step 7.4 — Cross-host contracts:** Validate all manifests, one shared Case/Report contract, and thin wrapper documentation for Codex/Cursor.
 - [ ] **Step 7.5 — Human host smoke:** Record one Claude Code, Codex, and Cursor smoke. Do not claim automated conversational E2E for Cursor/Codex.
 - [ ] **Step 7.6 — Full gate:** Run `npm test --prefix agent-eval-plugin`, recorder tests, legacy eval validation, plugin manifest validation, live golden E2E, secret scan of versioned fixtures/reports, and Trellis context validation.
 - [ ] **Step 7.7 — Spec and closeout:** Update durable Trellis contracts, check PRD acceptance criteria, fill execution evidence, request the canonical code review, and only then finish the task.

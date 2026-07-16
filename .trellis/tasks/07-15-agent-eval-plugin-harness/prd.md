@@ -22,16 +22,16 @@
 ## Acceptance Criteria
 
 - [ ] Claude Code 用户能用自然语言创建标准 Case 草案并完成第一条端到端 MVP。
-- [ ] Case 在运行前经过用户确认并锁定 Hash。
-- [ ] CCB Adapter 能执行隔离 Agent 会话并输出结构化 Event/Trace。
-- [ ] 六类硬 Grader 覆盖工具存在、禁用工具、顺序、参数、证据关联和表格结构。
-- [ ] 黄金路径任一步缺失、乱序或证据不一致时稳定输出 `FAIL`。
-- [ ] 当前 AI 通过 Judge Packet 提交结构化 Judgment，且不能覆盖硬门禁。
-- [ ] hard-only 运行保留确定性结果，必需软项未判断时不输出完整 `PASS`。
-- [ ] Judgment 包含 Host、Model、Version 和 Rubric Hash。
-- [ ] Adapter/环境故障与 Agent 业务失败严格区分。
-- [ ] 三次 Trial 输出 pass@1、pass@3、pass^3、Flaky 和延迟指标。
-- [ ] 现有 `eval/` 在迁移期间保持可运行。
+- [x] Case 在运行前经过用户确认并锁定 Hash。
+- [x] CCB Adapter 能执行隔离 Agent 会话并输出结构化 Event/Trace。
+- [x] 六类硬 Grader 覆盖工具存在、禁用工具、顺序、参数、证据关联和表格结构。
+- [x] 黄金路径任一步缺失、乱序或证据不一致时稳定输出 `FAIL`。
+- [x] 当前 AI 通过 Judge Packet 提交结构化 Judgment，且不能覆盖硬门禁。
+- [x] hard-only 运行保留确定性结果，必需软项未判断时不输出完整 `PASS`。
+- [x] Judgment 包含 Host、Model、Version 和 Rubric Hash。
+- [x] Adapter/环境故障与 Agent 业务失败严格区分。
+- [x] 三次 Trial 输出 pass@1、pass@3、pass^3、Flaky 和延迟指标。
+- [x] 现有 `eval/` 在迁移期间保持可运行。
 - [ ] Codex/Cursor Wrapper 在 v1 阶段通过 Package/Schema/Contract 测试，并各有一次人工宿主 Smoke 记录。
 
 ## Definition of Done
