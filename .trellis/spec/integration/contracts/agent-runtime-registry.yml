@@ -102,6 +102,107 @@ contracts:
     related:
       - WANd.RUN.EXECUTION.001
 
+  - id: WANd.ORG.MUTATE.UX.001
+    title: Org mutate preview/apply envelope
+    domain: org-mutate
+    description: >
+      Unified preview→confirm→apply→audit protocol for org DB mutates
+      (knowledge, price, supplier). Knowledge is first implementer;
+      price/supplier keep legacy fields with progressive aliasing.
+      Append and delete both require same-turn preview synthesis.
+    code:
+      - python/admin/org_knowledge_payloads.py
+      - python/admin/org_knowledge_dispatch.py
+      - mcp_servers/quotation-server/dist/index.js
+    tests:
+      - python/admin/test_org_knowledge_mutate.py
+    spec:
+      - .trellis/spec/integration/org-mutate-ux.md
+      - .trellis/tasks/07-14-kb-business-completeness/prd.md
+      - .trellis/tasks/07-15-kb-mutate-conversation-ux/prd.md
+    related:
+      - WANd.KB.MCP.DELETE.001
+      - WANd.KB.MCP.APPEND_BUDGET.001
+      - WANd.ORG.MUTATE.CONFIRM.001
+      - WANd.ORG.MUTATE.PARITY.001
+      - WANd.LEARNING.PROMOTION.001
+
+  - id: WANd.ORG.MUTATE.CONFIRM.001
+    title: Org mutate confirm vocabulary (chat)
+    domain: org-mutate
+    description: >
+      One-round Accept vocab for confirmed=true after preview
+      (确认/同意/ok/好的/可以/是/落库/删除-in-context). Reject
+      ambiguous chat and re-asking after Accept.
+    code:
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md
+    tests:
+      - manual#kb-mutate-confirm-vocab-smoke
+    spec:
+      - .trellis/spec/integration/org-mutate-ux.md
+      - .trellis/spec/integration/org-knowledge.md
+    related:
+      - WANd.ORG.MUTATE.UX.001
+
+  - id: WANd.ORG.MUTATE.PARITY.001
+    title: UI vs MCP org mutate business parity
+    domain: org-mutate
+    description: >
+      UI chrome may differ from chat confirm; envelope/error_code/RBAC/
+      locator/budget must stay aligned with configured Org Mutate logic.
+    code:
+      - python/admin/org_knowledge_mutate.py
+      - python/admin/org_knowledge_client.py
+    tests:
+      - python/admin/test_org_knowledge_mutate.py
+    spec:
+      - .trellis/spec/integration/org-mutate-ux.md
+    related:
+      - WANd.ORG.MUTATE.UX.001
+      - WANd.KB.MCP.DELETE.001
+
+  - id: WANd.KB.MCP.DELETE.001
+    title: Knowledge delete_business_rule (auditable)
+    domain: org-mutate
+    description: >
+      MCP delete removes a Markdown rule block with block_id or
+      content_hash+doc_version+snippet; keeps org revision history;
+      apply gated by test slug / env flag / is_admin or org_knowledge.write
+      from GET /api/auth/user; preview uses Org Mutate envelope;
+      FORBIDDEN message is Chinese recovery copy.
+    code:
+      - python/admin/org_knowledge_client.py
+      - python/admin/org_knowledge_mutate.py
+      - python/admin/org_knowledge_dispatch.py
+      - mcp_servers/quotation-server/dist/index.js
+    tests:
+      - python/admin/test_org_knowledge_mutate.py
+      - python/tests/test_quotation_mcp_tool_registry.py
+    spec:
+      - .trellis/spec/integration/org-mutate-ux.md
+      - .trellis/tasks/07-14-kb-business-completeness/research/delete-locator-compat.md
+    related:
+      - WANd.ORG.MUTATE.UX.001
+      - WANd.ORG.MUTATE.PARITY.001
+
+  - id: WANd.KB.MCP.APPEND_BUDGET.001
+    title: Knowledge append budget (no silent truncate/split)
+    domain: org-mutate
+    description: >
+      Hard cap LIMIT_EXCEEDED; forbid multi-append of one semantic rule;
+      near-duplicate returns NEAR_DUPLICATE without writing.
+    code:
+      - python/admin/org_knowledge_client.py
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md
+    tests:
+      - python/admin/test_org_knowledge_mutate.py
+    spec:
+      - .trellis/spec/integration/org-mutate-ux.md
+      - .trellis/tasks/07-14-kb-business-completeness/research/near-duplicate-append.md
+      - .trellis/tasks/07-14-kb-business-completeness/research/max-token-700.md
+    related:
+      - WANd.ORG.MUTATE.UX.001
+
   - id: WANd.ROUTING.KB_ORG.001
     title: 知识库 means business knowledge append
     domain: routing
@@ -121,6 +222,7 @@ contracts:
       - WANd.ROUTING.ASSIGNMENT.001
       - WANd.ROUTING.KB_PRICE.001
       - WANd.ROUTING.KB_DISAMBIG.001
+      - WANd.ORG.MUTATE.UX.001
 
   - id: WANd.ROUTING.KB_PRICE.001
     title: 价格库 routes to price-library-agent
@@ -160,6 +262,66 @@ contracts:
       - WANd.ROUTING.KB_ORG.001
       - WANd.ROUTING.KB_PRICE.001
 
+  - id: WANd.TRADE.SOURCING.DUAL.001
+    title: Quote card dual-calls price match and supplier hybrid
+    domain: routing
+    description: >
+      Product inquiry/pricing on quotation-agent runs match_quotation and
+      suppliers_hybrid_match in the same turn; reply synthesizes SKU + factory
+      evidence. Address/contact/vehicle also use supplier-directory tools on
+      quotation-agent (standalone supplier-directory-agent removed).
+    code:
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.aionui.json
+      - .trellis/tasks/07-13-trade-sourcing-knowledge-consolidation/dual-call-contract.md
+    tests:
+      - manual#dual-call-geotextile-smoke
+    spec:
+      - .trellis/spec/integration/supplier-directory.md
+      - .trellis/tasks/07-13-trade-sourcing-knowledge-consolidation/smoke.md
+    related:
+      - WANd.ROUTING.SUPPLIER_DIR.001
+      - WANd.ROUTING.ASSIGNMENT.001
+
+  - id: WANd.ROUTING.SUPPLIER_DIR.001
+    title: All supplier-directory intents route to quotation-agent
+    domain: routing
+    description: >
+      Find-factory, address, vehicle, and directory CRUD all go to
+      quotation-agent (supplier-directory MCP). Legacy id
+      supplier-directory-agent aliases to quotation-agent. Never use
+      price-library supplier column as factory SoT.
+    code:
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md
+      - ccb-installer/packages/vertical/com.wanding.trade/package.json
+    tests:
+      - manual#supplier-via-quotation-smoke
+    spec:
+      - .trellis/spec/integration/supplier-directory.md
+      - .trellis/spec/integration/work-routing-execution-contracts.md
+    related:
+      - WANd.TRADE.SOURCING.DUAL.001
+
+  - id: WANd.LEARN.PRECIPITATE.001
+    title: learn-by-data A knowledge / B notify / C draft / D skip
+    domain: learning
+    description: >
+      Only Section A may append_business_rule with rule+reason+source.
+      Section B marks severity and notifies 祐嘉诚. Section C upserts price
+      library draft for price_admin only. Section D mapping writes are skipped.
+    code:
+      - ccb-installer/packages/vertical/com.wanding.trade/skills/quotation-learn-by-data/SKILL.md
+      - .trellis/tasks/07-13-trade-sourcing-knowledge-consolidation/learn-precipitate-contract.md
+    tests:
+      - manual#learn-by-data-precipitate-smoke
+    spec:
+      - .trellis/spec/integration/org-knowledge.md
+      - .trellis/spec/integration/price-library.md
+    related:
+      - WANd.ROUTING.KB_ORG.001
+      - WANd.ROUTING.KB_PRICE.001
+
   - id: WANd.RUN.EXECUTION.001
     title: Sync Agent() spawn via runAgent.ts
     domain: execution
@@ -171,9 +333,102 @@ contracts:
       - ccb-installer/claude-code-b-src/packages/builtin-tools/src/tools/AgentTool/runAgent.ts
     tests:
       - eval/agent_eval_cases.jsonl#orchestrator-quote-delegates
+      - eval/agent_eval_cases.jsonl#orchestrator-fill-outcome-relay
     spec:
       - .trellis/spec/integration/agent-team-architecture.md
       - .trellis/spec/integration/work-routing-execution-contracts.md
+    related:
+      - WANd.ORCH.OUTCOME_RELAY.001
+
+  - id: WANd.ORCH.OUTCOME_RELAY.001
+    title: Parent Outcome Relay after Agent artifact
+    domain: execution
+    description: >
+      When Agent() tool_result carries quotation artifact (output_path / .xlsx / filled_count),
+      wande-orchestrator final user reply must include path and success count. Stop hook
+      strategy A: nudge once then deterministic-forward REJECT; escalate after max blocks.
+      v2 (2026-07-16): also covers query-type results (delivery_kind=query) — price/stock
+      tables without a file artifact; parent must relay key codes/figures. Error payloads
+      and bare no-result JSON stay out of the gate.
+    code:
+      - ccb-installer/config/skills/ccb-subagent-gate/scripts/lib/parse_transcript_outcome_relay.py
+      - ccb-installer/config/skills/ccb-subagent-gate/scripts/validators/outcome-relay.sh
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md
+    tests:
+      - ccb-installer/config/skills/ccb-subagent-gate/tests/test_outcome_relay_gate.py
+      - eval/agent_eval_cases.jsonl#orchestrator-fill-outcome-relay
+      - eval/agent_eval_cases.jsonl#orchestrator-query-outcome-relay
+    spec:
+      - .trellis/spec/integration/agents-unified-model.md
+      - .trellis/tasks/07-15-07-15-orchestrator-outcome-relay/research/root-cause-relay.md
+      - .trellis/tasks/07-15-07-15-orchestrator-outcome-relay/research/root-cause-empty-wakeup.md
+    related:
+      - WANd.RUN.EXECUTION.001
+      - WANd.ROUTING.ASSIGNMENT.001
+      - WANd.ORCH.WAKEUP_RELAY.001
+
+  - id: WANd.ORCH.WAKEUP_RELAY.001
+    title: Empty trigger turn is a dispatch-completion signal
+    domain: execution
+    description: >
+      When wande-orchestrator is woken by a turn with no new user text (background Agent
+      completion wakeup), it must treat it as a dispatch-completion signal: check the latest
+      Agent() tool_result and relay any un-relayed business result (prices, stock, tables,
+      paths, no-match conclusions) before anything else. Never describe the empty turn as a
+      user action and never assume the previous question was already answered. Root cause:
+      claude-agent-acp background dispatch wakes the parent with an empty user turn; the old
+      L1 ban on mentioning "empty message" suppressed the correct relay behavior. Companion
+      rule: ADMISSION.001 requires explicit run_in_background:false so the wakeup path should
+      not occur under foreground dispatch.
+    code:
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md
+    tests:
+      - eval/agent_eval_cases.jsonl#orchestrator-query-outcome-relay
+    spec:
+      - .trellis/tasks/07-15-07-15-orchestrator-outcome-relay/research/root-cause-empty-wakeup.md
+    related:
+      - WANd.ORCH.OUTCOME_RELAY.001
+      - WANd.RUN.ADMISSION.001
+
+  - id: WANd.RUN.EXECUTION.003
+    title: Structured Agent() handoff Brief
+    domain: execution
+    description: >
+      Orchestrator Agent prompt is a Handoff Brief (goal/inputs/expected_output/prohibitions/effort)
+      marked by <!-- WANd.HANDOFF.BRIEF.001 -->. sanitizeOrchestratorAgentInput wraps free text.
+    code:
+      - ccb-installer/claude-code-b-src/src/services/acp/handoffBrief.ts
+      - ccb-installer/claude-code-b-src/src/services/acp/agentSessionProfile.ts
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md
+    tests:
+      - ccb-installer/claude-code-b-src/src/services/acp/__tests__/handoffBrief.test.ts
+      - ccb-installer/claude-code-b-src/src/services/acp/__tests__/agentSessionProfile.test.ts
+    spec:
+      - .trellis/spec/integration/work-routing-execution-contracts.md
+      - .trellis/tasks/07-14-orchestrator-handoff-brief-decomp-plan/research/brief-schema.md
+    related:
+      - WANd.RUN.EXECUTION.001
+      - WANd.RUN.ADMISSION.001
+      - WANd.ROUTING.ASSIGNMENT.004
+
+  - id: WANd.ROUTING.ASSIGNMENT.004
+    title: Effort scaling + visible decomposition plan (hard confirm)
+    domain: routing
+    description: >
+      Simple Q = answer; single intent = one Agent+Brief; multi-intent = visible plan then
+      hard user confirm before serial Agents. Enforced primarily via L1 + eval decomp cases.
+    code:
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md
+    tests:
+      - eval/agent_eval_cases.jsonl#orchestrator-decomp-single-still-one-agent
+      - eval/agent_eval_cases.jsonl#orchestrator-decomp-multi-intent-plan-gate
+    spec:
+      - .trellis/spec/integration/work-routing-execution-contracts.md
+      - .trellis/tasks/07-14-orchestrator-handoff-brief-decomp-plan/research/plan-ux-acp.md
+    related:
+      - WANd.ROUTING.ASSIGNMENT.001
+      - WANd.RUN.EXECUTION.003
+      - WANd.OBSERVE.DELEGATION.002
 
   - id: WANd.RUN.ADMISSION.001
     title: No background delegated agents
@@ -241,42 +496,131 @@ contracts:
       - WANd.OBSERVE.DELEGATION.002  # B1 CCB _meta.delegationRun bridge
 
   - id: WANd.OBSERVE.DELEGATION.002
-    title: CCB bridge _meta.delegationRun enrich (deferred)
+    title: Plan↔DelegationRun timeline (slim; B1 meta deferred)
     domain: observability
-    status: deferred
-    description: Optional B1 enrich from CCB; not required for B0 UI acceptance.
+    status: shipped-slim
+    description: >
+      DecompositionPlan model + syncTurnPlanWithTools + DecompositionPlanTimeline
+      in MessageToolGroupSummary (optional decompositionPlan prop). B1 CCB
+      _meta.delegationRun enrich still deferred. MessageList auto-feed of plan
+      object is follow-up (L1 chat-visible plan text is primary gate today).
+    code:
+      - aionui-src/packages/desktop/src/common/chat/decompositionPlan.ts
+      - aionui-src/packages/desktop/src/common/chat/delegationSpawnContext.ts
+      - aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/components/DecompositionPlanTimeline.tsx
+      - aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/components/MessageToolGroupSummary.tsx
+    tests:
+      - aionui-src/tests/unit/common-chat/decompositionPlan.test.ts
     spec:
-      - .trellis/tasks/07-06-delegation-nested-view-steps/prd.md
+      - .trellis/spec/frontend/chat-acp-flow.md
+      - .trellis/tasks/07-14-orchestrator-handoff-brief-decomp-plan/prd.md
+    related:
+      - WANd.OBSERVE.DELEGATION.001
+      - WANd.ROUTING.ASSIGNMENT.004
+
+  - id: WANd.LEARNING.TURN_HARVEST.001
+    title: TurnHarvest checkpoint + FullReview mainline
+    domain: learning
+    rudder_ref: LEARNING.PROMOTION.001
+    status: shipping
+    description: >
+      Automatic learning mainline (Hermes-split): every completed turn checkpoints
+      (no LLM); nudge N=5 or idle force 10min acquires FullReview lease with
+      reviewThroughTurnId watermark; worker writes precipitation_runs/<runId>.outcome.json;
+      stale lease ignored; restart recovers running→queued. Outbound D7: tenant allow,
+      session deny override, business-field redaction fail-closed before MiniMax.
+      Multi-proposal business recall; Inbox approve still required; promote needs applied.
+      Idle-30s path (IDLE.001) is fallback only once this is live in Mixing.
+    code:
+      - aionui-src/packages/desktop/src/common/config/turnHarvest.ts
+      - aionui-src/packages/desktop/src/common/config/ccbPrecipitation.ts
+      - ccb-installer/config/skills/ccb-session-precipitation/scripts/precipitation_worker.py
+      - ccb-installer/config/skills/ccb-session-precipitation/scripts/lib/outbound_redaction.py
+      - ccb-installer/config/skills/ccb-session-precipitation/scripts/lib/precipitation_outcome.py
+    spec:
+      - openspec/changes/precipitation-hermes-trigger/
+      - openspec/changes/memory-experience-clarity/hermes-trigger-port.md
+    related:
+      - WANd.LEARNING.IDLE.001
+      - WANd.LEARNING.FUNNEL.001
+      - WANd.LEARNING.REDACTION.001
+      - WANd.LEARNING.PROMOTION.001
 
   - id: WANd.LEARNING.IDLE.001
-    title: Idle 60s session precipitation (five-lane learning)
+    title: Legacy idle precipitation (four proposal kinds)
     domain: learning
     rudder_ref: LEARNING.PROMOTION.001
     status: shipped
     description: >
-      After 60s with no follow-up user message, AionUI spawns precipitation_worker.py
-      (separate process). Worker reads full transcript (+ subagents), MiniMax LLM
-      five-lane extract, dedup gates → Memory Inbox pending. All lanes require
-      approve before promote (org KB API / personal / golden_path / eval git).
-      LLM failure → no record. Stop hook (ccb-personal-memory) is no-op.
+      LEGACY automatic path (pre-TurnHarvest): after idle debounce (default 30s as of
+      2026-07-14; was 60s) with no follow-up user message, AionUI may spawn
+      precipitation_worker.py. Worker reads transcript (+ subagents), MiniMax LLM
+      extract, dedup gates → Memory Inbox pending. Four automatic proposal kinds:
+      org business_rule, personal_habit, golden_path, eval_case (not "five-lane").
+      All knowledge/promotion lanes require approve before promote (org KB API /
+      personal / golden_path / eval git). LLM failure → no durable promote.
+      Stop hook (ccb-personal-memory) is no-op. Missing acp_session_id records
+      schedule_skipped (not silent). Target mainline is TurnHarvest (checkpoint +
+      nudge FullReview); see openspec change memory-experience-clarity /
+      precipitation-hermes-trigger — idle becomes fallback only after that ships.
     code:
       - ccb-installer/config/skills/ccb-session-precipitation/scripts/precipitation_worker.py
       - aionui-src/packages/desktop/src/common/config/ccbPrecipitation.ts
+      - aionui-src/packages/desktop/src/renderer/hooks/useSessionPrecipitationSchedule.ts
     spec:
       - .trellis/tasks/07-09-07-09-idle-session-precipitation/prd.md
-      - .trellis/tasks/07-09-07-09-idle-session-precipitation/research/idle-precipitation-design.md
+      - .trellis/tasks/07-14-precipitation-effectiveness/prd.md
     related:
       - WANd.LEARNING.PROMOTION.001
+      - WANd.LEARNING.FUNNEL.001
+      - WANd.LEARNING.REDACTION.001
       - WANd.ROUTING.REVIEWER.001
     deferred:
       - org /api/eval-cases cloud sync (eval path A = git merge script)
+
+  - id: WANd.LEARNING.FUNNEL.001
+    title: Desensitized precipitation funnel observability
+    domain: learning
+    status: shipped
+    description: >
+      Append-only learning/precipitation_events.jsonl with whitelist metadata only
+      (armed/cancelled/schedule_skipped/scheduled/…). Summary lastEvent for chip.
+      Distinguishes no-fire vs fire-fail (missing_session_id, worker_not_found, …).
+    code:
+      - aionui-src/packages/desktop/src/common/config/ccbPrecipitationFunnel.ts
+      - aionui-src/packages/desktop/src/common/config/ccbPrecipitation.ts
+    spec:
+      - .trellis/tasks/07-14-precipitation-effectiveness/prd.md
+    related:
+      - WANd.LEARNING.IDLE.001
+      - WANd.LEARNING.REDACTION.001
+
+  - id: WANd.LEARNING.REDACTION.001
+    title: Precipitation funnel must not log secrets or proposal bodies
+    domain: learning
+    status: shipped
+    description: >
+      Funnel events/summary/chip forbid transcript, proposal content, KB excerpts,
+      tokens, absolute paths. Proposal bodies stay in Inbox pending store only.
+    code:
+      - aionui-src/packages/desktop/src/common/config/ccbPrecipitationFunnel.ts
+    spec:
+      - .trellis/tasks/07-14-precipitation-effectiveness/prd.md
+    related:
+      - WANd.LEARNING.FUNNEL.001
 
   - id: WANd.LEARNING.PROMOTION.001
     title: Feedback promotion gates (no silent skill/KB rewrite)
     domain: learning
     rudder_ref: LEARNING.PROMOTION.001
-    description: Business KB and eval require preview/approval; personal habits may auto-append with dedup.
+    description: >
+      Business KB and eval require Inbox approve/approve_edited before promote.
+      Automated negative test: deny must not call promoteBusinessRule.
+      Personal habit remains Inbox-approve (no auto-write in effectiveness task).
+    code:
+      - aionui-src/packages/desktop/src/common/config/ccbPrecipitation.ts
     spec:
       - .trellis/tasks/07-09-07-09-idle-session-precipitation/prd.md
+      - .trellis/tasks/07-14-precipitation-effectiveness/prd.md
     related:
       - WANd.LEARNING.IDLE.001

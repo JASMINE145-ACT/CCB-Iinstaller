@@ -1,0 +1,4 @@
+{"file":".trellis/spec/integration/agents-unified-model.md","reason":"Canonical Stop-hook modes, outcome relay contract, and stdin runtime behavior."}
+{"file":".trellis/spec/integration/agent-hooks-overview.md","reason":"Current orchestrator Stop-hook ordering and provisioning map."}
+{"file":".trellis/tasks/07-15-07-15-orchestrator-outcome-relay/research/root-cause-relay.md","reason":"Locked H1/H3 exclusions and H2/H4 root-cause classification."}
+{"file":".trellis/tasks/07-15-07-15-orchestrator-outcome-relay/research/runtime-plumbing-audit-2026-07-16.md","reason":"Implementation audit for mode, stdin, Python, and eval assertion plumbing."}

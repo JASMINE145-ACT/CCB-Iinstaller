@@ -14,5 +14,7 @@
   "excel-creator:roe-judge": "block",
   "quotation-agent:roe-judge": "block",
   "accurate-agent:roe-judge": "block",
-  "research-agent:roe-judge": "block"
+  "research-agent:roe-judge": "block",
+  "wande-orchestrator": "off",
+  "wande-orchestrator:outcome-relay": "block"
 }

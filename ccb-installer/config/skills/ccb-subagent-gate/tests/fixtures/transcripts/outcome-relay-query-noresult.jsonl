@@ -1,0 +1,4 @@
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"查询 直接50 供应商"}]}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"tool_use","id":"agent1","name":"Agent","input":{"subagent_type":"quotation-agent","prompt":"supplier lookup 直接50"}}]}}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"agent1","content":"{\"query\": \"直接50\", \"total\": 0, \"items\": []}"}]}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"供应商名录里没有匹配「直接50」的厂家。"}]}}

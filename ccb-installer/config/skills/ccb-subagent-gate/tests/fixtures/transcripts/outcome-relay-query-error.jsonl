@@ -1,0 +1,4 @@
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"查询 直接50 价格"}]}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"tool_use","id":"agent1","name":"Agent","input":{"subagent_type":"quotation-agent","prompt":"price lookup 直接50"}}]}}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"agent1","is_error":true,"content":"Error: price service timeout after 90s, trace_id 1234567890"}]}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"报价子系统暂时超时了，我稍后再帮您重试查询直接50的价格。"}]}}

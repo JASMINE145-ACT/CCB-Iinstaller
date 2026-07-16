@@ -88,6 +88,21 @@ run_gate() {
   bash "$SCRIPTS/subagent-gate.sh" <"$payload_file"
 }
 
+check_outcome_relay_mode() {
+  bash -c '
+    source "$SUBAGENT_GATE_SKILL_ROOT/scripts/lib/mode.sh"
+    [[ "$(resolve_gate_mode wande-orchestrator:outcome-relay)" == "block" ]]
+  '
+}
+
+echo "=== orchestrator outcome relay runtime chain ==="
+assert_exit 0 "colon-scoped outcome relay mode resolves" check_outcome_relay_mode
+rm -f "$SUBAGENT_GATE_LOG_DIR/subagent-gate-outcome-relay-counts.json"
+hook_json wande-orchestrator "$FIXTURES/transcripts/outcome-relay-hollow-parent.jsonl" "empty shell" Stop >"$SUBAGENT_GATE_LOG_DIR/outcome-relay-hollow.json"
+assert_exit 2 "outcome relay blocks hollow parent through Stop hook" run_gate "$SUBAGENT_GATE_LOG_DIR/outcome-relay-hollow.json"
+hook_json wande-orchestrator "$FIXTURES/transcripts/outcome-relay-parent-ok.jsonl" "Quotation ready: Wanding-Quotation_20260716.xlsx; filled_count: 2" Stop >"$SUBAGENT_GATE_LOG_DIR/outcome-relay-ok.json"
+assert_exit 0 "outcome relay accepts parent path and count through Stop hook" run_gate "$SUBAGENT_GATE_LOG_DIR/outcome-relay-ok.json"
+
 echo "=== quotation gate off (no MCP) ==="
 rm -f "$SUBAGENT_GATE_LOG_DIR/subagent-gate-warn.log"
 hook_json quotation-agent "$FIXTURES/transcripts/quotation-no-mcp.jsonl" "direct 50 price 12.5" >"$SUBAGENT_GATE_LOG_DIR/payload.json"

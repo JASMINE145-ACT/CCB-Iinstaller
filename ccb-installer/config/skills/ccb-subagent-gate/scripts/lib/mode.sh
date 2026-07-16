@@ -13,7 +13,9 @@ resolve_gate_mode() {
     return 0
   fi
 
-  env_key="SUBAGENT_GATE_$(echo "$agent_type" | tr '[:lower:]-' '[:upper:]_')_MODE"
+  env_key="SUBAGENT_GATE_$(printf '%s' "$agent_type" \
+    | tr '[:lower:]' '[:upper:]' \
+    | tr -c 'A-Z0-9_' '_')_MODE"
   # shellcheck disable=SC2154
   if [[ -n "${!env_key:-}" ]]; then
     echo "${!env_key}"

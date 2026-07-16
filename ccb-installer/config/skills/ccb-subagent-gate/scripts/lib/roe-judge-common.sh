@@ -2,10 +2,10 @@
 # roe-judge-common.sh — shared helpers for universal ROE in-process self-check gate.
 
 roe_judge_python_cmd() {
-  if command -v python3 >/dev/null 2>&1; then
-    echo python3
-  elif command -v python >/dev/null 2>&1; then
+  if command -v python >/dev/null 2>&1 && python -c 'import sys' >/dev/null 2>&1; then
     echo python
+  elif command -v python3 >/dev/null 2>&1 && python3 -c 'import sys' >/dev/null 2>&1; then
+    echo python3
   else
     echo ""
   fi

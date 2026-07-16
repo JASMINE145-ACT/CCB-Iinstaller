@@ -1,0 +1,4 @@
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"查一下直接50价格"}]}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"tool_use","id":"agent1","name":"Agent","input":{"subagent_type":"quotation-agent","prompt":"price only"}}]}}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"agent1","content":"## 直接50 B档\n| 编码 | 单价 |\n| 8020020755 | 1219 |\n"}]}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"推荐 8020020755，B档 1219。"}]}}
