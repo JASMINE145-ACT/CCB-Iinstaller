@@ -219,3 +219,42 @@ test('internal wrapper preserves a hard FAIL when required tool evidence is miss
   assert.equal(required.status, 'FAIL')
   assert.equal(required.reason_code, 'MISSING_REQUIRED_ACTION')
 })
+
+test('internal wrapper forwards native profile and Route B path to the child runner', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'agent-eval-wrapper-native-options-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const installDir = join(root, 'install')
+  const configDir = join(root, 'config')
+  const runDir = join(root, 'run')
+  const routePath = join(root, 'route-entry.mjs')
+  const runnerPath = join(root, 'fixture-runner.mjs')
+  mkdirSync(join(installDir, 'dist'), { recursive: true })
+  mkdirSync(join(installDir, 'vendor', 'bun'), { recursive: true })
+  mkdirSync(configDir, { recursive: true })
+  writeFileSync(join(installDir, 'dist', 'cli.js'), '', 'utf8')
+  writeFileSync(join(installDir, 'vendor', 'bun', 'bun.exe'), '', 'utf8')
+  writeFileSync(join(configDir, 'settings.json'), '{}', 'utf8')
+  writeFileSync(routePath, '', 'utf8')
+  writeFileSync(runnerPath, [
+    "import { writeFileSync } from 'node:fs'",
+    "import { resolve } from 'node:path'",
+    "if (process.env.CCB_TEST_PROFILE !== 'quotation-v1') process.exit(21)",
+    `if (process.env.CCB_TEST_ROUTE_PATH !== resolve(${JSON.stringify(routePath)})) process.exit(22)`,
+    `writeFileSync(process.env.CCB_TEST_EVENT_LOG, ${JSON.stringify(
+      `${fixtureUpdates.map((item) => JSON.stringify(item)).join('\n')}\n`,
+    )}, 'utf8')`,
+  ].join('\n'), 'utf8')
+
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'agent-eval-plugin', 'scripts', 'agent-eval.mjs'), 'run',
+    '--case-file', join(repoRoot, '.agent-eval', 'cases', 'quotation-direct50-price-stock.json'),
+    '--runner-path', runnerPath, '--install-dir', installDir, '--config-dir', configDir,
+    '--route-entry', 'true', '--route-path', routePath, '--profile', 'quotation-v1',
+    '--trials', '1', '--output-dir', runDir,
+  ], { encoding: 'utf8' })
+
+  assert.equal(result.status, 0, result.stderr)
+  const report = JSON.parse(readFileSync(join(runDir, 'report.json'), 'utf8'))
+  assert.equal(report.verdict, 'NEEDS_REVIEW')
+  assert.equal(report.judgment_status, 'pending')
+})

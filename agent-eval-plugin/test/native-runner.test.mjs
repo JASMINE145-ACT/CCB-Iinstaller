@@ -29,7 +29,11 @@ function sandbox() {
   mkdirSync(configDir)
   writeFileSync(join(installDir, 'dist', 'cli.js'), '', 'utf8')
   writeFileSync(join(installDir, 'vendor', 'bun', 'bun.exe'), '', 'utf8')
-  writeFileSync(join(configDir, 'settings.json'), '{}', 'utf8')
+  writeFileSync(join(configDir, 'settings.json'), JSON.stringify({
+    mcpServers: {
+      quotation: { command: process.execPath },
+    },
+  }), 'utf8')
   return { root, installDir, configDir, workDir }
 }
 
@@ -103,6 +107,71 @@ test('native runner reports an incomplete Route B runtime as BLOCKED', async (t)
   assert.equal(result.status, 'BLOCKED')
   assert.match(result.reason, /Route B cli/u)
 })
+
+test('native runner blocks a quotation profile whose MCP command path is missing', async (t) => {
+  const paths = sandbox()
+  t.after(() => rmSync(paths.root, { recursive: true, force: true }))
+  const runnerPath = join(paths.root, 'fixture-runner.mjs')
+  const missingCommand = join(paths.root, 'missing-quotation-server.exe')
+  writeFileSync(runnerPath, '', 'utf8')
+  writeFileSync(join(paths.configDir, 'settings.json'), JSON.stringify({
+    mcpServers: {
+      quotation: { command: missingCommand },
+    },
+  }), 'utf8')
+  const transport = createNativeRunnerTransport({
+    runnerPath,
+    installDir: paths.installDir,
+    configDir: paths.configDir,
+    tempRoot: paths.workDir,
+  })
+
+  const result = await transport.validateEnvironment()
+  assert.equal(result.ok, false)
+  assert.equal(result.status, 'BLOCKED')
+  assert.match(result.reason, /quotation MCP command not found/u)
+})
+
+test('native runner blocks a quotation profile without its required MCP server config', async (t) => {
+  const paths = sandbox()
+  t.after(() => rmSync(paths.root, { recursive: true, force: true }))
+  const runnerPath = join(paths.root, 'fixture-runner.mjs')
+  writeFileSync(runnerPath, '', 'utf8')
+  writeFileSync(join(paths.configDir, 'settings.json'), JSON.stringify({
+    mcpServers: {},
+  }), 'utf8')
+  const transport = createNativeRunnerTransport({
+    runnerPath,
+    installDir: paths.installDir,
+    configDir: paths.configDir,
+    tempRoot: paths.workDir,
+  })
+
+  const result = await transport.validateEnvironment()
+  assert.equal(result.ok, false)
+  assert.equal(result.status, 'BLOCKED')
+  assert.match(result.reason, /quotation MCP server not configured/u)
+})
+
+test('native runner reports an invalid CCB settings file as BLOCKED', async (t) => {
+  const paths = sandbox()
+  t.after(() => rmSync(paths.root, { recursive: true, force: true }))
+  const runnerPath = join(paths.root, 'fixture-runner.mjs')
+  writeFileSync(runnerPath, '', 'utf8')
+  writeFileSync(join(paths.configDir, 'settings.json'), '{invalid', 'utf8')
+  const transport = createNativeRunnerTransport({
+    runnerPath,
+    installDir: paths.installDir,
+    configDir: paths.configDir,
+    tempRoot: paths.workDir,
+  })
+
+  const result = await transport.validateEnvironment()
+  assert.equal(result.ok, false)
+  assert.equal(result.status, 'BLOCKED')
+  assert.match(result.reason, /CCB settings\.json is invalid/u)
+})
+
 test('native runner rejects a non-zero child exit with bounded diagnostics', async (t) => {
   const paths = sandbox()
   t.after(() => rmSync(paths.root, { recursive: true, force: true }))
@@ -123,6 +192,52 @@ test('native runner rejects a non-zero child exit with bounded diagnostics', asy
     (error) => error.code === 'CHILD_EXIT' && error.exitCode === 7 && /synthetic child failure/u.test(error.stderr),
   )
 })
+
+test('native runner cleanup removes only the handoff marked for its Eval trace', async (t) => {
+  const paths = sandbox()
+  t.after(() => rmSync(paths.root, { recursive: true, force: true }))
+  const runnerPath = join(paths.root, 'failed-runner-with-handoff.mjs')
+  const handoffPath = join(paths.configDir, '.aionui-next-assistant-profile.json')
+  writeFileSync(runnerPath, [
+    "import { writeFileSync } from 'node:fs'",
+    "import { join } from 'node:path'",
+    "writeFileSync(join(process.env.CCB_TEST_CONFIG_DIR, '.aionui-next-assistant-profile.json'), JSON.stringify({",
+    "  profile_id: process.env.CCB_TEST_PROFILE,",
+    "  eval_marker: process.env.CCB_TEST_HANDOFF_MARKER,",
+    "}), 'utf8')",
+    "process.exit(7)",
+  ].join('\n'), 'utf8')
+  const transport = createNativeRunnerTransport({
+    runnerPath,
+    installDir: paths.installDir,
+    configDir: paths.configDir,
+    tempRoot: paths.workDir,
+    timeoutMs: 5000,
+  })
+  const session = await transport.startSession({ traceId: 'trace-handoff-cleanup' })
+
+  await assert.rejects(transport.sendPrompt(session, 'fixture prompt'), (error) => error.code === 'CHILD_EXIT')
+  assert.equal(existsSync(handoffPath), true)
+  await transport.cleanup(session)
+  assert.equal(existsSync(handoffPath), false)
+
+  const unrelatedSession = await transport.startSession({ traceId: 'trace-other-cleanup' })
+  writeFileSync(handoffPath, JSON.stringify({
+    profile_id: 'quotation-agent',
+    eval_marker: 'trace-owned-by-someone-else',
+  }), 'utf8')
+  await transport.cleanup(unrelatedSession)
+  assert.equal(existsSync(handoffPath), true)
+})
+
+test('CCB ACP child runner also preserves a handoff owned by another Eval trace', () => {
+  const source = readFileSync(
+    new URL('../../ccb-installer/test-native-acp-agent.mjs', import.meta.url),
+    'utf8',
+  )
+  assert.match(source, /handoff\.eval_marker === handoffMarker/u)
+})
+
 test('native runner timeout terminates the complete Windows child process tree', { skip: process.platform !== 'win32' }, async (t) => {
   const paths = sandbox()
   t.after(() => rmSync(paths.root, { recursive: true, force: true }))

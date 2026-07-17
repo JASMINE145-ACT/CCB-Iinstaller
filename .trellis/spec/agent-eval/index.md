@@ -15,7 +15,7 @@ Internal host operations:
 ```text
 node scripts/agent-eval.mjs create   --input-file <json> [--output-file <json>]
 node scripts/agent-eval.mjs confirm  --case-file <json> --confirmed [--output-file <json>]
-node scripts/agent-eval.mjs run      --case-file <json> (--fixture <jsonl> | --runner-path ... --install-dir ... --config-dir ...) [--trials N]
+node scripts/agent-eval.mjs run      --case-file <json> (--fixture <jsonl> | --runner-path ... --install-dir ... --config-dir ... [--profile <id>] [--route-entry true] [--route-path <file>]) [--trials N]
 node scripts/agent-eval.mjs review   --run-dir <dir> --judgments-file <json>
 node scripts/agent-eval.mjs report   --run-dir <dir>
 node scripts/agent-eval.mjs baseline --run-dir <dir> --fingerprints-file <json> --compare-file <json>
@@ -52,7 +52,10 @@ adapter = {
 - Report: `eval.report/v1` preserves per-Trial outcomes, deterministic grader results, Judgment records/fingerprint, Trace refs, metrics, and optional Baseline deltas. It cannot hide hard failures behind an aggregate score.
 - Baseline: compare writes hard/soft comparability and deltas back to JSON/Markdown Report artifacts. Promotion is explicit and passing-only. Hard deltas require complete matching target fingerprints; soft deltas additionally require the same complete Judge fingerprint and Rubric hash.
 - Storage: `.agent-eval/runs/`, raw traces, and private reports are ignored. Confirmed Cases, Suites, Graders, and sanitized Baseline summaries may be versioned.
-- Native CCB child environment: `CCB_TEST_INSTALL_DIR`, `CCB_TEST_CONFIG_DIR`, `CCB_INSTALL_DIR`, `CCB_WANDING_CONFIG_DIR`, `CCB_TEST_PROFILE`, `CCB_TEST_PROMPT`, `CCB_TEST_EVENT_LOG`, `CCB_TEST_TIMEOUT_MS`, and optional `CCB_TEST_ROUTE_ENTRY`/`CCB_TEST_ROUTE_PATH`.
+- Native CCB child environment: `CCB_TEST_INSTALL_DIR`, `CCB_TEST_CONFIG_DIR`, `CCB_INSTALL_DIR`, `CCB_WANDING_CONFIG_DIR`, `CCB_TEST_PROFILE`, `CCB_TEST_HANDOFF_MARKER`, `CCB_TEST_PROMPT`, `CCB_TEST_EVENT_LOG`, `CCB_TEST_TIMEOUT_MS`, and optional `CCB_TEST_ROUTE_ENTRY`/`CCB_TEST_ROUTE_PATH`.
+- Native CCB preflight: a Route B run requires `dist/cli.js` and bundled Bun. Invalid `settings.json` is `BLOCKED`. A known profile may declare required MCP servers; if a required server is absent or its configured command is an absolute missing path, return `BLOCKED` before child start.
+- Native CCB cleanup: every session propagates its Trace ID as the one-shot handoff marker. Cleanup may delete only a handoff with that exact marker and an isolated `ccb-acp-*` temp directory. Windows timeout cleanup terminates the child process tree before returning.
+- Host discovery: Claude Code loads the plugin directory through `--plugin-dir`. Codex and Cursor repository development mode uses `.agents/skills/agent-eval/SKILL.md` as a thin loader for the canonical plugin Skill; the loader must not copy evaluation semantics.
 
 ### 4. Validation & Error Matrix
 
@@ -62,6 +65,9 @@ adapter = {
 | Agent omits/reorders/mismatches required evidence | `FAIL` with stable hard-grader reason code |
 | Adapter child crashes or emits invalid trace | `ERROR`; do not count as Agent failure |
 | Runtime, permission, config, or required data unavailable at preflight | `BLOCKED` |
+| CCB `settings.json` exists but is invalid JSON | `BLOCKED` before child start |
+| Quotation profile MCP command is an absolute path that does not exist | `BLOCKED` before child start |
+| Quotation profile has no usable quotation MCP server config | `BLOCKED` before child start |
 | Hard gates pass but required current-host Judgment is absent | `NEEDS_REVIEW` + `judgment_status: pending` |
 | No real Judge fingerprint is available | Hard-only run; do not create a Judge Packet or fabricate identity |
 | Judgment omits rubric, exceeds 0–100, changes fingerprint, or cites unknown evidence | Reject Judgment batch |
@@ -69,6 +75,7 @@ adapter = {
 | Target fingerprint mismatch vs Baseline | Hard and soft `NOT_COMPARABLE` |
 | Required target fingerprint is missing/null | Hard and soft `NOT_COMPARABLE` |
 | Judge/Rubric mismatch with matching target | Hard comparable; soft `NOT_COMPARABLE` |
+| Native cleanup encounters an unrelated or malformed handoff | Preserve it; never delete user state |
 | Native cleanup fails | `ERROR` with cleanup detail; never silently ignore residue |
 
 ### 5. Good / Base / Bad Cases
@@ -95,7 +102,9 @@ Assertion points:
 - three Trial metrics include pass@1, pass@3, pass^3, flaky, latency, tool calls, and `independent_trials:false`;
 - wrapper `run -> review -> report` persists JSON/Markdown and a missing-tools wrapper run remains hard `FAIL`;
 - legacy importer does not mutate JSONL and rejects `pass_if_any` instead of guessing semantics;
-- all three host docs/manifests point to the same Skill/Core contract.
+- all three host docs/manifests point to the same Skill/Core contract;
+- native profile/Route B options reach the child runner; stale quotation MCP paths block early; trace-marked handoffs are cleaned without deleting unrelated user state;
+- the project loader delegates Codex/Cursor discovery to the canonical Skill.
 
 ### 7. Wrong vs Correct
 
@@ -125,3 +134,4 @@ Deterministic hard gates run first, the current host judges only filtered eviden
 - Read-first is authoritative for the current CCB quotation contract. Legacy match-first text is retired without deleting legacy Case IDs.
 - ACP `tool_call_update.rawOutput` is the evidence seam; do not patch the ACP bridge unless this field disappears in a verified target runtime.
 - `candidate.confirm` is not a synthetic sequence event. Candidate selection is proven by evidence links from match output to inventory input and final table.
+- A live CCB golden run requires a runtime dist with direct MCP tools injected into the query engine. A stale dist that exposes only `ExecuteExtraTool` is a target-runtime defect, not valid quotation evidence.

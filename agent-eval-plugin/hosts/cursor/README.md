@@ -1,7 +1,19 @@
 # Cursor host wrapper
 
-Cursor exposes the shared `agent-eval` Skill and delegates deterministic operations to `scripts/agent-eval.mjs`. Users interact through the Cursor conversation, not a new Agent CLI. A target Agent must run in an isolated session; the current Cursor conversation may judge only the filtered anonymous Packet.
+Open this repository in Cursor and start a new Agent conversation. Cursor
+discovers `.agents/skills/agent-eval/SKILL.md`, whose only job is to delegate to
+the canonical plugin Skill and deterministic script. Invoke `/agent-eval` or
+describe the evaluation in natural language.
 
-Use the same `create`, `confirm`, `run`, `review`, `report`, and explicit `baseline` operations as the other hosts. Do not copy Case-specific business rules into Cursor rules or commands, and never allow a soft Judgment to override a hard failure.
+The target Agent runs in an isolated session. The active Cursor conversation
+may judge only the filtered anonymous Packet, must submit the batch together,
+and cannot override a hard failure.
 
-Automated tests verify the shared manifest and wrapper contract. A conversational Cursor smoke must be recorded by a human host session and must not be claimed from automation alone.
+Use the shared `create`, `confirm`, `run`, `review`, `report`, and explicit
+`baseline` operations. Do not copy Case-specific rules into Cursor rules,
+commands, or the project loader.
+
+`.cursor-plugin/plugin.json` is distribution metadata. Automated tests verify
+the manifest and loader contracts; a conversational Cursor GUI smoke must be
+recorded from a real human host session and cannot be claimed from automation
+alone.

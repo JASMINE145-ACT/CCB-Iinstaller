@@ -14,7 +14,9 @@ const help = `Agent Eval internal host interface (invoke through the agent-eval 
 Operations:
   create   --input-file <json> [--output-file <json>]
   confirm  --case-file <json> --confirmed [--output-file <json>]
-  run      --case-file <json> (--fixture <jsonl> | native adapter options) [--trials 3]
+  run      --case-file <json> (--fixture <jsonl> | --runner-path <file> --install-dir <dir>
+           --config-dir <dir> [--profile <id>] [--route-entry true] [--route-path <file>])
+           [--trials 3]
   review   --run-dir <dir> --judgments-file <json>
   report   --run-dir <dir>
   baseline --run-dir <dir> --fingerprints-file <json> --compare-file <json>
@@ -76,9 +78,11 @@ function nativeAdapterFactory(options) {
       runnerPath: required(options, 'runner-path'),
       installDir: required(options, 'install-dir'),
       configDir: required(options, 'config-dir'),
+      profile: options.profile,
       tempRoot: options['temp-root'],
       timeoutMs: Number(options['timeout-ms'] ?? 180000),
       routeEntry: options['route-entry'] === true || options['route-entry'] === 'true',
+      routePath: options['route-path'],
     }),
   })
 }

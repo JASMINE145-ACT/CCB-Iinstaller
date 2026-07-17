@@ -5,6 +5,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  unlinkSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import {
@@ -17,6 +18,9 @@ import {
 } from 'node:path'
 
 const diagnosticLimit = 8192
+const requiredMcpServersByProfile = {
+  'quotation-agent': ['quotation'],
+}
 
 function appendBounded(current, chunk) {
   return `${current}${String(chunk)}`.slice(-diagnosticLimit)
@@ -24,6 +28,36 @@ function appendBounded(current, chunk) {
 
 function childError(message, properties) {
   return Object.assign(new Error(message), properties)
+}
+
+function terminateProcessTree(child) {
+  return new Promise((resolveTermination) => {
+    let finished = false
+    const finish = () => {
+      if (finished) return
+      finished = true
+      resolveTermination()
+    }
+    child.once('close', finish)
+
+    if (process.platform === 'win32' && child.pid) {
+      const killer = spawn('taskkill.exe', ['/pid', String(child.pid), '/T', '/F'], {
+        stdio: 'ignore',
+        windowsHide: true,
+      })
+      killer.once('error', () => {
+        child.kill('SIGTERM')
+      })
+      killer.once('close', () => {
+        if (child.exitCode !== null || child.signalCode !== null) setImmediate(finish)
+      })
+    } else {
+      child.kill('SIGTERM')
+    }
+
+    const fallback = setTimeout(finish, 2000)
+    fallback.unref()
+  })
 }
 
 function runChild({ runnerPath, cwd, env, timeoutMs }) {
@@ -69,12 +103,12 @@ function runChild({ runnerPath, cwd, env, timeoutMs }) {
     const timer = setTimeout(() => {
       if (settled) return
       settled = true
-      child.kill('SIGTERM')
-      reject(childError(`ACP runner exceeded ${timeoutMs} ms`, {
+      const error = childError(`ACP runner exceeded ${timeoutMs} ms`, {
         code: 'CHILD_TIMEOUT',
         stdout,
         stderr,
-      }))
+      })
+      void terminateProcessTree(child).then(() => reject(error))
     }, timeoutMs)
     timer.unref()
   })
@@ -111,9 +145,41 @@ export function createNativeRunnerTransport({
         )
       }
       const missing = requirements.find(([path]) => !existsSync(path))
-      return missing
-        ? { ok: false, status: 'BLOCKED', reason: `${missing[1]} not found: ${missing[0]}` }
-        : { ok: true }
+      if (missing) {
+        return { ok: false, status: 'BLOCKED', reason: `${missing[1]} not found: ${missing[0]}` }
+      }
+
+      let settings
+      try {
+        settings = JSON.parse(
+          readFileSync(join(configDir, 'settings.json'), 'utf8').replace(/^\uFEFF/u, ''),
+        )
+      } catch {
+        return {
+          ok: false,
+          status: 'BLOCKED',
+          reason: `CCB settings.json is invalid: ${join(configDir, 'settings.json')}`,
+        }
+      }
+      for (const serverName of requiredMcpServersByProfile[profile] ?? []) {
+        const server = settings.mcpServers?.[serverName]
+        if (!server || typeof server.command !== 'string' || !server.command) {
+          return {
+            ok: false,
+            status: 'BLOCKED',
+            reason: `${serverName} MCP server not configured`,
+          }
+        }
+        const command = server.command
+        if (typeof command === 'string' && isAbsolute(command) && !existsSync(command)) {
+          return {
+            ok: false,
+            status: 'BLOCKED',
+            reason: `${serverName} MCP command not found: ${command}`,
+          }
+        }
+      }
+      return { ok: true }
     },
 
     async startSession({ traceId }) {
@@ -122,6 +188,7 @@ export function createNativeRunnerTransport({
       return {
         id: basename(directory),
         traceId,
+        handoffMarker: traceId,
         directory,
         eventLogPath: join(directory, 'acp-updates.jsonl'),
       }
@@ -139,6 +206,7 @@ export function createNativeRunnerTransport({
           CCB_INSTALL_DIR: resolve(installDir),
           CCB_WANDING_CONFIG_DIR: resolve(configDir),
           CCB_TEST_PROFILE: profile,
+          CCB_TEST_HANDOFF_MARKER: session.handoffMarker,
           CCB_TEST_PROMPT: String(prompt),
           CCB_TEST_EVENT_LOG: session.eventLogPath,
           CCB_TEST_TIMEOUT_MS: String(timeoutMs),
@@ -183,6 +251,18 @@ export function createNativeRunnerTransport({
       const pathFromRoot = relative(absoluteTempRoot, target)
       const unsafe = !pathFromRoot || pathFromRoot.startsWith('..') || isAbsolute(pathFromRoot) || !basename(target).startsWith('ccb-acp-')
       if (unsafe) throw new Error(`Refusing to clean unsafe ACP session path: ${target}`)
+
+      const handoffPath = join(configDir, '.aionui-next-assistant-profile.json')
+      if (existsSync(handoffPath)) {
+        try {
+          const handoff = JSON.parse(
+            readFileSync(handoffPath, 'utf8').replace(/^\uFEFF/u, ''),
+          )
+          if (handoff.eval_marker === session.handoffMarker) unlinkSync(handoffPath)
+        } catch {
+          // Preserve malformed or unrelated handoffs instead of deleting user state.
+        }
+      }
       rmSync(target, { recursive: true, force: true })
     },
   }

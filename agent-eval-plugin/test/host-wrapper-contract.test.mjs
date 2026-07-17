@@ -6,6 +6,7 @@ import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
 const pluginRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
+const repoRoot = join(pluginRoot, '..')
 
 test('Claude Code wrapper exposes the shared six-operation Skill contract', () => {
   const skill = readFileSync(join(pluginRoot, 'skills', 'agent-eval', 'SKILL.md'), 'utf8')
@@ -37,4 +38,13 @@ test('internal script delegates evaluation to the shared Core and documents ever
   for (const operation of ['create', 'confirm', 'run', 'review', 'report', 'baseline']) {
     assert.match(result.stdout, new RegExp(operation, 'u'))
   }
+})
+
+test('project loader delegates Codex and Cursor discovery to the canonical plugin Skill', () => {
+  const loaderPath = join(repoRoot, '.agents', 'skills', 'agent-eval', 'SKILL.md')
+  assert.equal(existsSync(loaderPath), true)
+  const loader = readFileSync(loaderPath, 'utf8')
+  assert.match(loader, /agent-eval-plugin\/skills\/agent-eval\/SKILL\.md/u)
+  assert.match(loader, /agent-eval-plugin\/scripts\/agent-eval\.mjs/u)
+  assert.equal(loader.includes('match_quotation'), false)
 })

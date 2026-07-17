@@ -41,6 +41,7 @@ if (!existsSync(join(configDir, 'settings.json'))) {
 
 const settings = JSON.parse(readFileSync(join(configDir, 'settings.json'), 'utf8').replace(/^\uFEFF/, ''))
 const handoffPath = join(configDir, '.aionui-next-assistant-profile.json')
+const handoffMarker = process.env.CCB_TEST_HANDOFF_MARKER || ''
 const eventRecorder = process.env.CCB_TEST_EVENT_LOG
   ? createAcpUpdateRecorder({ filePath: process.env.CCB_TEST_EVENT_LOG })
   : null
@@ -51,6 +52,7 @@ if (testProfile) {
     JSON.stringify({
       profile_id: testProfile,
       staged_at: new Date().toISOString(),
+      ...(handoffMarker ? { eval_marker: handoffMarker } : {}),
     }),
     'utf8',
   )
@@ -230,7 +232,12 @@ try {
   eventRecorder?.close()
   if (testProfile) {
     try {
-      unlinkSync(handoffPath)
+      if (!handoffMarker) {
+        unlinkSync(handoffPath)
+      } else {
+        const handoff = JSON.parse(readFileSync(handoffPath, 'utf8').replace(/^\uFEFF/, ''))
+        if (handoff.eval_marker === handoffMarker) unlinkSync(handoffPath)
+      }
     } catch {
       // The backend normally consumes the one-shot handoff during session/new.
     }
