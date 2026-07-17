@@ -7,7 +7,7 @@
 | **Scenario** | A — standard feature |
 | **Plan depth** | Standard |
 | **Verification profile** | Standard, with Claude Code live E2E and three manual host smokes at v1 closeout |
-| **Active phase** | P0 — ACP evidence seam and live rawOutput spike |
+| **Active phase** | P6 — v1 loading, native safety, and cross-host closeout |
 | **Detailed TDD plan** | `docs/superpowers/plans/2026-07-15-agent-eval-plugin-harness.md` |
 
 ## Progress snapshot
@@ -15,14 +15,14 @@
 | Phase | State | Delivery / evidence |
 |-------|-------|---------------------|
 | Design | completed | `Agent eval system/eval-harness-plugin-design.md`; commit `ad4ec09e` |
-| P0 ACP evidence | in_progress | Pending recorder RED/GREEN and `research/phase-0-acp-raw-output-spike.md` |
-| P1 contracts/storage | pending | Pending schemas, plugin manifests, case lock, `.agent-eval/` pack |
-| P2 events/graders | pending | Pending event log and six hard graders |
-| P3 CCB adapter | pending | Pending fixture and live golden deterministic run |
-| P4 judgment/reporting | pending | Pending hard-only, Judge Packet, metrics, baseline, reports |
-| P5 Claude Code MVP | pending | Pending three-trial E2E |
-| P6 migration/cross-host | pending | Pending legacy import and Codex/Cursor contract plus smoke |
-| Gate | pending | Pending primary review, contract verification, spec update, PRD closeout |
+| P0 ACP evidence | completed | Recorder RED/GREEN 3/3; full match output 5,301 chars; inventory output captured; sanitized 11-line fixture; `research/phase-0-acp-raw-output-spike.md` |
+| P1 contracts/storage | completed | 12/12 tests; three host manifests; five schemas; stable Case lock; CCB golden Case; plugin validator PASS |
+| P2 events/graders | completed | 22/22 tests; append-only provenance; six positive/negative hard graders; locked evidence paths |
+| P3 CCB adapter | completed | 32/32 tests; fixture six-gate pass; live hard-only business FAIL with zero tool calls |
+| P4 judgment/reporting | completed | 41/41 tests; anonymous batch packet; validated Judgment; decision precedence; metrics; baseline; JSON/Markdown report |
+| P5 Claude Code MVP | completed | 46/46 tests; internal run/review/report E2E; hard-failure E2E; current Codex batch Judgment PASS on sanitized fixture |
+| P6 migration/cross-host | in_progress | Code-complete v1 candidate: project loader, executable host docs, native option forwarding, config/MCP preflight, trace-owned handoff cleanup, and Windows tree termination verified; Codex model smoke and human Cursor smoke remain external/manual |
+| Gate | in_progress | All automated gates PASS (64/64 plugin, 3/3 recorder, 80/80 legacy, 16/16 smoke, validators, plan lint); Claude live loader PASS; live CCB preflight truthfully BLOCKED on stale installed MCP path |
 
 ## Skills invoked (this planning session)
 
@@ -35,6 +35,9 @@
 | plugin-creator | Read: | Plugin scaffold/manifest validation is bound to P1; no personal marketplace mutation is planned |
 | superpowers:executing-plans | Read: | Phased execution, checkpoints, and stop-on-blocker rules are encoded here |
 | superpowers:using-git-worktrees | Read: | Main is dirty; execution is isolated on a feature worktree before production edits |
+| superpowers:systematic-debugging | Read: | Traced the lone evidence-link failure to three locked Case paths missing the standard Event `output` segment; regenerated and re-locked the Case without weakening the grader |
+| system-review | Read: | Completed implementation/system audit; fixed hard-only, Baseline, Trace, Report, mixed-Trial, and Judge safety gaps; recorded remaining product blockers |
+| superpowers:verification-before-completion | Read: | Re-ran every required gate after final edits and recorded fresh results before commit |
 
 ## Phase -1 — Capability matrix
 
@@ -61,7 +64,7 @@
 | `WANd.EVAL.METRIC.001` | Three-trial reliability and baselines use correct comparability rules. | `core/metrics.mjs`, `baseline.mjs` | metrics/baseline tests | Misleading regression claims |
 | `WANd.EVAL.HOST.001` | Claude/Codex/Cursor expose one Core contract through thin wrappers. | plugin manifests and skill | manifest/host contract tests; recorded smokes | Host-specific logic drift |
 
-## Phase workstreams
+## Workstreams
 
 | Phase | Priority | Workstream | touches | Risk | Execution | Required output |
 |-------|----------|------------|---------|------|-----------|-----------------|
@@ -89,14 +92,14 @@
 
 | Contract | Verification command / smoke | Required evidence | Status |
 |----------|------------------------------|-------------------|--------|
-| `WANd.EVAL.CASE_LOCK.001` | `npm test --prefix agent-eval-plugin` | Stable hash and mutation-rejection tests | pending |
-| `WANd.EVAL.HARD_GATE.001` | `npm test --prefix agent-eval-plugin` | Six negative reason codes plus hard precedence | pending |
-| `WANd.EVAL.TRACE.001` | recorder test + live `CCB_TEST_EVENT_LOG` spike | Untruncated output byte/key evidence and sanitized fixture | pending |
-| `WANd.EVAL.CCB_QUOTE.001` | fixture golden test + live quotation run | Read/match/inventory/table evidence refs | pending |
-| `WANd.EVAL.JUDGE.001` | judgment tests + one batch host judgment | Fingerprint/rubric hash and `independent_trials:false` | pending |
-| `WANd.EVAL.STATUS.001` | orchestration/hard-only tests | FAIL/ERROR/BLOCKED/NEEDS_REVIEW matrix | pending |
-| `WANd.EVAL.METRIC.001` | metrics/baseline tests | pass@1/pass@3/pass^3/flaky and comparability | pending |
-| `WANd.EVAL.HOST.001` | manifest contract tests + host smoke records | Claude E2E; Codex/Cursor contract and manual smoke | pending |
+| `WANd.EVAL.CASE_LOCK.001` | `npm test --prefix agent-eval-plugin` | Stable hash, explicit confirmation, mutation rejection, safe path, locked CCB Case | complete |
+| `WANd.EVAL.HARD_GATE.001` | `npm test --prefix agent-eval-plugin` | Six hard graders plus forced hard failure with perfect soft score | complete; AI judgment cannot override |
+| `WANd.EVAL.TRACE.001` | recorder, normalizer, native transport, and live hard-only run | 64/64 plugin tests; 3/3 recorder; trace-owned handoff cleanup and Windows tree termination verified | complete |
+| `WANd.EVAL.CCB_QUOTE.001` | fixture golden test + live quotation run | Fixture passes all six hard gates; live preflight reports stale quotation MCP command as `BLOCKED` without child start or handoff residue | Harness complete; installed target runtime/config requires repair before live golden PASS |
+| `WANd.EVAL.JUDGE.001` | judgment tests + one current-host batch submission | Anonymous randomized batch, full rubric/ref/fingerprint validation, 3 Codex Judgments, `independent_trials:false` | complete on sanitized fixture; production target still hard FAIL |
+| `WANd.EVAL.STATUS.001` | orchestration/hard-only tests | FAIL/ERROR/BLOCKED/NEEDS_REVIEW and hard-only pending matrix | complete |
+| `WANd.EVAL.METRIC.001` | metrics/baseline tests | pass@1/pass@3/pass^3/flaky, latency, soft quantiles, explicit promotion, comparability | complete |
+| `WANd.EVAL.HOST.001` | manifest/wrapper contract tests + host smoke records | Three manifests share Core; project loader contract PASS; both validators PASS; Claude 2.1.212 live loader PASS | Codex loader discovered but model smoke usage-blocked; Cursor GUI smoke pending |
 
 ## Verification gate
 
@@ -109,6 +112,28 @@
 7. Update `.trellis/spec/` with permanent contracts and complete `implement.jsonl`, `check.jsonl`, and PRD checkboxes.
 8. Commit only the task-scoped files, as already authorized by the user.
 9. Finish the Trellis task only when all required evidence is present.
+
+## Final audit evidence (2026-07-16)
+
+- `research/final-system-review-2026-07-16.md` classifies the result as an Internal MVP and records resolved/open risks.
+- Final plugin suite: 57/57 PASS, including Windows child-process-tree timeout cleanup.
+- ACP recorder: 3/3 PASS; legacy eval: 80/80 PASS; legacy smoke: 16/16 PASS.
+- Official plugin validator, JavaScript syntax, `git diff --check`, and Trellis context validation: PASS.
+- Real Route B: `D:\tmp\agent-eval-final-live2-20260716` completed as `ERROR / ADAPTER_EXECUTION_ERROR / CHILD_EXIT(1)`, no Judge Packet, no recent process or Temp residue. This validates Harness failure handling, not the target Agent golden path.
+
+## V1 closeout evidence (2026-07-18)
+
+- RED/GREEN: internal wrapper now forwards `--profile` and `--route-path`; project `.agents/skills/agent-eval` loader delegates to the canonical Skill.
+- RED/GREEN: invalid settings, missing quotation MCP config, or missing absolute command-path preflight returns `BLOCKED`; both transport and child cleanup remove only a handoff bearing the current Trace marker.
+- RED/GREEN: Windows timeout waits for complete child-tree termination before reporting `CHILD_TIMEOUT`.
+- Documented fixture quick start executed successfully: all six hard graders PASS and the required soft review correctly remains `NEEDS_REVIEW`.
+- Claude Code 2.1.212 live plugin-loading smoke PASS via `--plugin-dir` and `/agent-eval-plugin:agent-eval`; it returned `LOADED create confirm run review report baseline`.
+- Codex CLI 0.144.4 discovered the project skills in a read-only ephemeral session, then the model call was blocked by the account usage limit. Do not record this as a conversational PASS.
+- Cursor 3.9.16 exposes no headless Agent command in its CLI; the repository loader contract is automated, while the GUI conversation smoke remains manual.
+- Spec update: updated `.trellis/spec/agent-eval/index.md`.
+- Runtime diagnosis: the current installed config points at missing `D:\CCB-Wanding` MCP commands; a newer staging dist applies `quotation-agent`, but the tested dist exposes only `ExecuteExtraTool` to the target model. This blocks a truthful live golden PASS and is not converted into fixture evidence.
+- Final fresh gate: plugin 64/64, recorder 3/3, legacy schema 80/80, legacy smoke 16/16, plugin validators PASS, execution-plan lint PASS, syntax and `git diff --check` PASS.
+- Real no-child preflight: `v1-live-preflight-mcp` returned `BLOCKED / ADAPTER_ENVIRONMENT_BLOCKED` for missing `D:\CCB-Wanding\vendor\bun\bun.exe`; no handoff was created.
 
 ## Manual steps
 

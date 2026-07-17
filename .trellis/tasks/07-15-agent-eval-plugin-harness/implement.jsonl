@@ -5,3 +5,4 @@
 {"file":".trellis/spec/integration/agents-unified-model.md","reason":"Use the authoritative quotation-agent profile, Read-first knowledge gate, and live deployment model."}
 {"file":"Agent eval system/eval-harness-plugin-design.md","reason":"Authoritative approved architecture, schemas, safety boundaries, MVP scope, and migration decisions."}
 {"file":".trellis/tasks/07-15-agent-eval-plugin-harness/research/review-verification-2026-07-15.md","reason":"Use verified Read-first, rawOutput, candidate evidence, host, and judge constraints from the design review."}
+{"file": ".trellis/spec/agent-eval/index.md", "reason": "Implement against the Agent Eval executable contracts."}

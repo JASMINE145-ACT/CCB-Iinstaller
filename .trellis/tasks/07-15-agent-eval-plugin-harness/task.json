@@ -12,15 +12,17 @@
   "assignee": "JASMINE145-ACT",
   "createdAt": "2026-07-15",
   "completedAt": null,
-  "branch": null,
+  "branch": "feat/agent-eval-plugin-harness",
   "base_branch": "main",
-  "worktree_path": null,
+  "worktree_path": "D:\\tmp\\claude-code-best-agent-eval-plugin",
   "commit": null,
   "pr_url": null,
   "subtasks": [],
   "children": [],
   "parent": null,
-  "relatedFiles": [],
-  "notes": "",
+  "relatedFiles": [
+    ".trellis/spec/agent-eval/index.md"
+  ],
+  "notes": "2026-07-16: Internal MVP system review complete; final automated gates PASS (57 plugin, 3 recorder, 80 legacy, 16 smoke). Real Route B remains ERROR and Claude/Cursor human smokes remain open; task stays in_progress.",
   "meta": {}
 }

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "eval.case/v1",
+  "type": "object",
+  "required": ["schema_version", "id", "title", "objective", "prompt", "risk_level", "graders", "decision", "trials"],
+  "properties": {
+    "schema_version": { "const": "eval.case/v1" },
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "objective": { "type": "string" },
+    "prompt": { "type": "string" },
+    "risk_level": { "enum": ["read_only", "write_file", "external_side_effect"] },
+    "graders": { "type": "array", "items": { "type": "object" } },
+    "decision": {
+      "type": "object",
+      "required": ["policy"],
+      "properties": { "policy": { "enum": ["hard_gates_only", "all_hard_and_soft_threshold", "human_required"] } }
+    },
+    "trials": {
+      "type": "object",
+      "required": ["count"],
+      "properties": { "count": { "type": "integer", "minimum": 1 } }
+    },
+    "case_hash": { "type": "string" },
+    "confirmed_at": { "type": "string" }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "eval.event/v1",
+  "type": "object",
+  "required": ["schema_version", "event_id", "trace_id", "sequence", "timestamp", "type", "actor", "action", "status", "origin"],
+  "properties": {
+    "schema_version": { "const": "eval.event/v1" },
+    "event_id": { "type": "string" },
+    "trace_id": { "type": "string" },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "timestamp": { "type": "string" },
+    "type": { "type": "string" },
+    "actor": { "type": "string" },
+    "action": { "type": "string" },
+    "status": { "type": "string" },
+    "origin": { "enum": ["raw", "derived"] },
+    "derived_from": { "type": "array", "items": { "type": "string" } },
+    "raw_event_ref": { "type": "string" },
+    "output_ref": { "type": "string" }
+  }
+}

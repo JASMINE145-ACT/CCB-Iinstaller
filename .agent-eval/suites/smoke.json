@@ -1,0 +1,8 @@
+{
+  "schema_version": "eval.suite/v1",
+  "id": "smoke",
+  "title": "CCB Agent Eval smoke",
+  "case_ids": [
+    "quotation-direct50-price-stock"
+  ]
+}

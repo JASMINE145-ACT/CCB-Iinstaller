@@ -11,6 +11,7 @@
 | **Frontend** (AionUI desktop) | [`frontend/index.md`](./frontend/index.md) | UI, IPC, chat rendering, dev mode |
 | **Backend** (CCB-Wanding / MCP / ACP) | [`backend/index.md`](./backend/index.md) | `--acp`, quotation MCP, build/deploy, MiniMax config |
 | **Integration** (boundary) | [`integration/index.md`](./integration/index.md) | route-b, sync, defensive fixes, 4-layer chain |
+| **Agent Eval** (plugin/core/adapter) | [`agent-eval/index.md`](./agent-eval/index.md) | Case, Event, Adapter, Judge, report, baseline, host wrappers |
 
 **Thinking guides** (before cross-layer work): [`guides/index.md`](./guides/index.md)
 
@@ -54,6 +55,12 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 ---
 
 ## Full doc map
+
+### Agent Eval (`agent-eval/`)
+
+| Doc | Status |
+|-----|--------|
+| [`index.md`](./agent-eval/index.md) | ✅ Plugin/Core/Adapter/Judge executable contracts |
 
 ### Frontend (`frontend/`)
 

@@ -1,0 +1,17 @@
+{
+  "schema_version": "eval.project-config/v1",
+  "default_adapter": "ccb-acp",
+  "default_suite": "smoke",
+  "storage": {
+    "cases": "cases",
+    "suites": "suites",
+    "graders": "graders",
+    "baselines": "baselines",
+    "runs": "runs",
+    "reports": "reports"
+  },
+  "privacy": {
+    "version_raw_traces": false,
+    "version_private_reports": false
+  }
+}
