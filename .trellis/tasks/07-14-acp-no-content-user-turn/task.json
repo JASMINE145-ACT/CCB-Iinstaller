@@ -1,0 +1,29 @@
+{
+  "id": "acp-no-content-user-turn",
+  "name": "acp-no-content-user-turn",
+  "title": "Fix invisible (no content) user turn after Agent/MCP",
+  "description": "Agent/MCP 成功后模型看到 (no content) 空用户回合，答非所问；对应 createUserMessage 哨兵与 API 历史不排除。",
+  "status": "deferred",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-14",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "2026-07-14: Phase2 宽 strip 导致 MiniMax 400 无终答→全量回滚；库存回复已恢复。USER_TURN.001 未交付，见 closure-2026-07-14-rollback.md。下次仅 merge 剥哨兵文本。",
+  "meta": {
+    "deferred_reason": "USER_TURN.001 unsafe on MiniMax with broad normalize skip; reply regression fixed by revert",
+    "closure": "closure-2026-07-14-rollback.md"
+  }
+}

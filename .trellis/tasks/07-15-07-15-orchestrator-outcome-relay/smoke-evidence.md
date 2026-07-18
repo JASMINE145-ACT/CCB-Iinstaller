@@ -4,35 +4,22 @@
 |-------|--------|
 | Date | 2026-07-16 |
 | Strategy | A (nudge×1 → force-forward) |
-| Deploy | `deploy-subagent-gate-skill.ps1` + `deploy-seed-agents.ps1 -ForceMd` ? fresh 2026-07-16; key source/live SHA-256 match |
-| Unit | `test_outcome_relay_gate.py` **7/7 PASS** |
-| Schema | `node eval/run-agent-eval.mjs` ok |
+| Scope | fill artifact + query price relay + WAKEUP_RELAY |
+| Deploy | `deploy-subagent-gate-skill.ps1` + `deploy-seed-agents.ps1 -ForceMd` |
+| Unit | `test_outcome_relay_gate.py` **11/11 PASS** |
+| Schema | `node eval/run-agent-eval.mjs` **84 ok** |
 
-## Manual Guid (user)
+## Result
 
-1. **新开**默认会话（主入口）。
-2. 查直接50 → 锁定 → 生成报价单草稿。
-3. **PASS:** 父气泡含 `Wanding-Quotation_*.xlsx`（或完整路径）**且**成功项数；不是仅「已填好」。
-4. 可选：再说「谢谢」→ 不应再被 OUTCOME-RELAY 拦住。
+**PASS / 验收收口** — 用户 2026-07-16 确认「修改好了，可以收口」。
 
-| Result | Notes |
-|--------|-------|
-| pending | 等用户粘贴父气泡 |
+## Scenarios covered
 
-Paste below:
-```
-```
+1. **出单**：父气泡须含 `Wanding-Quotation_*.xlsx`（或 path）+ 成功项数；非「已填好」空壳。
+2. **查价**：父气泡须含物料编码 + 价格线索；非「admin，我在的…」待机话术。
+3. **空唤醒**：空触发回合应转述上一轮 Agent 未交付结果（`WAKEUP_RELAY.001`）。
 
-## Automated runtime evidence (2026-07-16)
+## Notes
 
-| Probe | Expected | Observed |
-|-------|----------|----------|
-| colon-scoped mode | `block` | PASS |
-| hollow parent Stop hook | exit 2 | exit 2 |
-| parent path + exact count | exit 0 | exit 0 |
-| response assertion unit | 3/3 | 3/3 PASS |
-| eval schema | valid | 83/83 loaded, schema ok |
-| live deployed gate | hollow=2, complete=0 | hollow=2, complete=0 |
-| full historical gate suite | baseline comparison | 13 PASS / 9 FAIL (unchanged baseline; not a completion signal) |
-
-Manual Guid result remains `pending` until a new live conversation shows the parent bubble with both fields.
+- 门禁在 `wande-orchestrator` Stop → `outcome-relay` validator。
+- 查价/出单均走父泡断言；eval case：`orchestrator-query-outcome-relay`、`orchestrator-fill-outcome-relay`。

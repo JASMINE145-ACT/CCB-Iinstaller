@@ -18,7 +18,9 @@
   "commit": null,
   "pr_url": null,
   "subtasks": [],
-  "children": [],
+  "children": [
+    "07-13-retire-team-members-settings"
+  ],
   "parent": null,
   "relatedFiles": [
     ".trellis/tasks/07-14-employee-intelligence-layer/prd.md",
@@ -29,13 +31,21 @@
     ".trellis/spec/integration/agent-team-architecture.md",
     ".trellis/spec/integration/agents-unified-model.md"
   ],
-  "notes": "2026-07-09 planning via /trellis:plan-execution. 2026-07-09 P0 decisions locked in research/eil-contract.md. 2026-07-11 org-context slice implemented (S1-S6): migration 021, GET /api/users/me/context, aionui handoff v2, Settings org read-only, CCB org-first merge. code-reviewer PASS. Evidence: research/org-context-slice-done-2026-07-11.md. Manual VPS smoke pending.",
+  "notes": "2026-07-09 planning. 2026-07-11 org-context slice. 2026-07-14 Business Closure MVP Phases 0–3 DONE + VPS deploy. 2026-07-15 Mixing 验收 PASS (mixing-acceptance-done.md). Epic remains in_progress only for optional Phase 4 polish.",
   "meta": {
     "execution_plan": "execution-plan.md",
     "verification_profile": "Security",
     "scenario": "B",
     "plan_revision": 2,
-    "risks": ["security", "migration", "cross-repo", "external-api", "ui"],
-    "prerequisite_tasks": ["07-09-agent-work-tasks-collaboration-system"]
+    "risks": [
+      "security",
+      "migration",
+      "cross-repo",
+      "external-api",
+      "ui"
+    ],
+    "prerequisite_tasks": [
+      "07-09-agent-work-tasks-collaboration-system"
+    ]
   }
 }

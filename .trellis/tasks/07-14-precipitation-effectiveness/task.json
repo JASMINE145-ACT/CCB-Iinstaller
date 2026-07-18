@@ -1,0 +1,41 @@
+{
+  "id": "precipitation-effectiveness",
+  "name": "precipitation-effectiveness",
+  "title": "沉淀触发可观测性与效果提升",
+  "description": "Diagnose rare idle precipitation; add funnel observability; tighten schedule path; optional debounce/UX knobs while keeping WANd.LEARNING.PROMOTION.001",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-14",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "07-09-07-09-work-routing-execution-contracts",
+  "relatedFiles": [
+    "aionui-src/packages/desktop/src/renderer/hooks/useSessionPrecipitationSchedule.ts",
+    "aionui-src/packages/desktop/src/common/config/ccbPrecipitation.ts",
+    "ccb-installer/config/skills/ccb-session-precipitation/scripts/precipitation_worker.py",
+    ".trellis/spec/integration/contracts/agent-runtime-registry.yml"
+  ],
+  "notes": "2026-07-14 Phase 0–4a done (funnel/chip/30s/PROMOTION). 2026-07-15 Mixing shows missing_session_id — root cause: no writer for extra.acp_session_id. Plan Phase 5 bind fix + OpenSpec fix-precipitation-missing-session-id. Awaiting「执行」.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "contracts": [
+      "WANd.LEARNING.FUNNEL.001",
+      "WANd.LEARNING.IDLE.001",
+      "WANd.LEARNING.PROMOTION.001",
+      "WANd.LEARNING.SESSION_BIND.001"
+    ],
+    "openspec_change": "fix-precipitation-missing-session-id",
+    "aionui_src": "D:\\Projects\\aionui-src"
+  }
+}

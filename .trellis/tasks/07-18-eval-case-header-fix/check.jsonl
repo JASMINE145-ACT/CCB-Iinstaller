@@ -1,0 +1,2 @@
+{"file":".trellis/spec/agent-eval/index.md","reason":"Verify normalizer and case changes still satisfy the Agent Eval contracts (locked case, hash, grader semantics)."}
+{"file":".trellis/tasks/07-18-eval-case-header-fix/prd.md","reason":"Check the three user verdicts are encoded exactly: header accepted, tiers soft-flagged, supplier untouched."}

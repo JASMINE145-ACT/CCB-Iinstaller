@@ -1,0 +1,5 @@
+{"file":".trellis/spec/integration/price-library.md","note":"Contract verification triage"}
+{"file":".trellis/spec/code-review-layer-a.md","note":"Layer A if picker touched"}
+{"file":".trellis/spec/frontend/layer-b-renderer-review.md","note":"Layer B for renderer edits"}
+{"file":".trellis/tasks/07-15-price-library-load-hang/research/root-cause.md","note":"Must match fix direction"}
+{"file":"openspec/changes/fix-price-library-load-hang/specs/price-library-load/spec.md","note":"OpenSpec requirements"}

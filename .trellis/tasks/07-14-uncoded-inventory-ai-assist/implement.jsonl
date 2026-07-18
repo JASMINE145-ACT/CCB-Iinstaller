@@ -1,0 +1,5 @@
+{"path": ".trellis/spec/integration/agents-unified-model.md", "reason": "price+stock routing; search_inventory not MCP-exposed"}
+{"path": ".trellis/spec/integration/price-library.md", "reason": "price library authority vs warehouse"}
+{"path": ".trellis/spec/backend/quotation-matching-engine.md", "reason": "match_quotation requires catalog codes"}
+{"path": ".trellis/tasks/07-14-uncoded-inventory-ai-assist/research/inventory-without-code.md", "reason": "capability gap research"}
+{"path": ".trellis/tasks/07-14-uncoded-inventory-ai-assist/prd.md", "reason": "AI-in-the-loop PRD"}

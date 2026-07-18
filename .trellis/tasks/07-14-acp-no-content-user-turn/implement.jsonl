@@ -1,0 +1,7 @@
+{"file": ".trellis/spec/frontend/chat-acp-flow.md", "reason": "ACP chat event / message merge surface"}
+{"file": ".trellis/spec/backend/acp-session-flow.md", "reason": "ACP session prompt path — producer"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Fix in D:\\claude-code-B\\src then build"}
+{"file": ".trellis/tasks/07-14-acp-no-content-user-turn/research/no-content-root-cause.md", "reason": "RC hypothesis"}
+{"file": ".trellis/tasks/07-14-acp-no-content-user-turn/research/source-of-truth.md", "reason": "createUserMessage real path"}
+{"file": ".trellis/tasks/07-14-acp-no-content-user-turn/research/call-sites.md", "reason": "Caller inventory scaffold"}
+{"file": ".trellis/tasks/06-29-price-tiers-synthesis-and-seed-fallback/prd.md", "reason": "Precedent empty-user deflection"}

@@ -1,0 +1,38 @@
+{
+  "id": "retire-team-members-settings",
+  "name": "retire-team-members-settings",
+  "title": "退役设置页团队成员（由组织管理承接）",
+  "description": "Remove redundant Settings Team Members UI; org admin path is canonical for user create/role.",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-13",
+  "completedAt": "2026-07-14",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "07-14-employee-intelligence-layer",
+  "relatedFiles": [
+    "D:/Projects/aionui-src/packages/desktop/src/common/config/settingsNavContract.ts",
+    "D:/Projects/aionui-src/packages/desktop/src/renderer/pages/settings/components/SettingsSider.tsx",
+    "D:/Projects/aionui-src/packages/desktop/src/renderer/components/layout/Router.tsx",
+    ".trellis/tasks/07-13-07-13-org-admin-user-management/admin-rbac-contract.md"
+  ],
+  "notes": "Completed 2026-07-14: Team Members settings retired; user smoke OK. Keep GET /api/users roster.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "contracts": [
+      "WANd.ORG.TEAM_MEMBERS_RETIRE.001",
+      "WANd.ORG.USER_ADMIN.001"
+    ],
+    "aionui_src": "D:\\Projects\\aionui-src"
+  }
+}

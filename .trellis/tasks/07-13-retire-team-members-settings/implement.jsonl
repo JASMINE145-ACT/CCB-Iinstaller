@@ -1,0 +1,4 @@
+{"path": ".trellis/tasks/07-13-retire-team-members-settings/prd.md", "note": "AC + non-goals"}
+{"path": ".trellis/tasks/07-13-retire-team-members-settings/execution-plan.md", "note": "workstreams + contracts"}
+{"path": ".trellis/tasks/07-13-07-13-org-admin-user-management/admin-rbac-contract.md", "note": "roster vs org-users ACL — do not break GET /api/users"}
+{"path": ".trellis/spec/frontend/index.md", "note": "frontend Rule 0"}

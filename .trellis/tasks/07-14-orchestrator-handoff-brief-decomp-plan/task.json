@@ -1,0 +1,28 @@
+{
+  "id": "orchestrator-handoff-brief-decomp-plan",
+  "name": "orchestrator-handoff-brief-decomp-plan",
+  "title": "Orchestrator structured handoff brief + visible decomposition plan",
+  "description": "Bundle: schema Brief for Agent() handoff (WANd.RUN.EXECUTION) + visible multi-step plan UX (WANd.ROUTING.ASSIGNMENT + WANd.OBSERVE.DELEGATION / B1 bridge reason). Closes agent-team architecture gap past single-Agent verbatim forward.",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-14",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "07-15-07-15-orchestrator-outcome-relay"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

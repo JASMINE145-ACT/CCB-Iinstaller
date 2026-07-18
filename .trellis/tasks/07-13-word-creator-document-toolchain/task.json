@@ -1,0 +1,35 @@
+{
+  "id": "word-creator-document-toolchain",
+  "name": "07-13-word-creator-document-toolchain",
+  "title": "Word 文档助手 — 读·写·转·检 闭环",
+  "description": "2 core MCP (office-word + pdf-toolkit) + 2 lightweight (template + validator). Phased: P0 outbound → P1 inbound → P2 CCB ship.",
+  "status": "in_progress",
+  "dev_type": "feature",
+  "scope": "ccb-installer agents/skills; mcp_servers/pdf-toolkit; packaging",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-13",
+  "completedAt": null,
+  "relatedFiles": [
+    "ccb-installer/config/agents/word-creator.md",
+    "ccb-installer/config/agents/word-creator.aionui.json",
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md",
+    ".trellis/spec/integration/mcp-health.md",
+    ".trellis/spec/integration/agents-unified-model.md"
+  ],
+  "notes": "2026-07-14 Stage1 P0 CLOSED (agent smoke): smoke-word-creator-p0 FULL DOCX+PDF; CDP Word card PASS; user waived Guid hand-chat. Next: Stage2 pdf-toolkit when requested.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "Cross-repo",
+    "scenario": "L→A",
+    "contracts": [
+      "WANd.OFFICE.WORD.CLOSED_LOOP.001",
+      "WANd.OFFICE.PDF_TOOLKIT.001",
+      "WANd.OFFICE.DOC_VALIDATE.001",
+      "WANd.OFFICE.DOC_TEMPLATE.001",
+      "WANd.OFFICE.LANES.001"
+    ]
+  }
+}

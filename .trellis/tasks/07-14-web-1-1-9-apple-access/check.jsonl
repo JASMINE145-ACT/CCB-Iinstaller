@@ -1,0 +1,6 @@
+{"path":".trellis/tasks/07-14-web-1-1-9-apple-access/prd.md","note":"acceptance criteria + host lock gate"}
+{"path":".trellis/tasks/07-14-web-1-1-9-apple-access/smoke.md","note":"dual device + reboot restore"}
+{"path":".trellis/tasks/07-14-web-1-1-9-apple-access/execution-plan.md","note":"contract verification"}
+{"path":"docs/wanding-web-apple-access-1.1.9.md","note":"employee-facing runbook"}
+{"path":".trellis/spec/integration/web-version-ios-access-todo.md","note":"rebase checklist after smoke"}
+{"path":".trellis/spec/integration/wanding-release-standard.md","note":"host must be proper 1.1.9 install"}

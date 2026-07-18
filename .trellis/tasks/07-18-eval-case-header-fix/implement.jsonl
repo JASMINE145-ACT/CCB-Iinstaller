@@ -1,0 +1,4 @@
+{"file":".trellis/spec/agent-eval/index.md","reason":"Follow Agent Eval executable contracts when changing the adapter normalizer and case definition."}
+{"file":".trellis/spec/backend/mcp-business.md","reason":"Keep quotation/inventory tool contracts authoritative when mapping live table headers to canonical evidence keys."}
+{"file":".trellis/spec/integration/agents-unified-model.md","reason":"Use the authoritative quotation-agent profile and live deployment model for the rerun."}
+{"file":".trellis/tasks/07-18-eval-case-header-fix/prd.md","reason":"User verdicts: live header acceptable, price-tiers call soft-flagged, supplier error tolerated."}

@@ -1,0 +1,5 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".trellis/spec/integration/agent-hooks-overview.md", "reason": "Layer 1 Claude hooks registry to update"}
+{"file": ".codex/hooks.json", "reason": "Codex SessionStart unregister target"}
+{"file": ".cursor/commands/trellis-plan-execution.md", "reason": "Phase -1 Bootstrap entry"}
+{"file": ".cursor/skills/trellis-task-execution/SKILL.md", "reason": "Canonical skill bootstrap mirror"}

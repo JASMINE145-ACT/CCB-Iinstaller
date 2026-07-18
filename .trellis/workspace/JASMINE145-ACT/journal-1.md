@@ -308,3 +308,44 @@ Closed 07-12-supplier-directory-vs-price-library: Org tables+MCP+UI+Phase8 fidel
 ### Next Steps
 
 - None - task complete
+
+## 2026-07-15 — Org Mutate K+Foundation MVP closed
+
+Task `07-14-kb-business-completeness` → **done**.
+
+- Delivered: `delete_business_rule`, unified mutate envelope, append budget gates, L1 + specs
+- Verify: unit 22 OK, code-reviewer PASS, Guid test-slug smoke **验收成功**
+- Evidence: `.trellis/tasks/07-14-kb-business-completeness/smoke-evidence.md`
+- Follow-up child: `07-15-kb-mutate-conversation-ux`; backlog Phase S / P1 get-update-hist
+
+
+
+## Session 7: Fix supplier-dir 401 expired Org JWT
+
+**Date**: 2026-07-19
+**Task**: Fix supplier-dir 401 expired Org JWT
+**Branch**: `main`
+
+### Summary
+
+MCP ORG_SESSION_EXPIRED UX + desktop disk resync; code-reviewer+tests PASS; positive hybrid-match smoke blocked on re-login
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+(No commits - planning session)
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

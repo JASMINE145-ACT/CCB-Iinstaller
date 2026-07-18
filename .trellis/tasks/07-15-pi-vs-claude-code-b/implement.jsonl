@@ -1,0 +1,15 @@
+{"file":".trellis/spec/backend/index.md","note":"CCB route-b / ACP"}
+{"file":".trellis/spec/integration/aionui-ccb-boundary.md","note":"AionUI↔CCB"}
+{"file":".trellis/spec/integration/mcp-health.md","note":"MCP warm + pi lesson"}
+{"file":".trellis/spec/integration/agents-unified-model.md","note":"dispatch + Guid catalog"}
+{"file":".trellis/spec/integration/agent-team-architecture.md","note":"Path A/B"}
+{"file":".trellis/spec/frontend/file-map.md","note":"Guid filterGuidCatalogAgents"}
+{"file":".trellis/spec/code-review-layer-a.md","note":"Layer A if Guid filter"}
+{"file":"docs/reference/pi/README.md","note":"Pi harness"}
+{"file":".trellis/tasks/07-15-pi-vs-claude-code-b/research/pi-vs-claude-code-b.md","note":"Pi compare"}
+{"file":".trellis/tasks/07-15-pi-vs-claude-code-b/research/phase3-dispatch-exploration.md","note":"Dispatch 4-aspect explore"}
+{"file":".trellis/tasks/07-15-pi-vs-claude-code-b/research/guid/dispatch-baseline.md","note":"Guid dispatch baseline"}
+{"file":".trellis/tasks/07-04-orchestrator-dispatch-hardening/delivery-smoke-matrix.md","note":"Matrix debt"}
+{"file":".trellis/tasks/07-15-pi-vs-claude-code-b/research/system-review-adoption.md","note":"Review LD*"}
+{"file":".trellis/tasks/07-15-pi-vs-claude-code-b/research/mvp-matrix.md","note":"D1 oracle matrix"}
+{"file":"aionui-src/packages/desktop/src/common/config/ccbAgentCatalog.ts","note":"Guid filter + price-library Guid-only"}

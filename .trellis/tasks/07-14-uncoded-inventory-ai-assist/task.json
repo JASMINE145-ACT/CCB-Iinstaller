@@ -1,0 +1,38 @@
+﻿{
+  "id": "uncoded-inventory-ai-assist",
+  "name": "07-14-uncoded-inventory-ai-assist",
+  "title": "Uncoded inventory visibility - AI assist path",
+  "title_zh": "外购无码库存可见性 — AI 融入路径",
+  "description": "Accurate warehouse has stock/codes but price library missing; quoting staff cannot look up without codes. CODE_MAP primary; AI builds/enrolls map; no hallucinated qty. Procurement enroll same-turn.",
+  "status": "in_progress",
+  "dev_type": "feature",
+  "scope": "quotation inventory MCP; quotation-agent; code map; optional price-library enrich",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-14",
+  "completedAt": null,
+  "relatedFiles": [
+    ".trellis/tasks/07-14-uncoded-inventory-ai-assist/prd.md",
+    ".trellis/tasks/07-14-uncoded-inventory-ai-assist/execution-plan.md",
+    ".trellis/tasks/07-14-uncoded-inventory-ai-assist/research/inventory-without-code.md",
+    ".trellis/spec/integration/uncoded-inventory-map.md"
+  ],
+  "notes": "2026-07-14 plan relock: Accurate API dump -> store slim xlsx -> price-library gap-fill draft. Phase4+ procure enroll. Await 执行 task Phase1.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "verification_profile": "Cross-repo",
+    "scenario": "L→A",
+    "plan_status": "draft-await-approve",
+    "primary_pipeline": "DUMP->STORE->PRICE_GAP_FILL",
+    "contracts": [
+      "WANd.ACCURATE.ITEM_DUMP.001",
+      "WANd.ACCURATE.ITEM_STORE.001",
+      "WANd.ORG.PRICE_GAP_FILL.001",
+      "WANd.INV.CODE_MAP.001",
+      "WANd.INV.PROCURE_ENROLL.001"
+    ],
+    "store_path_locked": "vendor/wanding/data/item-list-slim.xlsx"
+  }
+}

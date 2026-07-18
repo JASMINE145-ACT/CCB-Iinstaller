@@ -1,0 +1,4 @@
+{"file":".trellis/spec/integration/agents-unified-model.md","reason":"Verify prompt authority, ForceMd deployment, and new-session live smoke."}
+{"file":".trellis/spec/agent-eval/index.md","reason":"Verify locked case, exact evidence chain, hard graders, and three-trial metrics."}
+{"file":".trellis/spec/backend/mcp-business.md","reason":"Verify inventory response fields are not swapped or conflated."}
+{"file":".trellis/tasks/07-18-stabilize-quotation-agent-output/prd.md","reason":"Verify all user-confirmed acceptance criteria and out-of-scope boundaries."}

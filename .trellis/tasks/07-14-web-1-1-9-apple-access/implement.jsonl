@@ -1,0 +1,9 @@
+{"path":".trellis/spec/integration/web-version-ios-access-todo.md","note":"canonical WebUI-from-Windows-host MVP; rebase to 1.1.9"}
+{"path":".trellis/spec/integration/index.md","note":"integration entry"}
+{"path":".trellis/tasks/07-14-web-1-1-9-apple-access/research/existing-web-apple-assets.md","note":"inventory"}
+{"path":".trellis/tasks/07-14-web-1-1-9-apple-access/prd.md","note":"AC + host lock + shared-account"}
+{"path":".trellis/tasks/07-14-web-1-1-9-apple-access/execution-plan.md","note":"Phase 1 review-B workstreams"}
+{"path":".trellis/tasks/07-14-web-1-1-9-apple-access/smoke.md","note":"Mac + iPhone Safari dual matrix"}
+{"path":"docs/wanding-web-apple-access-1.1.9.md","note":"employee runbook skeleton"}
+{"path":"docs/mac-support-plan.md","note":"deferred native Mac"}
+{"path":"ccb-installer/delivery-1.1.9-2026-07-12.md","note":"baseline package — not host proof"}

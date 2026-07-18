@@ -1,0 +1,5 @@
+{"file":".trellis/spec/integration/agents-unified-model.md","reason":"Authoritative L1 agent prompt, source/live deployment, price+stock routing, and new-session verification contract."}
+{"file":".trellis/spec/agent-eval/index.md","reason":"Agent Eval locked-case, evidence-link, hard-grader, three-trial metrics, and test requirements."}
+{"file":".trellis/spec/backend/mcp-business.md","reason":"Quotation and inventory MCP field semantics, especially qty_warehouse versus qty_available."}
+{"file":".trellis/tasks/07-18-stabilize-quotation-agent-output/prd.md","reason":"Confirmed business decision: fixed eight columns, qty_warehouse is the stock judgment basis, three live trials."}
+{"file":".trellis/tasks/07-18-eval-case-header-fix/closeout.md","reason":"Prior live r2-r4 failure evidence that this prompt stabilization must address."}

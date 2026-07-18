@@ -1,0 +1,17 @@
+{"path":".trellis/spec/integration/wanding-release-standard.md","note":"three layers INSTALL/CONFIG/RUNTIME"}
+{"path":".trellis/spec/integration/wanding-packaging-whitelist.md","note":"§17 OOTB + repair"}
+{"path":".trellis/tasks/07-15-install-1-1-9-residue-continuity/research/residue-root-cause.md","note":"A+B root cause"}
+{"path":".trellis/tasks/07-15-install-1-1-9-residue-continuity/prd.md","note":"AC"}
+{"path":".trellis/tasks/07-15-install-1-1-9-residue-continuity/execution-plan.md","note":"phased plan"}
+{"path":"D:/Projects/aionui-src/packages/desktop/src/common/config/ccbWandingRuntimeNode.ts","note":"InstallDir candidates miss Programs"}
+{"path":"D:/Projects/aionui-src/packages/desktop/src/common/config/ccbContinuitySnapshot.ts","note":"snapshot null"}
+{"path":"D:/Projects/aionui-src/packages/desktop/src/common/config/conversationContinuity.ts","note":"AIONUI version error text"}
+{"path":"D:/Projects/aionui-src/packages/desktop/src/common/config/ccbStartupReadiness.ts","note":"config check failed banner"}
+{"path":"D:/Projects/aionui-src/packages/desktop/src/common/config/ccbMcpHealthManifest.ts","note":"required_paths ids"}
+{"path":"ccb-installer/scripts/repair-wanding-install-dir.ps1","note":"orphan repair"}
+{"path":"ccb-installer/scripts/purge-stale-wanding-installs.ps1","note":"STALE_PURGE.001 detect+safe delete"}
+{"path":"ccb-installer/ccb-purge-stale-installs.cmd","note":"employee entry"}
+{"path":"ccb-installer/scripts/test-purge-stale-wanding-installs.ps1","note":"behavioral+pack GREEN"}
+{"path":"ccb-installer/scripts/test-purge-packaging-wiring.ps1","note":"shipScripts/NSI staging GREEN"}
+{"path":"ccb-installer/installer-wanding-v2.nsi","note":"DirectoryLeave one-step purge"}
+{"path":".trellis/tasks/07-15-install-1-1-9-residue-continuity/p05-stale-purge-nsis-smoke-done.md","note":"evidence"}

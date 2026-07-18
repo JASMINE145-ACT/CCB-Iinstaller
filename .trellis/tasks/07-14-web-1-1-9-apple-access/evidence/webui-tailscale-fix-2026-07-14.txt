@@ -1,0 +1,8 @@
+firewall=AionUI-WebUI-25809 Allow inbound TCP 25809
+curl_100.93.152.114=200
+curl_jasmine=200
+MagicDNS=jasmine.taila87242.ts.net
+share_urls:
+  http://100.93.152.114:25809
+  http://jasmine.taila87242.ts.net:25809
+note=If browser fails but curl OK: disable Clash/system proxy for 100.x / *.ts.net; do not use 198.18.0.1

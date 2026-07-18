@@ -1,3 +1,4 @@
 {"file":".trellis/spec/integration/work-routing-execution-contracts.md","reason":"Verify parent execution and routing contracts remain aligned."}
 {"file":".trellis/spec/integration/agents-unified-model.md","reason":"Verify runtime modes and hook behavior against canonical integration spec."}
 {"file":".trellis/tasks/07-15-07-15-orchestrator-outcome-relay/smoke-evidence.md","reason":"Track automated evidence separately from the pending live Guid smoke."}
+{"ts":"2026-07-16","type":"closeout","summary":"User accepted closeout; task done. Unit 11/11; eval schema 84; OUTCOME_RELAY+WAKEUP_RELAY deployed.","evidence":"p4-closeout-done.md"}

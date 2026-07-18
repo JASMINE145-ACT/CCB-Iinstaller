@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | in_progress |
+| **Status** | **done** |
 | **Scenario** | **C** (regression / 父级空壳回传) |
 | **Plan depth** | Standard |
 | **Verification profile** | **UI** |
-| **Active phase** | Phase 3 — Guid manual smoke |
+| **Active phase** | — (closed 2026-07-16) |
 | **Repos** | ccb-installer only（orchestrator gate + L1 对照 + eval）；**禁止** aionui-src renderer；**禁止** quotation fill nudge |
 
 ## Skills invoked (this planning session)
@@ -27,8 +27,8 @@
 | Phase 0 | **done** | `research/root-cause-relay.md` |
 | Phase 1 | **done** | Outcome Relay gate；sticky-window fix；**7/7** unit |
 | Phase 2a/2b | **done** | L1 + eval case schema；registry |
-| Phase 3 | **in_progress** | source + live runtime-chain PASS; Guid parent-bubble smoke + code-reviewer pending |
-| Phase 1b (v2 扩 scope, 2026-07-16 用户批准) | **done** | `research/root-cause-empty-wakeup.md`（H5 空唤醒 / H6 L1 禁令反噬 / H7 gate artifact-only）；gate 扩查询类触发（`delivery_kind=query`，unit **10/10**）；L1 新增 `WAKEUP_RELAY.001` + `ADMISSION.001` 显式 `run_in_background:false`；eval 加 `orchestrator-query-outcome-relay`；seed `-ForceMd` + gate 重部署 done；**smoke 需加查价场景** |
+| Phase 3 | **done** | code-reviewer PASS；用户收口 2026-07-16 |
+| Phase 1b (v2 扩 scope, 2026-07-16) | **done** | query relay + WAKEUP_RELAY；unit **11/11**；eval `orchestrator-query-outcome-relay` |
 | plan lint | **PASS** | lint_execution_plan.py |
 
 ## Verdict
@@ -95,7 +95,7 @@
 
 | Contract | Verification command / smoke | Required evidence | Status |
 |----------|------------------------------|-------------------|--------|
-| OUTCOME_RELAY.001 | Python unit + full Stop-hook runtime chain + Guid main-entry smoke | hollow parent exits 2; exact path+count exits 0; parent bubble contains path+count | automated PASS; manual pending |
+| OUTCOME_RELAY.001 | unit 11/11 + WAKEUP + user closeout | hollow blocked; query/fill relayed in parent bubble | **PASS** |
 | ASSIGNMENT.001 | eval forbidden 顶层 MCP | PASS | case forbids top-level mcp__quotation__* |
 | plan structure | `python ./.trellis/scripts/lint_execution_plan.py .trellis/tasks/07-15-07-15-orchestrator-outcome-relay/execution-plan.md` | PASS | **PASS** |
 

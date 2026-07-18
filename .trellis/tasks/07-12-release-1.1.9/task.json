@@ -1,13 +1,16 @@
 {
   "id": "07-12-release-1.1.9",
   "title": "CCB-Wanding 1.1.9 Full NSIS 发布",
-  "status": "approved",
+  "status": "done",
   "created": "2026-07-12",
   "meta": {
     "execution_plan": "execution-plan.md",
     "baseline_release": "1.1.8",
     "baseline_delivery": "ccb-installer/delivery-1.1.8-2026-07-07.md",
     "trigger": "user /trellis-plan-execution 打包 1.1.9 — 囊括 dev 测试内容",
-    "parent_task": "07-12-supplier-directory-vs-price-library"
+    "parent_task": "07-12-supplier-directory-vs-price-library",
+    "live_repair": "2026-07-12 D:\\CCB-Wanding Full bootstrap EXIT=0; packaging fixes rebuilt into CCB-Wanding-1.1.9.exe SHA256 5D964506…947B",
+    "delivery": "ccb-installer/delivery-1.1.9-2026-07-12.md",
+    "installer_sha256": "5D9645062717805740A56A33FE26B3C86C799083AAD00719866E7F4F3CEA947B"
   }
 }

@@ -1,0 +1,4 @@
+{"file":".trellis/spec/integration/supplier-directory.md","reason":"Check supplier-directory contract and boundary compliance"}
+{"file":".trellis/spec/backend/coding-rules.md","reason":"Check backend/MCP verification expectations"}
+{"file":".trellis/tasks/07-13-07-13-supplier-directory-hybrid-search/research/hybrid-search.md","reason":"Check hybrid-search non-goals and evidence contract"}
+{"file":".trellis/tasks/archive/2026-07/07-12-supplier-directory-vs-price-library/research/match-fixtures.md","reason":"Check existing fixture regressions"}

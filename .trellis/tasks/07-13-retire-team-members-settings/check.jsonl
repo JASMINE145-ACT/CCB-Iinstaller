@@ -1,0 +1,3 @@
+{"path": ".trellis/tasks/07-13-retire-team-members-settings/prd.md", "note": "AC checklist"}
+{"path": ".trellis/tasks/07-13-retire-team-members-settings/execution-plan.md", "note": "Contract Verification table"}
+{"path": ".trellis/tasks/07-13-07-13-org-admin-user-management/admin-rbac-contract.md", "note": "GET /api/users must remain manager+ roster"}

@@ -1,0 +1,35 @@
+{
+  "id": "price-library-load-hang",
+  "name": "price-library-load-hang",
+  "title": "Price library UI hang — root cause + fix",
+  "description": "CANCELLED 2026-07-15：用户确认当时为网络问题，非产品缺陷；不作代码修复。OpenSpec fix-price-library-load-hang 搁置。",
+  "status": "done",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-15",
+  "completedAt": "2026-07-15",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "openspec/changes/fix-price-library-load-hang/",
+    "AionCore/crates/aionui-price-library/src/routes.rs",
+    "aionui-src/packages/desktop/src/renderer/pages/priceLibrary/"
+  ],
+  "notes": "Cancelled by user — transient network. Trellis has no cancelled enum; status=done with cancel note.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "openspec_change": "fix-price-library-load-hang",
+    "root_cause": "research/root-cause.md",
+    "outcome": "cancelled-network"
+  }
+}

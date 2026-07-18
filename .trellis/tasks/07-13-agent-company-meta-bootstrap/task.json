@@ -1,0 +1,38 @@
+{
+  "id": "agent-company-meta-bootstrap",
+  "name": "agent-company-meta-bootstrap",
+  "title": "agent-company meta + platform greenfield bootstrap",
+  "description": "Create agent-company-meta workspace, platform greenfield repo, sample-ccb submodule; bootstrap Cursor/Trellis tooling without importing CCB business into platform core.",
+  "status": "in_progress",
+  "dev_type": "infra",
+  "scope": "cross-repo",
+  "package": "integration",
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-13",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "docs/platform-system-business-decoupling-optimization.md",
+    "公司组织/prd.md",
+    "meta-repo/README.md",
+    ".trellis/spec/integration/platform-vertical-packages.md"
+  ],
+  "notes": "System Review accepted 2026-07-13. Plan gates hardened (AGENTCO.* contracts, boundary+terms scripts, local submodule, snapshot docs). Await user 执行.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "plan_status": "approved-pending-execute",
+    "approved_at": null,
+    "system_review": "accepted-2026-07-13",
+    "stack": "L1-L4 §0.1",
+    "layout": "agent-company-meta / platform / sample-ccb"
+  }
+}

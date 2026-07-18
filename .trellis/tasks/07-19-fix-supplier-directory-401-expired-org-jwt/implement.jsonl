@@ -1,0 +1,4 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": "openspec/changes/fix-supplier-dir-401-expired-token/design.md", "reason": "OpenSpec HOW for MCP expiry UX + desktop disk sync"}
+{"file": "openspec/changes/fix-supplier-dir-401-expired-token/specs/org-mcp-session-freshness/spec.md", "reason": "Normative requirements for org MCP session freshness"}
+{"file": ".trellis/tasks/07-19-fix-supplier-directory-401-expired-org-jwt/prd.md", "reason": "Locked MVP Approach A requirements"}

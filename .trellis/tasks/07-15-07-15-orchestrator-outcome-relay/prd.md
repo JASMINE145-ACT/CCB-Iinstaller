@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|--------|
 | **Task** | `07-15-07-15-orchestrator-outcome-relay` |
-| **Status** | planning（计划已按 2026-07-15 用户诊断修正） |
+| **Status** | **done**（2026-07-16 用户收口） |
 | **Parent** | `07-14-orchestrator-handoff-brief-decomp-plan`（Brief/Plan 已做；**回传**缺口独立） |
 | **Related** | `07-04-orchestrator-dispatch-hardening` AC3；`WANd.ORCH.DISPATCH.001`；`WANd.RUN.EXECUTION.001` |
 | **Priority** | P0 |
@@ -71,8 +71,8 @@
 - [x] 根因文档：H1/H3 排除，H2+H4 P0，分类=跨层合同为主。
 - [x] 父级门禁：缺最小交付时 nudge×1 或确定性转发（有单测/fixture）。
 - [x] Eval live（或等价）：**父**回复含 `.xlsx`/`output_path` 线索 **且** 成功项数线索；非仅 Agent done。
-- [ ] Manual smoke 父气泡 PASS。
-- [ ] code-reviewer PASS；`ASSIGNMENT.001` 仍持。
+- [x] Manual smoke 父气泡 PASS（用户 2026-07-16 收口确认）。
+- [x] code-reviewer PASS；`ASSIGNMENT.001` 仍持。
 
 ## Manual smoke
 

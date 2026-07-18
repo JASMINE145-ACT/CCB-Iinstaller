@@ -1,0 +1,32 @@
+{
+  "id": "kb-business-completeness",
+  "name": "kb-business-completeness",
+  "title": "Org Mutate K+Foundation：知识库 delete + 统一契约",
+  "description": "WANd.ORG.MUTATE.UX.001 Foundation; delete_business_rule (auditable, hash/block_id locator, RBAC gate); append budget hard rules; precip Proposal-only hookup. No supplier delete (Phase S). No §4.1 Save in MVP.",
+  "status": "done",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-14",
+  "completedAt": "2026-07-15",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "07-15-kb-mutate-conversation-ux"
+  ],
+  "parent": "07-13-trade-sourcing-knowledge-consolidation",
+  "relatedFiles": [],
+  "notes": "System-review absorbed 2026-07-14: jsonl curated; delete RBAC in MVP; locator legacy-compat; commit split Phase0 docs vs Phase1 code.",
+  "meta": {
+    "mvp": "K+Foundation",
+    "phase_s": "supplier_delete_deferred",
+    "review": "system-review-2026-07-14"
+  }
+}

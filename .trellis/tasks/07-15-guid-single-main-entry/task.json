@@ -1,0 +1,29 @@
+{
+  "id": "guid-single-main-entry",
+  "name": "guid-single-main-entry",
+  "title": "Guid 单入口主 agent（已合并至父任务）",
+  "description": "MERGED 2026-07-15 → 父任务 07-15-pi-vs-claude-code-b。正文见父 execution-plan.md Phase G；研究副本 research/guid/。",
+  "status": "done",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-15",
+  "completedAt": "2026-07-15",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "07-15-pi-vs-claude-code-b",
+  "relatedFiles": [],
+  "notes": "Shell only — do not start separate execution. Unlinked from 07-15-webui-business-parity-exe.",
+  "meta": {
+    "merged_into": "07-15-pi-vs-claude-code-b",
+    "research_copied_to": "07-15-pi-vs-claude-code-b/research/guid/"
+  }
+}

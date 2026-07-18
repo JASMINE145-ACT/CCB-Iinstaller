@@ -1,0 +1,8 @@
+{
+  "id": "07-16-workspace-todo-observability",
+  "title": "Workspace auto-open + Todo placement + plan UI",
+  "status": "implementing",
+  "created": "2026-07-16",
+  "repos": ["aionui-src"],
+  "priority": "P1"
+}

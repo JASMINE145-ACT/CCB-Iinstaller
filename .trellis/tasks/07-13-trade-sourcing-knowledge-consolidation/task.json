@@ -1,0 +1,43 @@
+{
+  "id": "trade-sourcing-knowledge-consolidation",
+  "name": "trade-sourcing-knowledge-consolidation",
+  "title": "Trade sourcing agent merge + learn-by-data + knowledge audit",
+  "description": "方案A：quotation吸收supplier MCP；learn-by-data仅A写知识库/B通知祐嘉诚/C写价库draft/D跳过；知识库五层小批整理。",
+  "status": "done",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-13",
+  "completedAt": "2026-07-14",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "07-14-kb-business-completeness"
+  ],
+  "parent": null,
+  "relatedFiles": [
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md",
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/supplier-directory-agent.md",
+    "ccb-installer/packages/vertical/com.wanding.trade/skills/quotation-learn-by-data/SKILL.md",
+    "mcp_servers/supplier-directory-server/index.mjs",
+    ".trellis/spec/integration/contracts/agent-runtime-registry.yml",
+    ".trellis/spec/integration/org-knowledge.md",
+    ".trellis/spec/integration/price-library.md",
+    ".trellis/spec/integration/supplier-directory.md",
+    "python/admin/org_knowledge_dispatch.py",
+    "python/admin/org_price_admin_dispatch.py",
+    ".trellis/tasks/07-13-trade-sourcing-knowledge-consolidation/dual-call-contract.md",
+    ".trellis/tasks/07-13-trade-sourcing-knowledge-consolidation/learn-precipitate-contract.md",
+    ".trellis/tasks/07-13-trade-sourcing-knowledge-consolidation/kb-inventory.md",
+    ".trellis/tasks/07-13-trade-sourcing-knowledge-consolidation/smoke.md"
+  ],
+  "notes": "System Review 修补已落盘；等「执行 task」进 Phase 1。",
+  "meta": {}
+}

@@ -1,0 +1,33 @@
+{
+  "id": "web-1-1-9-apple-access",
+  "name": "web-1-1-9-apple-access",
+  "title": "brainstorm: WanD 1.1.9 Web for Apple users",
+  "description": "",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-14",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "baseline_release": "1.1.9",
+    "prior_artifact": ".trellis/spec/integration/web-version-ios-access-todo.md",
+    "smoke": "smoke.md",
+    "runbook": "docs/wanding-web-apple-access-1.1.9.md",
+    "supplemented": "2026-07-14-system-review-B"
+  }
+}

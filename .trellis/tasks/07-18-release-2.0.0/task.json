@@ -1,0 +1,25 @@
+{
+  "id": "07-18-release-2.0.0",
+  "title": "CCB-Wanding 2.0.0 Full NSIS 发布（全量捆绑 + 安装残留自愈）",
+  "status": "in_progress",
+  "created": "2026-07-18",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "baseline_release": "1.1.9",
+    "baseline_delivery": "ccb-installer/delivery-1.1.9-2026-07-12.md",
+    "trigger": "user /trellis-plan-execution 启动打包 2.0.0 — 全量捆绑；最重要：安装问题修改（stale-purge + InstallDir resolve）",
+    "scope": "full_bundle (all uncommitted work since 1.1.9)",
+    "build_path": "Full NSIS — rebuild aionui-src (no -SkipAionUiBuild) + aioncore cargo --release",
+    "config_generation": "7 -> 8 (shipped)",
+    "delivery": "ccb-installer/delivery-2.0.0-2026-07-18.md",
+    "artifact_exe": "ccb-installer/CCB-Wanding-2.0.0.exe",
+    "artifact_sha256": "67D427CB76266AA7F4D0D31A239D8A1B520FE5321FC9C3D0C1300AA2E3F02A54",
+    "artifact_bytes": 939916550,
+    "field_evidence": "deferred to post-ship IT (dual-tree employee VM); ship on staging + clean-VM smokes",
+    "headline_install_fixes": [
+      "WANd.INSTALL.STALE_PURGE.001 (07-15-install-1-1-9-residue-continuity Phase 0.5)",
+      "WANd.INSTALL.RESOLVE.001 (aionui-src ccbWandingRuntimeNode Programs+registry)"
+    ],
+    "pending": "other-machine cold install + upgrade smoke (user)"
+  }
+}

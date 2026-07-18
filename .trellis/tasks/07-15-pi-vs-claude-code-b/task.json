@@ -1,0 +1,41 @@
+{
+  "id": "pi-vs-claude-code-b",
+  "name": "pi-vs-claude-code-b",
+  "title": "轻量主入口 + Dispatch 完备（pi 借鉴）",
+  "description": "合并 guid-single-main-entry。System-review 已采纳：业务 oracle 验收；价库侧栏；MVP 只读优先。D1–D3+G1–G2+UI smoke 收口。",
+  "status": "done",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-15",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "07-15-guid-single-main-entry"
+  ],
+  "parent": null,
+  "relatedFiles": [
+    "docs/reference/pi/",
+    ".trellis/tasks/07-15-pi-vs-claude-code-b/research/",
+    ".trellis/spec/integration/agents-unified-model.md",
+    "aionui-src/packages/desktop/src/common/config/guidZeroCard.ts"
+  ],
+  "notes": "SoT=execution-plan.md. CLOSED 2026-07-15. Write-ops/B1/pi user-skipped. reopen deferred.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "active_phase": "closed",
+    "closeout": "closeout.md",
+    "merged_tasks": [
+      "07-15-guid-single-main-entry"
+    ],
+    "related_parent_ac": "07-15-webui-business-parity-exe",
+    "system_review": "research/system-review-adoption.md"
+  }
+}

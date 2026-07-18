@@ -1,0 +1,11 @@
+{"file": ".trellis/spec/integration/org-knowledge.md", "reason": "Verify append envelope compat + delete gate + no Edit shadow"}
+{"file": ".trellis/spec/integration/price-library.md", "reason": "Compare delete/restore RBAC + confirmed preview patterns"}
+{"file": ".trellis/spec/integration/supplier-directory.md", "reason": "Ensure Phase S not mis-shipped; alias-compat note"}
+{"file": ".trellis/spec/integration/contracts/agent-runtime-registry.yml", "reason": "UX.001 + DELETE/BUDGET registered"}
+{"file": ".trellis/spec/code-review-layer-a.md", "reason": "A6 consumer-plane — MCP ListTools + L1 + live vendor"}
+{"file": ".trellis/tasks/07-14-kb-business-completeness/prd.md", "reason": "Acceptance checklist"}
+{"file": ".trellis/tasks/07-14-kb-business-completeness/execution-plan.md", "reason": "Contract Verification rows"}
+{"file": ".trellis/tasks/07-14-kb-business-completeness/research/org-mutate-mcp-family.md", "reason": "Family alignment not regress"}
+{"file": ".trellis/tasks/07-14-precipitation-effectiveness/execution-plan.md", "reason": "Cross-task: precip Proposal only — PROMOTION.001"}
+{"file": ".trellis/tasks/07-14-kb-business-completeness/research/delete-locator-compat.md", "reason": "Locator compat covered in delete tests"}
+{"file": ".trellis/tasks/07-14-kb-business-completeness/research/near-duplicate-append.md", "reason": "Near-dup gate tests"}

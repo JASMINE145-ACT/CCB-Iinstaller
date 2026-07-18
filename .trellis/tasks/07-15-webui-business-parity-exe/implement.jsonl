@@ -1,0 +1,21 @@
+{"path":".trellis/spec/frontend/index.md","note":"frontend Rule 0"}
+{"path":".trellis/spec/frontend/dev-test-ship.md","note":"web-host vs desktop entry"}
+{"path":".trellis/spec/frontend/electron-architecture.md","note":"web-host package"}
+{"path":".trellis/spec/code-review-layer-a.md","note":"assistant picker identity"}
+{"path":".trellis/spec/integration/org-knowledge.md","note":"org knowledge API boundary"}
+{"path":".trellis/tasks/07-15-webui-business-parity-exe/research/web-exe-parity-gaps.md","note":"gap inventory"}
+{"path":".trellis/tasks/07-15-webui-business-parity-exe/research/ui-ux-pro-max-webui.md","note":"UI may differ; Safari constraints"}
+{"path":".trellis/tasks/07-15-webui-business-parity-exe/prd.md","note":"AC"}
+{"path":".trellis/tasks/07-15-webui-business-parity-exe/execution-plan.md","note":"phased plan"}
+{"path":".trellis/tasks/07-14-web-1-1-9-apple-access/prd.md","note":"access prerequisite"}
+{""path"":""D:/Projects/aionui-src/packages/web-host/src/static-server.ts"",""note"":""/api/webui runtime-config authority agents org proxy""}
+{""path"":""D:/Projects/aionui-src/packages/desktop/src/common/webui/hydrateWebUiRuntimeConfig.ts"",""note"":""hydrate before mount""}
+{""path"":""D:/Projects/aionui-src/packages/desktop/src/common/webui/ccbWebApi.ts"",""note"":""HTTP CCB authority/agents""}
+{""path"":""D:/Projects/aionui-src/packages/desktop/src/common/assistants/fetchAssistantsCatalog.ts"",""note"":""WebUI HTTP-first catalog""}
+{""path"":""D:/Projects/aionui-src/packages/desktop/src/renderer/hooks/agent/useCcbModelInfo.ts"",""note"":""WebUI HTTP-first authority""}
+{""path"":""D:/Projects/aionui-src/packages/desktop/src/renderer/hooks/agent/useCcbStartupReadiness.ts"",""note"":""WEBUI_READY skip MCP IPC""}
+{""path"":""D:/Projects/aionui-src/packages/desktop/src/renderer/pages/conversation/utils/warmupConversation.ts"",""note"":""skip CCB identity stage on Web""}
+{""path"":""D:/Projects/aionui-src/packages/desktop/src/common/config/conversationContinuity.ts"",""note"":""Web early-return continuity""}
+{""path"":""D:/Projects/aionui-src/packages/desktop/src/common/utils/ccbPresetConversationExtra.ts"",""note"":""skip profile staging IPC on Web""}
+{""path"":""D:/Projects/aionui-src/packages/desktop/src/renderer/components/layout/Sider/index.tsx"",""note"":""hide Memory on Web""}
+{""path"":"".trellis/tasks/07-15-webui-business-parity-exe/p5-memory-deferred.md"",""note"":""MEMORY.001 deferred""}

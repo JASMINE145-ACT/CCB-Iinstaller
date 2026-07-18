@@ -1,0 +1,7 @@
+{"path":"docs/platform-system-business-decoupling-optimization.md","reason":"L1-L4 product boundary authority"}
+{"path":"公司组织/prd.md","reason":"L1 org vision"}
+{"path":"meta-repo/README.md","reason":"Mixing submodule meta pattern"}
+{"path":".trellis/spec/integration/platform-vertical-packages.md","reason":"vertical package ADR"}
+{"path":".trellis/tasks/07-13-agent-company-meta-bootstrap/research/bootstrap-inventory.md","reason":"copy vs forbid inventory"}
+{"path":".trellis/tasks/07-13-agent-company-meta-bootstrap/prd.md","reason":"task PRD"}
+{"path":".trellis/tasks/07-13-agent-company-meta-bootstrap/execution-plan.md","reason":"execution plan"}

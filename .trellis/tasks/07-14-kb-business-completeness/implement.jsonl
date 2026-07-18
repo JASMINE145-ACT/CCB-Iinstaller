@@ -1,0 +1,11 @@
+{"file": ".trellis/spec/integration/org-knowledge.md", "reason": "KB append path, shadow, CSRF, delete currently UI-only"}
+{"file": ".trellis/spec/integration/price-library.md", "reason": "Org mutate family gold standard — confirmed preview, delete/restore, RBAC"}
+{"file": ".trellis/spec/integration/supplier-directory.md", "reason": "Family peer — upsert preview envelope; Phase S delete later"}
+{"file": ".trellis/spec/integration/contracts/agent-runtime-registry.yml", "reason": "Register WANd.ORG.MUTATE.UX.001 + KB MCP contracts"}
+{"file": ".trellis/spec/integration/work-routing-execution-contracts.md", "reason": "KB_ORG vs price routing; learning promotion bounds"}
+{"file": ".trellis/tasks/07-14-kb-business-completeness/research/org-mutate-mcp-family.md", "reason": "Capability matrix + borrow directions"}
+{"file": ".trellis/tasks/07-14-kb-business-completeness/research/kb-mcp-gap.md", "reason": "Prior gap inventory — surfaces and paths"}
+{"file": ".trellis/tasks/07-14-kb-business-completeness/prd.md", "reason": "K+Foundation locked requirements"}
+{"file": ".trellis/tasks/07-14-kb-business-completeness/execution-plan.md", "reason": "Phased workstreams + envelope + backlog"}
+{"file": ".trellis/tasks/07-14-kb-business-completeness/research/delete-locator-compat.md", "reason": "Legacy block hash locate — fail-closed ambiguous"}
+{"file": ".trellis/tasks/07-14-kb-business-completeness/research/near-duplicate-append.md", "reason": "NEAR_DUPLICATE threshold algorithm"}

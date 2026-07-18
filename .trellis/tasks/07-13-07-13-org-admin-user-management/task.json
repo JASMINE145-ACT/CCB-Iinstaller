@@ -1,0 +1,42 @@
+{
+  "id": "07-13-org-admin-user-management",
+  "name": "07-13-org-admin-user-management",
+  "title": "Org Admin 用户管理（桌面端建号 + 身份配置）",
+  "description": "Admin UI + API for org user create and identity config (dept, manager, title). MVP replaces VPS SSH curl onboarding.",
+  "status": "in_progress",
+  "dev_type": "feature",
+  "scope": "cross-repo",
+  "package": "integration",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-13",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "07-14-employee-intelligence-layer",
+  "relatedFiles": [
+    "AionCore/crates/aionui-db/migrations/025_is_admin.sql",
+    "AionCore/crates/aionui-work-tasks/src/service.rs",
+    "AionCore/crates/aionui-work-tasks/src/routes.rs",
+    "AionCore/crates/aionui-auth/src/middleware.rs",
+    ".trellis/tasks/07-13-07-13-org-admin-user-management/admin-rbac-contract.md"
+  ],
+  "notes": "Phase 5.1–5.5 ACCEPTED 2026-07-14 (phase5-smoke-log.md). 5.6+ backlog remains; parent task stays in_progress until reset-pwd/admin UI or explicit close.",
+  "meta": {
+    "contracts": [
+      "WANd.ORG.USER_ADMIN.001",
+      "WANd.EMPLOYEE.ORG_CONTEXT.001",
+      "WANd.ORG.CAPABILITY.001"
+    ],
+    "mvp_migration": "025_is_admin.sql",
+    "capability_migration": "026_user_capabilities.sql",
+    "phase5": "product-delta-phase5.md",
+    "aionui_src": "D:\\Projects\\aionui-src"
+  }
+}
