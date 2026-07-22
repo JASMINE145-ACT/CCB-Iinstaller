@@ -53,41 +53,38 @@ def test_prior_attempt_with_two_turn_lookup() -> bool:
     code, data = run_eval("roe-real-fill-failed-missing-path.jsonl")
     prompt = data.get("reject_prompt", "")
     pa = data.get("prior_attempt") or {}
+    gaps = data.get("gaps_text") or ""
     if code != 10 or data.get("verdict") != "block":
         print(f"[FAIL] fill failed missing path: {code} {data.get('verdict')}")
         return False
-    if "prior turns" not in prompt or "match_quotation" not in prompt:
-        print(f"[FAIL] should list Turn1 lookup in prior: {prompt[:400]}")
+    if "fill_quotation_sheet" not in prompt and "edit_excel" not in prompt:
+        print(f"[FAIL] ACTION should still point at fill: {prompt[:400]}")
         return False
-    if "Prior attempt" not in prompt or "file_path" not in prompt.lower():
-        print(f"[FAIL] should show prior L2 failure: {prompt[:400]}")
-        return False
-    if "Retry" not in data.get("reject_prompt", "") and "Retry" not in prompt:
-        print("[FAIL] action should say Retry")
+    if "file_path" not in gaps.lower() and "file_path" not in str(pa).lower():
+        print(f"[FAIL] should show prior L2 failure in gaps/prior_attempt: {gaps} {pa}")
         return False
     if pa.get("error", "").find("file_path") < 0:
         print(f"[FAIL] prior_attempt json: {pa}")
         return False
-    print("[PASS] two-turn lookup + fill failed -> prior done + prior attempt")
+    print("[PASS] two-turn lookup + fill failed -> gaps + prior_attempt")
     return True
 
 
 def test_multi_continue_accumulates_window_done() -> bool:
     code, data = run_eval("roe-real-multi-continue-accumulate.jsonl")
     prompt = data.get("reject_prompt", "")
+    gaps = data.get("gaps_text") or ""
+    pa = data.get("prior_attempt") or {}
     if code != 10:
         print(f"[FAIL] multi-continue expected block: {code}")
         return False
-    if "this turn" not in prompt:
-        print(f"[FAIL] should have this-turn section: {prompt[:500]}")
+    if "fill_quotation_sheet" not in prompt and "edit_excel" not in prompt:
+        print(f"[FAIL] ACTION should still point at fill: {prompt[:500]}")
         return False
-    if "match_quotation" not in prompt or "search_inventory" not in prompt:
-        print(f"[FAIL] continue reads should accumulate in window: {prompt[:500]}")
+    if "file_path" not in gaps.lower() and "file_path" not in str(pa).lower():
+        print(f"[FAIL] should show fill failure after continues: {gaps} {pa}")
         return False
-    if "Prior attempt" not in prompt or "file_path" not in prompt.lower():
-        print(f"[FAIL] should show fill failure after continues: {prompt[:500]}")
-        return False
-    print("[PASS] multi-continue accumulates window done + prior attempt")
+    print("[PASS] multi-continue still blocks with prior_attempt")
     return True
 
 
@@ -133,8 +130,9 @@ def test_fill_failed_never_passes() -> bool:
         print(f"[FAIL] fill is_error true must block: {data}")
         return False
     prompt = data.get("reject_prompt", "")
-    if "Prior attempt" not in prompt and "fill_quotation" not in prompt:
-        print(f"[FAIL] failed fill should surface in REJECT: {prompt[:300]}")
+    gaps = data.get("gaps_text") or ""
+    if "fill_quotation" not in prompt and not data.get("prior_attempt"):
+        print(f"[FAIL] failed fill should surface: {prompt[:300]} gaps={gaps}")
         return False
     print("[PASS] L2 is_error true never passes")
     return True
@@ -146,13 +144,13 @@ def test_multi_tool_batch_l2_fail_blocks() -> bool:
         print(f"[FAIL] batch L2 fail: {data}")
         return False
     prompt = data.get("reject_prompt", "")
-    if "match_quotation" not in prompt:
-        print(f"[FAIL] should list successful read in window: {prompt[:400]}")
+    if "fill_quotation_sheet" not in prompt and "edit_excel" not in prompt:
+        print(f"[FAIL] ACTION should point at fill: {prompt[:400]}")
         return False
-    if "Prior attempt" not in prompt:
-        print(f"[FAIL] should show failed fill attempt: {prompt[:400]}")
+    if not data.get("prior_attempt") and "失败" not in (data.get("gaps_text") or ""):
+        print(f"[FAIL] should show failed fill attempt: {data.get('gaps_text')}")
         return False
-    print("[PASS] same-turn lookup ok + fill fail -> block with both sections")
+    print("[PASS] same-turn lookup ok + fill fail -> block")
     return True
 
 

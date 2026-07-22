@@ -14,6 +14,21 @@ Canonical reference: [`docs/ai-tools-reference.md`](../../docs/ai-tools-referenc
 
 Command entry: `.cursor/commands/trellis-plan-execution.md` — must stay aligned with this skill.
 
+## Phase -1: Session bootstrap (replaces removed SessionStart)
+
+Claude Code / Codex no longer auto-inject heavy Trellis context on session open. When this skill (or `/trellis:plan-execution`) runs, **once at start**, run these read-only commands and summarize before planning:
+
+```powershell
+python ./.trellis/scripts/task.py current --source
+python ./.trellis/scripts/task.py list --mine --status in_progress
+python ./.trellis/scripts/get_context.py --mode packages
+git status -sb
+```
+
+Summarize: active task (if any), in-progress tasks, package/spec layer indexes for touched work, and short git status.
+
+**Still owned by hooks (do not reimplement here):** per-turn `[workflow-state:...]` (`UserPromptSubmit`) and commit evidence gate (`PreToolUse` Bash). `session-start.py` remains on disk for optional re-register.
+
 ---
 
 ## Operating doctrine: Contract → TDD → Contract Verification
@@ -113,7 +128,7 @@ For each touched contract:
 | **G** 重构清理 | Behavior-preserving structure change | Characterization tests first (`superpowers:test-driven-development`) → `ecc:refactor-clean` / `ecc:code-simplifier` |
 | **H** 安全敏感 | Touches auth / secrets / user input / payments | `Agent: security-reviewer` (mandatory) + `ecc:security-scan` → Security profile |
 | **I** 性能优化 | Slow / jank / bundle / memory, measurable | Measure first (`Agent: performance-optimizer`, chrome-devtools trace) → TDD with benchmark evidence |
-| **J** 发布打包 | Installer / release / build-wanding | Release spec + `ecc:verification-loop` → Release profile + manual acceptance |
+| **J** 发布打包 | Installer / release / build-wanding | **先读** `wanding-release-standard` + whitelist 闭包，再 `ecc:verification-loop` → Release profile + manual acceptance |
 | **K** 文档规格 | md/comments/codemap only, no behavior change | `Agent: doc-updater` / `openspec-sync-specs` / `trellis-update-spec` → Fast profile |
 | **L** 深度研究 | Tech selection / external API / no code output | `Agent: trellis-research` (persist) + `ecc:deep-research` — **no implementation plan** |
 
@@ -441,6 +456,15 @@ Pick exactly one primary profile; profiles specialize commands, not review syste
 | **Cross-repo** | Multiple repos or deploy mirror | Per-repo tests → serial sync/merge → integrated verification |
 
 If a specialist tool is unavailable, keep the evidence requirement and use its Phase -1 fallback.
+
+### Guid hand-smoke waive (2026-07-14)
+
+When the user **explicitly waives Guid / UI hand-chat** (“我自己不测了 / 你来做 smoke”):
+
+1. Do **not** block Stage close waiting for user to click Guid.
+2. Substitute with the **same MCP tool path** the specialist would call (e.g. outbound DOCX→PDF → `smoke-word-creator-outbound.mjs`), plus optional CDP surface check (card visible).
+3. Record in the task: `Guid hand-chat waived; substituted by <script/log>`.
+4. Closed-loop claims still need **target-tool output artifacts** — see `.trellis/spec/integration/mcp-health.md` § Closed-loop capability evidence. Do not treat bare `tools/list` as FULL PASS.
 
 ### Conditional recovery
 

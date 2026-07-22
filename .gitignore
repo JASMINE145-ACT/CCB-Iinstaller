@@ -62,6 +62,9 @@ Microsoft/
 
 # Test / data binaries
 data/*.xlsx
+data/accurate-item-dump-*.jsonl
+data/accurate-item-dump-*.checkpoint.json
+data/price-gap-fill-*.csv
 eval/results/
 !data/wanding_price_lib.xlsx
 !data/mapping_table.xlsx
@@ -83,6 +86,8 @@ python/test_*_report.json
 
 # Third-party learning references (clone locally, not tracked)
 docs/reference/rudder/
+docs/reference/pi/
+docs/reference/hermes-agent/
 
 ccb-installer/config/skills/ccb-subagent-gate/tests/fixtures/.roe-*/
 # Agent Eval Plugin runtime artifacts

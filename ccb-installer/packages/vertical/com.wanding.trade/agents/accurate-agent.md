@@ -74,6 +74,7 @@ Step 3  Markdown 表格合并输出
    - **不要** `keyword` / `master_table`（全表按月汇总）
 2. **禁止** 用 `mcp__accurate__accurate_fetch_by_date` 做金额汇总或「碰运气」重试。
 3. 工具返回后**立即**输出 Markdown 表格（月份 | 金额 | 单据数 | 合计行），不要继续调工具。
+4. **只读月报禁止过度交付**（委派与直开同守）：用户未明确要求导出/落盘/Excel 时，**禁止** `Write` md/csv、python/openpyxl 造 xlsx、`accurate_batch_get_detail` 扫单明细、`ExecuteExtraTool`。表格写在 assistant 正文即可；不要因「落盘交付」触发 ROE 写门禁循环。
 
 示例（2026 年 1–5 月全公司采购）— 直接调用 `mcp__accurate__accurate_summarize_records`：
 
@@ -103,6 +104,7 @@ Step 3  Markdown 表格合并输出
    - **不要** `keyword` / `master_table`（全表按月汇总）
 2. **禁止** 用 `mcp__accurate__accurate_fetch_by_date` 做金额汇总或「碰运气」重试。
 3. 工具返回后**立即**输出 Markdown 表格（月份 | 金额 | 单据数 | 合计行），不要继续调工具。
+4. **只读月报禁止过度交付**（委派与直开同守）：用户未明确要求导出/落盘/Excel 时，**禁止** `Write` md/csv、python/openpyxl 造 xlsx、`accurate_batch_get_detail` 扫单明细、`ExecuteExtraTool`。表格写在 assistant 正文即可；不要因「落盘交付」触发 ROE 写门禁循环。
 
 示例（2026 年 1–5 月全公司销售）— 直接调用 `mcp__accurate__accurate_summarize_records`：
 

@@ -40,6 +40,35 @@ function pathTokens(path) {
   return tokens
 }
 
+function resolvePathOnValues(values, path, events) {
+  let current = values
+  for (const token of pathTokens(path)) {
+    const wildcard = token.match(/^([^[]+)\[\*\]$/)
+    const filter = token.match(/^([^[]+)\[([^=]+)=\$(.+)\]$/)
+    if (wildcard) {
+      current = current.flatMap((value) => {
+        const collection = value?.[wildcard[1]]
+        return Array.isArray(collection) ? collection : []
+      })
+      continue
+    }
+    if (filter) {
+      const expected = resolveEvidenceExpression(events, filter[3])
+      current = current.flatMap((value) => {
+        const collection = value?.[filter[1]]
+        if (!Array.isArray(collection)) return []
+        return collection.filter((item) => expected.includes(item?.[filter[2]]))
+      })
+      continue
+    }
+    current = current
+      .map((value) => value?.[token])
+      .flatMap((value) => Array.isArray(value) ? value : [value])
+      .filter((value) => value !== undefined)
+  }
+  return current
+}
+
 export function resolveEvidenceExpression(events, expression) {
   const actions = [...new Set(events.map(({ action }) => action))]
     .sort((left, right) => right.length - left.length)
@@ -48,35 +77,11 @@ export function resolveEvidenceExpression(events, expression) {
   ))
   if (!action) return []
 
-  const event = eventsForAction(events, action).at(-1)
+  // Aggregate every event for this action (not only the last call).
+  const matched = eventsForAction(events, action)
+  if (matched.length === 0) return []
   const path = expression === action ? '' : expression.slice(action.length + 1)
-  let values = [event]
-
-  for (const token of pathTokens(path)) {
-    const wildcard = token.match(/^([^[]+)\[\*\]$/)
-    const filter = token.match(/^([^[]+)\[([^=]+)=\$(.+)\]$/)
-    if (wildcard) {
-      values = values.flatMap((value) => {
-        const collection = value?.[wildcard[1]]
-        return Array.isArray(collection) ? collection : []
-      })
-      continue
-    }
-    if (filter) {
-      const expected = resolveEvidenceExpression(events, filter[3])
-      values = values.flatMap((value) => {
-        const collection = value?.[filter[1]]
-        if (!Array.isArray(collection)) return []
-        return collection.filter((item) => expected.includes(item?.[filter[2]]))
-      })
-      continue
-    }
-    values = values
-      .map((value) => value?.[token])
-      .flatMap((value) => Array.isArray(value) ? value : [value])
-      .filter((value) => value !== undefined)
-  }
-  return values
+  return resolvePathOnValues(matched, path, events)
 }
 
 export function valuesEqual(left, right) {

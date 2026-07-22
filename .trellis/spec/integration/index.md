@@ -17,9 +17,15 @@
 | Adding a defensive fix to renderer / chatLib | [`defensive-fix-policy.md`](./defensive-fix-policy.md) — must include `// TODO(defensive)` |
 | **Adding a new AionCore crate** (work-tasks / org-knowledge / price-library / …) | [`aioncore-work-tasks.md`](./aioncore-work-tasks.md) § AionCore Development Model — self-built fork is primary; next migration = 018 |
 | **Org price library** (API + AionUI read-only MVP) | [`price-library.md`](./price-library.md) — incl. **LKG pollution** vs **expected** org_knowledge 401 / AOL degradations (§ Dev / smoke triage) |
+| **外购无码库存映射 CODE_MAP**（Accurate 有货/价库无码） | [`uncoded-inventory-map.md`](./uncoded-inventory-map.md) — jsonl 落点、enroll 证据、禁未接线 `search_inventory`；task `07-14-uncoded-inventory-ai-assist` |
 | **Org supplier directory** (factories + vehicles; ≠ price-library `supplier` column) | [`supplier-directory.md`](./supplier-directory.md) |
+| **打包 / 发版 / NSIS / build-wanding**（安装包、seed、bootstrap、`$shipScripts`） | **先读** [`wanding-release-standard.md`](./wanding-release-standard.md)（§0 · §2.3 · §5.5 · §6.8–6.9 · §10）+ [`wanding-packaging-whitelist.md`](./wanding-packaging-whitelist.md)（运行时闭包）；再跑构建。Cursor：`.cursor/rules/wanding-release-packaging.mdc`；playbook Scenario **J** |
 | **Org knowledge agent write** (append MCP, shadow read-only, **preview UX**) | [`org-knowledge.md`](./org-knowledge.md) § Agent write path + § Preview UX (2026-06-29) + Common mistakes |
+| **Org Mutate UX** (统一 preview→apply→audit；知识库 delete/预算首实现) | [`org-mutate-ux.md`](./org-mutate-ux.md) — `WANd.ORG.MUTATE.UX.001`；task `07-14-kb-business-completeness` |
+| **Word DocumentSpec / MCP 宏渲染边界**（word-creator MCP-only；Gate S/R） | [`word-mcp-skill-boundary.md`](./word-mcp-skill-boundary.md) — task `07-16-word-skill-mcp-granularity` |
 | **VPS org API deploy** (knowledge + price + work-task routes) | [`../../../scripts/org-phase0/vps-org-api-deploy-checklist.md`](../../../scripts/org-phase0/vps-org-api-deploy-checklist.md) |
+| **AionCore SQLite multi-statement tx** (`pool.begin`, not raw BEGIN on pool) | [`aioncore-sqlite-transactions.md`](./aioncore-sqlite-transactions.md) |
+| **Org admin user list / delete ACL** | Task contract [`.trellis/tasks/07-13-07-13-org-admin-user-management/admin-rbac-contract.md`](../../tasks/07-13-07-13-org-admin-user-management/admin-rbac-contract.md) §2 / §2.1 |
 | **Agent team — main vs subagent calling model**（路由、Guid 直连、委派、`Agent()`、hooks 总览；**View Steps 平铺 vs 运行时嵌套**见 § UI observability） | [`agent-team-architecture.md`](./agent-team-architecture.md) — entry map; deep dive [`agents-unified-model.md`](./agents-unified-model.md) |
 | **Work Routing vs Execution**（谁干活 vs 怎么跑；改 guard 不误伤 hook/ROE） | [`work-routing-execution-contracts.md`](./work-routing-execution-contracts.md) — decision tree + [`contracts/agent-runtime-registry.yml`](./contracts/agent-runtime-registry.yml); task `07-09-work-routing-execution-contracts` |
 | **Subagent delivery gate / ROE / Gate-J** | [`agents-unified-model.md`](./agents-unified-model.md) § Subagent delivery gate, § Universal ROE, § Multi-candidate reply |

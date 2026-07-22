@@ -1,4 +1,4 @@
-﻿/**
+/**
  * MCP proxy for Org supplier directory + logistics vehicles.
  *
  * Env:
@@ -20,6 +20,10 @@ import {
   SUPPLIER_COMPARE_FIELDS,
   VEHICLE_COMPARE_FIELDS,
 } from './preview.mjs';
+import {
+  formatOrgSessionAuthError,
+  isJwtExpired,
+} from './session-auth.mjs';
 
 const port = process.env.AIONCORE_PORT ?? '13400';
 const staticJwt = process.env.AIONCORE_JWT ?? '';
@@ -57,8 +61,18 @@ function readSessionJwt() {
 }
 
 function ensureJwt() {
-  if (!readSessionJwt()) {
-    throw new Error('ORG session JWT missing 鈥?log in to Org SSO first');
+  const jwt = readSessionJwt();
+  if (!jwt) {
+    throw new Error(
+      formatOrgSessionAuthError({ missing: true }) ??
+        'ORG_SESSION_MISSING: Org session JWT missing — re-login to AionUI Org SSO',
+    );
+  }
+  if (isJwtExpired(jwt)) {
+    throw new Error(
+      formatOrgSessionAuthError({ expired: true }) ??
+        'ORG_SESSION_EXPIRED: Org session JWT expired — re-login to AionUI Org SSO',
+    );
   }
 }
 
@@ -106,6 +120,13 @@ async function fetchJsonAttempt(method, path, body, didRetryCsrf) {
       (parsed && (parsed.error || parsed.message || parsed.msg)) ||
       text ||
       res.statusText;
+    const authMsg = formatOrgSessionAuthError({
+      httpStatus: res.status,
+      upstreamMessage: String(msg ?? ''),
+    });
+    if (authMsg) {
+      throw new Error(authMsg);
+    }
     throw new Error(`HTTP ${res.status}: ${msg}`);
   }
   return unwrapPayload(parsed);
@@ -290,12 +311,25 @@ const TOOLS = [
   {
     name: 'suppliers_match_product',
     description:
-      'Product-match factories with the shared Org scorer. Use for product keywords only, e.g. tugongbu/geotextile. Returns ranked snippets.',
+      'Product-match factories with the shared Org scorer. Use for exact/controlled product keywords only. Returns ranked snippets.',
     inputSchema: {
       type: 'object',
       required: ['q'],
       properties: {
         q: { type: 'string', description: 'Extracted product query, e.g. geotextile / tugongbu' },
+        top_n: { type: 'number', description: 'Max hits (default 10)' },
+      },
+    },
+  },
+  {
+    name: 'suppliers_hybrid_match',
+    description:
+      'Hybrid product search for multilingual or uncertain product queries. Merges structured scorer results with supplier FTS recall and returns evidence fields.',
+    inputSchema: {
+      type: 'object',
+      required: ['q'],
+      properties: {
+        q: { type: 'string', description: 'Extracted product query, e.g. geotextile / HDPE pipe / tugongbu' },
         top_n: { type: 'number', description: 'Max hits (default 10)' },
       },
     },
@@ -390,6 +424,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       data = await fetchJson(
         'GET',
         `/api/suppliers/match${qs({ q: args.q, top_n: args.top_n ?? 10 })}`,
+      );
+    } else if (name === 'suppliers_hybrid_match') {
+      if (!String(args.q ?? '').trim()) throw new Error('q is required');
+      data = await fetchJson(
+        'GET',
+        `/api/suppliers/hybrid-match${qs({ q: args.q, top_n: args.top_n ?? 10 })}`,
       );
     } else if (name === 'logistics_vehicles_list') {
       data = await fetchJson('GET', '/api/logistics-vehicles');

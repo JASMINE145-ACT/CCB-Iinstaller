@@ -49,11 +49,10 @@
       "mcpServers": [
         "quotation",
         "excel",
-        "price-library"
+        "price-library",
+        "supplier-directory"
       ],
-      "skills": [
-        "quotation-learn-by-data"
-      ]
+      "skills": []
     },
     {
       "id": "accurate-agent",
@@ -88,17 +87,6 @@
       ],
       "mcpServers": [
         "work-tasks-agent"
-      ],
-      "skills": []
-    },
-    {
-      "id": "supplier-directory-agent",
-      "source": "packages/vertical/com.wanding.trade/agents/supplier-directory-agent.md",
-      "requiredCapabilities": [
-        "business.supplier-directory.read"
-      ],
-      "mcpServers": [
-        "supplier-directory"
       ],
       "skills": []
     }
@@ -138,6 +126,7 @@
           "ENABLE_WANDING_VECTOR": "0",
           "INVENTORY_ENABLE_RESOLVER_VECTOR": "0",
           "USE_RESOLVER_FALLBACK": "0",
+          "QUOTATION_PYTHON_TIMEOUT_MS": "120000",
           "AOL_ACCESS_TOKEN": "secret://tenant/tn_wanding_prod/aol/access-token",
           "AOL_DATABASE_ID": "secret://tenant/tn_wanding_prod/aol/database-id",
           "AOL_SIGNATURE_SECRET": "secret://tenant/tn_wanding_prod/aol/signature-secret",
@@ -307,6 +296,11 @@
       "legacyId": "work-tasks-agent",
       "kind": "agent",
       "targetId": "work-tasks-agent"
+    },
+    {
+      "legacyId": "supplier-directory-agent",
+      "kind": "agent",
+      "targetId": "quotation-agent"
     }
   ]
 }

@@ -56,7 +56,7 @@ Independent login/logout in Phase 0; 401 on one domain clears only that domain's
 
 **Phase 0 (2026-06-19):** After local login success, AionUI silently org-logins when `org-server.json` is configured (`orgAuthLogin.ts`). Employee org account on VPS must use **same username/password** as local login. Superseded by unified SSO when `sso.env` is configured.
 
-**Agent write path (2026-06-19; MCP wired 2026-06-28):** Quotation MCP exposes `append_business_rule` for confirmed chat-driven updates to shared `wanding_business_knowledge`. The tool reads center version, appends a dated rule block, and PUTs with `expected_version`; quotation-agent must ask for user confirmation before calling with `confirmed=true`. **Agents must not Edit/Write the local shadow md** — shadow is read-only; delete/full edit → `#/org-knowledge` UI.
+**Agent write path (2026-06-19; MCP wired 2026-06-28; delete 2026-07-14):** Quotation MCP exposes `append_business_rule` and `delete_business_rule` (Org Mutate — [`org-mutate-ux.md`](./org-mutate-ux.md)). Append/delete use `confirmed=false` preview → user OK → `confirmed=true`. Delete locate via `block_id` or `content_hash`+`snippet`; apply RBAC/test-slug gated. **Agents must not Edit/Write the local shadow md** — shadow is read-only; full-doc / section-level edit still `#/org-knowledge` UI.
 
 ---
 
@@ -189,7 +189,9 @@ Cross-ref triage table: [`price-library.md`](./price-library.md) § Dev / smoke:
 
 | Tool | Role |
 |------|------|
-| `append_business_rule` | Append a confirmed rule to center `wanding_business_knowledge` |
+| `append_business_rule` | Append a confirmed rule (Org Mutate envelope + legacy fields; budget / near-dup) |
+| `delete_business_rule` | Delete one rule block (hash/`block_id`; history kept; apply RBAC/test-slug) — see [`org-mutate-ux.md`](./org-mutate-ux.md) |
+
 
 Contract:
 
@@ -198,7 +200,7 @@ Contract:
 - **Mutating writes (2026-06-29):** Python client must send VPS **CSRF** per [`price-library.md`](./price-library.md) § VPS CSRF contract — `GET /api/auth/status` seeds `aionui-csrf-token` cookie; `PUT` sends `Authorization: Bearer` + `x-csrf-token`. Bearer alone → **403 `CSRF_INVALID`**.
 - Uses optimistic concurrency (`expected_version`); conflicts must be retried by re-reading center content, not force-overwritten.
 - Used only when user explicitly asks to add/save a shared business rule. Routine quotation matching still uses `match_quotation` + local shadow **Read** (never shadow Write).
-- **Delete / full-doc edit:** not available via agent tool — use `#/org-knowledge` editor (PUT center); shadow resyncs on login/save/WS/interval.
+- **Delete one rule block:** `delete_business_rule` (preview→confirm; history retained). **Full-doc / large structural edit:** `#/org-knowledge` editor; shadow resyncs on login/save/WS/interval.
 
 ### Preview UX — agent must not stop after `confirmed=false` (2026-06-29)
 
@@ -210,18 +212,19 @@ Contract:
 
 | Step | Agent |
 |------|-------|
-| 1 | `append_business_rule` with `confirmed=false` |
-| 2 | **Same turn** — assistant text: full markdown of `rule_text` +「将写入组织知识库，是否确认？」 |
-| 3 | User replies「确认」/「同意」 |
-| 4 | `append_business_rule` with `confirmed=true` (needs org token) |
+| 1 | `append_business_rule` / `delete_business_rule` with `confirmed=false` |
+| 2 | **Same turn** — assistant text: full markdown of `rule_text` / `preview_before` + confirm question |
+| 3 | User Accept vocab (`确认`/`同意`/`ok`/`好的`/… — see [`org-mutate-ux.md`](./org-mutate-ux.md) · CONFIRM.001); delete preview may accept「删除」 |
+| 4 | same tool with `confirmed=true` (needs org token; delete also needs admin/cap/flag/test-slug) |
 
-**Shipped:** `ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md` § `append_business_rule` 预览后（硬约束）+ §回复形态 + §硬禁止.
+**Shipped:** `quotation-agent.md` § Org Mutate 确认词表 + append/delete 预览硬约束（2026-07-15 task `07-15-kb-mutate-conversation-ux`).
 
 **Deploy verify:**
 
 ```powershell
 .\ccb-installer\scripts\deploy-seed-agents.ps1 -ForceMd
 # New quotation-agent Guid session → trigger append preview → must see full rule markdown + confirm question
+# Reply 「ok」 once → apply; delete preview → reply 「删除」 once → apply (admin session)
 ```
 
 ---
@@ -251,13 +254,13 @@ For slug `wanding_business_knowledge`, employee desktops keep the local Agent Re
 
 This preserves the stable Agent Read path while making center edits propagate to online employees without requiring re-login.
 
-**Shadow is read-only for agents (2026-06-28):** `quotation-agent` may **Read** the shadow path only. **Do not** Edit/Write/Bash the shadow file for shared updates — that changes one machine only and may be overwritten on the next sync. Append shared rules via MCP `append_business_rule`; delete or full-doc edit via `#/org-knowledge` UI.
+**Shadow is read-only for agents (2026-06-28):** `quotation-agent` may **Read** the shadow path only. **Do not** Edit/Write/Bash the shadow file for shared updates — that changes one machine only and may be overwritten on the next sync. Append/delete shared rule blocks via MCP (`append_business_rule` / `delete_business_rule`); full-doc edit via `#/org-knowledge` UI.
 
 ### Vocabulary vs 价格库 (2026-07-11)
 
 | 用户说法 | 含义 | Path |
 |----------|------|------|
-| **知识库** / **业务知识库** | 本页文档 / `wanding_business_knowledge` | `append_business_rule` 或 `#/org-knowledge` |
+| **知识库** / **业务知识库** | 本页文档 / `wanding_business_knowledge` | `append_business_rule` / `delete_business_rule` 或 `#/org-knowledge` |
 | **价格库** / **价库** | 物料单价 SKU 库 | `price-library-agent` — **not** this write path |
 
 Contracts: `WANd.ROUTING.KB_ORG.001` / `KB_PRICE.001` / `KB_DISAMBIG.001` — task [`07-11-knowledge-vs-price-library-routing`](../../tasks/07-11-knowledge-vs-price-library-routing/).
@@ -269,14 +272,17 @@ Contracts: `WANd.ROUTING.KB_ORG.001` / `KB_PRICE.001` / `KB_DISAMBIG.001` — ta
 | Wrong | Correct |
 |-------|---------|
 | 「知识库更新」→ `upsert_price_library_item` / `price-library-edit` | 知识库 = 业务知识库 → `append_business_rule` |
-| Agent Edit/Write `vendor/.../wanding_business_knowledge.md` for fleet update | `#/org-knowledge` Save (delete/full edit) or MCP `append_business_rule` (append only) |
+| Agent Edit/Write `vendor/.../wanding_business_knowledge.md` for fleet update | MCP append/delete (Org Mutate) or `#/org-knowledge` Save for full edit |
 | Python has `append_business_rule` in `tool_dispatch` → assume MCP exposes it | Verify `mcp_servers/quotation-server/dist/index.js` ListTools + live `vendor/mcp-servers/.../index.js` after `sync-dev-wanding-vendor.ps1` |
 | Changed `ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md` only | Also `deploy-seed-agents.ps1 -ForceMd` — default deploy skips existing user `.md` |
 | `#/org-knowledge` shows new content → assume quotation agent already has it | Shadow sync on login/WS/interval; **new MCP conversation** after vendor sync |
-| `append_business_rule` for delete/test cleanup | Tool is **append-only**; use UI PUT for removals |
+| `append_business_rule` for delete/test cleanup | Prefer `delete_business_rule` (Org Mutate; RBAC/test-slug gated). Full-doc wipe still UI PUT |
+
 | `append_business_rule` → **403 CSRF_INVALID** | Re-login does **not** fix — MCP PUT needs CSRF bootstrap (`org_http_csrf.py`); sync `python/` → vendor after fix |
 | `append_business_rule` → **401** with UI `#/org-knowledge` OK | MCP on **stale Prod** `org-session.token` while Dev login wrote `AionUi-Dev` — set `AIONUI_APPDATA_PROFILE=AionUi-Dev` + `-UpdateSettings` + **new Guid session** (task 07-02) |
 | Re-login to fix `append_business_rule` 403 | 403 = missing CSRF on PUT, not expired JWT (GET would still work); deploy `org_knowledge_client` + `org_http_csrf.py` |
+| Admin JWT still `delete` FORBIDDEN | Gate needs `GET /api/auth/user` `is_admin` (not JWT claims); sync `python/admin` → vendor; restart MCP session |
+| User said `ok` but agent re-asks「确认」 | CONFIRM.001 — accept `ok`/`好的`/`可以` in one round |
 
 ---
 

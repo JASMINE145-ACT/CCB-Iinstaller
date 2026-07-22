@@ -183,7 +183,7 @@ Temporary desktop dev escape hatch while org-login E2E is deferred:
 | Preload `__bypassAuth` | mirrors env | Renderer reads bypass flag |
 | `AuthContext.tsx` | `__bypassAuth` on desktop | Skips login page; silent `system` manager |
 
-**Re-enable real login:** remove `$env:AIONUI_BYPASS_AUTH = '1'` from the dev start script, rebuild `aioncore`, restart dev. Org-login code (POST `/api/users`, `TeamMembersPage`, Bearer session) remains in tree.
+**Re-enable real login:** remove `$env:AIONUI_BYPASS_AUTH = '1'` from the dev start script, rebuild `aioncore`, restart dev. Org-login code (POST `/api/users`, Bearer session) remains in tree. Settings「团队成员」UI retired 2026-07-13 — use Settings → 组织 (`/api/org-users`).
 
 **Desktop org SSO wiring (2026-06-26, uncommitted):** `start-dev-full.ps1` sets `AIONUI_SSO_MODE=org-idp` + `JWT_SECRET`; preload exposes `__ssoMode`, `__orgServerUrl`, `__bypassAuth`, `__forceRelogin`; `AuthContext` calls `performOrgLogin` on desktop; `/tasks` + `SiderWorkTasksEntry` + sider user chip wired. See task `06-26-aionui-source-level-recovery/dev-parity-wiring-2026-06-26.md`.
 

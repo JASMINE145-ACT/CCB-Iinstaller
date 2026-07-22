@@ -1,0 +1,86 @@
+{
+  "id": "07-21-quotation-relay-stale-fix",
+  "name": "07-21-quotation-relay-stale-fix",
+  "title": "报价 Agent L1 同步 + 仅查价 Eval 覆盖 + Relay 守门",
+  "description": "修复 quotation-agent L1 install seed drift、新增 price-only eval case、补 PostToolUse relay nudge 钩子,3 件事一起做。",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": "ccb-installer",
+  "package": "vertical/com.wanding.trade",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-21",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    {
+      "id": "A",
+      "title": "Sync install seed: staging ↔ source",
+      "touches": "WANd.QUOTE.SEED.SYNC.001",
+      "files": [
+        "ccb-installer/staging/seed/agents/quotation-agent.md",
+        "ccb-installer/config/skills/ccb-subagent-gate/scripts/__tests__/test_seed_sync.py"
+      ]
+    },
+    {
+      "id": "B",
+      "title": "New eval case: direct50-price-only",
+      "touches": "WANd.EVAL.CASE.PRICE_ONLY.001",
+      "files": [
+        ".agent-eval/cases/quotation-direct50-price-only.json"
+      ]
+    },
+    {
+      "id": "C",
+      "title": "PostToolUse hook: post-quotation-relay-nudge",
+      "touches": "WANd.QUOTE.RELAY.GUARD.001",
+      "files": [
+        "ccb-installer/config/skills/ccb-subagent-gate/scripts/post-quotation-relay-nudge.py",
+        "ccb-installer/config/skills/ccb-subagent-gate/scripts/__tests__/test_post_quotation_relay_nudge.py",
+        "ccb-installer/config/skills/ccb-subagent-gate/config/modes.json"
+      ]
+    },
+    {
+      "id": "D",
+      "title": "Spec update: relay strict + 4 contract registry",
+      "touches": "WANd.QUOTE.ORCH.RELAY.STRICT.001",
+      "files": [
+        ".trellis/spec/integration/agents-unified-model.md",
+        ".trellis/spec/integration/contracts/agent-runtime-registry.yml"
+      ]
+    },
+    {
+      "id": "E",
+      "title": "Verification: re-eval regression",
+      "touches": "(verification only)",
+      "files": [
+        ".agent-eval/runs/07-21-verify-*/report.md"
+      ]
+    }
+  ],
+  "children": [],
+  "parent": "07-19-quotation-agent-prompt",
+  "relatedFiles": [
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md",
+    "ccb-installer/config/skills/ccb-subagent-gate/scripts/post-match-knowledge-nudge.py",
+    "ccb-installer/config/skills/ccb-subagent-gate/scripts/post-price-tiers-nudge.py",
+    ".agent-eval/cases/quotation-direct50-price-stock.json",
+    ".trellis/tasks/07-19-selection-api-and-evidence-harness/closeout.md"
+  ],
+  "notes": "Parent task 07-19-quotation-agent-prompt is P2 planning with empty scope; this task is the concrete deliverable for the relay-stale regression surfaced on 2026-07-19. Parent retains the broader 'prompt cleanup' scope; this task is a focused, shippable sibling.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "scenario": "A",
+    "plan_depth": "Standard",
+    "verification_profile": "Standard",
+    "risk_tags": [
+      "migration",
+      "ui",
+      "long-running"
+    ]
+  }
+}

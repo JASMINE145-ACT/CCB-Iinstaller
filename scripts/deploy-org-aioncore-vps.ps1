@@ -51,10 +51,15 @@ if (-not (Test-Path $PriceSeed)) {
 New-Item -ItemType Directory -Force -Path $TmpDir | Out-Null
 
 Write-Host ''
-Write-Host 'Packaging AionCore source (excluding target/ ~9GB, data-org/)...' -ForegroundColor Cyan
+Write-Host 'Packaging AionCore source (excluding target*, .git, data-org/)...' -ForegroundColor Cyan
 Push-Location $AionCore
 try {
-  & tar --exclude=target --exclude=data-org -czf $Tarball .
+  & tar `
+    --exclude=target `
+    --exclude=target-* `
+    --exclude=.git `
+    --exclude=data-org `
+    -czf $Tarball .
   if ($LASTEXITCODE -ne 0) { throw "tar failed (exit $LASTEXITCODE)" }
 } finally {
   Pop-Location

@@ -47,7 +47,8 @@ adapter = {
 - Event: append-only `eval.event/v1`; raw or derived provenance is mandatory. Successful derived evidence cannot rely only on assistant claims.
 - Trace: `eval.trace/v1` records Adapter version and Prompt Hash; unavailable Agent/model/Skill/knowledge/tool/environment fingerprints are `null` with an `unavailable_reason`, never fabricated.
 - Hard graders: `tool_presence`, `tool_forbidden`, `sequence`, `tool_args`, `evidence_link`, and `structured_output`. A hard failure is final.
-- CCB golden path: `knowledge.read -> quotation.match -> inventory.query -> assistant.table`. Inventory code must be in match candidates; table code, price, and inventory must equal tool evidence.
+- CCB golden path: `quotation.match -> quotation.select -> inventory.query -> assistant.table`. Select codes must be ⊆ match candidates; inventory codes and table codes must equal the locked select set (evidence_link aggregates all events for an action; singular inventory/match shapes are lifted to batch paths). Knowledge `Read` is fallback-only when `select_quotation_candidates` returns `unable_to_select` / unavailable (optional in Case graders).
+- `resolveEvidenceExpression` unions values across **all** events for the matched action (not only the last call).
 - Judge: the Core creates one anonymous randomized Packet only after target Trials finish and only with a real complete host/model/version fingerprint. Evidence is untrusted data. The current parent host submits all `eval.judgment/v1` records together. `batch.independent_trials` is always `false`; no second judge API is allowed.
 - Report: `eval.report/v1` preserves per-Trial outcomes, deterministic grader results, Judgment records/fingerprint, Trace refs, metrics, and optional Baseline deltas. It cannot hide hard failures behind an aggregate score.
 - Baseline: compare writes hard/soft comparability and deltas back to JSON/Markdown Report artifacts. Promotion is explicit and passing-only. Hard deltas require complete matching target fingerprints; soft deltas additionally require the same complete Judge fingerprint and Rubric hash.
@@ -80,7 +81,7 @@ adapter = {
 
 ### 5. Good / Base / Bad Cases
 
-- Good: three isolated Trials each Read knowledge, match quotation, query a candidate code, and return an evidence-consistent table; one current-host batch Judgment completes the report.
+- Good: three isolated Trials each match quotation, call `select_quotation_candidates`, query inventory for locked codes, and return an evidence-consistent table; one current-host batch Judgment completes the report.
 - Base: hard gates pass in CI but no host AI is available; preserve evidence and return `NEEDS_REVIEW`, not fabricated `PASS`.
 - Bad: the Agent explains that tools are unavailable and prints a status table without calling tools; this is not evidence and must fail presence, sequence, argument, link, and table graders.
 - Bad infrastructure: Route B root lacks `dist/cli.js` or bundled Bun; preflight returns `BLOCKED` before spawning.

@@ -9,6 +9,11 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import {
+  checkResponseAssertions,
+  validateResponseAssertionShape,
+} from './agent-eval-response-assertions.mjs'
+
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const defaultCasesPath = resolve(repoRoot, 'eval', 'agent_eval_cases.jsonl')
 const suitesDir = resolve(repoRoot, 'eval', 'suites')
@@ -153,6 +158,9 @@ function validateCase(testCase, lineNo) {
   if (testCase.timeout_ms !== undefined && (!Number.isFinite(testCase.timeout_ms) || testCase.timeout_ms <= 0)) {
     errors.push('timeout_ms must be a positive number')
   }
+  for (const error of validateResponseAssertionShape(testCase)) {
+    errors.push(error)
+  }
   if (testCase.pass_if_any !== undefined) {
     if (!Array.isArray(testCase.pass_if_any) || testCase.pass_if_any.length === 0) {
       errors.push('pass_if_any must be a non-empty array')
@@ -160,6 +168,9 @@ function validateCase(testCase, lineNo) {
       for (const outcome of testCase.pass_if_any) {
         if (typeof outcome?.id !== 'string' || !outcome.id.trim()) {
           errors.push('pass_if_any outcome missing id')
+        }
+        for (const error of validateResponseAssertionShape(outcome)) {
+          errors.push(`pass_if_any ${outcome?.id || 'unnamed'}: ${error}`)
         }
       }
     }
@@ -196,13 +207,6 @@ function checkExpectedParams(combined, expectedParams) {
     }
   }
   return failures
-}
-
-function extractAssistantText(combined) {
-  const marker = '[assistant_text]'
-  const idx = combined.lastIndexOf(marker)
-  if (idx === -1) return ''
-  return combined.slice(idx + marker.length).trim()
 }
 
 function parseToolEvents(combined) {
@@ -351,13 +355,7 @@ function evaluateOutcome(outcome, combined, testCase, toolEvents) {
   }
   failures.push(...checkExpectedParams(combined, outcome.expected_params))
   failures.push(...checkForbiddenParams(combined, outcome.forbidden_params))
-  if (outcome.response_includes_any?.length) {
-    const haystack = extractAssistantText(combined) || combined
-    const hit = outcome.response_includes_any.some((pattern) => haystack.includes(pattern))
-    if (!hit) {
-      failures.push(`missing response cue (${outcome.response_includes_any.join('|')})`)
-    }
-  }
+  failures.push(...checkResponseAssertions(outcome, combined))
   return failures
 }
 
@@ -393,6 +391,7 @@ function evaluateCase(testCase, combined, code) {
     failures.push(...checkExpectedParams(combined, testCase.expected_params))
     failures.push(...checkForbiddenParams(combined, testCase.forbidden_params))
     failures.push(...checkExpectedSubagent(testCase, toolEvents))
+    failures.push(...checkResponseAssertions(testCase, combined))
   }
 
   if (code !== 0) failures.push(`ACP smoke exited ${code}`)

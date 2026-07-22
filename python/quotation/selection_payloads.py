@@ -83,13 +83,14 @@ def build_selection_payload(
             "mode": "claude_code_auto_select",
             "knowledge_source": str(_wanding_knowledge_path()),
             "instructions": [
-                "Session rule: Read knowledge_source once before the first match_quotation in this session; do not re-Read on later price lookups.",
-                "When candidate_count > 1: apply business rules from knowledge_source, reply with ONE recommended line (price table) plus up to 4 brief bullet alternatives — do NOT dump the full candidates table or ask user to pick a number by default.",
+                "Session rule: After match_quotation / match_quotation_batch, call select_quotation_candidates with the returned candidates (primary). Only if status=unable_to_select may you Read knowledge_source and select manually.",
+                "When candidate_count > 1: prefer select_quotation_candidates; do NOT dump the full candidates table or ask user to pick a number by default.",
                 "Each candidate may include description_english and indonesian_name (same value: price-library English product name for Indonesian column H). When replying to the user with a price table, always show this English/Indonesian name column when present.",
                 "When a candidate includes supplier, show a supplier column in the user-facing price table and pass supplier into fill_items on Path C.",
                 "If every candidate conflicts with the user's keywords, report unmatched instead of forcing a weak match.",
-                "If two candidates remain genuinely indistinguishable after applying the knowledge, ask one focused clarification question.",
+                "If two candidates remain genuinely indistinguishable after select_quotation_candidates returns unable_to_select and knowledge fallback, ask one focused clarification question.",
                 "If candidates_truncated is true or the user is unsatisfied with a match, re-run match_quotation for that keywords only with show_candidates=true.",
+                "Legacy note: knowledge_source path remains available for fallback Read; happy-path selection is the select_quotation_candidates MCP tool.",
             ],
         },
     }

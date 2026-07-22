@@ -78,7 +78,8 @@ class TestPostMatchNudge(unittest.TestCase):
         output = json.loads(self._run_nudge(hook_input, fresh_session=True))
         self.assertIn("additionalContext", output["hookSpecificOutput"])
         ctx = output["hookSpecificOutput"]["additionalContext"]
-        self.assertIn("不要再 Read", ctx)
+        self.assertIn("select_quotation_candidates", ctx)
+        self.assertIn("不要先 Read", ctx)
         self.assertIn("推荐价", ctx)
         self.assertIn("按 1A 格式", ctx)
         self.assertIn("8020020755", ctx)
@@ -264,47 +265,55 @@ class TestPreMatchKnowledgeGate(unittest.TestCase):
 
     def test_derives_agent_transcript_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            session_id = "main-session"
-            agent_id = "agent-abc"
-            agent_dir = root / session_id / "subagents"
-            agent_dir.mkdir(parents=True)
-            agent_file = agent_dir / f"agent-{agent_id}.jsonl"
-            read_line = json.dumps(
-                {
-                    "type": "assistant",
-                    "message": {
-                        "content": [
-                            {
-                                "type": "tool_use",
-                                "name": "Read",
-                                "input": {
-                                    "file_path": r"D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md"
-                                },
-                            }
-                        ]
+            env_backup = os.environ.get("SUBAGENT_GATE_LOG_DIR")
+            os.environ["SUBAGENT_GATE_LOG_DIR"] = tmp
+            try:
+                root = Path(tmp) / "transcripts"
+                session_id = "main-session"
+                agent_id = "agent-abc"
+                agent_dir = root / session_id / "subagents"
+                agent_dir.mkdir(parents=True)
+                agent_file = agent_dir / f"agent-{agent_id}.jsonl"
+                read_line = json.dumps(
+                    {
+                        "type": "assistant",
+                        "message": {
+                            "content": [
+                                {
+                                    "type": "tool_use",
+                                    "name": "Read",
+                                    "input": {
+                                        "file_path": r"D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md"
+                                    },
+                                }
+                            ]
+                        },
                     },
-                },
-                ensure_ascii=False,
-            )
-            agent_file.write_text(read_line + "\n", encoding="utf-8")
-            derived = derive_agent_transcript_path(
-                {
-                    "session_id": session_id,
-                    "agent_id": agent_id,
-                    "transcript_path": str(root / f"{session_id}.jsonl"),
-                }
-            )
-            self.assertEqual(derived, agent_file)
-            self.assertTrue(
-                hook_input_has_knowledge_read(
+                    ensure_ascii=False,
+                )
+                agent_file.write_text(read_line + "\n", encoding="utf-8")
+                derived = derive_agent_transcript_path(
                     {
                         "session_id": session_id,
                         "agent_id": agent_id,
                         "transcript_path": str(root / f"{session_id}.jsonl"),
                     }
                 )
-            )
+                self.assertEqual(derived, agent_file)
+                self.assertTrue(
+                    hook_input_has_knowledge_read(
+                        {
+                            "session_id": session_id,
+                            "agent_id": agent_id,
+                            "transcript_path": str(root / f"{session_id}.jsonl"),
+                        }
+                    )
+                )
+            finally:
+                if env_backup is None:
+                    os.environ.pop("SUBAGENT_GATE_LOG_DIR", None)
+                else:
+                    os.environ["SUBAGENT_GATE_LOG_DIR"] = env_backup
 
 
 class TestTranscriptKnowledgeGate(unittest.TestCase):

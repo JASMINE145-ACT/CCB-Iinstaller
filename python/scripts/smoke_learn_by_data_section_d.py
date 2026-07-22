@@ -114,6 +114,14 @@ def run_smoke(*, fixture_path: Path | None = None, eval_manifest_path: Path | No
 
         mpd.load_mapping_pending_entries = lambda: load_mapping_pending_entries(pending_path)
 
+        # Isolation must also cover the org branch: with org-server.json configured
+        # the apply call would route to the live org API (breaking offline eval and
+        # risking production writes). Force the local_pending path for this smoke.
+        import admin.org_mapping_client as _omc
+
+        original_org_configured = _omc.is_org_mapping_configured
+        _omc.is_org_mapping_configured = lambda: False
+
         sheet_rows = _read_vantsing_rows(fixture)
         mismatch_targets = []
         gap_targets = []
@@ -214,6 +222,7 @@ def run_smoke(*, fixture_path: Path | None = None, eval_manifest_path: Path | No
         )
 
         lbdm.resolve_mapping_pending_path = original_resolve
+        _omc.is_org_mapping_configured = original_org_configured
 
         recall_hits = 0
         from inventory.services.mapping_table_matcher import invalidate_mapping_cache

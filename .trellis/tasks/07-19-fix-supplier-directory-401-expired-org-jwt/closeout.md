@@ -38,12 +38,15 @@ Agent: `de42f77f-6f49-4764-adc9-d305fc3cb77c`
 |-------|--------|
 | Confirm token expired | PASS (`exp` 2026-07-18T02:29:25Z) |
 | Negative actionable error | PASS |
-| Positive `suppliers_hybrid_match` after re-login | **BLOCKED** — needs user Org SSO re-login in AionUI-Dev |
+| Ops re-login via Org VPS `/login` | PASS (2026-07-19) — used `scripts/org-phase0/env.local` → wrote `AionUi-Dev` `org-session.token`; new `exp` `2026-07-19T16:40:10.000Z` |
+| Positive Org API with fresh JWT | PASS — `GET /api/suppliers?q=PVC` → HTTP 200, `success=true`, 3 items; earlier `hybrid-match` also HTTP 200 (auth ok) |
 
-Both `AionUi` and `AionUi-Dev` token files were expired at verification time. Code path is deployed; 200 smoke is an ops step for the operator.
+## Live Agent Eval (post-auth fix)
 
-## Remaining (operator)
+Run: `.agent-eval/runs/quotation-live-20260719-post-auth-fix/`
 
-1. Open AionUI (AionUi-Dev) → Org login.
-2. Confirm `org-session.token` mtime/`exp` refreshed.
-3. Call `suppliers_hybrid_match` once (or re-run a short quotation price+stock trial) and confirm non-auth success.
+- Final verdict: **PASS** (3/3)
+- `suppliers_hybrid_match`: **ok** in all three trials (no 401)
+- Same SKU path: `8020020755` / price `1219` / warehouse `1344` / available `1228`
+- `pass_at_1=1`, `flaky_rate=0`, `soft_score_mean≈94.7`
+

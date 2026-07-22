@@ -66,10 +66,17 @@ Use this doc when you need to know whether a change belongs to **who does the wo
 | _(knowledge vocab)_ | `WANd.ROUTING.KB_ORG.001` | 「知识库」= 业务知识库 → quotation `append_business_rule` |
 | _(knowledge vocab)_ | `WANd.ROUTING.KB_PRICE.001` | 「价格库」→ `price-library-agent`（delegatable） |
 | _(knowledge vocab)_ | `WANd.ROUTING.KB_DISAMBIG.001` | 混信号才澄清「业务知识库 vs 价格库」 |
+| _(trade sourcing)_ | `WANd.TRADE.SOURCING.DUAL.001` | 报价卡同轮 `match_quotation` + `suppliers_hybrid_match` |
+| _(supplier routing)_ | `WANd.ROUTING.SUPPLIER_DIR.001` | 名录意图一律 → quotation-agent（独立 supplier agent 已移除） |
+| _(learn-by-data)_ | `WANd.LEARN.PRECIPITATE.001` | A 写知识库；B 通知祐嘉诚；C 价库 draft；D 跳过 |
 | `ROUTING.REVIEWER.001` | `WANd.ROUTING.REVIEWER.001` | Specialist `Stop:` → `:roe-judge` via `subagent-gate.sh` |
 | `RUN.EXECUTION.001` | `WANd.RUN.EXECUTION.001` | `runAgent.ts` sync spawn + verbatim same-turn forward |
+| _(outcome relay)_ | `WANd.ORCH.OUTCOME_RELAY.001` | Parent Stop: Agent artifact → parent bubble path+count (nudge×1 → force-forward) |
+| _(handoff brief)_ | `WANd.RUN.EXECUTION.003` | Structured Brief on Agent `prompt` + sanitize wrap (`07-14-orchestrator-handoff-brief-decomp-plan`) |
 | `RUN.ADMISSION.001` | `WANd.RUN.ADMISSION.001` | `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` + `sanitizeOrchestratorAgentInput` + sync-wait playbooks |
+| _(effort / plan)_ | `WANd.ROUTING.ASSIGNMENT.004` | Effort scaling + multi-intent hard-confirm plan (L1 + eval decomp) |
 | _(observability)_ | `WANd.OBSERVE.DELEGATION.001` | `delegationRun.ts` + nested View Steps (`07-06-delegation-nested-view-steps`) |
+| _(plan↔run)_ | `WANd.OBSERVE.DELEGATION.002` | DecompositionPlan timeline (slim; B1 meta still deferred) |
 
 Full entries with `code` / `tests` / `spec` links: [`contracts/agent-runtime-registry.yml`](./contracts/agent-runtime-registry.yml).
 
@@ -140,5 +147,6 @@ Hooks sit **on the Execution path** but **Routing-owned** hooks (`roe-judge`) mu
 ## 6. Backlog (out of scope)
 
 - CI: fail PR if `evaluateOrchestratorToolGuard` changes without registry touch
-- B1 CCB bridge enrich → add `WANd.RUN.EXECUTION.002` when implemented
-- Issue hierarchy / structured handoff block (`docs/asda` §4)
+- B1 CCB `_meta.delegationRun` enrich (DELEGATION.002 still uses frontend plan↔run link)
+- MessageList auto-bind `decompositionPlan` prop from session/ACP
+- Artifact pipeline / failed-step retry UX / work-tasks L2 decomp (task follow-ups)

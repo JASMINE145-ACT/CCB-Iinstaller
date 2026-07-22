@@ -1,0 +1,52 @@
+{
+  "id": "inventory-batch-multi-code",
+  "name": "inventory-batch-multi-code",
+  "title": "多编码查库存必须用 get_inventory_by_code_batch",
+  "description": "跟进「查库存」+ ≥2 明确编码时禁止 N× get_inventory_by_code；必须 1× _batch。根因：L1「仅查库存（有编码）」未写 multi-code batch。",
+  "status": "completed",
+  "dev_type": null,
+  "scope": "ccb-installer",
+  "package": "vertical/com.wanding.trade",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-20",
+  "completedAt": "2026-07-20",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    {
+      "id": "L1",
+      "title": "L1: 仅查库存 1 vs ≥2 codes → batch",
+      "touches": "WANd.INV.BATCH.MULTI_CODE.001",
+      "files": [
+        "ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md",
+        "ccb-installer/staging/seed/agents/quotation-agent.md"
+      ]
+    },
+    {
+      "id": "E",
+      "title": "Eval: multi-code inventory-only",
+      "touches": "WANd.INV.BATCH.MULTI_CODE.001",
+      "files": [
+        ".agent-eval/cases/"
+      ]
+    }
+  ],
+  "children": [],
+  "parent": "07-19-quotation-agent-prompt",
+  "relatedFiles": [
+    ".trellis/tasks/07-20-inventory-batch-multi-code/research/symptom-2026-07-20-inventory-no-batch.md",
+    "mcp_servers/quotation-server/dist/index.js"
+  ],
+  "notes": "Completed 2026-07-20. Closeout: closeout.md. Guid smoke: 1× get_inventory_by_code_batch for 3 codes.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "scenario": "C",
+    "plan_depth": "Lite",
+    "verification_profile": "Standard"
+  }
+}

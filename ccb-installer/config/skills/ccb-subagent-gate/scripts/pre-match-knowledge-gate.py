@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""PreToolUse gate: block match_quotation until business knowledge Read once per session."""
+"""PreToolUse gate: block match_quotation until business knowledge Read once per session.
+
+UNWIRED (2026-07-19): Do not register on quotation-agent L1. Selection is API-first via
+select_quotation_candidates; this script remains for unit regression only.
+"""
 from __future__ import annotations
 
 import json

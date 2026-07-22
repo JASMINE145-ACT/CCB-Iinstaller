@@ -104,7 +104,7 @@ Detail: [`backend/file-map.md`](./backend/file-map.md).
 | [`wanding-first-ship.md`](./integration/wanding-first-ship.md) | ✅ First-ship / full exe checklist |
 | [`wanding-mvp-v1.md`](./integration/wanding-mvp-v1.md) | ✅ MVP v1 scope contract |
 | [`wanding-packaging-whitelist.md`](./integration/wanding-packaging-whitelist.md) | ✅ Install dir file whitelist |
-| [`wanding-release-standard.md`](./integration/wanding-release-standard.md) | **Draft** — 发版验收标准（四层链 + NSIS/热更双矩阵）；打包代码缺口见该文 §11 |
+| [`wanding-release-standard.md`](./integration/wanding-release-standard.md) | **Draft** rev.3 — 发版验收（四层链 + seed 清单 + LASTEXITCODE + live≠staging）；缺口见该文 §11 |
 | [`internal-update.md`](./integration/internal-update.md) | ✅ VPS manifest + hot update ops |
 | [`mcp-health.md`](./integration/mcp-health.md) | ✅ MCP health CLI + UI · **§ AOL inventory closed** · **§ App startup readiness gate** (2026-06-28) |
 | [`dev-runtime-layers.md`](./integration/dev-runtime-layers.md) | ✅ Dev layer map (save ≠ deploy) |

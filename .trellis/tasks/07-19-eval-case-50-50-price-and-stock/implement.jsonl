@@ -1,0 +1,3 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".agent-eval/cases/quotation-direct50-tee50-price-stock.json", "reason": "Dual-item price+stock case draft to lock"}
+{"file": ".trellis/tasks/07-19-eval-case-50-50-price-and-stock/prd.md", "reason": "Task PRD"}

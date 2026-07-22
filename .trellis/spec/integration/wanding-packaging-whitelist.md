@@ -549,6 +549,8 @@ dist\cli.js
 AionUi\AionUi.exe
 ```
 
+> **Launcher parity (2026-07-19):** both `server.py` launchers are pip-side-effects written by `install-office-word-mcp.ps1` / `install-excel-mcp-server.ps1` — they are **not** in git and **not** implied by site-packages. `install-health-manifest.json` now requires launcher + site marker + the two install scripts (+ `ensure-python-wanding-pywin32.ps1`); `run-wanding-bootstrap.ps1` Full only SKIPs when site-packages **and** `server.py` both exist, so a partial tree self-heals on next bootstrap instead of showing `config check failed` forever.
+
 ```powershell
 cd D:\Projects\claude-code-best
 .\ccb-installer\scripts\test-mcp-health.ps1 -Probe -Session
@@ -806,6 +808,7 @@ OUT: `build-wanding.ps1`（打包机编排，不是 lib）, `vendor-ppt-master`�
 | Good: 新装 → Check Install → 快捷方式 | Guid 报价可用 |
 | Bad: 直接 AionUi.exe | 可能无 Route B runtime |
 | Bad: patch 脚本写 index.js | Route B 被拆掉 |
+| Bad: 多根残留（`D:\CCB-Wanding` + Programs） | **交互安装：** NSIS DIRECTORY 页 `DirectoryLeave` dry-run → 弹窗（**先完全退出 AionUI/托盘**）→ `-Apply -Force`。报告：`%LOCALAPPDATA%\CCB-Wanding\logs\install-stale-report-*.txt`；空报告仅提示 detect 日志。**静默 `/S`：** MUI 页跳过，故 **Preserve 段** `IfSilent` → `Call DirectoryLeave`（IT 预同意自动 purge；检测异常 / purge 失败 **fail-closed Abort**）。装后开始菜单 **Purge Stale Installs** 兜底（卸载须同步 `Delete` 该 `.lnk`）。**永不**删 `%LOCALAPPDATA%\CCB-Wanding\.claude`。Post-check 全 `$OrphanFootprints`（含 `AionUi.exe` / `bun.exe`），删不净 → exit 1 中止 |
 
 ### 17.8 Tests
 
@@ -819,6 +822,7 @@ OUT: `build-wanding.ps1`（打包机编排，不是 lib）, `vendor-ppt-master`�
 
 | Date | Item |
 |------|------|
+| 2026-07-16 | §17.7: stale-purge — durable report under logs；`/S` = IT 预同意；post-check 全 `$OrphanFootprints`；弹窗要求先退出 AionUI |
 | 2026-07-13 | §7/§8.2.2/§17.5: bootstrap runtime closure + `build-wanding-lib` / precip deploy+seed; OUT 澄清仅 `build-wanding.ps1`（不含 lib）；对齐 release-standard rev.3 |
 | 2026-06-21 | §6: `ccb-wanding-versions.cmd` OUT→IN（员工更新入口「检查更新 / 版本选择」→ `ccb-check-update.ps1 -Select`）；§1/§13 root 启动器补齐实况（launch-aionui / check-install / verify-update）；配合 internal-update Phase 1 §1.2 + §3.7 |
 | 2026-06-21 | build: **anti-drift guards** — `dist/BUILD-INFO.json` provenance（git commit/branch/dirty × claude-code-B + aionui-src）+ `-SkipBuild`/`-SkipAionUiBuild` 陈旧 WARN（§4）；`data\*.md` 枚举减黑名单（新 SOP md 自动 ship，§5.4）；scripts 白名单漂移 WARN（§7） |

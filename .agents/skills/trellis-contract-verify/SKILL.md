@@ -1,4 +1,4 @@
-﻿---
+---
 name: trellis-contract-verify
 description: "Run the Trellis Contract Verification gate for implementation work. Use before claiming a phase or task is complete, after code changes, after tests pass, when updating execution-plan.md evidence, or when checking contract IDs, specs, evals, smokes, and manual gates."
 ---

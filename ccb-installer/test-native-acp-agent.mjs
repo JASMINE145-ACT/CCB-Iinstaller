@@ -74,17 +74,64 @@ class MockClient {
   updates = []
   text = ''
   completedTools = []
+  /** @type {{ promptAt?: number, t_dispatch?: number, t_agent_first?: number, t_business?: number, t_end?: number, dispatchTool?: string, agentFirstTool?: string, businessTool?: string }} */
+  timing = {}
+
+  markPromptStart() {
+    this.timing.promptAt = Date.now()
+  }
+
+  noteTool(name, kind) {
+    const at = Date.now()
+    const elapsed = this.timing.promptAt ? at - this.timing.promptAt : undefined
+    if (kind === 'dispatch' && this.timing.t_dispatch == null && elapsed != null) {
+      this.timing.t_dispatch = elapsed
+      this.timing.dispatchTool = name
+    }
+    if (kind === 'agent_first' && this.timing.t_agent_first == null && elapsed != null) {
+      this.timing.t_agent_first = elapsed
+      this.timing.agentFirstTool = name
+    }
+    if (kind === 'business' && this.timing.t_business == null && elapsed != null) {
+      this.timing.t_business = elapsed
+      this.timing.businessTool = name
+    }
+  }
 
   async sessionUpdate(params) {
     eventRecorder?.record(params.update)
     const update = params.update?.sessionUpdate || 'unknown'
     this.updates.push(update)
+    const toolName = params.update?._meta?.claudeCode?.toolName
+    const parentId = params.update?._meta?.claudeCode?.parentToolUseId
+    if (update === 'tool_call' && typeof toolName === 'string') {
+      if (toolName === 'Agent') this.noteTool(toolName, 'dispatch')
+      if (typeof parentId === 'string' && parentId && toolName.startsWith('mcp__')) {
+        this.noteTool(toolName, 'agent_first')
+        this.noteTool(toolName, 'business')
+      } else if (toolName.startsWith('mcp__') && this.timing.t_dispatch == null) {
+        // Path B / specialist: first MCP is both dispatch and business
+        this.noteTool(toolName, 'dispatch')
+        this.noteTool(toolName, 'business')
+      }
+    }
     if (
       update === 'tool_call_update' &&
       params.update?.status === 'completed' &&
-      params.update?._meta?.claudeCode?.toolName
+      toolName
     ) {
-      this.completedTools.push(params.update._meta.claudeCode.toolName)
+      this.completedTools.push(toolName)
+      if (toolName.startsWith('mcp__') && this.timing.t_business == null) {
+        this.noteTool(toolName, 'business')
+      }
+      if (
+        typeof parentId === 'string' &&
+        parentId &&
+        toolName.startsWith('mcp__') &&
+        this.timing.t_agent_first == null
+      ) {
+        this.noteTool(toolName, 'agent_first')
+      }
     }
     console.log('[update]', update)
     if (process.env.CCB_TEST_DUMP_UPDATES === '1') {
@@ -123,6 +170,10 @@ const agent = spawn(
   cwd: install,
   env: {
     ...process.env,
+    // Pin product install — route-b walkUp from repo patches/ prefers
+    // monorepo ccb-installer (has dist/cli.js + vendor/bun) over D:\CCB-Wanding.
+    CCB_WANDING_HOME: install,
+    CCB_INSTALL_DIR: install,
     CLAUDE_CONFIG_DIR: configDir,
     ANTHROPIC_BASE_URL: settings.env.ANTHROPIC_BASE_URL,
     ANTHROPIC_AUTH_TOKEN: settings.env.ANTHROPIC_AUTH_TOKEN,
@@ -193,6 +244,7 @@ try {
   let result = null
   for (let turn = 0; turn < prompts.length; turn++) {
     console.log(`[prompt ${turn + 1}/${prompts.length}]`, prompts[turn].slice(0, 120))
+    mock.markPromptStart()
     result = await conn.prompt({
       sessionId: session.sessionId,
       prompt: [{ type: 'text', text: prompts[turn] }],
@@ -202,16 +254,30 @@ try {
   }
 
   clearTimeout(timeout)
+  if (mock.timing.promptAt) {
+    mock.timing.t_end = Date.now() - mock.timing.promptAt
+  }
   console.log('[result]', JSON.stringify(result))
   console.log('[updates]', mock.updates.join(','))
   console.log('[completed_tools]', mock.completedTools.join(','))
+  console.log('[timing_ms]', JSON.stringify(mock.timing))
   console.log('[assistant_text]', mock.text)
   agent.kill('SIGTERM')
 
   const chunks = mock.updates.filter(u => u === 'agent_message_chunk').length
   const expectedTool = process.env.CCB_TEST_EXPECT_TOOL || ''
+  const expectedAnyOf = (process.env.CCB_TEST_EXPECT_ANY_OF || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
   const expectedToolCompleted =
-    !expectedTool || mock.completedTools.includes(expectedTool)
+    (!expectedTool || mock.completedTools.includes(expectedTool)) &&
+    (expectedAnyOf.length === 0 ||
+      expectedAnyOf.some((name) => mock.completedTools.includes(name)))
+  const expectSubstring = process.env.CCB_TEST_EXPECT_TOOL_SUBSTR || ''
+  const expectedSubstrOk =
+    !expectSubstring ||
+    mock.completedTools.some((name) => name.includes(expectSubstring))
   const forbiddenText = process.env.CCB_TEST_FORBID_TEXT || ''
   const forbiddenTextAbsent =
     !forbiddenText || !mock.text.includes(forbiddenText)
@@ -219,6 +285,7 @@ try {
     result.stopReason === 'end_turn' &&
       chunks > 0 &&
       expectedToolCompleted &&
+      expectedSubstrOk &&
       forbiddenTextAbsent
       ? 0
       : 1,

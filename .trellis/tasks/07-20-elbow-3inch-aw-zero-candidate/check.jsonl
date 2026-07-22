@@ -1,0 +1,3 @@
+{"file": ".trellis/tasks/07-20-elbow-3inch-aw-zero-candidate/prd.md", "reason": "AC1–AC4"}
+{"file": ".trellis/tasks/07-20-elbow-3inch-aw-zero-candidate/execution-plan.md", "reason": "Contract Verification"}
+{"file": "python/tests/test_drat_elbow_aw.py", "reason": "drat path must stay green"}

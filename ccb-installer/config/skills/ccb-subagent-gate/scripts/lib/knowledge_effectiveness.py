@@ -211,7 +211,8 @@ def deny_reason_for_code(code: str, kb_path: str) -> str:
             f"  {kb_path}"
         )
     return (
-        "查价前必须先 Read 一次业务知识库（本会话只需读一次，后续查价不必重复 Read）：\n"
+        "[legacy PreToolUse gate, unwired 2026-07-19] 查价前必须先 Read 一次业务知识库"
+        "（本会话只需读一次，后续查价不必重复 Read）：\n"
         f"  {kb_path}\n"
         "完成 Read 后再调用 match_quotation。"
     )

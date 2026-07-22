@@ -41,11 +41,24 @@ def _parse_json_response(payload: bytes) -> dict[str, Any] | None:
     return data if isinstance(data, dict) else None
 
 
+def _is_price_write_permission_denied(message: str) -> bool:
+    text = message.lower()
+    return (
+        "price_admin" in text
+        or "price_library.write" in text
+        or ("capability" in text and "is_admin" in text)
+        or "permission required" in text
+    )
+
+
 def _friendly_http_error(exc: OrgHttpError) -> OrgHttpError:
-    if exc.status_code == 403 and "price_admin" not in str(exc).lower():
+    # Capability / is_admin denials from Org REST must not be remapped to CSRF.
+    if exc.status_code == 403 and not _is_price_write_permission_denied(str(exc)):
         return OrgCsrfError(
             403,
-            "HTTP 403 Forbidden — price_admin permission required or CSRF invalid",
+            "HTTP 403 Forbidden — CSRF invalid (or other authz). "
+            "If this is a write gate, expect message mentioning "
+            "price_library.write / is_admin.",
         )
     return exc
 

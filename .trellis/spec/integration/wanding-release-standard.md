@@ -1,6 +1,6 @@
 # CCB-Wanding 发布更新标准（WanD Release Standard）
 
-> **Status:** **Draft** (2026-07-02 rev.2) — operator checklist; **executable** for verify/build/log/publish **wording**; packaging **code** gaps in §13 remain open.  
+> **Status:** **Draft** (2026-07-13 rev.3) — operator checklist; **executable** for verify/build/log/publish **wording**; open packaging gaps in §11 (partially closed by 1.1.9).  
 > **Audience:** 发版负责人（打包机 / IT / 开发自测后发货）。  
 > **Not a substitute for:** file-level IN/OUT lists — those stay in [`wanding-packaging-whitelist.md`](./wanding-packaging-whitelist.md).
 
@@ -93,7 +93,32 @@ Markers (from `install-health-manifest.json` → `route_b`):
 
 Slash command `learn-by-data.md` → NSIS §Preserve writes `resources/commands/**` to `$CONFIG/commands/` directly.
 
-**Packaging fix tracked in §13** (not closed in this doc revision).
+**Packaging fix tracked in §11.**
+
+### 2.3 New seed skill — ship checklist (mandatory)
+
+Before claiming a new/updated skill is fleet-ready, **all** of the following must be true:
+
+| # | Hop | Required |
+|---|-----|----------|
+| 1 | ① Staging | `staging/seed/skills/<id>/SKILL.md` present (build copies from package/config) |
+| 2 | ② NSIS | Explicit `File` (or covered recursive seed block) in `installer-wanding-v2.nsi` — skills are **not** one catch-all |
+| 3 | ② Scripts | Deploy script (if any) listed in `$shipScripts`; `Test-Path staging/scripts/<deploy>.ps1` |
+| 4 | ③ Full | Cold/Full bootstrap deploys → `$CONFIG/skills/<id>/` |
+| 5 | ③ Quick | `<id>` listed in `run-wanding-bootstrap.ps1` **`$requiredSeedSkills`** (or equivalent missing-skill gate). Seed on disk alone is **not** enough: upgrades that `SKIP deploy-ccb-skills` leave the skill absent |
+
+**Deploy path resolve:** install-tree deploy scripts must prefer `$InstallDir\seed\skills\<id>` (then installer seed/config), **not** assume `Split-Path` twice from `scripts\` equals the repo root (that breaks on `$INSTALL`).
+
+### 2.4 Worked example — `ccb-session-precipitation` (1.1.9)
+
+| Chain | Failure without fix | Closed in 1.1.9 repack |
+|-------|---------------------|------------------------|
+| ① | Skill not copied into staging seed | staging + build copy |
+| ② | NSIS omitted skill; deploy script / `build-wanding-lib.ps1` not in `$shipScripts` | NSI `File` + shipScripts |
+| ③ Full | Bootstrap exit 1 / deploy source missing | deploy InstallDir resolve |
+| ③ Quick | `$requiredSeedSkills` omitted precip → SKIP deploy | precip added to gate |
+
+Also: `Invoke-BootstrapStep` must clear residual `$LASTEXITCODE` (§5.5) or sync can print `[ok]` and still fail the parent.
 
 ---
 
@@ -209,6 +234,18 @@ Before fleet push, record from `staging/dist/BUILD-INFO.json` (or install tree c
 - `Test-StagingWanDInstall` (reads `install-health-manifest.json`)
 - No unexplained `unclassified` script WARN from `$shipScripts` / `$devOnlyScripts` drift guard
 
+### 5.5 PowerShell `$LASTEXITCODE` (build wrappers + bootstrap)
+
+PowerShell **does not** clear `$LASTEXITCODE` when a child `.ps1` returns successfully without `exit`. Residual native codes (or a prior step) poison the next check.
+
+| Rule | Why |
+|------|-----|
+| Before `& child.ps1` when the parent will read `$LASTEXITCODE`, set `$global:LASTEXITCODE = 0` | Avoid false FAIL on successful PS-only children (`Invoke-BootstrapStep` does this) |
+| Do **not** treat empty/null `$LASTEXITCODE` as failure | In PowerShell, `$null -ne 0` is `$true` — wrappers like `if ($LASTEXITCODE -ne 0)` false-fail after a script that never set an exit code |
+| Prefer `exit 0` at end of ship scripts that parents judge by exit code | Defense in depth (e.g. `sync-aionui-ccb-route-b.ps1`) |
+
+**Poison check:** `$global:LASTEXITCODE = 1` → run the step → parent must still record OK when the child succeeded.
+
 ---
 
 ## 6. Post-build verification (≈20 min) — **critical**
@@ -289,6 +326,36 @@ $INSTALL = "$env:LOCALAPPDATA\Programs\CCB-Wanding"
 | **Routine fleet release** | Auth GET + CSRF path; MCP `get_doc` / shadow read; **no** production append |
 | **Write-path regression** | Dedicated test tenant or UI-deleteable smoke marker; document cleanup |
 | **Never** | Repeated append to production `wanding_business_knowledge` each release |
+
+### 6.8 Live install ≠ staging (mandatory after install / upgrade / force-sync)
+
+Staging PASS does **not** prove the employee (or packager) tree is current. Partial upgrades (file locks) leave old binaries while staging looks correct.
+
+After install, upgrade, or repair sync, verify **`$INSTALL` / `$CONFIG` live**:
+
+```powershell
+$INSTALL = "<InstallDir>"   # e.g. D:\CCB-Wanding or %LOCALAPPDATA%\Programs\CCB-Wanding
+$cfg = "$env:LOCALAPPDATA\CCB-Wanding\.claude"
+(Get-Content "$INSTALL\dist\VERSION").Trim() -eq 'x.y.z'
+# aioncore Length/mtime matches the release's injected binary (not an older win-unpacked leftover)
+Get-Content "$cfg\.config-generation.json"
+# Bootstrap log for THIS version ends EXIT=0 / "bootstrap complete"
+Get-Content "$env:LOCALAPPDATA\CCB-Wanding\logs\install-bootstrap-x.y.z*.log" -Tail 20
+```
+
+Do not claim “install OK” from “NSIS finished” or “staging OK” alone.
+
+### 6.9 Packaging fix after exe already built → must repack
+
+**Live-tree repair ≠ fleet exe.**
+
+When packaging/bootstrap fixes land **after** `CCB-Wanding-x.y.z.exe` was already produced:
+
+1. Rebuild NSIS for that version (or bump) with the fixes in `$shipScripts` / NSI / seed.
+2. Replace the ship artifact; record **new** SHA256 in `delivery-*.md`.
+3. Keep the pre-fix exe as a named backup only if useful for bisect.
+
+Exception: machine-local hotfix with an explicit delivery note that the published exe is **not** updated.
 
 ---
 
@@ -410,31 +477,37 @@ Before "ready to ship":
  2. Build artifact contains every feature (Chain A)?
  3. NSIS File / hot zip path registered (Chain B)?
  4. Bootstrap → $CONFIG verified cold + upgrade (Chain C)?
- 5. ccb-check-install: runtime route-b + acp-agent OK (Chain D)?
- 6. Full quit relaunch — not Ctrl+R?
- 7. install-health-manifest updated?
- 8. BUILD-INFO commits recorded; dirty documented?
- 9. exe + zip sha256 in release-notes-ops?
-10. manifest generated with -InstallerPath; scp done; verify-update-server PASS?
+ 5. New skills: §2.3 checklist + $requiredSeedSkills?
+ 6. Bootstrap/deploy callees + dotsources in $shipScripts (§ whitelist closure)?
+ 7. ccb-check-install: runtime route-b + acp-agent OK (Chain D)?
+ 8. Full quit relaunch — not Ctrl+R?
+ 9. Live $INSTALL VERSION / aioncore / gen / bootstrap EXIT=0 (§6.8)?
+10. install-health-manifest updated?
+11. BUILD-INFO commits recorded; dirty documented?
+12. exe + zip sha256 in delivery note (= current rebuild if post-fix)?
+13. If packaging fixed after first exe → §6.9 repack done?
+14. manifest generated with -InstallerPath; scp done; verify-update-server PASS?
 ────────────────────────────────────────
 build PASS ≠ release PASS
+live repair ≠ fleet exe
 publish-update-bundle -Upload ≠ uploaded
 ```
 
 ---
 
-## 11. Known packaging code gaps (not fixed by this doc revision)
+## 11. Known packaging code gaps
 
-Tracked for **1.1.4.1+** implementation — see Trellis / packaging tasks:
-
-| Gap | Symptom | Code fix owner |
-|-----|---------|----------------|
-| NSIS missing `quotation-learn-by-data` seed | Skill missing on fleet | `installer-wanding-v2.nsi` |
-| Bootstrap ties learn skill to `install-ppt-master` SKIP | Upgrade keeps old skills | `run-wanding-bootstrap.ps1` |
-| `install-health-manifest` omits skill + command paths | Build gate cannot catch | `install-health-manifest.json` |
-| Hot zip §16.1 omits `quotation-learn-by-data` | Hot path cannot refresh skill | whitelist + `build-wanding-hot.ps1` |
-| `publish-update-bundle.ps1 -Upload` stub | No automated upload | script or CI (optional) |
-| `build-wanding.ps1` native log flag | Relies on Tee-Object wrapper | optional `-LogFile` param |
+| Gap | Symptom | Status |
+|-----|---------|--------|
+| NSIS / Quick gate missing seed skills (learn-by-data class) | Skill in staging but not fleet / upgrade SKIP | **Pattern** → follow §2.3; precip closed in **1.1.9** repack; verify learn-by-data still against checklist |
+| Bootstrap ties skill deploy only to `install-ppt-master` SKIP | Upgrade keeps old skills | Mitigated by `$requiredSeedSkills`; keep list complete per release |
+| `$shipScripts` omits dotsource/callee (`build-wanding-lib`, precip deploy) | Bootstrap exit 1 on clean install | **Closed 1.1.9** — see whitelist runtime closure |
+| Residual `$LASTEXITCODE` false-fails bootstrap | Sync `[ok]` then parent FAIL | **Closed 1.1.9** — §5.5 |
+| `install-health-manifest` omits skill + command paths | Build gate cannot catch | Open |
+| `install-health-manifest` omitted office-word/excel launcher `server.py` + repair scripts; bootstrap SKIP keyed only on site-packages | Partial tree (site synced, launcher missing) → Guid `config check failed: office-word/…server.py, excel/…` forever, no self-heal | **Closed 2026-07-19** (for 2.0.x) — manifest requires both launchers + `install-office-word-mcp` / `install-excel-mcp-server` / `ensure-python-wanding-pywin32` under `scripts/`; bootstrap skip now requires site-packages **AND** `server.py` |
+| Hot zip §16.1 omits some skills | Hot path cannot refresh skill | Open / per-skill |
+| `publish-update-bundle.ps1 -Upload` stub | No automated upload | Optional |
+| `build-wanding.ps1` native log flag | Relies on Tee-Object wrapper | Optional `-LogFile` |
 
 ---
 
@@ -457,3 +530,4 @@ Tracked for **1.1.4.1+** implementation — see Trellis / packaging tasks:
 |------|--------|
 | 2026-07-02 | Initial standard; 1.1.4 learn-by-data three-chain gap |
 | 2026-07-02 rev.2 | Audit fix: Draft status; fourth chain $RUNTIME; dual matrix; safe cold-install; Tee-Object build log; publish/runbook alignment; org append policy; expanded wallet card; §11 code gaps explicit |
+| 2026-07-13 rev.3 | Distill 1.1.9 bootstrap/packaging: §2.3–2.4 seed checklist + precip example; §5.5 LASTEXITCODE; §6.8 live≠staging; §6.9 post-fix must repack; wallet card + §11 status update |

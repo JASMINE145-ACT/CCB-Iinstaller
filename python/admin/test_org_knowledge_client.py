@@ -147,7 +147,9 @@ class OrgKnowledgeClientTests(unittest.TestCase):
                         result = okc.append_business_rule("默认 A 系列白管", reason="test")
         mock_bootstrap.assert_called_once()
         self.assertEqual(result["previous_version"], 4)
-        self.assertEqual(result["version"], 5)
+        self.assertTrue(result.get("applied"))
+        self.assertEqual(result["version"]["doc_version"], 5)
+        self.assertEqual(result["version"]["previous"], 4)
 
     def test_api_get_retries_on_401_with_second_token(self) -> None:
         calls: list[str] = []

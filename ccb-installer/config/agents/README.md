@@ -12,17 +12,18 @@ Each agent is stored as a pair:
 | Agent | Guid card | `delegatable` | Runtime tools | Notes |
 |-------|-----------|---------------|---------------|-------|
 | `wande-orchestrator` | hidden default entry | no | none | Employee primary entry; delegates via `Agent()`; no business MCP in main session |
-| `quotation-agent` | 万鼎报价专家 | yes | `quotation`, `excel` | Direct quotation workflow; quotation MCP matches/fills, Excel MCP is for post-fill workbook inspection/editing |
+| `quotation-agent` | 万鼎报价专家 | yes | `quotation`, `excel`, `price-library`, `supplier-directory` | Direct quote + Org 名录（读/写）；avatar **💰** |
 | `accurate-agent` | 万鼎账务专家 | yes | `accurate` | Direct accounting session |
 | `word-creator` | Word 文档助手 | yes | `office-word` | MCP-only Word creation; delivery gate blocks invalid output |
 | `excel-creator` | Excel 表格助手 | yes | `excel` | MCP-only Excel creation; delivery gate blocks invalid output |
 | `ppt-creator` | PPT 演示助手 | yes | `ppt-master` skill | Skill-only PPT creation; delivery gate blocks invalid output; avatar **📽️** (not 📊 — reserved for 账务) |
 | `research-agent` | 资料搜索助手 | yes | `exa`, `tavily` (+ optional `scrapling`) | Dual-source web research; skill `wanding-deep-research`; evidence `research/*.md` + `.sources.jsonl` |
 | `price-library-agent` | 价格库管理 | yes (`delegatable: true`, Guid needs `price_admin`) | `price-library`, `excel` | Org draft/import/publish; default session may `Agent(price-library-agent)`; writes still JWT `price_admin`; avatar **🏷️** (not 📊 — reserved for 账务). **知识库 ≠ 价格库** — 业务知识库走 quotation `append_business_rule` |
-| `supplier-directory-agent` | 供应商名录 | yes | `supplier-directory` | Org factories + vehicles; **≠** price-library SKU `supplier` column; avatar **🏭** |
 | `work-tasks-agent` | 工作任务助手 | yes | `work-tasks-agent` | Org work tasks RBAC |
 
 **Retired (2026-06-27):** `cowork`, `word-form-creator` removed from keep set and Guid cards — use `word-creator` / `ppt-creator` / `excel-creator` instead. Live prune list: `retired-agent-ids.json` (deployed automatically by `deploy-seed-agents.mjs`).
+
+**Removed (2026-07-13):** `supplier-directory-agent` — 名录并入 `quotation-agent`；`package.json` alias `supplier-directory-agent` → `quotation-agent`。
 
 Runtime authority must stay aligned across:
 
@@ -55,7 +56,7 @@ Current `ccb-subagent-gate` policy:
 |-------------|-------------|
 | Office deliverable agents (`word-*`, `ppt-creator`, `excel-creator`) | hook enabled; `block` |
 | `accurate-agent` | hook enabled; `warn` |
-| `quotation-agent` | hook enabled; MCP check **off**; knowledge Read gate **warn** (`quotation-agent:knowledge`) |
+| `quotation-agent` | hook enabled; MCP check **off**; knowledge Read gate **off** (`quotation-agent:knowledge`; select MCP API-first) |
 | `research-agent` | hook enabled; **warn** (MD + sources.jsonl evidence) |
 | `wande-orchestrator` | off/no-op |
 
@@ -89,14 +90,13 @@ Target: `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\`
 
 Expected essentials:
 
-- `quotation-agent expected=[quotation,excel] actual=[quotation,excel]`
+- `quotation-agent expected=[quotation,excel,price-library,supplier-directory] actual=[…]`
 - `accurate-agent expected=[accurate] actual=[accurate]`
 - `word-creator expected=[office-word] actual=[office-word]`
 - `excel-creator expected=[excel] actual=[excel]`
 - `research-agent expected=[exa] actual=[exa]` (Extended: `actual=[exa,scrapling]` when installed)
 - `wande-orchestrator expected=[] actual=[]`
 - `work-tasks-agent expected=[work-tasks-agent] actual=[work-tasks-agent]`
-- `supplier-directory-agent expected=[supplier-directory] actual=[supplier-directory]`
 
 UTF-8 smoke:
 

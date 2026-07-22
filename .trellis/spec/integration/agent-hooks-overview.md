@@ -11,22 +11,22 @@
 | **Purpose** | Manage *this Claude Code development session* (Trellis workflow-state, subagent context injection, commit gate) | Runtime guardrails + memory capture for *shipped* WanD agents running on end-user machines |
 | **Configured in** | `.claude/settings.json` (this repo root) | Per-agent `.md` YAML frontmatter, shipped into `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\` |
 | **Scripts live in** | `.claude/hooks/*.py` | `ccb-installer/config/skills/<skill>/scripts/*` |
-| **Events used** | `SessionStart`, `PreToolUse`, `UserPromptSubmit` | `PreToolUse`, `PostToolUse`, `Stop` |
+| **Events used** | `PreToolUse`, `UserPromptSubmit` (`SessionStart` unregistered / opt-in via plan-execution Bootstrap) | `PreToolUse`, `PostToolUse`, `Stop` |
 
 Layer 1 has **no Stop hook** — it doesn't care how *this* conversation ends. Layer 2 is almost entirely about what happens at Stop (delivery gate, memory capture). Don't reuse Layer 1 script conventions when adding a Layer 2 hook or vice versa.
 
 ---
 
-## Layer 1 — dev-repo hooks (`.claude/settings.json`)
+## Layer 1 — dev-repo hooks (`.claude/settings.json` / `.codex/hooks.json`)
 
 | Event | Matcher | Script | Purpose |
 |-------|---------|--------|---------|
-| SessionStart | startup / clear / compact | `session-start.py` | Injects prior session summary |
+| ~~SessionStart~~ | ~~startup / clear / compact~~ | `session-start.py` | **Unregistered (2026-07-18)** on Claude + Codex — script retained for re-enable. Heavy Trellis bootstrap is **opt-in** via `/trellis:plan-execution` Phase -1 Bootstrap (`task.py current`, `list --mine`, `get_context.py --mode packages`, `git status -sb`). |
 | PreToolUse | Task / Agent | `inject-subagent-context.py` | Gives dispatched subagents context |
 | PreToolUse | Bash | `commit-gate.py` | Pre-commit checks |
 | UserPromptSubmit | — | `inject-workflow-state.py` | Injects the `[workflow-state:...]` breadcrumb you see every turn |
 
-4 scripts in `.claude/hooks/`, 4 entries in settings.json — no orphans either direction (verified 2026-07-06).
+4 scripts still live under `.claude/hooks/` (and Codex mirrors under `.codex/hooks/`). **Registered** events: PreToolUse + UserPromptSubmit only. SessionStart is intentionally not registered — do not treat missing SessionStart as a broken install.
 
 ---
 
@@ -41,8 +41,8 @@ Two independent skill families, both invoked as `type: command` with an absolute
 
 | Agent | PreToolUse | PostToolUse | Stop (execution order) |
 |-------|------------|-------------|--------------------------|
-| `wande-orchestrator` | — | — | `post-personal-memory-stop.py` only |
-| `quotation-agent` | `pre-match-knowledge-gate.py` | `post-match-knowledge-nudge.py`, `post-price-tiers-nudge.py` | `post-personal-memory-stop.py` → `subagent-gate.sh` |
+| `wande-orchestrator` | none | none | `post-personal-memory-stop.py` -> `subagent-gate.sh` (`:outcome-relay`) |
+| `quotation-agent` | — (no PreToolUse) | `post-match-knowledge-nudge.py`, `post-price-tiers-nudge.py` | `post-personal-memory-stop.py` → `subagent-gate.sh` (`:knowledge` **off**) |
 | `accurate-agent` | — | — | `post-personal-memory-stop.py` → `subagent-gate.sh` |
 | `price-library-agent` | `pre-price-library-data-md-gate.py` | `post-price-library-confirm-nudge.py` | `subagent-gate.sh` only (no personal-memory — out of MVP scope) |
 | `word-creator` / `excel-creator` / `ppt-creator` | — | — | `subagent-gate.sh` only (personal-memory deferred — low value for office-creation turns) |

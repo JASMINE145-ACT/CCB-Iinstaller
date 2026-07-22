@@ -62,3 +62,24 @@ def multi_candidate_keywords(payload: dict[str, Any]) -> list[str]:
             if isinstance(kw, str) and kw.strip():
                 keywords.append(kw.strip())
     return keywords
+
+
+def primary_keywords_from_payload(payload: dict[str, Any]) -> list[str]:
+    """All non-empty keywords fields from match / batch results (for hybrid q=)."""
+    keywords: list[str] = []
+    for item in iter_selection_payloads(payload):
+        kw = item.get("keywords")
+        if isinstance(kw, str) and kw.strip():
+            keywords.append(kw.strip())
+    return list(dict.fromkeys(keywords))
+
+
+def payload_has_match_results(payload: dict[str, Any]) -> bool:
+    for item in iter_selection_payloads(payload):
+        count = item.get("candidate_count")
+        if isinstance(count, int) and count > 0:
+            return True
+        candidates = item.get("candidates")
+        if isinstance(candidates, list) and candidates:
+            return True
+    return False

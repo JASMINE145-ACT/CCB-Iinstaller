@@ -3,16 +3,68 @@ import { createEventLog } from '../../core/event-log.mjs'
 const actionByTool = new Map([
   ['Read', 'knowledge.read'],
   ['mcp__quotation__match_quotation', 'quotation.match'],
+  ['mcp__quotation__match_quotation_batch', 'quotation.match'],
+  ['mcp__quotation__select_quotation_candidates', 'quotation.select'],
   ['mcp__quotation__get_inventory_by_code', 'inventory.query'],
   ['mcp__quotation__get_inventory_by_codes', 'inventory.query'],
+  ['mcp__quotation__get_inventory_by_code_batch', 'inventory.query'],
 ])
 
+/** Lift singular match/inventory shapes so evidence paths can use batch forms. */
+export function normalizeToolPayload(action, input = {}, output = {}) {
+  const nextInput = structuredClone(input ?? {})
+  const nextOutput = structuredClone(output ?? {})
+
+  if (action === 'quotation.match') {
+    if (!Array.isArray(nextOutput.results) && Array.isArray(nextOutput.candidates)) {
+      nextOutput.results = [{
+        keywords: nextOutput.keywords ?? nextInput.keywords ?? '',
+        candidates: nextOutput.candidates,
+        unmatched: nextOutput.unmatched,
+        needs_selection: nextOutput.needs_selection,
+        error_code: nextOutput.error_code,
+        candidate_count: nextOutput.candidate_count,
+        candidates_returned: nextOutput.candidates_returned,
+        candidates_truncated: nextOutput.candidates_truncated,
+      }]
+    }
+  }
+
+  if (action === 'inventory.query') {
+    if (!Array.isArray(nextInput.codes) && typeof nextInput.code === 'string' && nextInput.code) {
+      nextInput.codes = [nextInput.code]
+    }
+    if (!Array.isArray(nextOutput.items) && typeof nextOutput.code === 'string' && nextOutput.code) {
+      nextOutput.items = [{
+        code: nextOutput.code,
+        item: {
+          code: nextOutput.code,
+          name: nextOutput.name,
+          qty_available: nextOutput.qty_available,
+          qty_warehouse: nextOutput.qty_warehouse,
+          unit: nextOutput.unit,
+        },
+      }]
+    }
+  }
+
+  return { input: nextInput, output: nextOutput }
+}
+
 const columnDefinitions = [
-  { aliases: ['product', '\u4ea7\u54c1'], canonical: '\u4ea7\u54c1', key: 'product' },
-  { aliases: ['specification', '\u89c4\u683c'], canonical: '\u89c4\u683c', key: 'specification' },
-  { aliases: ['material code', 'material_code', '\u7269\u6599\u7f16\u7801'], canonical: '\u7269\u6599\u7f16\u7801', key: 'material_code' },
-  { aliases: ['b price', 'b\u7ea7\u4ef7\u683c'], canonical: 'B\u7ea7\u4ef7\u683c', key: 'price', numeric: true },
-  { aliases: ['inventory', '\u5e93\u5b58'], canonical: '\u5e93\u5b58', key: 'inventory', numeric: true },
+  { aliases: ['中文名称'], canonical: '中文名称', key: 'product' },
+  { aliases: ['英文/印尼名'], canonical: '英文/印尼名', key: 'english_or_indonesian_name' },
+  { aliases: ['编码'], canonical: '编码', key: 'material_code', codeToken: true },
+  { aliases: ['单价(b级)', '单价（b级）'], canonical: '单价(B级)', key: 'price', numeric: true },
+  { aliases: ['在仓库存', '在仓库存(qty_warehouse)'], canonical: '在仓库存', key: 'inventory_warehouse', numeric: true },
+  { aliases: ['可用库存', '可用库存(qty_available)'], canonical: '可用库存', key: 'inventory_available', numeric: true },
+  { aliases: ['单位'], canonical: '单位', key: 'unit' },
+  { aliases: ['备注'], canonical: '备注', key: 'remark' },
+  { aliases: ['product', '产品'], canonical: '产品', key: 'product' },
+  { aliases: ['specification', '规格'], canonical: '规格', key: 'specification' },
+  { aliases: ['material code', 'material_code', '物料编码'], canonical: '物料编码', key: 'material_code', codeToken: true },
+  { aliases: ['b price', 'b级价格'], canonical: 'B级价格', key: 'price', numeric: true },
+  { aliases: ['inventory', '库存'], canonical: '库存', key: 'inventory', numeric: true },
 ]
 
 function toolAction(toolName = 'unknown') {
@@ -52,6 +104,17 @@ function parseNumeric(value) {
   return Number.isFinite(number) ? number : value
 }
 
+// Presentation noise (bold markers, decorations) must not leak into evidence values.
+function cleanCell(value) {
+  return value.replace(/\*{1,3}([^*]*)\*{1,3}/gu, '$1').trim()
+}
+
+function cellValue(field, rawCell) {
+  const cell = cleanCell(rawCell)
+  const value = field.codeToken ? (cell.match(/^\S+/u)?.[0] ?? cell) : cell
+  return field.numeric ? parseNumeric(value) : value
+}
+
 export function parseMarkdownTable(text) {
   const lines = text.split(/\r?\n/u).filter((line) => line.trim().startsWith('|'))
   if (lines.length < 3) return null
@@ -67,10 +130,7 @@ export function parseMarkdownTable(text) {
     }
   })
   const rows = lines.slice(2).map(tableCells).filter((cells) => cells.length === fields.length).map((cells) => (
-    Object.fromEntries(fields.map((field, index) => [
-      field.key,
-      field.numeric ? parseNumeric(cells[index]) : cells[index],
-    ]))
+    Object.fromEntries(fields.map((field, index) => [field.key, cellValue(field, cells[index])]))
   ))
   if (rows.length === 0) return null
   return {
@@ -111,13 +171,15 @@ export function normalizeCcbAcpUpdates(updates, {
 
       if (update.status === 'completed' || update.status === 'failed' || update.status === 'error') {
         const failed = update.status !== 'completed'
-        const output = parseToolOutput(update)
+        const action = toolAction(toolName)
+        const parsedOutput = parseToolOutput(update)
+        const { input, output } = normalizeToolPayload(action, state.input, parsedOutput)
         log.appendRaw({
           type: failed ? 'tool.call.failed' : 'tool.call.completed',
           actor,
-          action: toolAction(toolName),
+          action,
           status: failed ? 'error' : 'ok',
-          input: state.input,
+          input,
           output: failed ? { ...output, error: extractText(update.content) || output.text || update.status } : output,
           span_id: id,
           ...(state.parentSpanId ? { parent_span_id: state.parentSpanId } : {}),

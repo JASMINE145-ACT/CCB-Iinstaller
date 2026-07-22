@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import os from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -120,25 +120,46 @@ test('rejects unsafe Case identifiers before constructing a storage path', () =>
     rmSync(projectRoot, { recursive: true, force: true })
   }
 })
-test('the repository CCB Eval Pack ships one locked golden Case', () => {
+
+test('the repository CCB Eval Pack ships locked Cases including the dual-item price+stock Case', () => {
   const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
   const packRoot = join(repoRoot, '.agent-eval')
-  const golden = JSON.parse(readFileSync(
-    join(packRoot, 'cases', 'quotation-direct50-price-stock.json'),
-    'utf8',
-  ))
+  const casesDir = join(packRoot, 'cases')
+  const caseFiles = readdirSync(casesDir).filter((name) => name.endsWith('.json'))
+  const lockedCases = caseFiles.map((name) => JSON.parse(readFileSync(join(casesDir, name), 'utf8')))
+  const golden = lockedCases.find(({ id }) => id === 'quotation-direct50-price-stock')
+  const dual = lockedCases.find(({ id }) => id === 'quotation-direct50-tee50-price-stock')
   const suite = JSON.parse(readFileSync(join(packRoot, 'suites', 'smoke.json'), 'utf8'))
   const config = JSON.parse(readFileSync(join(packRoot, 'config.json'), 'utf8'))
   const gitignore = readFileSync(join(repoRoot, '.gitignore'), 'utf8')
 
-  assert.equal(verifyCaseLock(golden), true)
+  assert.ok(golden, 'missing single-item golden Case')
+  assert.ok(dual, 'missing dual-item price+stock Case')
+  assert.ok(lockedCases.length >= 2)
+  for (const locked of lockedCases) {
+    assert.equal(locked.status, 'locked')
+    assert.equal(verifyCaseLock(locked), true)
+  }
   assert.deepEqual(
     golden.graders.map((grader) => grader.type),
-    ['tool_presence', 'tool_forbidden', 'sequence', 'tool_args', 'evidence_link', 'structured_output'],
+    ['tool_presence', 'tool_forbidden', 'tool_forbidden', 'sequence', 'tool_args', 'evidence_link', 'structured_output'],
+  )
+  assert.deepEqual(
+    golden.graders.filter(({ severity }) => severity === 'soft').map(({ id }) => id),
+    ['discouraged_actions'],
   )
   assert.deepEqual(
     golden.ideal_process,
-    ['knowledge.read', 'quotation.match', 'inventory.query', 'assistant.table'],
+    ['quotation.match', 'quotation.select', 'inventory.query', 'assistant.table'],
+  )
+  assert.equal(
+    golden.graders.find(({ id }) => id === 'required_actions')?.config?.actions?.includes('quotation.select'),
+    true,
+  )
+  assert.equal(dual.graders.find(({ id }) => id === 'quotation_table')?.config?.min_rows, 2)
+  assert.equal(
+    dual.graders.find(({ id }) => id === 'required_actions')?.config?.actions?.includes('quotation.select'),
+    true,
   )
   assert.deepEqual(suite.case_ids, [golden.id])
   assert.equal(config.default_adapter, 'ccb-acp')

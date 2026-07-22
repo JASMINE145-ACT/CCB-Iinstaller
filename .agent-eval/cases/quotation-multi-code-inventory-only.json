@@ -1,0 +1,111 @@
+{
+  "id": "quotation-multi-code-inventory-only",
+  "title": "多编码仅查库存（无重新查价）",
+  "objective": "用户已给出 ≥2 个物料编码并要求查库存时：应 1× get_inventory_by_code_batch（归一为 inventory.query）；禁止 match/fill/search_inventory；禁止重新查价。",
+  "prompt": "查库存：8020020755、8010024812、102496",
+  "risk_level": "read_only",
+  "agent": {
+    "id": "quotation-agent",
+    "adapter": "ccb-acp"
+  },
+  "ideal_process": [
+    "inventory.query",
+    "assistant.message"
+  ],
+  "graders": [
+    {
+      "id": "required_actions",
+      "type": "tool_presence",
+      "severity": "hard",
+      "config": {
+        "actions": [
+          "inventory.query"
+        ]
+      }
+    },
+    {
+      "id": "forbidden_actions",
+      "type": "tool_forbidden",
+      "severity": "hard",
+      "config": {
+        "actions": [
+          "agent.delegate",
+          "quotation.match",
+          "quotation.select",
+          "quotation.search_inventory",
+          "tool.mcp__quotation__fill_quotation_sheet"
+        ]
+      }
+    },
+    {
+      "id": "business_arguments",
+      "type": "tool_args",
+      "severity": "hard",
+      "config": {
+        "assertions": [
+          {
+            "action": "inventory.query",
+            "path": "input.codes",
+            "operator": "contains",
+            "value": "8020020755"
+          },
+          {
+            "action": "inventory.query",
+            "path": "input.codes",
+            "operator": "contains",
+            "value": "8010024812"
+          },
+          {
+            "action": "inventory.query",
+            "path": "input.codes",
+            "operator": "contains",
+            "value": "102496"
+          }
+        ]
+      }
+    }
+  ],
+  "judge": {
+    "mode": "current_ai_process",
+    "required": true,
+    "rubric": [
+      {
+        "id": "batch_once",
+        "description": "是否用一次 get_inventory_by_code_batch（而非 3× get_inventory_by_code）覆盖全部三码",
+        "weight": 50
+      },
+      {
+        "id": "no_per_code_inventory",
+        "description": "是否未对同一意图连打多次单码 get_inventory_by_code",
+        "weight": 30
+      },
+      {
+        "id": "table_or_rows",
+        "description": "回复是否列出各码库存（或工具未返回说明）",
+        "weight": 20
+      }
+    ],
+    "threshold": 80
+  },
+  "decision": {
+    "policy": "all_hard_and_soft_threshold",
+    "hard": {
+      "require": "all"
+    },
+    "soft": {
+      "aggregate": "weighted_average",
+      "threshold": 80
+    }
+  },
+  "trials": {
+    "count": 3,
+    "metrics": [
+      "pass_at_1",
+      "pass_at_3",
+      "flaky_rate"
+    ]
+  },
+  "schema_version": "eval.case/v1",
+  "status": "draft",
+  "notes": "07-20-inventory-batch-multi-code. ACP normalizer maps both single and batch inventory tools to inventory.query — hard graders cannot distinguish; soft judge + L1 contract + Guid smoke enforce batch-once. Hard forbids re-match/select/fill."
+}

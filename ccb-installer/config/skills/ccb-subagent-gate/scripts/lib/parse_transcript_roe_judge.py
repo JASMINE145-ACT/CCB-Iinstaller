@@ -14,7 +14,28 @@ CLARIFY_OPTIONS_RE = re.compile(
     r"(?:\b[A-Ca-c]\b.*[/／].*\b[A-Ca-c]\b)|(?:\b[123]\b.*[/／].*\b[123]\b)|(?:[ABCabc]\s*[/／]\s*[ABCabc])"
 )
 CLARIFY_MISSING_RE = re.compile(r"缺少|无法确定|需要.{0,12}确定")
-HOOK_REJECT_RE = re.compile(r"^(?:REJECT:\s|\[ROE-GATE)", re.I)
+HOOK_REJECT_RE = re.compile(
+    r"^(?:Stop hook feedback:|REJECT:\s*(?:\[ROE-GATE)?|\[ROE-GATE)", re.I
+)
+SKILL_INJECTION_RE = re.compile(
+    r"<skill-format>\s*true\s*</skill-format>|<loaded-skill\b|^Base directory for this skill:",
+    re.I,
+)
+HANDOFF_BRIEF_MARKER = "<!-- WANd.HANDOFF.BRIEF.001 -->"
+HANDOFF_USER_QUOTE_RE = re.compile(r"(?m)^\s*(?:[-*]\s*)?用户原话\s*[：:]\s*(.+?)\s*$")
+HANDOFF_GOAL_SECTION_RE = re.compile(r"(?m)^## Goal\s*\n(.+?)(?=^## |\Z)", re.S)
+EXPLICIT_EXPORT_INTENT_RE = re.compile(
+    r"导出\s*(?:为|成)?\s*(?:xlsx|excel|csv|md|文件|报告)|"
+    r"生成\s*(?:xlsx|excel|csv|md|文件|报告文件)|"
+    r"落盘\s*(?:md|csv|xlsx|文件)",
+    re.I,
+)
+NEGATED_WRITE_RE = re.compile(
+    r"(?:不要|无需|不需要|不必|禁止|别|不强制|未)\s*"
+    r"(?:再|自动|直接|额外|强制)?\s*"
+    r"(?:生成|制作|导出|填写|填进|填入|写入|修改|更新|删除|清空)\s*"
+    r"(?:Excel|excel|报价单|文件|表格|规则|数据)?"
+)
 
 WRITE_VERB_RE = re.compile(r"改|删|填|写|更新|写入|追加|删除|清空|生成|制作|导出")
 WRITE_NOUN_RE = re.compile(r"报价单|删行|改价")
@@ -33,7 +54,8 @@ DEFAULT_L2_MARKERS = (
     "mcp__excel__write",
 )
 
-JUDGE_MAX_BLOCKS = 5
+# Lightweight fuse: one block then escalate→pass. Profiles may raise via max_blocks.
+JUDGE_MAX_BLOCKS = 1
 
 AGENT_EXECUTE_HINTS: dict[str, str] = {
     "quotation-agent": (
@@ -90,17 +112,98 @@ def _user_text_from_obj(obj: dict[str, Any]) -> str:
     return "\n".join(parts).strip()
 
 
+def _extract_handoff_user_text(text: str) -> str:
+    """Use the original user utterance, not generated Goal/Prohibitions, as ROE intent."""
+    if HANDOFF_BRIEF_MARKER not in text:
+        return text
+    match = HANDOFF_USER_QUOTE_RE.search(text)
+    if not match:
+        return text
+    value = match.group(1).strip()
+    quote_pairs = (("「", "」"), ("“", "”"), ('"', '"'), ("'", "'"))
+    for left, right in quote_pairs:
+        if value.startswith(left) and value.endswith(right) and len(value) >= 2:
+            return value[len(left) : -len(right)].strip()
+    return value
+
+
+def _extract_brief_goal(text: str) -> str:
+    if HANDOFF_BRIEF_MARKER not in text:
+        return ""
+    match = HANDOFF_GOAL_SECTION_RE.search(text)
+    return match.group(1).strip() if match else ""
+
+
+def explicit_export_intent(text: str) -> bool:
+    """True when the user-facing ask explicitly requests file export/delivery."""
+    return bool(text and EXPLICIT_EXPORT_INTENT_RE.search(text))
+
+
+def skip_readonly_patterns_from_profile(profile: dict[str, Any]) -> tuple[str, ...]:
+    raw = profile.get("skip_readonly_patterns")
+    if not isinstance(raw, list):
+        return ()
+    return tuple(str(p) for p in raw if p)
+
+
+def matches_readonly_skip(text: str, patterns: tuple[str, ...]) -> bool:
+    if not text or not patterns:
+        return False
+    for pat in patterns:
+        try:
+            if re.search(pat, text, re.I):
+                return True
+        except re.error:
+            if pat in text:
+                return True
+    return False
+
+
+def readonly_skip_from_profile(anchor_text: str, profile: dict[str, Any]) -> bool:
+    """Agent-scoped readonly bypass — ignores Brief Expected-output pollution when Goal/quote is readonly."""
+    patterns = skip_readonly_patterns_from_profile(profile)
+    if not patterns:
+        return False
+    quote = _extract_handoff_user_text(anchor_text)
+    goal = _extract_brief_goal(anchor_text)
+    candidates = [quote]
+    if goal and goal not in candidates:
+        candidates.append(goal)
+    if HANDOFF_BRIEF_MARKER not in anchor_text:
+        candidates.append(anchor_text)
+    for candidate in candidates:
+        if not candidate.strip():
+            continue
+        if explicit_export_intent(candidate):
+            continue
+        if matches_readonly_skip(candidate, patterns):
+            return True
+    return False
+
+
+def _intent_user_text_from_obj(obj: dict[str, Any]) -> str:
+    return _extract_handoff_user_text(_user_text_from_obj(obj))
+
+
 def _is_hook_injected_user_text(text: str) -> bool:
     return bool(text and HOOK_REJECT_RE.search(text.strip()))
+
+
+def _is_skill_injected_user_text(text: str) -> bool:
+    return bool(text and SKILL_INJECTION_RE.search(text.strip()))
 
 
 def _is_real_user_message(obj: dict[str, Any]) -> bool:
     if obj.get("type") != "user":
         return False
+    # CCB serializes Skill preloads and Stop-hook feedback as user-role meta messages.
+    # They are model context, not a new human request, and must never move the ROE anchor.
+    if obj.get("isMeta") is True:
+        return False
     text = _user_text_from_obj(obj)
     if not text:
         return False
-    if _is_hook_injected_user_text(text):
+    if _is_hook_injected_user_text(text) or _is_skill_injected_user_text(text):
         return False
     return True
 
@@ -138,15 +241,15 @@ def _last_assistant_text(lines: list[str]) -> str:
 def has_write_intent(text: str) -> bool:
     if not text:
         return False
-    if READONLY_LOOKUP_RE.search(text) and not WRITE_VERB_RE.search(text):
-        if "报价单" not in text and not ROW_EDIT_RE.search(text):
-            if not re.search(r"填写|填进|填入|完整", text):
+    intent_text = NEGATED_WRITE_RE.sub("", text)
+    # Pure lookup (price/stock/recommend) is never write intent — even if a product code appears.
+    if READONLY_LOOKUP_RE.search(intent_text) and not WRITE_VERB_RE.search(intent_text):
+        if "报价单" not in intent_text and not ROW_EDIT_RE.search(intent_text):
+            if not re.search(r"填写|填进|填入", intent_text):
                 return False
-    if WRITE_VERB_RE.search(text) or WRITE_NOUN_RE.search(text):
+    if WRITE_VERB_RE.search(intent_text) or WRITE_NOUN_RE.search(intent_text):
         return True
-    if PRICE_EDIT_RE.search(text) or ROW_EDIT_RE.search(text):
-        return True
-    if re.search(r"\bcode\b", text, re.IGNORECASE):
+    if PRICE_EDIT_RE.search(intent_text) or ROW_EDIT_RE.search(intent_text):
         return True
     return False
 
@@ -169,7 +272,7 @@ def extract_write_anchor_window(
     for idx, line in enumerate(lines):
         obj = _loads_line(line)
         if obj and _is_real_user_message(obj):
-            user_indices.append((idx, _user_text_from_obj(obj)))
+            user_indices.append((idx, _intent_user_text_from_obj(obj)))
 
     write_start: int | None = None
     write_text = ""
@@ -190,8 +293,11 @@ def extract_write_anchor_window(
 
 
 def window_key(session_id: str, start_line: int, user_text: str) -> str:
+    """Stable key for one user request. start_line is ignored (kept for call-site compat):
+    transcript growth / duplicated user lines used to reset the block counter and disable max_blocks."""
+    del start_line  # retained in signature for callers; must not affect the key
     digest = hashlib.sha256(user_text.encode("utf-8")).hexdigest()[:12]
-    return f"{session_id}:{start_line}:{digest}"
+    return f"{session_id}:{digest}"
 
 
 def load_block_count(counts_path: Path, key: str) -> int:
@@ -509,40 +615,17 @@ def build_reject_prompt(
     block_count: int,
     max_blocks: int,
 ) -> str:
+    """Short fuse prompt — avoid long rejections that re-trigger write-intent heuristics."""
+    del prior_done, window_done, prior_attempt  # kept for call-site compat; omitted from short prompt
     urgency = build_urgency_line(block_count, max_blocks)
     parts = [
-        f"[ROE-GATE {block_count}/{max_blocks}] Incomplete — do not end_turn. Resume now.",
+        f"[ROE-GATE {block_count}/{max_blocks}] Write not landed — do not end_turn.",
+        f"Gap: {gap_summary}",
+        f"User: {summarize_user_intent_one_line(anchor_text, max_len=80)}",
+        f"ACTION: {action}",
     ]
     if urgency:
-        parts.append(urgency)
-    parts.extend(["", "GAPS (rule-detected):", f"- {gap_summary}", "", "User request:", summarize_user_intent_one_line(anchor_text)])
-    if prior_done:
-        parts.extend(
-            [
-                "",
-                "Already done (prior turns — do NOT repeat):",
-                *[f"  - {name}" for name in prior_done[:20]],
-            ]
-        )
-    if window_done:
-        parts.extend(
-            [
-                "",
-                "Already done (this turn — do NOT repeat):",
-                *[f"  - {name}" for name in window_done[:20]],
-            ]
-        )
-    if not prior_done and not window_done:
-        parts.extend(["", "Already done (do NOT repeat):", "  (none)"])
-    if prior_attempt:
-        parts.extend(
-            [
-                "",
-                "Prior attempt (failed — fix and retry):",
-                f"  - {prior_attempt['tool']} -> FAILED: {prior_attempt['error']}",
-            ]
-        )
-    parts.extend(["", "ACTION:", f"- {action}"])
+        parts.insert(1, urgency)
     return "\n".join(parts)
 
 
@@ -604,6 +687,14 @@ def evaluate_roe_judge(
 
     if not window_write_intent:
         return {**base, "verdict": "pass", "step": "no_roe_scope", "reason": "no_write_intent"}
+
+    if readonly_skip_from_profile(anchor_text, profile):
+        return {
+            **base,
+            "verdict": "pass",
+            "step": "readonly_skip_profile",
+            "reason": "readonly_skip_profile",
+        }
 
     if has_l2:
         return {**base, "verdict": "pass", "step": "l2_write_success", "reason": "l2_write_success"}
@@ -689,9 +780,25 @@ def main(argv: list[str]) -> int:
     log_dir = Path(argv[6]) if len(argv) > 6 else Path.home() / ".claude" / "logs"
     skill_root = Path(argv[7]) if len(argv) > 7 else Path(__file__).resolve().parents[2]
 
-    result = evaluate_roe_judge(
-        transcript_path, session_id, agent_type, last_msg, log_dir, skill_root
-    )
+    try:
+        result = evaluate_roe_judge(
+            transcript_path, session_id, agent_type, last_msg, log_dir, skill_root
+        )
+    except Exception as exc:  # fail-open: never freeze the agent session
+        result = {
+            "verdict": "pass",
+            "step": "fail_open",
+            "reason": f"judge_exception:{type(exc).__name__}",
+            "agent_type": agent_type,
+            "judge_mode": "fail_open",
+        }
+        try:
+            append_judge_log(log_dir, result)
+        except OSError:
+            pass
+        print(json.dumps(result, ensure_ascii=False))
+        return 0
+
     append_judge_log(log_dir, result)
     print(json.dumps(result, ensure_ascii=False))
     if result.get("verdict") == "block":

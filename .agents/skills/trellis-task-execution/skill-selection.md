@@ -223,14 +223,25 @@
 
 ### J — 发布 / 打包
 
-**入口判定**：build-wanding / 安装器 / 版本发布；`packaging` risk tag。
+**入口判定**：build-wanding / 安装器 / 版本发布 / 「打包」「发版」「NSIS」；`packaging` risk tag。
+
+**硬门禁（开跑 `build-wanding.ps1` 之前必须完成）：**
 
 ```
-1. Read: .trellis/spec/integration/wanding-release-standard.md（本仓库发布契约）
-2. Skill: ecc:verification-loop 取验证命令集（build → smoke → recovery check）
-3. 打包前 git status/diff 核对工作树（防静默回退，见 memory 教训）
-4. Gate: Release profile + 人工验收 manual gate → finish
+1. Read（整份或至少下列节）:
+   .trellis/spec/integration/wanding-release-standard.md
+     — §0 黄金法则 · §2.3 新 seed skill 清单 · §5.5 LASTEXITCODE
+     — §6.8 live≠staging · §6.9 修包后必须重打 · §10 wallet card
+2. Read:
+   .trellis/spec/integration/wanding-packaging-whitelist.md
+     — $shipScripts + bootstrap/deploy 运行时闭包（dotsource/callee 必须同包）
+3. 对照 §2.3 / wallet card 勾选本次变更（新 skill / 新脚本 / config_generation）
+4. Skill: ecc:verification-loop 取验证命令集（build → smoke → recovery check）
+5. 打包前 git status/diff 核对工作树（防静默回退）
+6. Gate: Release profile + 人工验收；delivery SHA256 = 当前 exe（修 packaging 后须 §6.9 repack）
 ```
+
+未完成 1–3 不得声明「开始打包」。Cursor 规则：`.cursor/rules/wanding-release-packaging.mdc`（编辑安装器相关文件时自动带上）。
 
 ### K — 文档 / 规格同步
 
@@ -264,7 +275,7 @@
 | 清理/简化 | G | `Skill: superpowers:test-driven-development`（安全网） |
 | 触碰 auth/secrets | H | `Agent: security-reviewer` |
 | 慢/卡/包大 | I | `Agent: performance-optimizer` + 测量 |
-| 打包/发版 | J | `Read: wanding-release-standard` spec |
+| 打包/发版 | J | **先** `Read: wanding-release-standard` §0/§2.3/§5.5/§6.8–6.9/§10 + `wanding-packaging-whitelist` 闭包，再 build |
 | 只动文档 | K | `Agent: doc-updater` |
 | 纯调研 | L | `Agent: trellis-research` |
 

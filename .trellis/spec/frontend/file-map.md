@@ -102,7 +102,7 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | Status tag | `…/components/WorkTaskStatusTag.tsx` |
 | SWR hooks (scope, members, query, pending badge) | `…/useWorkTasks.ts` |
 | Sidebar entry + pending badge | `packages/desktop/src/renderer/components/layout/Sider/SiderNav/SiderWorkTasksEntry.tsx` |
-| Sidebar org data entries (知识库 + 价格库) | `Sider/index.tsx` — flat peers after 「任务」; same row style as `SiderScheduledEntry` / `SiderWorkTasksEntry` (`h-34px`, icon + text); gated by `isOrgServerConfigured()` |
+| Sidebar org data entries | `Sider/OrgDatabaseSiderSection.tsx` — fold group「数据库」(icon+label+caret)；children 知识库/价格库/供应商；registry `orgDatabaseNavRegistry.ts`；gated by `isOrgServerConfigured()` |
 | Org knowledge sidebar entry | `SiderNav/SiderOrgKnowledgeEntry.tsx` → `#/org-knowledge` |
 | Memory sidebar entry (personal/business files) | `SiderNav/SiderMemoryEntry.tsx` → `#/memory` · page `pages/memory/MemoryPage/` (Shell, FileSidebar, EditorPanel, …) · IPC `ccbPersonalMemoryService.*` · path jail `ccbMemoryFiles.ts` — accumulation task `07-06-ccb-memory-auto-accumulation` · UI redesign `07-06-memory-page-ui-redesign` (2026-07-06) |
 | Price library sidebar entry | `SiderNav/SiderPriceLibraryEntry.tsx` → `#/price-library` |
@@ -110,11 +110,12 @@ For a deep-dive on the chat event flow and ACP event shapes, see [`chat-acp-flow
 | **Wiring status (2026-06-26)** | Routes + sider entry + `AuthContext` desktop SSO **wired** (uncommitted). API needs self-built aioncore (`/api/work-tasks` 404 on bundled 0.1.27). |
 | Auth user `work_task_role` + session token | `packages/desktop/src/common/auth/authSession.ts`, `packages/desktop/src/renderer/hooks/context/AuthContext.tsx` |
 | HTTP credentials policy | `packages/desktop/src/common/adapter/httpBridge.ts` — `backendFetchCredentials()` (`omit` desktop, `include` WebUI) |
-| Team members admin (manager) | `packages/desktop/src/renderer/pages/settings/TeamMembersPage.tsx`, route `#/settings/team-members` |
-| Auth IPC (`listUsers`, `createUser`, `updateWorkTaskRole`) | `packages/desktop/src/common/adapter/ipcBridge.ts` → `auth.*` |
+| Org users admin (`is_admin`) | `pages/settings/OrgSettingsPage.tsx` + `pages/orgUsers/` · route `#/settings/org` · IPC `orgUsers.*` → `/api/org-users` |
+| ~~Team members settings~~ (**retired 2026-07-13**) | Was `TeamMembersPage` + `#/settings/team-members`; now redirect → `#/settings/org` via `settingsNavContract.ts` (`RETIRED_SETTINGS_REDIRECTS`) — task `07-13-retire-team-members-settings` |
+| Auth IPC (`currentUser` only) | `ipcBridge.ts` → `auth.currentUser`; roster for tasks: `workTask.listMembers` → `GET /api/users` (do **not** use retired `auth.createUser`) |
 | Settings builtin tab ids (keep Sider + Wrapper in sync) | `SettingsSider.tsx` `BUILTIN_TAB_IDS` + `SettingsPageWrapper.tsx` `getBuiltinSettingsNavItems` — see [`coding-rules.md`](./coding-rules.md) §7 |
 | **Employee profile (Settings → 个人信息)** | `SettingsSider` tab `profile` · `EmployeeProfileSettings/` · `EmployeeProfileModalContent.tsx` · `configKeys` `user.employeeProfile` · IPC `ccbEmployeeProfileService.syncProfile` · warmup `stageEmployeeProfileForSession.ts` — task `07-06-employee-profile-settings-prompt` |
-| Routes | `packages/desktop/src/renderer/components/layout/Router.tsx` — `/tasks`, `/tasks/:task_id`, `#/settings/team-members`, `#/settings/profile` |
+| Routes | `packages/desktop/src/renderer/components/layout/Router.tsx` — `/tasks`, `/tasks/:task_id`, `#/settings/org`, `#/settings/team-members`→org, `#/settings/profile` |
 | i18n strings | `packages/desktop/src/renderer/services/i18n/locales/{zh-CN,en-US}/workTasks.json` |
 | File upload (attachments) | `packages/desktop/src/renderer/services/FileService.ts` → `uploadFileViaHttp` |
 | Attachment download helper | `packages/desktop/src/renderer/utils/file/download.ts` → `downloadFileFromPath` |

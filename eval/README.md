@@ -39,6 +39,15 @@ node eval/run-agent-eval.mjs --run --category quotation
 
 Live runs invoke `ccb-installer/test-native-acp-agent.mjs` with `CCB_TEST_PROFILE` (alias `CCB_TEST_AGENT_ID`) from `case.agent`. Override install via `CCB_TEST_INSTALL_DIR` / `CCB_TEST_CONFIG_DIR`. Default timeout **120s**; per-case `timeout_ms` overrides.
 
+## Writing / editing cases (encoding)
+
+| Rule | Detail |
+|------|--------|
+| **UTF-8 only** | `agent_eval_cases.jsonl` and suite JSON must stay UTF-8 (prefer no BOM) |
+| **Do not** | Redirect or rewrite via PowerShell `>` / `Out-File` / `Set-Content` without `-Encoding utf8NoBOM` — console code page (GBK) corrupts Chinese `prompt` / `response_includes*` and breaks `pass_if_any` |
+| **Do** | Edit with the editor / `node` / `[System.IO.File]::WriteAllText(..., UTF8Encoding($false))` / Python `open(..., encoding='utf-8')` |
+| **Verify** | After edits containing CJK, re-run `node eval/run-agent-eval.mjs` (schema) and spot-check a Chinese field is not `????` or mojibake |
+
 ## Case fields
 
 | Field | Meaning |
@@ -48,6 +57,8 @@ Live runs invoke `ccb-installer/test-native-acp-agent.mjs` with `CCB_TEST_PROFIL
 | `expected_error_codes` | Stable MCP codes (`NO_DATA`, `AMBIGUOUS_MATCH`, …) |
 | `expected_params` | Checks `tool_call_update.rawInput` JSON fragments |
 | `pass_if_any` | **Alternative success paths** — pass when any branch matches |
+| `response_includes_any` | Legacy OR assertion against the final `[assistant_text]` block |
+| `response_matches_all` | Regex AND assertion against the final `[assistant_text]` block; use when multiple delivery fields are all required |
 | `timeout_ms` | Per-case ACP timeout (long replies / MCP cold start) |
 | `retry` | Re-run on `BAD_TURN` / empty tool log when smoke exits 1 (also `CCB_EVAL_RETRY` env) |
 | `fix_note` | Human-readable note on why the case shape changed |

@@ -1,6 +1,6 @@
 {
-  "config_generation": 7,
-  "description": "Supplier-directory MCP + agent seeds + WeCom docs fleet-hide — refresh agents, skills, MCP on install/upgrade",
+  "config_generation": 9,
+  "description": "2.0.1 — inherit 2.0.0 install self-heal (stale-purge + InstallDir resolve); refresh quotation/accurate L1 + learn-by-data select-first + field-rule / parse + inventory batch; keep gen8 retirements",
   "reset_targets": [
     "agents",
     "aionui_runtime"

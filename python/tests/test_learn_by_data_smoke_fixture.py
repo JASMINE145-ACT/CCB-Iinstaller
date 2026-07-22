@@ -65,7 +65,8 @@ def test_learn_by_data_smoke_manifest_scenarios() -> None:
 
 
 def test_deploy_skill_source_exists() -> None:
-    skill = ROOT / "ccb-installer" / "config" / "skills" / "quotation-learn-by-data" / "SKILL.md"
+    # Skill moved to the vertical package (whitelist §8.2.1).
+    skill = ROOT / "ccb-installer" / "packages" / "vertical" / "com.wanding.trade" / "skills" / "quotation-learn-by-data" / "SKILL.md"
     assert skill.is_file()
     text = skill.read_text(encoding="utf-8")
     assert "quotation-learn-by-data" in text

@@ -66,6 +66,15 @@ try {
 - [ ] agent eval smoke ≥7/15
 - [ ] `delivery-1.1.9-*.md` + `dev-test-checklist-1.1.9.md`
 
+## Post-ship repair backlog（2026-07-12）— **closed by repack**
+
+| Item | Status |
+|------|--------|
+| live Full bootstrap EXIT=0（repair4） | [x] |
+| 重打 1.1.9：ship lib + precip deploy/seed + NSIS | [x] SHA256 `5D964506…947B` |
+| LASTEXITCODE clear + Quick `$requiredSeedSkills` precip | [x] in staging + exe |
+| （可选）`记住.md` command source missing 警告 | [ ] 非阻塞 |
+
 ## VPS 运维（发版后，非阻塞安装包）
 
 ```powershell

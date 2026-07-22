@@ -1,16 +1,17 @@
 {
-    "schema_version": 1,
-    "channel": "stable",
-    "published_at": "2026-06-24T14:45:00+08:00",
-    "aionui": null,
-    "ccb": {
-        "version": "1.1.1",
-        "release_notes": "配置世代机制（gen 2）：自动重置 CLI 时代旧 agent 配置；About 页面一键全量安装",
-        "full_installer": {
-            "url": "http://67.216.206.3/updates/ccb/CCB-Wanding-1.1.1.exe",
-            "sha256": "514bbb47a82f159b2aeb1d58be4cac73120018fd7997b151365afbbac9c780de",
-            "size": 890585034,
-            "release_notes": "配置世代机制（gen 2）：自动重置 CLI 时代旧 agent 配置；About 页面一键全量安装"
-        }
-    }
+    "schema_version":  1,
+    "channel":  "stable",
+    "published_at":  "2026-07-12T22:09:51+08:00",
+    "aionui":  null,
+    "ccb":  {
+                "version":  "1.1.9",
+                "release_notes":  "1.1.9: supplier directory, work-tasks v2, WeCom docs fleet-hide, config_generation 7",
+                "hot_update":  null,
+                "full_installer":  {
+                                       "url":  "http://67.216.206.3/updates/ccb/CCB-Wanding-1.1.9.exe",
+                                       "sha256":  "94de17b10220d171829c8b46552853a38d2b6050942ffe336451bdf02c0e6998",
+                                       "size":  934716049,
+                                       "release_notes":  "1.1.9: supplier directory, work-tasks v2, WeCom docs fleet-hide, config_generation 7"
+                                   }
+            }
 }

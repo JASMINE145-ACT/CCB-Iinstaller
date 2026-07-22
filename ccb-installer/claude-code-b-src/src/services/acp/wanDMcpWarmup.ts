@@ -142,22 +142,40 @@ export async function warmWanDMcpServers(serverNames: string[]): Promise<void> {
   }
 }
 
+/**
+ * Resolve which MCP servers get a background spawn-and-kill warm.
+ *
+ * Orchestrator sessions have **no** session-level business MCP; first work
+ * happens inside Agent() subagents. A throwaway quotation warm races the
+ * subagent's first `match_quotation` (both ~90s cold) and can hard-timeout the
+ * real call. Skip orchestrator spawn-warm; specialists may still warm.
+ */
+export function resolveWanDWarmupServers(
+  sessionProfileId?: string,
+): string[] {
+  const id = normalizeAgentId(sessionProfileId ?? '')
+  if (!id || id === getDefaultSessionAgentId()) {
+    return []
+  }
+  if (id === 'quotation-agent') return ['quotation']
+  if (id === 'accurate-agent') return ['accurate']
+  if (id === 'word-creator') return ['office-word']
+  if (id === 'excel-creator') return ['excel']
+  return []
+}
+
 /** Fire-and-forget warmup after session/new. */
 export function scheduleWanDMcpWarmup(sessionProfileId?: string): void {
   const id = normalizeAgentId(sessionProfileId ?? '')
-  const servers: string[] = []
-  if (!id || id === getDefaultSessionAgentId()) {
-    servers.push('quotation', 'accurate')
-  } else if (id === 'quotation-agent') {
-    servers.push('quotation')
-  } else if (id === 'accurate-agent') {
-    servers.push('accurate')
-  } else if (id === 'word-creator') {
-    servers.push('office-word')
-  } else if (id === 'excel-creator') {
-    servers.push('excel')
+  const servers = resolveWanDWarmupServers(sessionProfileId)
+  if (servers.length === 0) {
+    if (!id || id === getDefaultSessionAgentId()) {
+      console.info(
+        `[ACP] WanD MCP warmup skipped for orchestrator (avoid racing Agent subagent cold start) profile=${id || 'default'}`,
+      )
+    }
+    return
   }
-  if (servers.length === 0) return
   console.info(`[ACP] WanD MCP warmup scheduled: ${servers.join(', ')} profile=${id || 'default'}`)
   void warmWanDMcpServers(servers).catch((err) => {
     console.warn('[ACP] WanD MCP warmup failed:', err)

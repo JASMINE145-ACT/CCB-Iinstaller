@@ -1,6 +1,6 @@
 import { spawn } from "child_process";
 import { config } from "./config";
-const PYTHON_TIMEOUT_MS = Number(process.env.QUOTATION_PYTHON_TIMEOUT_MS ?? 90000);
+const PYTHON_TIMEOUT_MS = Number(process.env.QUOTATION_PYTHON_TIMEOUT_MS ?? 120000);
 function parseLastJsonLine(stdout) {
     const lines = stdout.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
     const last = lines.at(-1);

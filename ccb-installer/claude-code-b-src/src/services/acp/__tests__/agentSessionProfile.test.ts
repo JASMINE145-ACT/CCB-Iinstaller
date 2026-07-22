@@ -257,6 +257,7 @@ describe('resolveSessionUserContextOverride L1 self-contained', () => {
     })
     expect(result?.claudeMd).toContain('专家会话')
     expect(result?.claudeMd).not.toContain('Legacy sidecar')
+    expect(result?.claudeMd).not.toContain('不直接调用业务 MCP')
     expect(result?.currentDate).toContain('Today')
   })
 

@@ -1,26 +1,19 @@
-<!-- TRELLIS:START -->
-# Trellis Instructions
+# Agent instructions (L0)
 
-These instructions are for AI assistants working in this project.
+Cross-tool defaults for this repository (Codex, Claude Code, and other agents that read `AGENTS.md`).
 
 **Spec entry (AionUI + CCB-Wanding):** `.trellis/spec/index.md`
 
-This project is managed by Trellis. The working knowledge you need lives under `.trellis/`:
+## Deferred skills / heavy workflows
 
-- `.trellis/workflow.md` — development phases, when to create tasks, skill routing
-- `.trellis/spec/` — package- and layer-scoped coding guidelines (read before writing code in a given layer)
-- `.trellis/workspace/` — per-developer journals and session traces
-- `.trellis/tasks/` — active and archived tasks (PRDs, research, jsonl context)
+Skills, Trellis workflows, and Superpowers-style process packs stay on disk but are **deferred by default**: do **not** auto-load them, do **not** run Trellis/Superpowers session injectors, and do **not** invent mandatory review→test→docs gates unless the user explicitly names a skill/command (for example `/trellis-start`, `/trellis:continue`, or “use skill X”).
 
-If a Trellis command is available on your platform (e.g. `/trellis:finish-work`, `/trellis:continue`), prefer it over manual steps. Not every platform exposes every command.
+When the user explicitly asks, read the named skill/command and follow it. Spec under `.trellis/spec/` still applies when editing the matching package/layer.
 
-If you're using Codex or another agent-capable tool, additional project-scoped helpers may live in:
-- `.agents/skills/` — reusable Trellis skills
-- `.codex/agents/` — optional custom subagents
+## Scope
 
-Managed by Trellis. Edits outside this block are preserved; edits inside may be overwritten by a future `trellis update`.
-
-<!-- TRELLIS:END -->
+- Prefer the smallest change that satisfies the request.
+- Use this repo’s own build/test commands when verifying; report concrete evidence.
 
 ---
 
@@ -43,9 +36,18 @@ For CCB-Wanding / MCP / ACP backend work (claude-code-B source, dist deploy, quo
 - **Build + deploy + smoke**: `.trellis/spec/backend/build-deploy-verify.md`
 - **route-b sync** (after backend or patch changes): `.trellis/spec/integration/route-b-sync.md`
 
-## Task execution planning (Cursor / Claude)
+## CCB-Wanding Packaging / Release Pointer
 
-Before multi-workstream Trellis tasks (especially ccb-installer + aionui-src):
+Before **打包 / 发版 / NSIS / `build-wanding`**:
+
+1. Read `.trellis/spec/integration/wanding-release-standard.md` (§0 · §2.3 · §5.5 · §6.8–6.9 · §10)
+2. Read `.trellis/spec/integration/wanding-packaging-whitelist.md` (`$shipScripts` + bootstrap runtime closure)
+3. If the user asks for a Trellis plan: `/trellis:plan-execution` or `@trellis-task-execution` → **Scenario J**
+4. Cursor auto-attach: `.cursor/rules/wanding-release-packaging.mdc` when editing installer scripts / NSI / delivery notes
+
+## Task execution planning (when user asks)
+
+For multi-workstream Trellis tasks (especially ccb-installer + aionui-src), when the user explicitly asks to plan/execute via Trellis:
 
 - **Cursor**: `@trellis-task-execution` or command **`/trellis:plan-execution`**
 - **Skill path**: `.agents/skills/trellis-task-execution/` (mirrored in `.cursor/skills/`, `.claude/skills/`)

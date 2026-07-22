@@ -14,6 +14,7 @@ sys.path.insert(0, str(SCRIPT_LIB))
 
 from parse_transcript_precipitation import (  # noqa: E402
     extract_proposals,
+    find_transcript,
     iter_user_messages,
     kb_overlap,
 )
@@ -153,6 +154,19 @@ class TestPrecipitationExtract(unittest.TestCase):
                 os.environ.pop("CCB_PRECIPITATION_FORCE_HEURISTIC", None)
             else:
                 os.environ["CCB_PRECIPITATION_FORCE_HEURISTIC"] = prev
+
+
+class TestFindTranscriptConfigDir(unittest.TestCase):
+    def test_finds_under_config_dir_projects(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Path(tmp) / ".claude"
+            projects = config / "projects" / "cwd-hash"
+            projects.mkdir(parents=True)
+            sid = "sess-cfg-1"
+            target = projects / f"{sid}.jsonl"
+            target.write_text("{}\n", encoding="utf-8")
+            found = find_transcript(sid, config_dir=config)
+            self.assertEqual(found, target)
 
 
 if __name__ == "__main__":

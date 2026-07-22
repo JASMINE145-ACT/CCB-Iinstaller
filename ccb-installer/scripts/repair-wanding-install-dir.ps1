@@ -34,6 +34,8 @@ $OwnedTopFiles = @(
     'ccb-launch-aionui.cmd',
     'ccb-wanding-versions.cmd',
     'ccb-check-install.cmd',
+    'ccb-list-installs.cmd',
+    'ccb-purge-stale-installs.cmd',
     'ccb-verify-update.cmd',
     'install-health-manifest.json',
     'AionUiLauncher.exe',

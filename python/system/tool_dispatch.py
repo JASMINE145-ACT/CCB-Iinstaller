@@ -32,6 +32,11 @@ def dispatch(tool: str, params: dict[str, Any]) -> Any:
 
         return handle_append_business_rule(params)
 
+    if tool == "delete_business_rule":
+        from admin.org_knowledge_dispatch import handle_delete_business_rule
+
+        return handle_delete_business_rule(params)
+
     if tool == "append_quotation_mapping_pending":
         from quotation.mapping_pending_dispatch import handle_append_quotation_mapping_pending
 
@@ -96,6 +101,11 @@ def dispatch(tool: str, params: dict[str, Any]) -> Any:
         from quotation.selection_payloads import handle_ask_clarification
 
         return handle_ask_clarification(params)
+
+    if tool == "select_quotation_candidates":
+        from quotation.select_dispatch import handle_select_quotation_candidates
+
+        return handle_select_quotation_candidates(params)
 
     if tool == "get_product_price_tiers":
         from quotation.price_tiers_dispatch import handle_get_product_price_tiers

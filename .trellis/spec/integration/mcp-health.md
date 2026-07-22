@@ -170,6 +170,18 @@ When updating agent `mcp_allowlist` or adding a new specialist MCP, update **bot
 
 **2026-06-18 warmup note:** runtime warmup is selective. Default router sessions warm `quotation + accurate`; direct `word-creator` warms `office-word`; direct `excel-creator` warms `excel`. Do not use the health probe latency as a direct proxy for chat latency: `-Probe` intentionally spawns every core server, while chat sessions use profile allowlists.
 
+### Lesson from pi-agent (docs/reference/pi) — 2026-07-15
+
+Pi’s “fast/lightweight” story is **architectural thinness** (one process, no ACP/MCP in core, four FS tools). WanD **must not** swap Route B to pi: business value and latency both live in **ACP + MCP**. Safe borrowings already aligned or allowed:
+
+| Do | Don’t |
+|----|-------|
+| Keep profile-scoped / lazy MCP (`mcpSessionPrefetch.ts` defers `excel-mcp`/`exa`; core quotation/accurate stay on warm contracts) | Replace ACP with pi RPC; drop permission/hooks for “speed” |
+| Keep domain tools in MCP servers (don’t fatten `cli.js`) | Move quotation/accurate into in-process “pi tools” |
+| Packaging pin / ignore-scripts hygiene; document cold-start as process tax | Flip QueryEngine tool-parallelism without equal-order proof |
+
+Canonical research: `.trellis/tasks/07-15-pi-vs-claude-code-b/research/safe-adoption.md`.
+
 **2026-06-28 app startup readiness (task `06-28-app-startup-readiness-gate`, in progress):** MCP/config warm moved from first conversation to app open. Canonical: **§ App startup readiness gate** below.
 
 **2026-06-28 Accurate summarize deep probe:** `accurate` health now includes `tools/call accurate_summarize_records` (not just `tools/list`). Symptom「高级工具暂时不可用」is usually **model disclaimer**, not missing tools — see **§ Accurate summarize — closed root cause** below.
@@ -426,6 +438,25 @@ If a future MCP reads secrets from env **and** should survive empty parent spawn
 ---
 
 ## App startup readiness gate (task `06-28-app-startup-readiness-gate`)
+
+### Quotation warm budget contract (2026-07-15, task `07-15-quotation-mcp-warm-timeout`)
+
+Quotation had a verified parent/child timeout race: a warm run printed PASS at **90,696ms**, but the AionUI parent killed the script at **90,000ms** and reported `soft_ready`. This is a budget-contract defect, not evidence that quotation matching or the CPU is broken.
+
+| Budget | Owner | Value | Rule |
+|--------|-------|-------|------|
+| Work | `warm-wanding-mcp.mjs` | 120,000ms | Child initialize + required `match_quotation` call. |
+| Wrapper | AionUI `ccbStartupReadiness` | 130,000ms | Work budget + 10,000ms scheduler/stdout-drain grace. |
+| Deep probe | quotation health manifest | 120,000ms | Must not expire before equivalent child work. |
+
+The wrapper grace is not additional MCP work time. It prevents a parent from killing a child whose work completed but whose PASS line has not yet been observed. Required invariants:
+
+1. `wrapper_deadline_ms >= work_budget_ms + grace_ms`.
+2. `probe_timeout_ms >= work_budget_ms` for the same cold path.
+3. On wrapper timeout, retain any already emitted PASS/FAIL rows; mark only unfinished servers timed out.
+4. Quotation PASS means `mcp_ok=true`; a real quotation failure remains `soft_ready` with a server-specific detail.
+
+Regression coverage: AionUI readiness budget unit test plus `node --test ccb-installer/scripts/__tests__/mcp-warm-budget-contract.test.mjs`. Before a desktop smoke, compare the source and installed `lib/warm-wanding-mcp.mjs` hashes; AionUI may choose the installer-root copy before the install-root copy.
 
 **Problem (2026-06-28):** First Guid send paid MCP cold start (~120s) + `warmupConversation` (~9s) while renderer fetched aioncore → `Failed to fetch (127.0.0.1:53121)`. Health `-Probe` passed because it runs before chat.
 

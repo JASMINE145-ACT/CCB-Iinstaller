@@ -1,0 +1,26 @@
+{
+  "id": "07-21-release-2.0.1",
+  "title": "CCB-Wanding 2.0.1 Full NSIS（保留 2.0.0 安装自愈 + 报价/Accurate 增量）",
+  "status": "completed",
+  "created": "2026-07-21",
+  "completedAt": "2026-07-21",
+  "priority": "P0",
+  "assignee": "JASMINE145-ACT",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "baseline_release": "2.0.0",
+    "baseline_delivery": "ccb-installer/delivery-2.0.0-2026-07-18.md",
+    "trigger": "user 打包 2.0.1 — 保留 stale-purge + InstallDir resolve",
+    "build_path": "Full NSIS — SkipAionUiBuild + inject aioncore 0.1.29",
+    "config_generation": "8 -> 9",
+    "delivery": "ccb-installer/delivery-2.0.1-2026-07-21.md",
+    "artifact_exe": "ccb-installer/CCB-Wanding-2.0.1.exe",
+    "artifact_sha256": "C1AAF61640AA36F00C68ACB91E82532EE860F7566A7FED0C546AC8146115AAF2",
+    "artifact_bytes": 939954018,
+    "headline_install_retained": [
+      "WANd.INSTALL.STALE_PURGE.001",
+      "WANd.INSTALL.RESOLVE.001"
+    ],
+    "build_exit": 0
+  }
+}

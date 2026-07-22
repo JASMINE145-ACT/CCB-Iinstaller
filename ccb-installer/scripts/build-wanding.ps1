@@ -800,6 +800,7 @@ $shipScripts = @(
     'internal-upgrade.ps1',
     'repair-wanding-install-dir.ps1',
     'find-wanding-installs.ps1',
+    'purge-stale-wanding-installs.ps1',
     'rollback-last-update.ps1',
     'probe-research-capabilities.ps1',
     'install-research-toolstack.ps1'
@@ -837,6 +838,8 @@ $devOnlyScripts = @(
     'package-aionui-exe.ps1',
     'sync-aionui-ccb-patch.ps1',
     'test-mcp-health.ps1',
+    'test-purge-stale-wanding-installs.ps1',
+    'test-purge-packaging-wiring.ps1',
     'test-package-health-split.ps1',
     'test-native-acp-agent.mjs',
     'install-windows-terminal.ps1',
@@ -982,6 +985,7 @@ if (Test-Path -LiteralPath $binSrc) {
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-wanding-versions.cmd') -Destination (Join-Path $StagingDir 'ccb-wanding-versions.cmd') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-check-install.cmd') -Destination (Join-Path $StagingDir 'ccb-check-install.cmd') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-list-installs.cmd') -Destination (Join-Path $StagingDir 'ccb-list-installs.cmd') -Force
+Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-purge-stale-installs.cmd') -Destination (Join-Path $StagingDir 'ccb-purge-stale-installs.cmd') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'ccb-verify-update.cmd') -Destination (Join-Path $StagingDir 'ccb-verify-update.cmd') -Force
 Copy-Item -LiteralPath (Join-Path $installerRoot 'resources\install-health-manifest.json') -Destination (Join-Path $StagingDir 'install-health-manifest.json') -Force
 

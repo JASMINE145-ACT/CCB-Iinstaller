@@ -10,7 +10,7 @@ description: >
 # Quotation Learn-by-Data / 报价复盘学习
 
 > **Scope (MVP):** Human-filled **VANTSING** quote Excel only. Compare **material codes** — not unit prices.
-> **Tools:** `quotation` MCP (`parse_excel_smart`, match/compare, Section D pending); **price-library** MCP for Section C draft upsert (`price_admin` only). **Step 1 forbids excel MCP.** **No Bash.**
+> **Tools:** `quotation` MCP (`parse_excel_smart`, match/compare)；**price-library** MCP for Section C draft upsert (`price_admin` only)。**Section D 硬跳过**（禁映射写入）。**Step 1 forbids excel MCP.** **No Bash.**
 
 ## When to run
 
@@ -20,46 +20,66 @@ User invokes `/learn-by-data`, says「按数据学习」or「复盘报价」, an
 
 ## Hard rules
 
-1. **SERIAL** — Complete Step 1 → all Step 2 batches → Step 3 per batch → Step 4 summary. Do not skip batches.
-2. **BATCH TABLE FIRST** — After each `match_quotation_batch`, output the comparison table for that batch **before** the next batch call or deep reasoning.
+1. **SERIAL** — Complete Step 1 → all Step 2 batches（每批：match → **select** → 对比表）→ Step 3/4 summary. Do not skip batches.
+2. **SELECT THEN TABLE** — After each successful `match_quotation_batch`, call **`select_quotation_candidates` once** with that batch’s full `results`, then output the comparison table **before** the next batch or deep reasoning.
 3. **`show_candidates=true`** on every `match_quotation_batch` and fallback `match_quotation` (need up to 15 candidates for membership check).
 4. **VANTSING fixed columns** — Do not guess columns via LLM on MVP path (see Step 1).
 5. **No `product_type`** in match payload — use `matched_name`, `description_english`, `source` only.
-6. **ROE** — Finish all batches and Section A/B/C before ending turn; no empty replies after tool success.
+6. **ROE** — Finish all batches and Section A/B/C before ending turn; no empty replies after tool success. **Skip Section D** (no mapping writes).
 7. **Section C prices** — Do **not** set `price_a`…`price_e` on learn-by-data upsert; metadata + descriptions only unless user explicitly asks to fill tiers later.
 8. **Section C price-library tools (whitelist)** — Allowed: `get_price_library_active`, `get_price_library_draft`, `upsert_price_library_item`. **Forbidden:** `publish_price_library_draft`, `apply_price_library_import`, `delete_price_library_item`, `revert_price_library_draft`, and any bulk import/publish path.
 9. **Section C dedup (L1–L3)** — Before each upsert preview, run guards **in order**; on `skip`/`reject` output reason in Section C table — **do not** call `upsert_price_library_item`.
 10. **选型与报价助手绝对一致（硬约束）** — 见下方 §选型一致性；**禁止**用 `candidates[0]`、列表顺序或引擎排序代替选型。
 11. **Step 1 读表（硬约束）** — **必须** `mcp__quotation__parse_excel_smart`；**禁止** excel MCP `read_data_from_excel` 及任何 bulk range 读表（含 `A1:Q*`）。
+12. **Section A 模板** — append 前必须有规则 + 原因 + 来源；缺原因禁止落库。
+13. **Section D** — **硬跳过**；禁止 `append_quotation_mapping_pending`。
+14. **No Bash / No DIY path probe（WANd.LEARN.KB_PATH.001 / WANd.QUOTE.NO_DIY.001）** — **禁止** Bash、`find`、`dir`、`ls`、探测 `%LOCALAPPDATA%\CCB-Wanding\.claude\vendor\**`。知识库路径见下方固定绝对路径。
 
 ---
 
-## 选型一致性（与 quotation-agent **绝对一致**）
+## 选型一致性（与 quotation-agent **绝对一致** · `WANd.LEARN.SELECT_FIRST.001`）
 
-learn-by-data 的「Agent 选了哪条」**必须**与 Guid **万鼎报价专家**正常查价会话相同，不得出现第二条逻辑。
+learn-by-data 的「Agent 选了哪条」**必须**与 Guid **万鼎报价专家**正常查价会话相同（`WANd.QUOTE.SELECT_WIRE.001`），不得出现第二条逻辑。
 
 | 报价助手（normative） | learn-by-data（必须相同） |
 |----------------------|---------------------------|
-| Read `wanding_business_knowledge.md` 本会话一次 | Step 2 第一次 batch 前 Read（同文件） |
-| `match_quotation` / batch → 得 `candidates` | 同工具、`show_candidates=true`（仅多返回条数供 membership） |
-| 按 `quotation-agent.md` **§选型与澄清** + 知识库正文选型 | **同规则** — 输出你会在正常查价里写的那条「推荐（B档）」 |
-| 1 推荐 + ≤4 bullet「其他可能」 | 复盘表只比较 **推荐料号**；bullet 可选记入备注 |
+| `match` / batch → **`select_quotation_candidates`**（主流） | 每批 `match_quotation_batch` 成功后 → **一次** `select_quotation_candidates`，传入该批完整 **`results`** |
+| `status: ok` → 锁 select 返回的 `code` | `agent_pick_code` = 该行 select 的 `code`（写入复盘表「Agent推荐料号」） |
+| `unable_to_select` / 工具不可用 → **才** Read 知识库自选 | **同**：仅此时 Read；路径固定见下 |
 | **禁止**默认 `candidates[0]` | **禁止** `candidates[0]` / `results[i].candidates[0].code` 作为 Agent 料号 |
+| 1 推荐 + ≤4 bullet | 复盘表只比较 **推荐料号**；bullet 可选记入备注 |
+
+### 知识库路径（fallback only · `WANd.LEARN.KB_PATH.001`）
+
+Agent `Read` **仅**在 `select_quotation_candidates` 返回 `unable_to_select`（或工具不可用/超时）时允许，且路径必须是下面之一：
+
+1. **`D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md`**（canonical shadow）
+2. 或 match/select 返回的 **`selection_context.knowledge_source`**（若为绝对路径且指向同一文件）
+
+**FORBIDDEN paths / probes：**
+
+- `%LOCALAPPDATA%\CCB-Wanding\.claude\vendor\**` 或任何在 `.claude\` 下拼接的 `vendor\...\wanding_business_knowledge.md`
+- Bash / `find` / `dir` / `ls` 搜寻知识库
+- 把 skill 目录、命令目录或工作区相对路径当成知识库
+
+Read 失败时：用上表路径 **再试一次 Read**；仍失败则按已有候选给最可能默认码并在备注写「知识库 Read 失败」，**禁止** DIY 搜盘。
 
 ### 每行选型算法（查后，与报价助手相同）
 
-对 `results[i]`（`candidate_count ≥ 1`）：
+对每个成功 batch：
 
-1. 在 **已 Read 知识库** 前提下，对 `results[i].candidates` **全文列表**（≤15）应用 `wanding_business_knowledge.md` 选型规则（材质/用途/口径/§9 澄清例外 — 与 `quotation-agent.md` §选型与澄清 一致）。
-2. 设 `agent_pick_code` = 你在正常查价回复中会写进 **「推荐（B档）」** 的那一行的 `code`。
+1. **一次**调用 `select_quotation_candidates`，参数优先传该批 **完整 `results`**（或等价 `items`）。**禁止**拆成残缺/半截 payload；**禁止**用多个残缺 select 代替一次完整 select。
+2. 对 `results[i]`（`candidate_count ≥ 1`）：
+   - `status: ok` → `agent_pick_code` = 该行 selection 的 `code`；`selection_reason` = 返回的 `reason`。
+   - `unable_to_select`（整批或该行）→ **Read** 上方固定路径知识库 → 按 `quotation-agent.md` §选型与澄清 自选 → 设 `agent_pick_code` / `selection_reason`。
 3. 设 `agent_pick_row` = `candidates` 中 `code == agent_pick_code` 的那条（用于名称/source/英文描述）。
-4. 写一句 `selection_reason`（与正常会话「选型理由」同风格，可写入对比表备注）。
-5. **Tie-breaker（仅当知识库仍无法区分时）**：`source` 权重 共同 > 历史报价 > 字段匹配 — 与 `ccb-wanding-quotation.md` / `selection_context` 一致；**不得**用 tie-breaker 跳过知识库规则。
+4. **Tie-breaker（仅 fallback 自选且知识库仍无法区分时）**：`source` 权重 共同 > 历史报价 > 字段匹配 — 与 `ccb-wanding-quotation.md` / `selection_context` 一致。
 
 **FORBIDDEN：**
 
 - 因 `show_candidates=true` 而把列表第一项当 Agent 推荐。
-- 未 Read 知识库就写「根据知识库」或产出 `agent_pick_code`。
+- 未调用 select、也未走 unable→Read fallback，就写「根据知识库」或产出 `agent_pick_code`。
+- batch 成功后跳过 select 直接凭感觉锁码，或反复 `match_quotation` / 残缺 select 代替一次完整 select。
 - 查后甩锅「用途 A/B/C / 请选序号」而不先给出你的推荐料号（与报价助手 BAD 示例相同）。
 
 **`show_candidates=true` 的唯一用途：** 暴露最多 15 条供 **membership**（`actual_code ∈ candidates`）与人工核对；**不是**选型快捷方式。
@@ -133,7 +153,7 @@ If parsed data-row count (rows 8…before Total) ≠ user-visible inquiry lines 
 
 ## Step 2 — Re-quote
 
-Before **first** `match_quotation_batch`: Read `D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md` once (PreToolUse gate).
+**Order (hard):** `match_quotation_batch`（`show_candidates=true`）→ **一次** `select_quotation_candidates`（传入该批完整 `results`）→ 对比表。Agent `Read` of `wanding_business_knowledge.md` **only** if select returns `unable_to_select`（路径见 §知识库路径）。**禁止** batch 前抢先 Read。
 
 ### Batch loop
 
@@ -153,9 +173,9 @@ Before **first** `match_quotation_batch`: Read `D:\CCB-Wanding\vendor\wanding\da
 
 ## Step 3 — Compare (per row)
 
-对每一行先完成 **§选型一致性** 的 `agent_pick_code`（不是列表第一项）。
+对每一行先完成 **§选型一致性** 的 `agent_pick_code`（select `ok` 的 code，或 unable→Read fallback；**不是**列表第一项）。
 
-Let `agent_pick_code` = knowledge-based pick per §选型一致性 (empty if `unmatched` or `candidate_count == 0`).
+Let `agent_pick_code` = select/fallback pick per §选型一致性 (empty if `unmatched` or `candidate_count == 0`).
 
 **Legacy name ban:** do not use `top`, `top_code`, or `Agent首位` to mean `candidates[0]` — only `agent_pick_code`.
 
@@ -185,7 +205,7 @@ When `agent_pick_code` is non-empty (not `unmatched` / not 0-candidate):
 
 ### Per-batch comparison table (required)
 
-Output **before** next batch. Column **Agent推荐料号** = `agent_pick_code`（知识库选型结果，**非** `candidates[0]`）。
+Output **before** next batch. Column **Agent推荐料号** = `agent_pick_code`（select/fallback 结果，**非** `candidates[0]`）。
 
 ```markdown
 ### 批次对比表（行 x–y）
@@ -197,13 +217,13 @@ Output **before** next batch. Column **Agent推荐料号** = `agent_pick_code`�
 | 10 | 50卷波纹管 DN20 | 8030020808 | 8030020808 | 50M卷波纹管→PVC电工套管 | match |
 ```
 
-若 `agent_pick_code ≠ actual_code` 但 actual 在 candidates 内 → **in-candidates**，选型理由栏说明为何知识库选型与人工表不一致。
+若 `agent_pick_code ≠ actual_code` 但 actual 在 candidates 内 → **in-candidates**，选型理由栏说明为何 Agent 推荐与人工表不一致。
 
 ---
 
 ## Step 4 — Output
 
-### Section A: 知识片段建议（in-candidates）
+### Section A: 知识片段建议（in-candidates）— **唯一可写业务知识库**
 
 **Auto-draft** rule text when **any**:
 
@@ -217,8 +237,22 @@ Output **before** next batch. Column **Agent推荐料号** = `agent_pick_code`�
 
 | Rule scope | Action |
 |------------|--------|
-| Fleet-wide selection | `append_business_rule` |
+| Fleet-wide selection | `append_business_rule`（须过模板校验） |
 | Customer/project only | Suggest `memory/business/customers.md` — do **not** auto org-append |
+
+**模板校验（硬 — 缺一不可，否则禁止 `confirmed=false` 以外的 append）：**
+
+```markdown
+## 业务规则补充
+
+- <询价词 → 应选/勿选，一句话>
+  - 原因：<人工为何这么选 / Agent 错在哪，一行>
+  - 来源：learn-by-data 确认，YYYY-MM-DD
+```
+
+- `rule_text` = 规则句；`reason` = 原因行。
+- 预览同轮必须完整展示规则 + 原因 + 来源。
+- **禁止** B/C/D 段落写入业务知识库。
 
 ### Section B: ⚠️ 严重标记（料号未在候选中）
 
@@ -234,9 +268,13 @@ After all batches:
 
 `0` candidates → Agent推荐料号 = `无候选`.
 
-Section B does **not** end session if Section A or Section C has pending confirmations.
+表后**固定一句**（硬）：
 
-### Section C: 价格库补全建议（Agent 推荐料号不在价格库）
+> 请祐嘉诚核查下列料号异常。
+
+**禁止** Section B 写知识库或价库。Section B does **not** end session if Section A or Section C has pending confirmations.
+
+### Section C: 价格库补全（Agent 推荐料号不在价格库）→ **仅 draft**
 
 After all batches, for each queued row (`agent_pick_code` missing from org/local price library):
 
@@ -262,110 +300,34 @@ Track L1: maintain a session set of `agent_pick_code` values that reached `confi
 
 Status column: `待补价` (metadata-only), `跳过`, `拒绝`, `已写入draft`, or `待确认`.
 
-**Upsert (price_admin + org session only):**
+**Upsert（仅 `price_admin` + org session）：**
 
 0. Run L1 → L2 → L3. If skip/reject, show status and continue next row.
 1. `get_price_library_draft` — note `revision` (optional sanity).
-2. `upsert_price_library_item` with `confirmed=false`:
+2. `upsert_price_library_item` with `confirmed=false`（fields 同前：metadata，**不填** price_a…e）。
+3. **Same turn:** show preview；问是否确认写入 **draft**。
+4. `confirmed=true` only after 确认 — **one row at a time**。
+5. **禁止**本 skill 调用 `publish_price_library_draft`（除非用户另说发布）。
+6. HTTP **403**：如实说明无权限；**不换 JWT 硬试**。HTTP **409**：get draft 刷新 revision；**不自动重试写**。
 
-```json
-{
-  "material_code": "<agent_pick_code>",
-  "confirmed": false,
-  "fields": {
-    "source_file": "<basename>",
-    "source_sheet": "<sheet>",
-    "source_row": 16,
-    "is_preferred_price": true,
-    "superseded_by_source": "",
-    "description": "<agent_pick_row.matched_name>",
-    "description_cn": "<keywords>",
-    "description_english": "<agent_pick_row.description_english>"
-  }
-}
-```
+**非 `price_admin` / 无 token：** 只出表，**禁止**调用写工具。  
+**禁止** Section C 写业务知识库。
 
-3. **Same turn:** show tool preview / diff table (`creates_new` vs update); ask 是否确认写入 draft.
-4. `confirmed=true` only after user says 确认/同意 — **one row at a time**; re-read draft revision between rows.
-5. **Do not** call `publish_price_library_draft` in this skill unless user explicitly asks to publish. Warn: metadata-only rows need tier prices before publish affects quoting.
-6. On HTTP **409 revision conflict**: `get_price_library_draft` to refresh revision; **do not** auto-retry upsert — ask user.
+**0 candidates:** no Section C (Section B only).
 
-Non-`price_admin` users: output Section C table only — no draft mutation.
+### Section D: **本任务硬跳过**
 
-**0 candidates:** no Section C (Section B only, Agent推荐料号 = `无候选`).
+**禁止**调用 `append_quotation_mapping_pending`、`publish_quotation_mapping_draft`、本地 `merge_mapping_import.py`，以及任何「历史报价映射库补全」写入流程。
 
-### Section D: 历史报价库补全（D-mismatch ∪ D-gap → 映射表 pending）
+跑完 A/B/C 后直接结束复盘输出；不要输出 Section D 待确认表或诱导用户写映射。
 
-After Section A/B/C, import eligible rows into the **historical quote mapping library** (`mapping_table` / 历史报价 recall path).
-
-**Eligibility (per row, F 列非空):**
-
-| Trigger | 条件 | 入库原因 |
-|---------|------|----------|
-| **D-mismatch** | `sheet_product_code` ≠ `agent_pick_code` | **纠错** — Agent 与人工成单料号不一致 |
-| **D-gap** | `sheet_product_code` == `agent_pick_code` **且** 映射表尚无「询价关键词 → 该 F 列料号」 | **补映射** — 成单证据，历史库缺这条 recall |
-| **Skip** | F 列为空；或已对齐且 M2 命中（映射表已有同关键词 + 同料号） | 无需重复入库 |
-
-**Check D-gap:** normalize `inquiry_name` + `inquiry_spec` → `norm_text`; query mapping table — if no row with same `norm_text` **and** `code == sheet_product_code`, row is **D-gap**.
-
-**Field source — read from the filled VANTSING sheet (not re-typed by user):**
-
-| Mapping col | VANTSING col | Field |
-|-------------|--------------|-------|
-| A 询价货物名称 | B | `inquiry_name` |
-| B 询价规格型号 | C | `inquiry_spec` |
-| C 产品编号 | **F** | **`sheet_product_code`（报价单成单料号）** |
-| D 报价名称 | **G** | `quote_name` |
-
-Also pass audit: `source_file` (basename), `source_sheet`, `source_row`, `agent_pick_code`.
-
-**Dedup guards (before append preview, per row):**
-
-| Guard | Check | On hit |
-|-------|-------|--------|
-| **M1** | Same `(keywords, sheet_product_code)` already processed this session | **Skip** |
-| **M2** | Mapping table already has same keyword + same F col code | **Skip** |
-| **M3** | Same `source_file+sheet+row` already in pending | **Reject** |
-| **M4** | Same keyword, different F col code vs existing mapping | **Preview conflict** → user confirms → `allow_overwrite=true` |
-| **M5** | F 列 empty | **Reject** |
-
-**Tools (all learn-by-data users — no price_admin):** on **quotation** MCP:
-
-| Path | When | Tool | After confirm |
-|------|------|------|---------------|
-| **Org cloud (preferred)** | `ORG_SERVER_URL` configured | `append_quotation_mapping_pending` → routes to org draft (`target: org_draft`) | `mapping_admin` runs `publish_quotation_mapping_draft` (same MCP); then **全员** `match_quotation` 历史报价 recall |
-| **Local fallback** | org not configured | `append_quotation_mapping_pending` → `mapping_import_pending.jsonl` | user runs `python python/scripts/merge_mapping_import.py` |
-
-Optional: `lookup_quotation_mapping` to check D-gap / M2 against org active rows before append.
-
-**Forbidden:** editing `mapping_table.xlsx` directly, Bash file writes.
-
-```markdown
-### 历史报价库补全建议（learn-by-data）
-
-| 来源文件 | Sheet | 行 | 询价关键词 | 成单料号(F) | 报价名称(G) | Agent推荐 | 入库原因 | 状态 |
-|----------|-------|-----|------------|-------------|-------------|-----------|----------|------|
-| PO…xlsx | Sheet1 | 10 | 50卷波纹管 DN20 | 8030020808 | … | 8010062265 | 纠错 | 待确认 |
-| PO…xlsx | Sheet1 | 12 | PVC线管 20 | 8030050068 | … | 8030050068 | 补映射 | 待确认 |
-```
-
-入库原因：`纠错` = D-mismatch；`补映射` = D-gap（Agent 与人工一致但历史库缺该关键词映射）。
-
-1. `append_quotation_mapping_pending` with `confirmed=false` (fields from table above).
-2. **Same turn:** show preview + guard result; ask 是否确认写入。
-3. If M4 conflict: show 旧码→新码; after user agrees, call with `confirmed=true` **and** `allow_overwrite=true`.
-4. `confirmed=true` — one row at a time.
-5. **Org path:** tell user rows are in org draft; `mapping_admin` must `publish_quotation_mapping_draft` (`confirmed=true`) before fleet-wide recall. **Local path:** run `python python/scripts/merge_mapping_import.py` to merge pending → `mapping_table.xlsx`.
-
-Section D does **not** end session if Section A/C still has pending confirmations. Run Section D **after** batch tables; serial with Section C confirmed writes.
-
-### append_business_rule
+### append_business_rule（仅 Section A）
 
 Per draft:
 
-1. `append_business_rule` with `confirmed=false`
-2. **Same turn:** full markdown preview of `rule_text` + ask 是否确认落库
-3. `confirmed=true` only after user says 确认/同意 (needs org session)
+1. 模板三要素齐全后 `append_business_rule` with `confirmed=false`（传 `reason`）
+2. **Same turn:** full markdown 规则+原因+来源 + 问是否确认落库
+3. `confirmed=true` only after 确认/同意 (needs org session)
 
 ---
 

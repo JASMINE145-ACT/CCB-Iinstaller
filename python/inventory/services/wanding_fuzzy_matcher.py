@@ -311,6 +311,68 @@ def _strip_query_intent_terms(keywords: str) -> str:
 _FIELD_MATCHING_RULES_CACHE: dict = {}  # {"path": str, "mtime": float|None, "rules": [(sources, targets), ...]}
 
 
+def _is_field_matching_section_header(line: str) -> bool:
+    """True for 【字段匹配…】 or markdown H2 containing 字段匹配同义."""
+    if "【字段匹配" in line:
+        return True
+    if "字段匹配同义" in line and line.lstrip().startswith("#"):
+        return True
+    return False
+
+
+def _parse_field_matching_sources(left: str) -> List[str]:
+    """
+    Parse the left-hand source list of a field-matching rule.
+
+    - No `/`: space-separated tokens are OR alternatives (`elbow 弯` → elbow|弯).
+    - With `/`: each `/`-separated segment is one phrase (may contain spaces).
+      Example: `elbow drat / drat` → ["elbow drat", "drat"] — not bare "elbow".
+      (WANd.MATCH.FIELD_RULE_PARSE.001)
+    """
+    left = (left or "").strip()
+    if not left:
+        return []
+    if "/" in left:
+        return [p.strip() for p in left.split("/") if p.strip()]
+    return [t.strip() for t in left.split() if t.strip()]
+
+
+def _parse_field_matching_rules_from_content(content: str) -> List[tuple[List[str], List[str]]]:
+    """
+    Parse synonym expansion rules from knowledge markdown body.
+    Section start: line with 【字段匹配…】 OR markdown heading with 字段匹配同义.
+    Section end: next 【…】 heading OR next markdown H2 that is not the synonym header.
+    """
+    rules: List[tuple[List[str], List[str]]] = []
+    in_section = False
+    for raw in content.splitlines():
+        line = raw.strip()
+        if _is_field_matching_section_header(line):
+            in_section = True
+            continue
+        if in_section:
+            if line.startswith("【") and "字段匹配" not in line:
+                break
+            if line.startswith("## ") and not _is_field_matching_section_header(line):
+                break
+        if not in_section:
+            continue
+        # 解析 "- 源词 源词 → 检索词 检索词" 或 "  - ... → ..."
+        if line.startswith("-"):
+            line = line.lstrip("-").strip()
+        if "→" in line:
+            left, _, right = line.partition("→")
+        elif "->" in line:
+            left, _, right = line.partition("->")
+        else:
+            continue
+        sources = _parse_field_matching_sources(left)
+        targets = [t.strip() for t in right.split() if t.strip()]
+        if sources and targets:
+            rules.append((sources, targets))
+    return rules
+
+
 def _load_field_matching_rules_from_knowledge() -> List[tuple[List[str], List[str]]]:
     """
     从 wanding_business_knowledge.md 的【字段匹配同义与规格】段落解析规则，
@@ -338,30 +400,7 @@ def _load_field_matching_rules_from_knowledge() -> List[tuple[List[str], List[st
         if _FIELD_MATCHING_RULES_CACHE.get("path") == cache_key:
             return _FIELD_MATCHING_RULES_CACHE.get("rules") or []
 
-        rules: List[tuple[List[str], List[str]]] = []
-        in_section = False
-        for line in content.splitlines():
-            line = line.strip()
-            if "【字段匹配" in line or "【字段匹配同义" in line:
-                in_section = True
-                continue
-            if in_section and line.startswith("【"):
-                break
-            if not in_section:
-                continue
-            # 解析 "- 源词 源词 → 检索词 检索词" 或 "  - ... → ..."
-            if line.startswith("-"):
-                line = line.lstrip("-").strip()
-            if "→" in line:
-                left, _, right = line.partition("→")
-            elif "->" in line:
-                left, _, right = line.partition("->")
-            else:
-                continue
-            sources = [t.strip() for t in left.split() if t.strip()]
-            targets = [t.strip() for t in right.split() if t.strip()]
-            if sources and targets:
-                rules.append((sources, targets))
+        rules = _parse_field_matching_rules_from_content(content)
         _FIELD_MATCHING_RULES_CACHE = {"path": cache_key, "mtime": None, "rules": rules}
         return rules
     except Exception as e:

@@ -30,7 +30,24 @@ function walkUpForInstall(start) {
   return null
 }
 
+/** Monorepo package tree looks like an install but is not the product root. */
+function isDevTreeInstall(dir) {
+  const normalized = String(dir || '')
+    .replace(/[\\/]+$/, '')
+    .replace(/\\/g, '/')
+  return /\/ccb-installer$/i.test(normalized)
+}
+
+function isUsableInstall(dir) {
+  return (
+    Boolean(dir) &&
+    existsSync(join(dir, 'dist', 'cli.js')) &&
+    existsSync(join(dir, 'vendor', 'bun', 'bun.exe'))
+  )
+}
+
 function resolveInstallDir() {
+  const allowRepoInstall = process.env.CCB_ALLOW_REPO_INSTALL === '1'
   const bundledInstall = walkUpForInstall(import.meta.dirname)
   const candidates = [
     process.env.CCB_WANDING_HOME,
@@ -41,14 +58,13 @@ function resolveInstallDir() {
   ].filter(Boolean)
 
   for (const dir of candidates) {
-    if (
-      existsSync(join(dir, 'dist', 'cli.js')) &&
-      existsSync(join(dir, 'vendor', 'bun', 'bun.exe'))
-    ) {
-      return dir
-    }
+    if (!isUsableInstall(dir)) continue
+    if (isDevTreeInstall(dir) && !allowRepoInstall) continue
+    return dir
   }
 
+  // Last resort: allow monorepo install only when nothing else matches.
+  if (isUsableInstall(bundledInstall)) return bundledInstall
   return null
 }
 

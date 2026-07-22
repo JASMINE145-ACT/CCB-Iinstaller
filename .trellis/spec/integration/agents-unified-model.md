@@ -321,7 +321,7 @@ node eval/run-agent-eval.mjs --run --category quotation
 
 | Cause | Symptom pattern | Evidence | Mitigation |
 |-------|-----------------|----------|------------|
-| **Stop hook stdin hang (orchestrator delegation)** | MCP tool finishes but orchestrator waits **~120s** before showing sub-agent result; **direct Guid card sessions OK** | `subagent-gate.sh` `HOOK_INPUT="$(cat)"` inherits subagent IPC pipe; orchestrator side keeps pipe open → `cat` blocks until hook **120s timeout** | `HOOK_INPUT="$(timeout 8 cat 2>/dev/null \|\| echo '{}')"` in `ccb-subagent-gate/scripts/subagent-gate.sh`; redeploy via `deploy-subagent-gate-skill.ps1` |
+| **Stop hook stdin hang / Windows timeout fail-open** | MCP tool finishes but orchestrator waits **~120s**, or gate silently receives `{}` and allows an incomplete reply | `cat` can wait on an inherited IPC pipe; bundled Git Bash resolves Windows `timeout.exe` (not GNU coreutils), and does not ship `dd` | `read-hook-input.mjs` incrementally parses the first complete JSON payload, emits NUL-delimited fields once, and keeps an 8s malformed/incomplete-input fallback; no GNU `timeout` dependency. Redeploy via `deploy-subagent-gate-skill.ps1` |
 | **Quotation MCP cold start** | First `match_quotation` slow (~90s); warm calls ~4–5s | Direct MCP test: `test-quotation-mcp-timing.mjs` | **App open:** `warm-wanding-mcp.mjs` + `ccbStartupReadiness.ts` (task `06-28-app-startup-readiness-gate`). **Session:** `scheduleWanDMcpWarmup()` on session/new — `wanDMcpWarmup.ts` (still runs; app warm reduces first-send pain) |
 | **First Guid send Failed to fetch** | `AIONUI_INTERNAL_ERROR` / `127.0.0.1:port` on first message | Send raced MCP warmup before app gate | Startup readiness gate: Guid send disabled until L2 ready; `useAcpInitialMessage` awaits `ensureStartupReadiness`. See [`mcp-health.md`](./mcp-health.md) § App startup readiness gate |
 | **query.next timeout < MCP cold start** | Tool card `[Tool use interrupted]` at **~60s** while MCP still loading; warm path OK | `CCB_WANDING_QUERY_NEXT_TIMEOUT_MS` was 60000 in `patches/aionui-acp/acp-agent.js` | Default **120000** ms; env override `CCB_WANDING_QUERY_NEXT_TIMEOUT_MS` (30s–300s). Hot path unchanged — only raises abort ceiling. Sync via `sync-aionui-ccb-patch.ps1` |
@@ -332,7 +332,7 @@ node eval/run-agent-eval.mjs --run --category quotation
 | **Inventory AOL false-negative (closed 2026-06-28)** | Guid 库存「AOL 未配置 / 暂不可查」但 health PASS | `inventory_unavailable` while `quotation.env.AOL_*` set | **Not missing credentials** — (1) `.env.accurate` UTF-8 BOM → `\ufeffAOL_ACCESS_TOKEN`; (2) `python-spawner.js` passed empty `AOL_*` overriding dotenv. Fix: `ensure-wanding-settings.ps1` + sync spawner/main/client; health now checks BOM+parse; **new Guid session**. Canonical: [`mcp-health.md`](./mcp-health.md) § AOL inventory — closed root cause |
 | **settings.json UTF-8 BOM** | Agents disappear / parse fails | `JSON.parse` fails without BOM strip | Strip BOM on read; UTF-8 no-BOM writes |
 
-**Orchestrator delegation hang (fixed 2026-06-17):** subagent `Stop` hook → `subagent-gate.sh` → `cat` on stdin inherited from subagent IPC (orchestrator pipe still open) → hook blocks until CCB kills it at 120s → only then does orchestrator receive the delegated result. Direct specialist cards use ACP stdin that closes normally, so the same hook exits immediately.
+**Orchestrator delegation hang (re-hardened 2026-07-16):** subagent `Stop` hook -> `subagent-gate.sh` now uses a Node incremental JSON reader. It exits as soon as the hook payload is parseable even if an inherited IPC writer stays open; malformed/incomplete input falls back after 8s. Do not reintroduce `cat`, Windows `timeout.exe`, or unavailable `dd` as the reader.
 
 **Deploy:** `sync-claude-code-b-mcp-prefetch.ps1 -Build -Deploy` (includes `wanDMcpWarmup.ts` + `permissions.ts`).
 
@@ -390,6 +390,29 @@ export function resolveSessionUserContextOverride(args: {
 **L2 (sidecar)** — UI metadata only (`display_name`, `guid_primary`, `mcp_allowlist` mirror). **Do not** store runtime persona in `claude_md` (removed 2026-06-17).
 
 Handbook section title in L1: **业务知识库（查价硬约束 — 本会话 Read 一次）** for quotation; accurate has no separate handbook Read.
+
+### Paired L1 source ↔ install seed must stay byte-equal (`WANd.AGENT.SEED.SYNC.001`)
+
+Every `ccb-installer/staging/seed/agents/<name>.md` must be byte-equal to its source under
+`ccb-installer/packages/vertical/com.wanding.trade/agents/<name>.md`. The repo has **no
+automated source→staging sync step** — staging is hand-maintained and `deploy-seed-agents.ps1
+-ForceMd` ships the staging byte stream to live installs. A L1 source edit (e.g. 2026-07-19
+selection-API refactor) without a corresponding staging `cp` is a silent regression: live
+installs run stale L1, sub-agent produces forbidden BAD shapes (e.g. 「A 选项」菜单,
+「C 1」fill shortcut mixed into a 查价 reply).
+
+**Guard:** `ccb-installer/config/skills/ccb-subagent-gate/tests/test_seed_sync.py` runs in
+CI; scans **all 5 paired agents** (quotation / accurate / price-library / wande-orchestrator /
+work-tasks), fails on ANY drift. Hard-pins `quotation-agent` specifically. Run locally:
+
+```powershell
+python -m pytest ccb-installer/config/skills/ccb-subagent-gate/tests/test_seed_sync.py -v
+```
+
+**Fix when drift detected:** the failure message lists the file + sha + delta; the script
+prints the exact `cp -f` command. Don't add a build step that auto-syncs source→staging
+inside this contract — it would mask the real bug (someone editing source without intent
+to ship). Keep the gate loud.
 
 ### Validation & error matrix
 
@@ -462,24 +485,44 @@ Subagents (and historically Guid direct sessions without hooks) skip delivery QA
 |-------------|---------|------------|
 | `word-creator`, `word-form-creator`, `ppt-creator`, `excel-creator` | `block` | `exit 2` → query continues with blocking error (`word-creator` uses `word-creator-mcp.sh` — office-word MCP evidence, not officecli PAGE gate) |
 | `quotation-agent` | `off` | MCP evidence validator disabled (2026-06-18 false REJECT) |
-| `quotation-agent:knowledge` | `block` (2026-06-30) | any `match_quotation` in turn without session `Read(wanding_business_knowledge)` → `exit 2` via `quotation-knowledge-read.sh` |
+| `quotation-agent:knowledge` | `off` (2026-07-19) | API-first `select_quotation_candidates`; no forced session Read before match. PreToolUse pre-match gate removed from L1. |
 | `quotation-agent:roe` | `off` (2026-06-29) | Merged into universal `:roe-judge` — see § Universal ROE below |
 | `{agent}:roe-judge` (all Stop-hook agents) | `block` (2026-06-28; slim 2026-06-29) | Universal end_turn gate — write-anchor + L2; `exit 2` + REJECT → auto-continue |
 | `research-agent:roe-judge` | `block` (2026-07-02) | Same universal ROE; `modes.json` aligned with `research-agent.md` Stop hook |
 | `accurate-agent` | `warn` | log to `.claude/logs/subagent-gate-warn.log`, `exit 0` |
-| `wande-orchestrator`, `cowork` | `off` / no-op | — |
+| `wande-orchestrator` | `off` (base) | agent-specific MCP validators no-op |
+| `wande-orchestrator:outcome-relay` | **`block`** (2026-07-16) | Parent Stop: Agent artifact (`output_path`/`.xlsx`/`filled_count`) must appear in parent bubble; strategy A nudge×1 → force-forward REJECT (`WANd.ORCH.OUTCOME_RELAY.001`) |
+| `cowork` | `off` / no-op | — |
 | `price-library-agent` | *(no Stop hook by design)* | Admin write path uses MCP `confirmed=true` two-phase + org API; ROE via business rules not `:roe-judge` (2026-07-02) |
 
-**Knowledge Read enforcement (2026-06-30):**
+**Selection + knowledge (2026-07-19 API-first):**
 
 | Hook | Script | When | Effect |
 |------|--------|------|--------|
-| **PreToolUse** | `pre-match-knowledge-gate.py` | `match_quotation` / `match_quotation_batch` | **Deny** if session transcript has no `Read(wanding_business_knowledge)` yet; allow after first Read |
-| PostToolUse | `post-match-knowledge-nudge.py` | `candidate_count > 1` | Reply-shape nudge only (no second Read); session dedupe ~45s |
+| ~~PreToolUse~~ | ~~`pre-match-knowledge-gate.py`~~ | — | **Removed** from L1 (script may remain on disk unused) |
+| PostToolUse | `post-match-knowledge-nudge.py` | `candidate_count > 1` | Nudge **`select_quotation_candidates`** (not Read-first); session dedupe ~45s |
+| PostToolUse | `post-knowledge-read-mark.py` | Agent `Read` knowledge | Marks session if fallback Read happens |
 | PostToolUse | `post-price-tiers-nudge.py` | `get_product_price_tiers` + `tier_count > 0` | Read `data.Md` + markdown tier table |
-| Stop | `quotation-knowledge-read.sh` (`:knowledge` **block**) | End of turn | Backup block if match ran without session Read |
+| PostToolUse | `post-quotation-relay-nudge.py` (2026-07-20; L1-wired; `:relay-guard` **off** = not a Stop gate) | `select_quotation_candidates` → `status:ok` | Nudge assistant text to include locked code + L1 GOOD pattern; 45s session dedupe; **nudge-only** (hook does not read `modes.json`; `off` means no Stop gate). Must appear in `quotation-agent.md` frontmatter or it never runs. |
+| Stop | `quotation-knowledge-read.sh` (`:knowledge` **off**) | End of turn | No-op — do not block match without agent Read |
 
-**Session rule:** first price lookup in a session → **must** `Read` `wanding_business_knowledge.md` **before** first `match_quotation`; later lookups in the **same session** must **not** re-Read. Parser scans full transcript (+ `agent_transcript_path` on `SubagentStop`).
+**Session rule:** happy-path selection is **`select_quotation_candidates`** (tool loads knowledge). Agent `Read` only on `unable_to_select` / selector unavailable. Do **not** force Read before first `match_quotation`.
+
+**Orchestrator relay strict (2026-07-20, `WANd.QUOTE.ORCH.RELAY.STRICT.001`):**
+
+For query-type sub-agent results (no artifact, e.g. 查价 / 选型 / 名录查询), `wande-orchestrator`
+final user reply must **原样转述** at least one of the following from sub-agent's tool trace:
+
+- locked material code (e.g. `8020020755`) and unit price (e.g. `¥1,219`)
+- supplier section (≥1 `name_zh` from `suppliers_hybrid_match.items[]`)
+- select `reason` (e.g. 「按§4.1.2…」)
+
+Do **not** paraphrase sub-agent results as 「待继续确认」 / 「报价专家未返回价格表」 / 「关键词太短」 etc. when
+the sub-agent's tool trace already produced a locked code + price + supplier section. Original
+`WANd.ORCH.OUTCOME_RELAY.001` covers artifact-bearing results (fill_quotation_sheet output);
+this contract extends to **query-only** results. The `wande-orchestrator:outcome-relay` Stop
+gate stays `block` — it now also triggers on query-only relay failures (nudge×1, then force-forward
+REJECT, same as before).
 
 Deploy:
 
@@ -491,41 +534,37 @@ Deploy:
 Verify:
 
 ```powershell
-Test-Path "$env:LOCALAPPDATA\CCB-Wanding\.claude\skills\ccb-subagent-gate\scripts\pre-match-knowledge-gate.py"
 Select-String -Path "$env:LOCALAPPDATA\CCB-Wanding\.claude\agents\quotation-agent.md" -Pattern "PreToolUse|pre-match-knowledge"
+# expect: no PreToolUse / pre-match hits in frontmatter
 (Get-Content "$env:LOCALAPPDATA\CCB-Wanding\.claude\skills\ccb-subagent-gate\config\modes.json" -Raw | ConvertFrom-Json).'quotation-agent:knowledge'
-# expect: block
+# expect: off
 ```
 
-Do **not** re-enable legacy `quotation-agent` MCP-only gate without delegated route-b smoke.
+Do **not** re-enable legacy force-Read-before-match without an explicit Trellis decision.
 
-### Quotation multi-candidate reply (2026-06-29)
+### Quotation multi-candidate reply (2026-06-29; select API 2026-07-19)
 
-**Problem:** `candidate_count > 1` 时 agent 把 `candidates` 整表倒灌 +「请回复 1A/2B/3C/4D」，与用户要求的 **agent 选定 1 条 + 简要列其他** 冲突。2026-06-29 前 `quotation-agent.md` L1 曾漂移为「默认 markdown 表请用户选编码/序号」，与 maint spec 和 PostToolUse nudge 不一致；已回对齐。
+**Problem:** `candidate_count > 1` 时 agent 把 `candidates` 整表倒灌 + 「请回复 1A/2B/3C/4D」，与用户要求的 **agent 选定 1 条 + 简要列其他** 冲突。
 
-**Normative flow @ 查价（只读，2026-06-30）：**
+**Normative flow @ 查价（只读，2026-07-19）：**
 
 ```
-第一次查价（本会话）
-  → Read 一次 wanding_business_knowledge.md（PreToolUse 强制）
-  → match_quotation
-  → 每个 keyword：1 条推荐价 + ≤4 bullet「其他可能」（多候选时）
+查价（本会话）
+  → match_quotation / match_quotation_batch
+  → select_quotation_candidates（主流；工具内加载知识）
+  → status=ok → 锁码 → 1 条推荐价 + ≤4 bullet「其他可能」
+  → unable_to_select → Read 知识库 fallback 自选 → 同上
   → 禁止默认大表 + 请选序号/A/B/C/D
-
-同会话第 2+ 次查价
-  → 不再 Read 知识库
-  → match_quotation → 回复
 ```
 
 | Layer | Artifact | Role |
 |-------|----------|------|
-| Maint SOP | `data/ccb-wanding-quotation.md` §报价匹配规则 | 先 Read（会话一次）→ match；多候选 1 推荐 + bullet |
-| L1 seed | `ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md` §业务知识库 Read | PreToolUse + Stop；`deploy-seed-agents.ps1 -ForceMd` |
-| **PreToolUse** | `pre-match-knowledge-gate.py` | **Deny** match until session Read |
-| PostToolUse | `post-match-knowledge-nudge.py` | 多候选回复形态 nudge（不再要求 Read） |
+| Maint SOP | `data/ccb-wanding-quotation.md` §报价匹配规则 | match → select API；多候选 1 推荐 + bullet |
+| L1 seed | `ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md` | API-first + Read fallback；`deploy-seed-agents.ps1 -ForceMd` |
+| PostToolUse | `post-match-knowledge-nudge.py` | 多候选 → nudge select（不要先 Read） |
 | PostToolUse | `post-price-tiers-nudge.py` | `get_product_price_tiers` 成功 → Read data.Md + markdown 全档表 |
-| Stop **block** | `quotation-knowledge-read.sh` (`:knowledge`) | 查价却无 session Read → `exit 2` |
-| Selection rules | `wanding_business_knowledge.md` | 语义 tie-break；§9 才必须向用户澄清 |
+| Stop `:knowledge` | `quotation-knowledge-read.sh` | **off** — 不再因无 agent Read 阻断 |
+| Selection rules | `wanding_business_knowledge.md` | 由 select MCP 加载；§9 才必须向用户澄清 |
 | Memory | `memory/business/products.md` | 过往纠偏优先于默认选型 |
 
 ### Quotation sheet fill defaults (2026-06-28)
@@ -579,21 +618,23 @@ Deploy: `deploy-seed-agents.ps1 -ForceMd` + `deploy-subagent-gate-skill.ps1` + `
 
 Detail: [`../backend/mcp-business.md`](../backend/mcp-business.md) § VANTSING fill insert-rows & Excel formulas. Task: `.trellis/tasks/06-30-quotation-template-insert-rows-merge-fix`
 
-### learn-by-data skill (2026-06-30)
+### learn-by-data skill (2026-06-30; select-first 2026-07-20)
 
-**Goal:** From a human-filled **VANTSING** Excel, re-run `match_quotation_batch` per inquiry line, compare **agent_pick_code** (same knowledge-based selection as quotation-agent §选型) vs human `product_no` (col F), output knowledge snippets or severe flags.
+**Goal:** From a human-filled **VANTSING** Excel, re-run `match_quotation_batch` per inquiry line, compare **agent_pick_code** (same **select-API-first** path as quotation-agent §选型 / `WANd.QUOTE.SELECT_WIRE.001`) vs human `product_no` (col F), output knowledge snippets or severe flags.
 
 | Item | Path / contract |
 |------|-----------------|
 | Skill source | `ccb-installer/packages/vertical/com.wanding.trade/skills/quotation-learn-by-data/SKILL.md` |
-| Agent wiring | `quotation-agent.md` `skills: [quotation-learn-by-data]` + §工具决策表 `/learn-by-data` row |
-| Live deploy | `%LOCALAPPDATA%\CCB-Wanding\.claude\skills\quotation-learn-by-data\` via `deploy-ccb-skills.ps1` |
+| Agent wiring | `quotation-agent.md` on-demand `Skill(quotation-learn-by-data)` + §工具决策表 `/learn-by-data` row |
+| Live deploy | `%LOCALAPPDATA%\CCB-Wanding\.claude\skills\quotation-learn-by-data\` via `deploy-quotation-learn-by-data-skill.ps1` / `deploy-ccb-skills.ps1` |
 | MVP scope | VANTSING only — fixed cols B/C keywords, F actual code, rows 8..Total-1 |
-| Match | `match_quotation_batch` with **`show_candidates=true`** (≤10/batch); selection uses **same SOP as quotation-agent §选型** — **not** `candidates[0]` |
+| Match + select | `match_quotation_batch` (`show_candidates=true`, ≤10/batch) → **一次** `select_quotation_candidates`（完整 `results`）→ 对比表；`unable_to_select` 才 Read 知识库（`WANd.LEARN.SELECT_FIRST.001`） |
+| KB path | Canonical shadow `D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md` or `selection_context.knowledge_source`；**禁止** `.claude\vendor` 拼接与 Bash/find（`WANd.LEARN.KB_PATH.001`） |
 | Outputs | Section A: in-candidates mismatch → `append_business_rule` preview; Section B: not-in-candidates / 0-candidate |
 | Smoke fixture | `data/smoke/learn-by-data-vantsing-filled.xlsx` — regen: `python python/scripts/generate_learn_by_data_smoke_fixture.py` |
+| Task (select-first) | `.trellis/tasks/07-20-learn-by-data-select-first` |
 
-Task: `.trellis/tasks/06-30-quotation-learn-by-data-skill`
+Task (original): `.trellis/tasks/06-30-quotation-learn-by-data-skill`
 
 **Phase 2 — price library enrich (2026-07-06):** Task `07-06-learn-by-data-price-library-enrich`
 
@@ -621,14 +662,16 @@ Verify sidecar after `deploy-seed-agents.ps1 -ForceMd`:
 Get-Content "$env:LOCALAPPDATA\CCB-Wanding\.claude\agents\quotation-agent.aionui.json" -Encoding UTF8
 ```
 
-`quotation-agent.md` frontmatter must include **PreToolUse** `pre-match-knowledge-gate.py` plus PostToolUse for `post-match-knowledge-nudge.py` and `post-price-tiers-nudge.py`. `modes.json`: `quotation-agent:knowledge` = **block**. Verify:
+`quotation-agent.md` frontmatter must **not** include PreToolUse `pre-match-knowledge-gate.py`. Keep PostToolUse for `post-match-knowledge-nudge.py` (select-first) and `post-price-tiers-nudge.py`. `modes.json`: `quotation-agent:knowledge` = **off**. Verify:
 
 ```powershell
-Get-Content "$env:LOCALAPPDATA\CCB-Wanding\.claude\agents\quotation-agent.md" -Encoding UTF8 -TotalCount 25
-Test-Path "$env:LOCALAPPDATA\CCB-Wanding\.claude\skills\ccb-subagent-gate\scripts\pre-match-knowledge-gate.py"
+Get-Content "$env:LOCALAPPDATA\CCB-Wanding\.claude\agents\quotation-agent.md" -Encoding UTF8 -TotalCount 40
+Select-String -Path "$env:LOCALAPPDATA\CCB-Wanding\.claude\agents\quotation-agent.md" -Pattern "PreToolUse|pre-match-knowledge"
+# expect: no matches
+(Get-Content "$env:LOCALAPPDATA\CCB-Wanding\.claude\skills\ccb-subagent-gate\config\modes.json" -Raw | ConvertFrom-Json).'quotation-agent:knowledge'
+# expect: off
 Test-Path "$env:LOCALAPPDATA\CCB-Wanding\.claude\skills\ccb-subagent-gate\scripts\post-price-tiers-nudge.py"
 ```
-
 
 **L1 slim refactor (2026-06-28):** `quotation-agent.md` reduced ~451→~180 lines — one tool decision table, on-demand Read triggers, fill defaults, ROE, multi-candidate shape; full price mapping table lives in `data/ccb-wanding-quotation.md` §价格口径映射 (Read on demand).
 
@@ -646,7 +689,7 @@ Test-Path "$env:LOCALAPPDATA\CCB-Wanding\.claude\skills\ccb-subagent-gate\script
 **Forbidden (unless user asks for full list or §9 mandates clarify):**
 
 - 4+ 行候选 markdown 表 +「请确认 A/B/C/D」
-- 未 Read 知识库即写「根据知识库」「按业务常规」
+- 未调用 `select_quotation_candidates`（且非 unable_to_select fallback Read）却写「根据知识库」「按业务常规」
 - `AskUserQuestion`（CCB 硬拒绝；用 assistant 正文澄清）
 
 **When user must choose:** 仅 (1) 用户明确要求看全部候选，(2) 知识库 §9 必须澄清（替代品/全面冲突），(3) **查前**缺阻塞参数（压力/档位等）— 查前用 A/B/C 选项，与查后多候选选型不同。
@@ -661,6 +704,44 @@ Test-Path "$env:LOCALAPPDATA\CCB-Wanding\.claude\skills\ccb-subagent-gate\script
 
 Task note: `quotation-agent` L1 realign 2026-06-29; knowledge Read **block** + PreToolUse 2026-06-30 (extends gate 2026-06-19).
 
+### Quotation price-only path — no inventory (2026-07-20; `WANd.EVAL.CASE.PRICE_ONLY.001`)
+
+**Problem (2026-07-19):** sub-agent invocation `查询直接 50 的 B 级价格` (no inventory, no fill)
+returned a tool trace with `match_quotation` 10 candidates + `suppliers_hybrid_match` 6
+factories + `select_quotation_candidates` `status:ok` 锁码 `8020020755` ¥1,219 — but the
+sub-agent's final assistant text was the forbidden L1 BAD shape:
+
+> 「按 A 选项保持当前查价结果(已交付,无需再写)。如要出单请明确告诉我「出单」/「C 1」/「按 B 档生成」等指令,我会立即 Path C 落表。」
+
+Tool data was correct; text was wrong. Parent then misread the sub-agent reply as
+「待继续确认」 and asked the user for clarification that was already answered.
+
+**Two layers of guard:**
+
+1. **Eval Case** `.agent-eval/cases/quotation-direct50-price-only.json` (locked
+   `case_hash: sha256:32d0e113…`):
+   - Hard-required: `quotation.match` + `tool.mcp__supplier-directory__suppliers_hybrid_match`
+     + `quotation.select`.
+   - Hard-forbidden: `inventory.query` / `get_inventory_by_code` / `_batch` /
+     `fill_quotation_sheet` / `search_inventory`.
+   - Tool-to-tool evidence: `match.candidates ⊇ select.candidates`; `select.candidates ⊆ match.candidates`.
+   - Soft rubric weight 15% on `no_clarification_dump` (catches the BAD A/B/C shape).
+
+2. **PostToolUse hook** `scripts/post-quotation-relay-nudge.py` (modes.json
+   `quotation-agent:relay-guard: off`; default nudge-only, same posture as
+   `quotation-agent:knowledge: off`):
+   - Triggers on `mcp__quotation__select_quotation_candidates` returning `status:ok`
+     with non-empty `selections[]`.
+   - Emits `additionalContext` listing locked codes + L1 § 查后多候选 GOOD pattern.
+   - 45s session dedupe (same as `post-match-knowledge-nudge.py`).
+   - Hard block remains `quotation-agent:roe-judge: block` (universal ROE) — this
+     hook is **only** an additional nudge, not a replacement.
+
+**Sister task `07-19-eval-case-50-50-price-and-stock`** already covers the
+`查价+库存` (with inventory) path. This new case is the *only* coverage for the
+**price-only** sub-path; do not delete it when the existing `direct50-price-stock`
+case also passes — they're not redundant.
+
 ### Quotation price+stock routing — `match_price_and_get_inventory` not MCP-exposed (2026-06-29)
 
 **Problem:** L1 / maint SOP recommended `mcp__quotation__match_price_and_get_inventory` for single-item「价+库存」. The tool was **never registered** in `mcp_servers/quotation-server/dist/index.js` → agent hit `Error: No such tool available` while following prompt.
@@ -670,8 +751,20 @@ Task note: `quotation-agent` L1 realign 2026-06-29; knowledge Read **block** + P
 | User intent | MCP path (same turn unless noted) | Forbidden |
 |-------------|-----------------------------------|-----------|
 | Price only | `match_quotation` (or `match_quotation_batch`) | Any inventory tool |
-| **Single** price + stock | `match_quotation` → 选型 → `get_inventory_by_code` | `match_price_and_get_inventory`; 3+ tool chains |
-| **Multi** price + stock (≥2 lines) | `match_quotation_batch` (≤10/batch) → 每行选型 → **`get_inventory_by_code_batch` once** | Per-row `get_inventory_by_code`; invented MCP names |
+| **Single** price + stock | `match_quotation` → **`select_quotation_candidates`** → lock codes → `get_inventory_by_code` (`unable_to_select` → Read knowledge fallback) | `match_price_and_get_inventory`; skip select; 3+ tool chains |
+| **Multi** price + stock (≥2 lines) | `match_quotation_batch` (≤10/batch) → **`select_quotation_candidates` once** → lock → **`get_inventory_by_code_batch` once** | Per-row `get_inventory_by_code` after batch ok; invented MCP names; probe-then-drop codes |
+| **Inventory-only ≥2 codes** (follow-up「查库存」+ codes) | **1×** `get_inventory_by_code_batch` (`WANd.INV.BATCH.MULTI_CODE.001`) | N× `get_inventory_by_code` for same ask |
+
+**Single-item price+stock output contract (2026-07-18):**
+
+- Canonical L1 seed: `ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md`.
+- First lookup in a session: `Read` knowledge → same-turn `match_quotation` + supplier hybrid → select code → `get_inventory_by_code`; a single B-level request must not call `get_product_price_tiers`.
+- Result table columns are exact and ordered:
+  `编码 | 中文名称 | 英文/印尼名 | 规格 | 单价(B级) | 在仓库存 | 可用库存 | 单位 | 备注`.
+- `在仓库存 = qty_warehouse` is the business stock judgment; `可用库存 = qty_available` remains an independently displayed field. Never swap, merge, or substitute them.
+- `备注` carries one-line selection reasoning or a tool-reported inventory anomaly. Supplier-directory results remain in the table-external §双调用合成 response.
+- Eval lock: `.agent-eval/cases/quotation-direct50-price-stock.json` uses exact-column ordering plus independent evidence links for both inventory fields.
+- Deploy with `deploy-seed-agents.ps1 -ForceMd`; verify in a new session. 2026-07-18 live 3-trial run: 3/3 PASS, `pass_at_1=1`, `flaky_rate=0` (`.agent-eval/runs/quotation-live-20260718-stabilized-3trial/`).
 
 **MCP surface (source of truth):** `ListTools` in `quotation-server/dist/index.js` — `match_quotation`, `match_quotation_batch`, `get_inventory_by_code`, `get_inventory_by_code_batch`, `fill_quotation_sheet`, `parse_excel_smart`, `ask_clarification`, `get_product_price_tiers`, `append_business_rule`. **Not exposed:** `match_price_and_get_inventory`, `search_inventory` (maint may mention the latter for legacy; do not call from agent until re-registered).
 
@@ -869,7 +962,7 @@ cd D:\claude-code-B; bun run build
 | Empty docx | `Agent(word-creator)` | Hook blocks (`exit 2`) |
 | Empty docx | Guid Word card | Hook blocks after `createSession` registration |
 | Price claim, no MCP | quotation (either path) | MCP gate `off`; knowledge PreToolUse denies match without session Read |
-| Match without session Read | quotation Guid direct | PreToolUse **deny**; or Stop `exit 2` if reply ends without Read |
+| Match without session agent Read | quotation Guid direct | **OK** on happy path (select MCP loads knowledge). Agent Read only required on `unable_to_select` fallback |
 | Session Read once + 2nd price query | quotation | Pass — no re-Read; match allowed |
 | Multi-match + Read + 1-pick reply | quotation | Pass — 1 推荐价 + ≤4 bullet「其他可能」 |
 | Multi-match + full candidate table + A/B/C/D ask | quotation Guid direct | **Wrong** — violates § Multi-candidate reply (2026-06-29) |
@@ -1096,10 +1189,27 @@ When `listCcbAgents()` returns empty (CCB not installed), list falls back entire
 - Orchestrator `mcp_allowlist: []` → main session has no quotation/accurate MCP; delegation via `Agent(quotation-agent|accurate-agent)`
 - **Subagent MCP:** `Agent()` spawn reads md frontmatter `mcpServers` (not sidecar `mcp_allowlist`). Seeds/migration must set `mcpServers: [quotation|accurate]` on specialist `.md` files. String-reference specs (e.g. `mcpServers: [quotation]`) are resolved via `getMcpConfigByName()` in `runAgent.ts`. **Config path split (fixed 2026-06-16):** `getMcpConfigByName` reads `.claude.json` via `getGlobalConfig()`; CCB-Wanding MCPs live in `settings.json`. Fix: `settings.json` fallback added at end of `getMcpConfigByName` in `D:\claude-code-B\src\services\mcp\config.ts` — calls `loadMcpConfigsFromSettings()` before returning `null`.
 - **SOP tool examples (fixed 2026-06-18; accurate extended 2026-07-06; work-tasks + price-library 2026-07-11):** Specialist agent md files must show **direct** `mcp__<server>__*` tool calls (params JSON only). Covered seeds: `quotation-agent`, `accurate-agent`, `work-tasks-agent`, `price-library-agent`, `word-creator`, `excel-creator`, `research-agent`. **Do not** document bare tool names (`work_tasks_*`, `get_price_library_*`) or `ExecuteExtraTool({tool_name:…})` — Wanding ACP sets `ENABLE_SEARCH_EXTRA_TOOLS=false`; indirect calls return `result: null` / "tool not available" and mislead the model. **Smoke:** work-tasks → View Steps shows `mcp__work-tasks-agent__work_tasks_list_assignees`, not `ExecuteExtraTool`. Accurate smoke: Guid 万鼎账务专家 →「1-5月采购额」→ 1× `mcp__accurate__accurate_summarize_records`. See [`route-b-status.md`](../backend/route-b-status.md) Update 2026-06-18; [`aioncore-work-tasks.md`](./aioncore-work-tasks.md) § MCP invocation.
+- **Phased MCP wiring / no hallucinated tools (2026-07-14):** When a specialist capability ships in stages, the **wired** stage must document the closed loop with full `mcp__<server>__*` names; any **not-yet-wired** stage must say explicitly **「当前未接线 — 不要调用」** and name the forbidden tools (e.g. pdf-toolkit `inspect_pdf` before Stage 2). Decision tables must not pretend those tools exist. **Review:** code-reviewer on agent `.md` diffs — fail Important if unwired tools are taught as callable.
 - **Knowledge base path doubling (fixed 2026-06-17):** `quotation-agent.md` 业务知识库 section previously specified only `Base path: D:\CCB-Wanding\vendor\wanding\data\` (no filename), causing the model to double-concatenate path + filename in its Read call (garbled path). Additionally, the model would preemptively probe with `ls`/`dir` bash commands before Read — these always fail on Windows absolute paths. Fix: section now specifies the full absolute path `D:\CCB-Wanding\vendor\wanding\data\wanding_business_knowledge.md` with explicit constraints: Read tool only, no bash probing, no re-concatenation.
 - **Office preset Agent id (fixed 2026-06-18b):** frontmatter `name` on office agents must equal `agent_id` (`word-creator`, `ppt-creator`, …) for `Agent(subagent_type)`; Guid display title goes in sidecar `display_name`. Migration: `migration.ccbWandingOfficeAgentTypeIds_v1` in `ccbAgentMigration.ts`.
 - **Word Creator MCP-only (2026-06-18c):** `word-creator` uses **only** `office-word` MCP — no `officecli-docx` skill. Seed: `ccb-installer/config/agents/word-creator.md` + `.aionui.json` (`mcp_allowlist: ["office-word"]`, `skills.enabled: []`, frontmatter `mcpServers: [office-word]`). Tools: direct `mcp__office-word__*` (same contract as quotation SOP — no `ExecuteExtraTool`). Migration: `repairWordCreatorOfficeWordMcp` (`migration.ccbWandingWordCreatorOfficeWord_v1`). `ccbAgents.serializeAgentMarkdown` persists `mcpServers` from `mcp_allowlist`. **Not changed:** `word-form-creator` still uses `officecli-word-form` skill. **Stale:** legacy `assistants/word-creator.json` may still list `officecli-docx` — runtime reads `agents/word-creator.*` first via `getProfileWithAgentDelegation`. **Old conversations** opened before switch may still inject officecli rules in first message; model may fall back to Bash `officecli` — use **new Guid session** after restart. See [`route-b-status.md`](../backend/route-b-status.md) Update 2026-06-18c.
 - **Agent markdown UTF-8 BOM (fixed 2026-06-17):** PowerShell `Set-Content -Encoding UTF8` (e.g. `patch-subagent-gate-hooks.ps1`) writes BOM before `---`, so `loadAgentsDir` frontmatter regex fails and `quotation-agent` / `accurate-agent` disappear from `Agent()` list. Fix: `repairAgentMarkdownBomIfNeeded()` in `agentSessionProfile.ts` (called before `getAgentDefinitionsWithOverrides` in `agent.ts`); AionUI migration `migration.ccbWandingAgentMdBom_v1`; patch script now uses UTF-8 no-BOM. Symptom: orchestrator says「未挂载 quotation-agent」while office agents still delegate.
+
+### Agent catalog smoke (post-deploy)
+
+When the orchestrator reports「专员未挂载」 / View Steps shows `委派 → … · blocked · 0 tools` / `Agent()` enum is **builtins only** (`general-purpose` / `Explore` / `Plan` / …):
+
+| Check | Action |
+|-------|--------|
+| **Failure domain** | This is **catalog / CONFIG_DIR / session bind** — **not** Handoff Brief (`WANd.HANDOFF.BRIEF.001`) or prompt-schema bugs. Do not chase Brief first. |
+| Live agent files | Confirm `%LOCALAPPDATA%\CCB-Wanding\.claude\agents\` (or install `CLAUDE_CONFIG_DIR`) has WanD specialists after repo L1 edit |
+| Deploy | `.\ccb-installer\scripts\deploy-seed-agents.ps1 -ForceMd` |
+| Session | **New conversation** — agents bind at `session/new`; old threads keep the prior catalog |
+| Runtime proof | ACP stderr: `agent session profile applied: wande-orchestrator`; nested specialist MCP tools (not blocked with zero children) |
+| CONFIG_DIR trap | Process must use WanD `.claude`, not `~\.claude` |
+
+**Review / DoD:** After L1 or seed deploy changes, require ForceMd + new session before declaring multi-intent / specialist delegation smoke PASS. code-reviewer rule 7 cites this section.
+
 - Sidecar `claude_md` on orchestrator overrides global WanD `CLAUDE.md` routing index
 
 **Subagent model override (Thinking switch, 2026-06-17):**
@@ -1230,7 +1340,7 @@ Baseline audit of all live agents under `%LOCALAPPDATA%\CCB-Wanding\.claude\agen
 - `word-form-creator.aionui.json` added to `ccb-installer/config/agents/` (was absent from source)
 - `accurate-agent.md` + `quotation-agent.md` live files restored from clean source (GBK corruption — see § Specialist agent md body GBK corruption bug)
 - `word-form-creator.md` live file synced from source (skills field was string, source is array)
-- `subagent-gate.sh` `HOOK_INPUT="$(timeout 8 cat …)"` — stops orchestrator subagent delegation from hanging 120s waiting for Stop hook (see § Quotation/Accurate「卡住」at MCP execute)
+- `subagent-gate.sh` + `read-hook-input.mjs` - incrementally parse hook stdin and emit fields once; avoids both inherited-pipe hangs and Windows `timeout.exe` fail-open (see the Quotation/Accurate MCP execution hang section).
 
 **Format norms (reference):**
 - Specialists (accurate, quotation): `mcpServers` + `model` + `hooks` — all three required
@@ -1245,4 +1355,6 @@ Baseline audit of all live agents under `%LOCALAPPDATA%\CCB-Wanding\.claude\agen
 - Solo chat Agent sub-turn UI polish (non-blocking)
 - ~~**Fix `ccbAgentInputFromProfile` to backfill `.md` body**~~ **Done (2026-06-17)** — see § L1 self-contained model
 
-**Recorded (2026-06-30):** Quotation knowledge Read — **forced, session-once**. `pre-match-knowledge-gate.py` (PreToolUse deny before first session Read); `parse_transcript_knowledge_gate.py` session-scoped + any price match; `quotation-agent:knowledge` **warn→block**; `quotation-agent.md` + `data/ccb-wanding-quotation.md` flow updated. Tests: `ccb-subagent-gate/tests/test_knowledge_read_gate.py` 14/14. Deploy: `deploy-subagent-gate-skill.ps1` + `deploy-seed-agents.ps1 -ForceMd`. Journal: `.trellis/workspace/JASMINE145-ACT/journal-2026-06-19-quotation-knowledge-read-gate.md` §2026-06-30.
+**Recorded (2026-07-19):** Quotation knowledge force-Read **removed**. PreToolUse `pre-match-knowledge-gate` dropped from L1; `quotation-agent:knowledge` = **off**; selection via `select_quotation_candidates` (API-first). Agent Read only on `unable_to_select`. Task: `07-19-selection-api-and-evidence-harness`.
+
+**Recorded (2026-06-30):** Quotation knowledge Read — **forced, session-once** (superseded 2026-07-19). Historical: `pre-match-knowledge-gate.py`; `quotation-agent:knowledge` warn→block. Journal: `.trellis/workspace/JASMINE145-ACT/journal-2026-06-19-quotation-knowledge-read-gate.md` §2026-06-30.

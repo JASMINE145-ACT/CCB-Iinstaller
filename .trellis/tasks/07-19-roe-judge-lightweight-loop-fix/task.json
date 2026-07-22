@@ -1,0 +1,52 @@
+{
+  "id": "roe-judge-lightweight-loop-fix",
+  "name": "roe-judge-lightweight-loop-fix",
+  "title": "Lightweight ROE judge: fix self-anchor infinite block loop",
+  "description": "Stop-hook ROE judge blocked quotation-agent every 10s for 10min (write_no_l2): reject_prompt re-anchored as write intent, window_key line drift reset max_blocks fuse, \\\\bcode\\\\b over-broad write intent. Fix three bugs + slim gate to write-fuse-only per 2026-07-19 design.",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P0",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-19",
+  "completedAt": "2026-07-20",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {
+    "live_smoke": {
+      "native_acp_session": "f914d7fa-6fde-442a-b4c4-d25455421eab",
+      "subagent": "a9de92053cbd02a4f",
+      "t_end_ms": 101011,
+      "completed_tools": [
+        "DiscoverSkills",
+        "Glob",
+        "Glob",
+        "Read",
+        "Grep",
+        "Bash",
+        "Read",
+        "Bash",
+        "Grep",
+        "Agent"
+      ],
+      "no_write_intent_block_seen": true,
+      "shell_warn_test": "PASS"
+    },
+    "deploy_evidence": {
+      "agent_md_hash_match": true,
+      "skill_py_hash_match": true,
+      "roe_judge_smoke": "13 passed",
+      "transcript_regression": "pass"
+    }
+  }
+}

@@ -1,28 +1,156 @@
-# CCB 普适性平台：系统体系完善与业务框架解耦优化方案
+# Agent 原生公司平台：系统体系与业务解耦优化方案
 
-> 状态：架构探索与优化建议（不含代码修改）  
-> 日期：2026-07-03  
-> 目标：把当前“可用的 CCB-Wanding 产品”演进为“可为不同公司装配不同业务的通用平台”，同时把万鼎业务收敛为首个垂直业务包。  
-> 范围：平台核心、租户、Agent、Skill、MCP、知识、配置、权限、安装更新、健康检查、可观测性、治理与业务包开发规范。
+> 状态：架构探索与优化建议（不含代码修改）
+> 日期：2026-07-03（产品定位修订：2026-07-13）
+> **产品定位（锁定）：新产品，不以「把 CCB-Wanding 演进成平台」为主路径。**
+> - **新产品** = Agent 原生公司操作系统（组织四层 + Contract 核心对象 + 平台控制面）；愿景见 `公司组织/prd.md`。
+> - **CCB-Wanding / 万鼎** = **可迁移样板（reference vertical）**：证明「真实业务可装入平台」，并提供运行链、包形态、解耦清单的工程样板——**不是**新产品的品牌与主交付物。
+> 本文技术内容（元模型、registry、配置编译、包生命周期、tenant 隔离等）仍有效，但一律按「新产品吸收样板」解读，而不是「在 CCB 壳子里长出平台」。
+> 范围：平台核心、租户、Agent、Skill、MCP、知识、配置、权限、安装更新、健康检查、可观测性、治理、业务包规范；以及 CCB→样板包的迁移边界。
+
+## 0. 产品边界（2026-07-13 锁定）
+
+| | 新产品（目标产品） | CCB-Wanding（样板） |
+|--|-------------------|---------------------|
+| 身份 | 独立产品名 / 品牌（待定）；Agent 原生公司 OS | 现有万鼎发行物与工程仓库 |
+| 核心对象 | Contract、宪法继承链、部门能力池、Contract Team | Chat/Session/专家 Agent（可映射迁移） |
+| 组织层 | 见 `公司组织/prd.md` | 专家委派 + Work Tasks 等碎片，作对照 |
+| 业务 | 任意公司装配垂直包 | `com.wanding.trade` 作为 **第一个迁移样板包** |
+| 工程策略 | **可绿场**新建控制面与产品壳；择优吸收 CCB 内核能力 | 四层链 `AionUI→aioncore→route-b→CCB Runtime` 为 **可复用/可迁移参考实现**，非必须原样继承为产品内核 |
+| 成功标准 | 空平台可跑 + 样板包可装卸 + 第二家非贸易公司可装 | 样板包从现网 CCB 资产抽出且平台无万鼎词 |
+
+**禁止误解：**
+
+1. 不是「继续把功能装进 Wanding，顺便解耦」；
+2. 不是「必须保留 CCB 产品壳与命名」；
+3. 可以把 CCB 的 ACP、Registry 思路、health、包抽取清单 **迁移/重写进新产品**；
+4. 万鼎耦合审计（§4）仍是样板抽取的必做功课，否则样板带毒进新产品。
+
+### 0.1 四层技术栈（锁定 · 2026-07-13）
+
+新产品不是「单仓演进 CCB」，也不是「整仓换成 Rudder」。默认叠四层，**正交拼图**：
+
+```text
+新产品产品层（宪法 / Contract / 部门隐喻）
+    ↓
+Rudder 类控制面（Goal / Issue / Run / Review / Learn）  ← 借或 fork
+    ↓
+平台包体系（Registry / Tenant / Lifecycle）             ← 本文主体
+    ↓
+com.wanding.trade 等样板垂直                              ← 从 CCB 迁移
+```
+
+| 层 | 负责什么 | 权威文档 / 来源 | 不负责什么 |
+|----|----------|-----------------|------------|
+| **L1 产品层** | 公司宪法、Contract 语义、部门 vs Contract Team、人验收、继承链、动作语言 | `公司组织/prd.md` | 具体 Issue DB、包安装器实现 |
+| **L2 Rudder 类控制面** | Goal→Issue→Agent run→Review→Feedback→Learning；编排、审批、transcript、budget、heartbeat | [Rudder](https://github.com/Undertone0809/rudder)（借契约/UI 或 fork 子系统）；已有映射见 `.trellis/spec/integration/work-routing-execution-contracts.md` | 垂直 MCP/报价业务；tenant 包生命周期 |
+| **L3 平台包体系** | Registry、配置编译、tenant 隔离、包安装/升级/回滚、health/eval/audit | **本文**（§5 起）+ `platform-vertical-packages.md` | 组织隐喻文案；单次业务 SOP |
+| **L4 样板垂直** | 可装卸业务能力（Agent/Skill/MCP/知识/UI） | 现网 CCB → `com.wanding.trade`；第二家公司另开包 | 平台核心代码里的客户名硬编码 |
+
+**层间契约（硬规则）：**
+
+1. L1 定义「什么叫完成 / 谁负责」；L2 把其落成耐久工作对象（Issue/Run 等），**不得**用纯 Chat 冒充 Contract。
+2. L2 调度 Agent 时只认 L3 的 capability / agent registry，**禁止**写死万鼎 Agent ID。
+3. L4 只通过 L3 包描述符装入；卸掉 L4 后 L1–L3 仍能空载运行。
+4. CCB 四层运行链（AionUI→aioncore→route-b→CCB Runtime）是 **L2/L3 的可迁移参考实现**，不是 L1 产品品牌。
+
+**Rudder 采用策略（已锁定 MVP 取向）：**
+
+| 选项 | 含义 | 何时选 |
+|------|------|--------|
+| **A. 借**（MVP 锁定） | 只吸收 Goal/Issue/Run/Review/Learning 数据模型与 UI 模式；自建或薄实现 Contract Engine | 最快对齐愿景、控制依赖 |
+| **B. fork / 嵌入** | Rudder 作 L2 子系统，上面盖 L1 语义与品牌壳，旁边接 L3 | 要快速具备 Board/审批/spend/transcript |
+| **C. 整仓替换** | 用 Rudder 当整产品 | **禁止**——丢掉 L3 包模型与 L4 样板迁移路径 |
+
+MVP 不 fork Rudder，不把 Rudder 作为运行依赖；只把其工作对象、流转状态、Board/Review/Learning 交互模式作为 L2 设计参考。后续是否 fork 只能在 MVP 跑通后另立 ADR。
+
+**Agent Runtime 采用策略（MVP 锁定）：**
+
+MVP 可以直接使用 `claude-code-b` 作为 Agent Runtime，但它必须被定位为 **Runtime Adapter**，不是平台核心语义或不可替换内核。
+
+```text
+平台控制面 / L2 Run
+  → AgentRuntimeAdapter
+  → ClaudeCodeBRuntimeAdapter
+  → claude-code-b settings / agents / skills / mcp config（生成投影）
+```
+
+硬规则：
+
+1. 平台核心只认识 `AgentDescriptor`、`Capability`、`Run`、`ToolCall`、`AuditEvent` 等稳定对象，不直接暴露 `claude-code-b` 的内部 ID、路径或配置格式。
+2. `claude-code-b` 所需 settings、Agent 文件、Skill 文件和 MCP 配置都必须由 manifest + tenant config + policy + secret references 编译生成；这些文件是运行投影，不是权威源。
+3. 每次 Agent Run 必须回写平台执行模型，至少包含 `run_id`、`tenant_id`、`package_id`、`agent_id`、输入摘要、tool/MCP 调用记录、状态、错误码和 correlation ID。
+4. Adapter 至少提供 `startRun`、`streamEvents`、`cancelRun`、`getRunResult`、`healthCheck` 五个能力，避免平台控制面绑定死具体 runtime。
+5. 后续可以替换或新增其他 runtime adapter，但不能推翻 package/registry/config/audit 的平台模型。
+
+工作环与 Contract 对齐（示意）：
+
+```text
+组织目标 (L1)
+  → Contract (L1 语义)  ⇄  Goal / Issue (L2)
+  → Agent Run (L2)      ← 从 L3 Registry 解析 Agent/Skill/MCP
+  → Review / Human 验收 (L1+L2)
+  → Learning → Skill / Policy (回写 L3 或 Handbook)
+  → 业务能力来自 L4 样板包（可替换）
+```
 
 ## 1. 结论摘要
 
-当前系统不是“没有体系”，而是处于一个典型的中间阶段：
+当前 CCB 系统不是“没有体系”，而是处于一个典型的中间阶段——这对 **样板迁移** 很有价值，但 **不等于** 新产品已经存在：
 
-> 已有稳定的平台运行内核和大量可靠的工程能力，但配置、产品装配、运行治理和万鼎业务仍通过脚本、固定名称、固定路径及重复清单焊接在一起。
+> 已有稳定的运行内核和大量可靠的工程能力，但配置、产品装配、运行治理和万鼎业务仍通过脚本、固定名称、固定路径及重复清单焊接在一起。
 
-现有四层运行链 `AionUI → aioncore → route-b → CCB Runtime` 应继续作为平台核心，不建议为了解耦而重写。ACP 边界、Agent 会话、MCP 调用、健康探测、更新和本地任务等能力，也都具备平台资产价值。
+现有四层运行链 `AionUI → aioncore → route-b → CCB Runtime` 是 **已被验证的样板运行时**。新产品可以选择：
 
-真正需要补齐的是运行链之上的“平台控制体系”：
+- **吸收**：把 ACP、会话、MCP、health、更新等能力迁入新平台内核；或
+- **对照重做**：用同等契约换实现，只要样板包仍能装上。
+
+**不建议**为「解耦」而在 CCB 树上无止境打补丁当最终产品；也 **不建议**无视样板证据盲目推倒重来。默认策略：**新产品控制面绿场或半绿场 + CCB 能力择优迁移 + 万鼎收敛为样板垂直包**。
+
+真正需要补齐的是运行链之上的“平台控制体系”（对新产品与样板同样适用）：
 
 1. 统一的租户、业务包和能力模型；
 2. Agent、Skill、MCP、知识及 UI 扩展点的统一注册表；
 3. 配置的分层、合并、校验、来源追踪和安全存储；
 4. 业务包的安装、升级、迁移、回滚、卸载和兼容性契约；
 5. 从业务包声明自动生成运行配置、健康检查、权限和 UI；
-6. 用第二家公司、不同业务域证明平台没有隐藏的万鼎耦合。
+6. 用第二家公司、不同业务域证明平台没有隐藏的万鼎（或任一样板）耦合。
 
-现有 `.trellis/spec/integration/platform-vertical-packages.md` 已经提出正确的“Platform Core + Tenant + Vertical Package + Connector”方向。本文件在此基础上补全体系规范、能力清单、目标数据模型、装配机制、治理门禁和迁移顺序。
+现有 `.trellis/spec/integration/platform-vertical-packages.md` 已经提出正确的“Platform Core + Tenant + Vertical Package + Connector”方向。本文件在此基础上补全体系规范、能力清单、目标数据模型、装配机制、治理门禁和 **样板迁移** 顺序。
+组织层（宪法 / 治理 / 平台 / 部门 / Contract Team）以 `公司组织/prd.md` 为准；**L2 Rudder 类控制面** 见 §0.1；**本文偏 L3 工程控制面与包体系**；**L4** 见 §17 样板抽取。
+
+### 1.1 MVP 锁定决策与验收闭环
+
+本轮产品取舍锁定如下，作为后续执行计划的默认输入：
+
+| 问题 | 当前决策 |
+|---|---|
+| 首个使用对象 | **内部团队**，先用于验证平台装配、治理和样板迁移，不承诺外部客户交付 |
+| Rudder 策略 | **只借鉴数据模型与 UI 模式**，不 fork、不整仓替换 |
+| `com.wanding.trade` 范围 | **最小样板包**，先抽出能证明可装卸的最小业务闭环，不追求一次恢复现网全量能力 |
+| 第二家公司试点 | **暂无**，Phase 5 先保留为验收方向，不作为 Phase 0-3 阻塞项 |
+| 部署形态 | **本地部署**，以本地控制面 + 本地运行时为 MVP 形态 |
+| 租户隔离 | **独立部署 / 独立数据 / 独立密钥域**，不共享数据库承载多家公司 |
+| 卸载数据策略 | MVP 默认 **删除业务数据**；如需保留/归档，必须由包策略显式声明并二次确认 |
+| UI contribution | MVP 只允许 **受控 schema/form/card/menu contribution**，禁止业务包执行任意前端代码插件 |
+| 空平台验收 | **完整闭环**：空平台可启动、可创建本地租户、可读取 registry、可运行平台 health、可安装/卸载样板包并给出审计证据 |
+
+MVP 的第一条端到端业务闭环应收敛为：
+
+```text
+内部管理员创建本地租户
+  → 安装最小 com.wanding.trade 样板包
+  → 配置 secret references（不写入 secret value）
+  → registry 解析 Agent / Skill / MCP / Knowledge / UI contributions
+  → 配置编译器生成运行投影
+  → 用户发起一次最小业务 Run（如报价草案或报价资料整理）
+  → Agent 通过 capability 调用 MCP / Connector
+  → 生成可人工验收的业务结果
+  → 写入 audit / health / eval / package state 证据
+  → 禁用或卸载样板包后空平台仍完整健康
+```
+
+这条闭环比“先做完整平台能力”优先级更高。Phase 0-3 的所有实现都应能回答：它是否推进了这条闭环。
 
 ## 2. 本次探索证据范围
 
@@ -159,7 +287,7 @@ Tenant
   installed package set / environment / secret references / quotas
 
 Vertical Business Packages
-  e.g. com.wanding.trade
+  e.g. com.wanding.trade  ← 迁移样板包（reference），非平台本体
   agents / skills / MCP / knowledge schemas / UI / policies / evals
 
 Connectors
@@ -721,9 +849,11 @@ com.company.domain/
 11. 安装、升级、禁用、卸载、回滚 smoke；
 12. 不修改平台核心即可装入测试平台。
 
-## 17. `com.wanding.trade` 的抽取边界
+## 17. 样板包 `com.wanding.trade` 的抽取边界（从 CCB 迁出）
 
-应进入万鼎业务包：
+> 目的：把现网 CCB/万鼎资产 **迁成可装卸样板包**，喂给新产品验证；不是把新产品做成 Wanding 换皮。
+
+应进入万鼎 **样板** 业务包：
 
 - 报价、库存、Accurate、价格库 Agent；
 - 万鼎 Orchestrator 路由贡献；
@@ -757,9 +887,9 @@ com.company.domain/
 - 启用 secret scanning，禁止新 secret 入库；
 - 建立平台禁止业务词/路径清单；
 - 定义 `tenant_id`、`package_id`、`capability_id` 命名和 schema 版本策略；
-- 明确现有四层运行链不重写。
+- 明确现有四层运行链作为样板参考，MVP 不做整链重写；只吸收支撑最小闭环所需能力。
 
-完成标准：安全债务有处置证据；新增平台代码不再引入万鼎固定身份。
+完成标准：安全债务有处置证据；新增平台代码不再引入万鼎固定身份；本地空平台可启动并运行基础 health。
 
 ### Phase 1：定义元模型和只读注册表
 
@@ -787,32 +917,32 @@ com.company.domain/
 
 ### Phase 3：抽取 `com.wanding.trade`
 
-目标：万鼎成为第一个正式业务包。
+目标：万鼎成为第一个最小可装卸样板包，而不是一次性恢复现网全量能力。
 
-- 移入 Agent、Skill、MCP、知识、policy、health、eval；
+- 只移入支撑最小业务闭环所需的 Agent、Skill、MCP、知识、policy、health、eval；
 - 平台安装健康不再要求万鼎文件；
-- 万鼎包可独立启用、禁用、升级和回滚；
+- 万鼎包可独立启用、禁用、卸载和回滚；
 - 保持 legacy 路径适配，避免一次性重构风险。
 
-完成标准：空平台不安装万鼎包也能启动和通过平台健康检查；安装包后恢复现有万鼎能力。
+完成标准：空平台不安装万鼎包也能启动和通过平台健康检查；安装最小包后可完成一次内部可验收业务 Run；卸载包后业务数据按 MVP 策略删除，平台仍健康。
 
 ### Phase 4：控制面与租户治理
 
-目标：可管理多个公司环境。
+目标：先管理本地独立租户环境，为后续多公司独立部署复制模板。
 
 - package catalog、tenant package lock；
 - 配置发布、灰度、回滚；
 - 权限、审计、health dashboard；
-- 物理分租户部署模板；
+- 本地独立部署模板，数据库、运行目录、密钥域彼此隔离；
 - OIDC/JWKS 和服务端秘密库。
 
-完成标准：管理员能看到期望状态、实际状态和 drift；业务凭据不落员工机器。
+完成标准：管理员能看到本地租户的期望状态、实际状态和 drift；业务凭据不落普通配置、日志、manifest 或客户端发行物。
 
 ### Phase 5：第二公司试点
 
 目标：验证通用性，而不是验证“万鼎换了目录”。
 
-选择一个业务模型明显不同的公司，例如制造排产或物流异常，而不是另一套报价。要求：
+当前暂无第二家公司样本。Phase 5 暂不阻塞 Phase 0-3；待平台最小闭环成立后，再选择一个业务模型明显不同的公司，例如制造排产或物流异常，而不是另一套报价。要求：
 
 - 不修改平台核心；
 - 只新增业务包和 connector；
@@ -832,7 +962,7 @@ com.company.domain/
 - Agent/Skill/MCP 单一描述源；
 - 平台健康与万鼎健康拆分；
 - OIDC/JWKS 方案和多公司安全门禁；
-- `com.wanding.trade` 边界清单。
+- `com.wanding.trade` 最小样板包边界清单。
 
 ### P1：形成可运营平台
 
@@ -857,26 +987,46 @@ com.company.domain/
 
 ### 暂不建议
 
-- 重写四层运行链；
+- **仅**在 CCB 发行壳上无限打补丁当作最终产品（与「新产品」定位冲突）；
+- 无视样板证据、丢掉 ACP/包契约经验盲目全盘重写；
 - 一开始就共享数据库承载所有公司；
+- MVP 阶段追求完整恢复万鼎现网全量能力；
 - 允许业务包执行任意未签名 UI/脚本；
 - 为追求“插件化”而引入复杂微服务拆分；
 - 在 registry 和配置编译器之前继续添加更多业务专用安装脚本。
 
-## 20. 关键架构决策待确认
+> 修订说明：原「禁止重写四层运行链」改为——四层链是样板参考；新产品可吸收或替换实现，但须保持 **样板包可装卸** 的验收能力。
 
-这些问题需要在正式实施前形成 ADR：
+## 20. 关键架构决策状态
 
-1. 平台产品名是否继续使用 CCB-Wanding，还是拆为平台品牌 + WanD 包品牌？
-2. Phase A 是否确认每家公司独立部署控制面？
-3. 包格式是目录/zip，还是 OCI artifact？
-4. 包签名和发布者信任链采用什么机制？
-5. 通用 Office、Research 是平台内建还是独立 capability package？
-6. 远端 MCP Gateway 独立服务，还是先作为 org service 模块？
-7. 业务包 UI 第一阶段只支持 schema contribution，还是允许代码插件？
-8. 租户业务数据卸载后的保留和销毁政策？
-9. 本地离线缓存允许哪些数据，最大过期时间如何由包策略声明？
-10. 第二家公司选择哪个不同业务域作为平台验收样本？
+### 20.1 已锁定决策
+
+| 决策 | 当前结论 | 影响 |
+|---|---|---|
+| 产品身份 | **新产品独立品牌；CCB-Wanding 仅作样板来源**。新产品正式名待定 | 不再以 Wanding 壳作为主产品交付路径 |
+| 首个使用对象 | **内部团队** | Phase 0-3 以内部验证和工程闭环为准，不承诺外部客户 SLA |
+| L2 Rudder 策略 | **只借鉴数据模型与 UI 模式** | 不 fork、不整仓替换；先实现最小 Goal/Issue/Run/Review/Learning 映射 |
+| Agent Runtime | **MVP 直接使用 `claude-code-b`，但只作为 Runtime Adapter** | 平台模型不绑定其内部配置；由配置编译器生成运行投影并回写 Run/audit/eval 证据 |
+| `com.wanding.trade` 范围 | **最小样板包** | 只抽取证明可装卸和最小业务 Run 的能力，不一次性搬迁全量现网能力 |
+| 第二家公司样本 | **暂无** | Phase 5 暂不阻塞；第二垂直用于后续证明通用性 |
+| 部署形态 | **本地部署** | 优先本地控制面、本地运行时、本地 health 与 package state |
+| 租户隔离 | **独立部署 / 独立数据 / 独立密钥域** | MVP 禁止共享数据库承载多家公司 |
+| 卸载数据策略 | **默认删除业务数据** | 包卸载必须删除包内业务数据；保留/归档需另有策略和确认 |
+| UI contribution | **受控 schema/form/card/menu contribution** | MVP 禁止任意前端代码插件和未签名脚本执行 |
+| 空平台验收 | **完整闭环** | 不装垂直包仍可启动、建租户、读 registry、跑 health、产生日志/审计证据 |
+
+### 20.2 仍需 ADR 的问题
+
+这些问题不应阻塞 Phase 0-1，但在进入对应实现前必须形成 ADR：
+
+1. 包格式 MVP 采用目录/zip，还是直接设计为 OCI artifact？默认建议 Phase 1 用目录/zip + hash，后续再升级 OCI。
+2. 包签名和发布者信任链采用什么机制？至少需要 hash、publisher、签名字段和本地验证命令。
+3. 通用 Office、Research 是平台内建还是独立 capability package？默认建议作为 capability package，避免平台核心膨胀。
+4. 远端 MCP Gateway 是否存在于 MVP？默认建议 MVP 不做远端 gateway，只保留接口边界和本地 connector。
+5. 本地离线缓存允许哪些数据、最大过期时间、卸载时如何清理？需与“默认删除业务数据”一致。
+6. 新产品 UI 壳是继续分叉 AionUI，还是新壳 + 复用 aioncore 能力？MVP 需选一个最短路径。
+7. Contract Engine 落在平台核心还是独立 org 模块？需与 `公司组织/prd.md` 的 MVP 切口对齐。
+8. 第二家公司选择哪个不同业务域作为平台验收样本？在 Phase 4 完成后再定，不提前阻塞最小样板包。
 
 ## 21. 防止“重新杂糅”的强制规则
 
@@ -910,8 +1060,15 @@ com.company.domain/
 
 ## 23. 最终判断
 
-CCB-Wanding 已经证明了“运行链和一个真实业务可以工作”，这一步价值很高。下一阶段的工程重点应从“继续把功能装进 Wanding”切换为：
+CCB-Wanding 已经证明了「一条运行链 + 一个真实业务可以工作」——这一步价值很高，定位为 **样板与迁出资产库**，不是新产品本身。
 
+下一阶段工程重点：
+
+> 按 **§0.1 四层栈** 交付：**L1** 组织语义（`公司组织/prd.md`）→ **L2** Rudder 类控制面（借或 fork）→ **L3** 包/租户控制面（本文）→ **L4** `com.wanding.trade` 样板垂直（从 CCB 迁出）。
 > 用统一 manifest 描述能力，用 registry 发现能力，用配置编译器装配能力，用 tenant/policy 隔离能力，用 package lifecycle 交付能力，用 health/eval/audit 证明能力。
 
-最合理的演进不是推倒重来，而是保留当前可靠内核，在其上建立控制面，并把现有万鼎资产逐步吸入 `com.wanding.trade`。当空平台可以独立运行、万鼎包可以独立装卸、第二家完全不同的公司无需修改平台核心即可交付时，系统才真正完成从项目产品到普适性平台的转变。
+最合理路径 **不是**「在 Wanding 产品上长出平台」，也 **不是**「丢掉样板从零幻想」；而是：
+
+> **新产品为主交付** + **CCB 能力择优迁移** + **万鼎作第一个可装卸样板垂直包**。
+
+当空平台可以独立运行、样板包可以独立装卸、第二家完全不同的公司无需修改平台核心即可交付时，才算完成从「项目产品」到「可装配的 Agent 原生公司平台」的转变。

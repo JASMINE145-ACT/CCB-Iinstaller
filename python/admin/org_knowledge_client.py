@@ -272,11 +272,31 @@ def append_business_rule(
     section: str | None = None,
     reason: str | None = None,
     slug: str = DEFAULT_SLUG,
+    force_near_duplicate: bool = False,
 ) -> dict[str, Any]:
     """Append a confirmed business rule to the shared Wanding knowledge doc."""
+    from admin.org_knowledge_mutate import (
+        check_rule_budget,
+        near_duplicate_matches,
+        stamp_appended_block,
+    )
+    from admin.org_knowledge_payloads import build_org_mutate_envelope
+
     rule = (rule_text or "").strip()
     if not rule:
         raise ValueError("rule_text is required")
+
+    budget_err = check_rule_budget(rule)
+    if budget_err:
+        return build_org_mutate_envelope(
+            action="append",
+            applied=False,
+            requires_confirmation=False,
+            target={"slug": slug},
+            error_code=budget_err,
+            message=f"rule_text exceeds {budget_err} hard cap",
+            rule_text=rule,
+        )
 
     doc = get_doc(slug, use_cache=False)
     if not doc:
@@ -286,44 +306,263 @@ def append_business_rule(
     title = str(doc.get("title") or slug)
     version = int(doc.get("version") or 0)
     if rule_already_in_doc(rule, content):
-        return {
-            "slug": slug,
-            "skipped": True,
-            "reason": "duplicate",
-            "rule_text": rule,
-            "version": version,
-        }
+        return build_org_mutate_envelope(
+            action="append",
+            applied=False,
+            requires_confirmation=False,
+            target={"slug": slug},
+            version={"doc_version": version},
+            error_code=None,
+            message="duplicate",
+            skipped=True,
+            reason="duplicate",
+            rule_text=rule,
+            slug=slug,
+        )
+
+    if not force_near_duplicate:
+        near = near_duplicate_matches(rule, content)
+        if near:
+            return build_org_mutate_envelope(
+                action="append",
+                applied=False,
+                requires_confirmation=True,
+                target={"slug": slug},
+                changes=near,
+                version={"doc_version": version},
+                error_code="NEAR_DUPLICATE",
+                message="Near-duplicate of an existing rule",
+                rule_text=rule,
+                slug=slug,
+            )
 
     section_text = (section or "业务规则补充").strip()
     reason_text = (reason or "").strip()
     today = datetime.now().strftime("%Y-%m-%d")
-
-    lines = [
-        "",
-        f"## {section_text}",
-        "",
-        f"- {rule}",
-        f"  - 来源：报价专家会话确认，{today}",
-    ]
-    if reason_text:
-        lines.append(f"  - 说明：{reason_text}")
+    stamped, block_id, block_hash = stamp_appended_block(rule, reason=reason_text or None, today=today)
+    new_content = f"{content}\n\n## {section_text}\n\n{stamped}"
 
     response = update_doc(
         slug,
         title=title,
-        content=f"{content}\n" + "\n".join(lines) + "\n",
+        content=new_content if content else f"## {section_text}\n\n{stamped}",
         expected_version=version,
     )
+    return build_org_mutate_envelope(
+        action="append",
+        applied=True,
+        requires_confirmation=False,
+        target={
+            "slug": slug,
+            "section": section_text,
+            "block_id": block_id,
+            "content_hash": block_hash,
+        },
+        preview_after=stamped,
+        version={"doc_version": response.get("version"), "previous": version},
+        error_code=None,
+        slug=slug,
+        title=response.get("title") or title,
+        previous_version=version,
+        section=section_text,
+        rule_text=rule,
+        updated_at=response.get("updated_at"),
+        updated_by_id=response.get("updated_by_id"),
+    )
+
+
+def fetch_org_user_claims() -> dict[str, Any]:
+    """Load is_admin / capabilities from GET /api/auth/user (JWT alone has no is_admin claim).
+
+    Returns empty dict on failure — callers must deny by default.
+    """
+    try:
+        data = _api_get("/api/auth/user")
+    except Exception:
+        logger.warning("fetch_org_user_claims: /api/auth/user failed; deny-by-default", exc_info=True)
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    user = data.get("user") if isinstance(data.get("user"), dict) else data
+    if not isinstance(user, dict):
+        return {}
+    caps = user.get("capabilities")
     return {
-        "slug": slug,
-        "title": response.get("title") or title,
-        "previous_version": version,
-        "version": response.get("version"),
-        "section": section_text,
-        "rule_text": rule,
-        "updated_at": response.get("updated_at"),
-        "updated_by_id": response.get("updated_by_id"),
+        "is_admin": bool(user.get("is_admin")),
+        "capabilities": caps if isinstance(caps, list) else [],
+        "username": user.get("username"),
+        "id": user.get("id"),
     }
+
+
+def delete_business_rule(
+    *,
+    slug: str = DEFAULT_SLUG,
+    block_id: str | None = None,
+    content_hash_value: str | None = None,
+    snippet: str | None = None,
+    doc_version: int | None = None,
+    confirmed: bool = False,
+    allow_section_edit: bool = False,
+) -> dict[str, Any]:
+    """Preview or apply deletion of one rule block (auditable — history kept by org PUT)."""
+    from admin.org_knowledge_mutate import (
+        DELETE_FORBIDDEN_ZH,
+        can_apply_knowledge_delete,
+        find_blocks,
+        remove_block,
+    )
+    from admin.org_knowledge_payloads import build_org_mutate_envelope
+
+    has_id = bool(block_id and str(block_id).strip())
+    has_hash = bool(content_hash_value and str(content_hash_value).strip())
+    has_snippet = bool(snippet and str(snippet).strip())
+    # Contract: block_id XOR (content_hash + snippet). Snippet-only = contains-only → forbidden.
+    if not has_id and not (has_hash and has_snippet):
+        return build_org_mutate_envelope(
+            action="delete",
+            applied=False,
+            requires_confirmation=False,
+            error_code="AMBIGUOUS_MATCH",
+            message=(
+                "Provide block_id, or content_hash + snippet together. "
+                "Snippet-only / contains-only locators are not allowed."
+            ),
+            target={"slug": slug},
+        )
+
+    doc = get_doc(slug, use_cache=False)
+    if not doc:
+        raise RuntimeError(f"org knowledge doc not available: {slug}")
+
+    content = str(doc.get("content") or "")
+    title = str(doc.get("title") or slug)
+    version = int(doc.get("version") or 0)
+
+    if doc_version is not None and int(doc_version) != version:
+        return build_org_mutate_envelope(
+            action="delete",
+            applied=False,
+            requires_confirmation=True,
+            target={"slug": slug, "block_id": block_id, "content_hash": content_hash_value},
+            version={"doc_version": version, "requested": doc_version},
+            error_code="CONFLICT",
+            message="doc_version mismatch — refresh and re-preview",
+        )
+
+    matches = find_blocks(
+        content,
+        block_id=block_id,
+        content_hash_value=content_hash_value,
+        snippet=snippet,
+    )
+    if not matches:
+        return build_org_mutate_envelope(
+            action="delete",
+            applied=False,
+            requires_confirmation=True,
+            target={"slug": slug, "block_id": block_id, "content_hash": content_hash_value},
+            version={"doc_version": version},
+            error_code="AMBIGUOUS_MATCH",
+            message="0 blocks matched",
+            changes=[],
+        )
+    if len(matches) > 1:
+        return build_org_mutate_envelope(
+            action="delete",
+            applied=False,
+            requires_confirmation=True,
+            target={"slug": slug},
+            version={"doc_version": version},
+            error_code="AMBIGUOUS_MATCH",
+            message="Multiple blocks matched — narrow locator",
+            changes=[
+                {
+                    "block_id": b.block_id,
+                    "content_hash": b.content_hash,
+                    "snippet": b.text.strip()[:180],
+                    "section": b.section,
+                }
+                for b in matches
+            ],
+        )
+
+    block = matches[0]
+    # Refuse deleting when the only hit is a lone ## heading misuse
+    first_line = next((ln.strip() for ln in block.text.splitlines() if ln.strip()), "")
+    if first_line.startswith("## ") and not allow_section_edit:
+        return build_org_mutate_envelope(
+            action="delete",
+            applied=False,
+            error_code="FORBIDDEN",
+            message="Refusing to delete section heading without allow_section_edit=true",
+            target={"slug": slug},
+            version={"doc_version": version},
+        )
+
+    preview_after = remove_block(content, block)
+    target = {
+        "slug": slug,
+        "block_id": block.block_id,
+        "content_hash": block.content_hash,
+        "section": block.section,
+    }
+    if not confirmed:
+        return build_org_mutate_envelope(
+            action="delete",
+            requires_confirmation=True,
+            applied=False,
+            target=target,
+            changes=[{"removed_preview": block.text.strip()[:500]}],
+            preview_before=block.text,
+            preview_after=preview_after[-2000:],
+            version={"doc_version": version},
+            message="Confirm delete with confirmed=true (history retained via org version).",
+            removed_text=block.text,
+        )
+
+    claims = fetch_org_user_claims()
+    if not can_apply_knowledge_delete(
+        slug,
+        is_admin=bool(claims.get("is_admin")),
+        capabilities=claims.get("capabilities") if isinstance(claims.get("capabilities"), list) else None,
+    ):
+        return build_org_mutate_envelope(
+            action="delete",
+            requires_confirmation=False,
+            applied=False,
+            target=target,
+            preview_before=block.text,
+            version={"doc_version": version},
+            error_code="FORBIDDEN",
+            message=DELETE_FORBIDDEN_ZH,
+            removed_text=block.text,
+        )
+
+    response = update_doc(
+        slug,
+        title=title,
+        content=preview_after,
+        expected_version=version,
+    )
+    return build_org_mutate_envelope(
+        action="delete",
+        applied=True,
+        requires_confirmation=False,
+        target=target,
+        preview_before=block.text,
+        version={
+            "doc_version": response.get("version"),
+            "previous": version,
+        },
+        message="Block removed; prior content remains in org knowledge history/revert.",
+        removed_text=block.text,
+        slug=slug,
+        previous_version=version,
+        updated_at=response.get("updated_at"),
+        updated_by_id=response.get("updated_by_id"),
+        actor=response.get("updated_by_id"),
+    )
 
 
 def load_doc_content(

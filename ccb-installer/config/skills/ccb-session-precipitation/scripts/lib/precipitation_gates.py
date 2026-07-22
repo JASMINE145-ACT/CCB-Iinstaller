@@ -31,7 +31,10 @@ def bundle_to_proposals(
 
     proposals: list[dict[str, Any]] = []
 
+    business_count = 0
     for item in _lane_list(bundle, "business_rules"):
+        if business_count >= 5:
+            break
         summary = str(item.get("summary") or "").strip()
         evidence = [str(e) for e in (item.get("evidence") or []) if str(e).strip()]
         if not summary or not evidence:
@@ -40,12 +43,15 @@ def bundle_to_proposals(
             confidence = float(item.get("confidence") or 0)
         except (TypeError, ValueError):
             confidence = 0.0
-        if confidence < 0.6:
+        if confidence < 0.55:
             continue
         overlap = kb_overlap(summary, kb_text)
         hint = str(item.get("kb_overlap_hint") or overlap)
         if overlap == "duplicate" or hint == "duplicate":
             continue
+        ko = str(item.get("knowledge_object") or "org_business_rule").strip()
+        if ko not in ("org_business_rule", "local_business_context"):
+            ko = "org_business_rule"
         proposals.append(
             {
                 "lane": "business_rule",
@@ -55,9 +61,14 @@ def bundle_to_proposals(
                 "sessionId": session_id,
                 "conversationId": conversation_id,
                 "confidence": confidence,
-                "metadata": {"kbOverlap": overlap, "source": "llm"},
+                "metadata": {
+                    "kbOverlap": overlap,
+                    "source": "llm",
+                    "knowledgeObject": ko,
+                },
             }
         )
+        business_count += 1
 
     for item in _lane_list(bundle, "personal_habits"):
         bullet = str(item.get("bullet") or "").strip()

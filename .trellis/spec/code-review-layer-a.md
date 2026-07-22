@@ -54,8 +54,11 @@ When **two or more surfaces** let the user make the **same class of decision** (
 | **PASS** | Shared helper/hook documented in spec or `file-map.md`; surfaces call it |
 | **FAIL** | Surface B only exposes a subset of Surface A’s options without documented intentional scope |
 | **FAIL** | Same label (“对话 Agent”) but different option lists with no spec boundary |
+| **FAIL** | A **shared ordered ID list** (nav tabs, builtin keys, enum of routes) has **parallel maps/builders**; an ID exists in the list but is **missing or undefined** in a consumer map that does `ids.map(id => map[id])` (or equivalent), without a documented filter that drops that ID first |
 
 **Review question:** *Would a user reasonably expect the same choices here as on the main workflow screen?*
+
+**Shared ID → map completeness (crash subclass of A2):** When one module exports an ordered ID catalog and another (or the same module) builds UI from a parallel `Record`/`Map`, every ID that reaches `.map` / splice / `.id` access **must** resolve to a defined item—or be filtered out before map. Prefer one shared builder over twin maps. Verify by grepping the ID constant’s consumers and confirming each `builtinMap` / nav builder keys all non-filtered IDs.
 
 ---
 
@@ -140,14 +143,18 @@ Some features are **not** delivered when a single file lands in git. They are **
 | Verdict | Condition |
 |---------|-----------|
 | **PASS** | Each mandatory plane for this feature is either updated in the diff **or** explicitly gated in plan/DoD with a named command + evidence (not “ops later”) |
+| **PASS** | Observability / UI contracts: either a **default-path consumer** (renderer/timeline mounts or auto-derives) **or** DoD explicitly stages “library-only / not on timeline yet” |
 | **FAIL** | Only authoring (+ maybe registration) touched; a user-visible or session consumer plane is **implied** but has no sync step and no verification hook |
 | **FAIL** | Review would PASS on “agent/MCP/API exists” without naming **which plane** makes it selectable or callable |
+| **FAIL** | New helpers/types/tests for View Steps / Plan / Run exist, but **no** session/UI call site and DoD still claims the observability contract shipped |
 
 **Review question:** *Who consumes this artifact at runtime—and did this change reach that consumer, or only the git tree?*
 
 **Anti-pattern (abstract):** Collapsing a cross-boundary feature into one artifact (one md, one crate, one registry row) and inferring end-to-end delivery.
 
 **Incident class:** Specialist agent visible in packages but absent from Guid until live agent config is synced (authoring ≠ session consumer).
+
+**Incident class (UI helpers):** `decompositionPlan.ts` + unit tests only, while PRD claims Plan↔Run timeline — A6 FAIL until `MessageToolGroupSummary` (or auto-derive) consumes it, or DoD gates library-only.
 
 ---
 
@@ -169,11 +176,11 @@ Read: .trellis/spec/code-review-layer-a.md
 
 Checklist (fail closed on any FAIL):
 - A1 Canonical path: grep canonical loader/hook for this entity; new code must reuse it, not a narrower duplicate API.
-- A2 Multi-surface parity: if another surface already exposes the same user decision, option list + persist shape must match or spec documents intentional difference.
+- A2 Multi-surface parity: if another surface already exposes the same user decision, option list + persist shape must match or spec documents intentional difference. If a shared ordered ID list drives parallel maps/builders, every non-filtered ID must resolve to a defined item (no `undefined` in `ids.map(id => map[id])`).
 - A3 Identity vs capability: if downstream routes on profile/id fields, picker must persist identity—not only runtime/backend slug.
 - A4 Persist-read symmetry: trace UI save → storage/sync → backend read; every consumer field must be written or have documented default.
 - A5 Evidence: require mapper/restore unit test or cited backend test—"dropdown renders" alone is insufficient.
-- A6 Consumer-plane completeness: name each mandatory consumer plane (authoring / registration / install-sync / session-UI); do not PASS on "file exists in repo" if session or live runtime consumer is untraced.
+- A6 Consumer-plane completeness: name each mandatory consumer plane (authoring / registration / install-sync / session-UI); do not PASS on "file exists in repo" if session or live runtime consumer is untraced. For observability/UI contracts: require a default-path consumer (or auto-derive) **or** explicit library-only DoD — helpers+tests alone FAIL.
 
 Verdict format:
   Layer A: PASS | FAIL (A1–A6: note failing rules)
@@ -189,6 +196,14 @@ Do not PASS Layer A on logic-only review when A3/A4 identity chain was not trace
 **Symptom:** Feature “works” in UI but wrong runtime behavior in production.  
 **Root cause class:** Multi-surface drift — canonical catalog wired on workflow A, capability-only list on workflow B.  
 **Prevention:** A1 + A2 + A3 on every new settings/channel picker; shared helper + mapper tests (A5).
+
+**Symptom:** Clicking Settings (or another primary shell route) white-screens even when the new tab itself is unused.  
+**Root cause class:** **Shared ID list ↔ parallel map incomplete** — one surface adds an ID to a shared ordered catalog; another surface’s map omits it; `undefined.id` (or similar) throws on every settings mount.  
+**Prevention:** A2 shared-ID→map completeness on every nav/tab/settings catalog change; Runtime Crash Checklist must cite map-key coverage for all `BUILTIN_*` / ordered-ID consumers.
+
+**Related (A4 / admin surface):** Filtering a still-loginable bootstrap admin out of the org Users table so operators think the account was deleted — see Runtime Crash “Admin management list” + [`../tasks/07-13-07-13-org-admin-user-management/admin-rbac-contract.md`](../tasks/07-13-07-13-org-admin-user-management/admin-rbac-contract.md) §2.1.
+
+**Related (AionCore DB):** Multi-statement work on `&SqlitePool` without `pool.begin()` — see [`integration/aioncore-sqlite-transactions.md`](./integration/aioncore-sqlite-transactions.md) (Runtime Crash Critical).
 
 **Symptom:** Code merged, tests green, user cannot select or invoke the feature.  
 **Root cause class:** **Authoring-plane-only delivery** — artifact exists in repo/registry but mandatory **session or live-runtime consumer** was never synced.  

@@ -15,13 +15,15 @@
     "disabled": []
   },
   "recommended_prompts": [
-    "按数据学习：上传已填写的 VANTSING 报价单，复盘每行料号与候选差异",
+    "土工布什么价，谁有货？",
     "查询三通 DN50 价格",
+    "按数据学习：上传已填写的 VANTSING 报价单，复盘每行料号与候选差异",
     "帮我填写这份询价单"
   ],
   "mcp_allowlist": [
     "quotation",
     "excel",
-    "price-library"
+    "price-library",
+    "supplier-directory"
   ]
 }

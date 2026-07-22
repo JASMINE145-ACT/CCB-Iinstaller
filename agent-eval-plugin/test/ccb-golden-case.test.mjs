@@ -41,7 +41,7 @@ test('runs the locked golden Case deterministically through the CCB ACP adapter'
 
   assert.equal(result.verdict, 'NEEDS_REVIEW')
   assert.equal(result.judgment_status, 'pending')
-  assert.deepEqual(result.grader_results.map(({ status }) => status), Array(6).fill('PASS'))
+  assert.deepEqual(result.grader_results.map(({ status }) => status), Array(7).fill('PASS'))
   assert.equal(validateContract('eval.trace/v1', result.trace).valid, true)
   assert.equal(result.trace.events.length, 5)
   assert.equal(result.trace.metrics.tool_calls, 3)

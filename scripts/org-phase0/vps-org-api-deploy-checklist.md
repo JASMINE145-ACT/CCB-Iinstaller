@@ -138,6 +138,22 @@ curl -s http://127.0.0.1:13401/api/price-library/active \
 
 ---
 
+## 6.1 Behavior smoke（必做 — 服务 up ≠ 功能通）
+
+`systemctl is-active`、源码 `grep`、甚至 `GET /api/auth/status` **不等于**新路由已可用。
+
+每发布带新 mutation 的 aioncore 后，至少做 **一条** 真实成功路径，例如：
+
+| 本次变更 | 最低冒烟 |
+|----------|----------|
+| `DELETE /api/org-users` | admin 删一个 smoke 用户 → **200**，列表消失 |
+| `POST /api/org-users` | admin 建号 → **200/201** |
+| 仅改 list 过滤 | `GET /api/org-users` 含 `admin` / `system_default_user` |
+
+SQLite 多语句事务：见 [`.trellis/spec/integration/aioncore-sqlite-transactions.md`](../../.trellis/spec/integration/aioncore-sqlite-transactions.md)。
+
+---
+
 ## 7. 回滚
 
 - 恢复上一版 `/opt/aionorg/AionCore/target/release/aioncore`（或从备份复制）+ `systemctl restart aionorg`

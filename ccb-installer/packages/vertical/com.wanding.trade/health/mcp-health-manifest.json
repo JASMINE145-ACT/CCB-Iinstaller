@@ -14,7 +14,7 @@
         "vendor/wanding/.env.accurate"
       ],
       "tool_prefix": "mcp__quotation__",
-      "probe_timeout_ms": 90000,
+      "probe_timeout_ms": 120000,
       "probe_tool_call": {
         "tool": "match_quotation",
         "arguments": {
@@ -122,11 +122,15 @@
     "quotation-agent": {
       "required_mcp": [
         "quotation",
-        "excel"
+        "excel",
+        "price-library",
+        "supplier-directory"
       ],
       "tool_prefixes": [
         "mcp__quotation__",
-        "mcp__excel__"
+        "mcp__excel__",
+        "mcp__price-library__",
+        "mcp__supplier-directory__"
       ]
     },
     "accurate-agent": {
@@ -146,14 +150,6 @@
       ],
       "optional_mcp": [
         "excel"
-      ]
-    },
-    "supplier-directory-agent": {
-      "required_mcp": [
-        "supplier-directory"
-      ],
-      "tool_prefixes": [
-        "mcp__supplier-directory__"
       ]
     },
     "work-tasks-agent": {

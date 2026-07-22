@@ -99,23 +99,54 @@ def iter_tool_names(lines: Iterable[str]) -> list[str]:
     return names
 
 
-def find_transcript(session_id: str, transcript_path: str | None = None) -> Path | None:
+def find_transcript(
+    session_id: str,
+    transcript_path: str | None = None,
+    config_dir: str | Path | None = None,
+) -> Path | None:
+    import os
+
     if transcript_path:
         p = Path(transcript_path).resolve()
-        allowed_roots = [Path.home() / ".claude" / "projects"]
+        allowed_roots: list[Path] = [Path.home() / ".claude" / "projects"]
+        for raw in (
+            config_dir,
+            os.environ.get("CLAUDE_CONFIG_DIR"),
+            os.environ.get("CCB_WANDING_CONFIG_DIR"),
+        ):
+            if raw:
+                allowed_roots.append(Path(raw) / "projects")
         if not any(root.is_dir() and (p == root or root in p.parents) for root in allowed_roots):
             return None
         if p.is_file():
             return p
     if not session_id:
         return None
-    home = Path.home()
-    projects = home / ".claude" / "projects"
-    if not projects.is_dir():
-        return None
-    matches = list(projects.glob(f"**/{session_id}.jsonl"))
-    if matches:
-        return matches[0]
+
+    project_roots: list[Path] = []
+    for raw in (
+        config_dir,
+        os.environ.get("CLAUDE_CONFIG_DIR"),
+        os.environ.get("CCB_WANDING_CONFIG_DIR"),
+    ):
+        if raw:
+            project_roots.append(Path(raw) / "projects")
+    project_roots.append(Path.home() / ".claude" / "projects")
+
+    seen: set[Path] = set()
+    for projects in project_roots:
+        try:
+            resolved = projects.resolve()
+        except OSError:
+            resolved = projects
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        if not projects.is_dir():
+            continue
+        matches = list(projects.glob(f"**/{session_id}.jsonl"))
+        if matches:
+            return matches[0]
     return None
 
 

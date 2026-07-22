@@ -150,6 +150,10 @@ View Steps (shipped)
 
 **Deferred:** B1 CCB bridge `_meta.delegationRun` enrich; unified expandable nested renderer (View Steps vs drawer); operator-language child labels. Spec: [`../integration/agent-team-architecture.md`](../integration/agent-team-architecture.md) § UI observability. Task: `.trellis/tasks/07-06-delegation-nested-view-steps/`.
 
+**Plan↔Run (2026-07-14 slim):** `decompositionPlan.ts` + `DecompositionPlanTimeline` mount via optional `decompositionPlan` on `MessageToolGroupSummary` (`WANd.OBSERVE.DELEGATION.002`). **Visual split (2026-07-16):** `DecompositionPlanTimeline` = multi-intent orchestration steps above View Steps; `MessagePlan` / `PlanChecklist` = parent or subagent **TodoWrite** checklist (`WANd.OBSERVE.PLAN.001` / `PLAN.002`). Subagent TodoWrite is **suppressed in main chat** and shown read-only in `SubagentDrawer` via `resolveLatestPlanForDelegation(turnPlanMessages, parentToolUseId)`. MessageList auto-feed of the decomposition plan object is still follow-up; multi-intent hard confirm is L1 + eval (`WANd.ROUTING.ASSIGNMENT.004`). Handoff Brief: `WANd.RUN.EXECUTION.003`.
+
+**Workspace mid-session auto-open (2026-07-16, `WANd.OBSERVE.WORKSPACE.001`):** When agent writes files mid-session, `useWorkspaceTree` dispatches `WORKSPACE_HAS_FILES_EVENT` with corrected `hasFiles` heuristic (`workspaceTreeHasVisibleContent` — root-level files count). `useWorkspaceCollapse` auto-expands unless user set `workspace-preference-${preferenceKey}=collapsed`; in that case a toast with **查看项目** CTA expands on click (does not silently ignore the write).
+
 ### 3.5 Permission request (with tool_call)
 
 ```json

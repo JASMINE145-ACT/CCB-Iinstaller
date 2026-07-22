@@ -35,7 +35,10 @@ class TestDispatchErrorCodes(unittest.TestCase):
 
         self.assertTrue(result["requires_confirmation"])
         self.assertEqual(result["rule_text"], "Use level B pricing")
-        self.assertEqual(result["section"], "business_rule_updates")
+        # Org Mutate envelope (07-15 kb-mutate): default section is the Chinese
+        # knowledge-base heading, mirrored in target.section.
+        self.assertEqual(result["section"], "业务规则补充")
+        self.assertEqual(result["target"]["section"], "业务规则补充")
 
     def test_append_business_rule_unconfirmed_dispatch_delegates_payload(self) -> None:
         response = handle_request({
@@ -45,7 +48,7 @@ class TestDispatchErrorCodes(unittest.TestCase):
 
         self.assertTrue(response["success"])
         self.assertTrue(response["result"]["requires_confirmation"])
-        self.assertEqual(response["result"]["section"], "business_rule_updates")
+        self.assertEqual(response["result"]["section"], "业务规则补充")
 
     def test_append_business_rule_business_dispatch_accepts_aliases(self) -> None:
         result = handle_append_business_rule({"rule": "Use level B pricing", "confirm": False})

@@ -115,27 +115,32 @@ else {
 }
 
 if ($Mode -eq 'Full') {
+    # Skip only when BOTH site-packages AND the launcher server.py exist. A partial tree
+    # (site-packages synced but launcher missing) previously SKIPped forever and left
+    # mcp-health required_paths failing (config check failed banner) with no self-heal.
     $wordSite = Join-Path $InstallDir 'vendor\mcp-servers\office-word-mcp\site-packages\word_document_server\main.py'
+    $wordLauncher = Join-Path $InstallDir 'vendor\mcp-servers\office-word-mcp\server.py'
     $excelSite = Join-Path $InstallDir 'vendor\mcp-servers\excel-mcp-server\site-packages\excel_mcp\server.py'
-    if (-not (Test-Path -LiteralPath $wordSite)) {
+    $excelLauncher = Join-Path $InstallDir 'vendor\mcp-servers\excel-mcp-server\server.py'
+    if (-not ((Test-Path -LiteralPath $wordSite) -and (Test-Path -LiteralPath $wordLauncher))) {
         $failures += Invoke-BootstrapStep -Name 'office-word-mcp' -ScriptRel 'install-office-word-mcp.ps1' -BoundArgs @{
             InstallDir = $InstallDir
         }
     }
     else {
-        Write-BootstrapLog 'SKIP office-word-mcp (site-packages present)'
+        Write-BootstrapLog 'SKIP office-word-mcp (site-packages + server.py present)'
         # Still repair python-wanding pywin32 — office-word stub quarantine can leave accurate broken.
         $failures += Invoke-BootstrapStep -Name 'python-wanding-pywin32' -ScriptRel 'ensure-python-wanding-pywin32.ps1' -BoundArgs @{
             InstallDir = $InstallDir
         }
     }
-    if (-not (Test-Path -LiteralPath $excelSite)) {
+    if (-not ((Test-Path -LiteralPath $excelSite) -and (Test-Path -LiteralPath $excelLauncher))) {
         $failures += Invoke-BootstrapStep -Name 'excel-mcp-server' -ScriptRel 'install-excel-mcp-server.ps1' -BoundArgs @{
             InstallDir = $InstallDir
         }
     }
     else {
-        Write-BootstrapLog 'SKIP excel-mcp-server (site-packages present)'
+        Write-BootstrapLog 'SKIP excel-mcp-server (site-packages + server.py present)'
     }
 }
 

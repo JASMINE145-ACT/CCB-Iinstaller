@@ -2,6 +2,7 @@
 # Usage:
 #   .\ccb-installer\scripts\deploy-session-precipitation-skill.ps1
 #   .\ccb-installer\scripts\deploy-session-precipitation-skill.ps1 -SkillsDir "C:\Users\me\AppData\Local\CCB-Wanding\.claude\skills"
+#   .\ccb-installer\scripts\deploy-session-precipitation-skill.ps1 -InstallDir "D:\CCB-Wanding"
 
 param(
     [string]$SkillsDir,
@@ -11,22 +12,40 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-if (-not $SourceDir) {
-    if ($InstallDir) {
-        $SourceDir = Join-Path $InstallDir "seed\skills\ccb-session-precipitation"
+function Resolve-PrecipitationSourceDir {
+    param([string]$PreferredInstallDir)
+
+    $candidates = @()
+    if ($PreferredInstallDir) {
+        $candidates += (Join-Path $PreferredInstallDir "seed\skills\ccb-session-precipitation")
     }
+    # Install/scripts layout: <InstallDir>\scripts -> sibling seed already covered;
+    # also support ccb-installer\scripts -> config\skills (dev + staging scripts root).
+    $installerRoot = Split-Path $PSScriptRoot -Parent
+    $candidates += (Join-Path $installerRoot "config\skills\ccb-session-precipitation")
+    $candidates += (Join-Path $installerRoot "seed\skills\ccb-session-precipitation")
+    # Dev repo: ...\claude-code-best\ccb-installer\scripts
+    $repoRoot = Split-Path $installerRoot -Parent
+    $candidates += (Join-Path $repoRoot "ccb-installer\config\skills\ccb-session-precipitation")
+
+    foreach ($cand in $candidates) {
+        if ($cand -and (Test-Path -LiteralPath $cand)) {
+            return $cand
+        }
+    }
+    return $null
 }
+
 if (-not $SourceDir -or -not (Test-Path -LiteralPath $SourceDir)) {
-    $SourceDir = Join-Path $repoRoot "ccb-installer\config\skills\ccb-session-precipitation"
+    $SourceDir = Resolve-PrecipitationSourceDir -PreferredInstallDir $InstallDir
 }
 
 if (-not $SkillsDir) {
     $SkillsDir = Join-Path $env:LOCALAPPDATA "CCB-Wanding\.claude\skills"
 }
 
-if (-not (Test-Path -LiteralPath $SourceDir)) {
-    throw "Source skill not found: $SourceDir"
+if (-not $SourceDir -or -not (Test-Path -LiteralPath $SourceDir)) {
+    throw "Source skill not found for ccb-session-precipitation (pass -InstallDir or -SourceDir)"
 }
 
 $destDir = Join-Path $SkillsDir "ccb-session-precipitation"

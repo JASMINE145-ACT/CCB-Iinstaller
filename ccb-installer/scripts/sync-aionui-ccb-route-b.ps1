@@ -126,3 +126,6 @@ if ($RestartAionUiWeb) {
     Get-Process -Name 'aionui-web', 'aioncore' -ErrorAction SilentlyContinue | Stop-Process -Force
     Write-Host 'Stopped aionui-web / aioncore.'
 }
+
+# Explicit success so callers that inspect $LASTEXITCODE are not poisoned by prior native cmds.
+exit 0

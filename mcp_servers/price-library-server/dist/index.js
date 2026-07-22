@@ -1,8 +1,75 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema, } from "@modelcontextprotocol/sdk/types.js";
+import { readFileSync } from "node:fs";
 import { callPythonTool } from "./python-spawner.js";
-const server = new Server({ name: "price-library-server", version: "1.0.0" }, { capabilities: { tools: {} } });
+
+const MUTATING_TOOLS = new Set([
+    "upsert_price_library_item",
+    "delete_price_library_item",
+    "restore_price_library_item",
+    "publish_price_library_draft",
+    "apply_price_library_import",
+    "revert_price_library_version",
+]);
+
+const CAP_PRICE_WRITE = "price_library.write";
+
+function baseUrl() {
+    const org = String(process.env.ORG_SERVER_URL ?? "").trim().replace(/\/$/, "");
+    if (org) return org;
+    const port = process.env.AIONCORE_PORT ?? "13400";
+    return `http://127.0.0.1:${port}`;
+}
+
+function readSessionJwt() {
+    const sessionTokenFile = process.env.ORG_SESSION_TOKEN_FILE ?? "";
+    if (sessionTokenFile) {
+        try {
+            const fromFile = readFileSync(sessionTokenFile, "utf8").trim();
+            if (fromFile) return fromFile;
+        }
+        catch {
+            // fall through
+        }
+    }
+    return process.env.AIONCORE_JWT ?? "";
+}
+
+function unwrapUser(parsed) {
+    if (!parsed || typeof parsed !== "object") return parsed;
+    if (parsed.user && typeof parsed.user === "object") return parsed.user;
+    if (parsed.data && typeof parsed.data === "object") return parsed.data;
+    return parsed;
+}
+
+async function assertPriceWriteAllowed(toolName) {
+    const jwt = readSessionJwt();
+    if (!jwt) {
+        throw new Error(`${toolName} forbidden: ORG session JWT missing`);
+    }
+    const res = await fetch(`${baseUrl()}/api/auth/user`, {
+        method: "GET",
+        headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${jwt}`,
+        },
+    });
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`${toolName} forbidden: auth/user ${res.status} ${text}`);
+    }
+    const user = unwrapUser(await res.json());
+    if (user?.is_admin) return;
+    const caps = Array.isArray(user?.capabilities) ? user.capabilities : [];
+    if (caps.includes(CAP_PRICE_WRITE)) return;
+    throw new Error(
+        `${toolName} forbidden: need is_admin or capability ${CAP_PRICE_WRITE}`,
+    );
+}
+
+const server = new Server({ name: "price-library-server", version: "1.0.1" }, { capabilities: { tools: {} } });
+
 const confirmedSchema = {
     type: "boolean",
     description: "Must be true after the user confirms a shared draft mutation.",
@@ -187,6 +254,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: rawArgs } = request.params;
     const args = asRecord(rawArgs);
     try {
+        if (MUTATING_TOOLS.has(name)) {
+            await assertPriceWriteAllowed(name);
+        }
         const result = await callPythonTool(name, args);
         if (!result.success) {
             return {

@@ -1,0 +1,10 @@
+{"file": ".trellis/spec/integration/agents-unified-model.md", "reason": "Anchor: 查后多候选 normative reply + relay contract. Workstream D writes § Quotation multi-candidate + § Selection+knowledge and references WANd.QUOTE.ORCH.RELAY.STRICT.001."}
+{"file": ".trellis/spec/integration/contracts/agent-runtime-registry.yml", "reason": "Anchor: 4 new contract IDs (SEED.SYNC.001, EVAL.CASE.PRICE_ONLY.001, RELAY.GUARD.001, ORCH.RELAY.STRICT.001). Workstream D appends registry rows."}
+{"file": ".trellis/spec/backend/quotation-matching-engine.md", "reason": "Anchor: § 9 Agent selection layer. Workstream D cross-references the new relay guard so spec stays consistent with the engine doc."}
+{"file": ".trellis/tasks/07-19-selection-api-and-evidence-harness/closeout.md", "reason": "Sibling task closeout. Workstreams B/C use the lock-code / batch / candidates contract as source of truth; do not duplicate selection API implementation."}
+{"file": ".trellis/tasks/07-19-eval-case-50-50-price-and-stock/closeout.md", "reason": "Sibling task closeout. Workstream B borrows grader layout (tool_args / tool_forbidden / structured_output) from this case."}
+{"file": ".trellis/tasks/07-19-quotation-agent-prompt/task.json", "reason": "Parent task. This task is a focused shippable sibling; do not mutate parent's prd/notes without user OK."}
+{"file": "agent-eval-plugin/graders/tool-args.mjs", "reason": "Anchor: Workstream B tool_args grader. Confirm `select.input.items[*].candidates[*].code` is reachable via `resolveEvidenceExpression` for the new case."}
+{"file": "agent-eval-plugin/graders/tool-forbidden.mjs", "reason": "Anchor: Workstream B tool_forbidden grader. Must match `inventory.query` / `mcp__quotation__get_inventory_by_code` as forbidden actions in price-only case."}
+{"file": "agent-eval-plugin/graders/structured-output.mjs", "reason": "Anchor: Workstream B/C structured_output grader. Price-only case may use a different format (assistant.text vs assistant.table)."}
+{"file": "agent-eval-plugin/graders/evidence-link.mjs", "reason": "Anchor: Workstream B evidence_link grader. Confirm `select.output.selections[*].code` → assistant.text contains code."}

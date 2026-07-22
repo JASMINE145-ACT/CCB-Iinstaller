@@ -46,31 +46,30 @@ def run_eval(
     return proc.returncode, data
 
 
-def test_n5_escalation() -> bool:
-    """Sixth evaluate on same window passes with step=escalate after five blocks."""
+def test_n1_escalation() -> bool:
+    """Second evaluate on the same window passes after the single allowed block."""
     LOG.mkdir(parents=True, exist_ok=True)
     counts = LOG / "subagent-gate-roe-judge-counts.json"
     if counts.exists():
         counts.unlink()
     fixture = "roe-edit-promise-no-write.jsonl"
     msg = "收到，马上更新报价单行价格并删除B款。"
-    session = "n5-escalation-session"
-    for attempt in range(1, 7):
-        code, data = run_eval(
-            fixture, msg, session=session, clear_counts=(attempt == 1)
-        )
-        if attempt <= 5:
-            if code != 10 or data.get("verdict") != "block":
-                print(f"[FAIL] n5 attempt {attempt} expected block, got {code} {data.get('verdict')}")
-                return False
-        else:
-            if code != 20 or data.get("verdict") != "pass" or data.get("step") != "escalate":
-                print(f"[FAIL] n5 attempt 6 expected escalate pass, got {code} step={data.get('step')}")
-                return False
-            if not data.get("escalated"):
-                print("[FAIL] n5 attempt 6 missing escalated flag")
-                return False
-    print("[PASS] n5 escalation after 5 blocks")
+    session = "n1-escalation-session"
+    code1, data1 = run_eval(fixture, msg, session=session, clear_counts=True)
+    if code1 != 10 or data1.get("verdict") != "block":
+        print(f"[FAIL] n1 attempt 1 expected block, got {code1} {data1.get('verdict')}")
+        return False
+    code2, data2 = run_eval(fixture, msg, session=session, clear_counts=False)
+    if code2 != 20 or data2.get("verdict") != "pass" or data2.get("step") != "escalate":
+        print(f"[FAIL] n1 attempt 2 expected escalate pass, got {code2} step={data2.get('step')}")
+        return False
+    if not data2.get("escalated"):
+        print("[FAIL] n1 attempt 2 missing escalated flag")
+        return False
+    if data1.get("window_key") != data2.get("window_key"):
+        print(f"[FAIL] n1 window key drift: {data1.get('window_key')} != {data2.get('window_key')}")
+        return False
+    print("[PASS] n1 escalation after 1 block")
     return True
 
 
@@ -93,7 +92,7 @@ def main() -> int:
         if not ok:
             failed += 1
             print(f"       expected exit={expected_code} verdict={expected_verdict}")
-    if not test_n5_escalation():
+    if not test_n1_escalation():
         failed += 1
     print(f"\nResults: {len(cases) + 1 - failed} passed, {failed} failed")
     return 1 if failed else 0

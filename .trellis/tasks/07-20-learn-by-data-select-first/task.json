@@ -1,0 +1,28 @@
+{
+  "id": "learn-by-data-select-first",
+  "name": "learn-by-data-select-first",
+  "title": "learn-by-data-select-first",
+  "description": "",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-20",
+  "completedAt": "2026-07-20",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "07-20-elbow-3inch-aw-zero-candidate"
+  ],
+  "parent": "07-19-quotation-agent-prompt",
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

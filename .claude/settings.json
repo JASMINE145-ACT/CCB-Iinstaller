@@ -2,82 +2,25 @@
   "env": {
     "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1"
   },
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/session-start.py",
-            "timeout": 30
-          }
-        ]
-      },
-      {
-        "matcher": "clear",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/session-start.py",
-            "timeout": 30
-          }
-        ]
-      },
-      {
-        "matcher": "compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/session-start.py",
-            "timeout": 30
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Task",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/inject-subagent-context.py",
-            "timeout": 30
-          }
-        ]
-      },
-      {
-        "matcher": "Agent",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/inject-subagent-context.py",
-            "timeout": 30
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/commit-gate.py",
-            "timeout": 30
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/inject-workflow-state.py",
-            "timeout": 15
-          }
-        ]
-      }
-    ]
+  "hooks": {},
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": false
   },
-  "enabledPlugins": {}
+  "skillOverrides": {
+    "banner-design": "user-invocable-only",
+    "brand": "user-invocable-only",
+    "design": "user-invocable-only",
+    "design-system": "user-invocable-only",
+    "slides": "user-invocable-only",
+    "trellis-before-dev": "user-invocable-only",
+    "trellis-brainstorm": "user-invocable-only",
+    "trellis-break-loop": "user-invocable-only",
+    "trellis-check": "user-invocable-only",
+    "trellis-meta": "user-invocable-only",
+    "trellis-spec-bootstarp": "user-invocable-only",
+    "trellis-task-execution": "user-invocable-only",
+    "trellis-update-spec": "user-invocable-only",
+    "ui-styling": "user-invocable-only",
+    "ui-ux-pro-max": "user-invocable-only"
+  }
 }

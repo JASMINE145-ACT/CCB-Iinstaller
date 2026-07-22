@@ -1,0 +1,176 @@
+{
+  "id": "quotation-direct50-tee50-price-stock",
+  "title": "直接50与三通50 B级报价并查库存",
+  "objective": "同轮查询直接50与三通50的B级价格和库存：match batch → select_quotation_candidates 锁码 → inventory batch → 与证据一致的两行表格。",
+  "prompt": "查询直接50和三通50的B级价格并查库存，请用表格列出结果。",
+  "risk_level": "read_only",
+  "agent": {
+    "id": "quotation-agent",
+    "adapter": "ccb-acp"
+  },
+  "ideal_process": [
+    "quotation.match",
+    "quotation.select",
+    "inventory.query",
+    "assistant.table"
+  ],
+  "graders": [
+    {
+      "id": "required_actions",
+      "type": "tool_presence",
+      "severity": "hard",
+      "config": {
+        "actions": [
+          "quotation.match",
+          "quotation.select",
+          "inventory.query"
+        ]
+      }
+    },
+    {
+      "id": "forbidden_actions",
+      "type": "tool_forbidden",
+      "severity": "hard",
+      "config": {
+        "actions": [
+          "agent.delegate",
+          "quotation.search_inventory"
+        ]
+      }
+    },
+    {
+      "id": "discouraged_actions",
+      "type": "tool_forbidden",
+      "severity": "soft",
+      "config": {
+        "actions": [
+          "tool.mcp__quotation__get_product_price_tiers"
+        ]
+      }
+    },
+    {
+      "id": "golden_sequence",
+      "type": "sequence",
+      "severity": "hard",
+      "config": {
+        "actions": [
+          "quotation.match",
+          "quotation.select",
+          "inventory.query",
+          "assistant.table"
+        ]
+      }
+    },
+    {
+      "id": "business_arguments",
+      "type": "tool_args",
+      "severity": "hard",
+      "config": {
+        "assertions": [
+          {
+            "action": "quotation.match",
+            "path": "input.customer_level",
+            "operator": "equals",
+            "value": "B"
+          }
+        ]
+      }
+    },
+    {
+      "id": "evidence_provenance",
+      "type": "evidence_link",
+      "severity": "hard",
+      "config": {
+        "assertions": [
+          {
+            "source": "quotation.match.output.results[*].candidates[*].code",
+            "target": "quotation.select.output.selections[*].code",
+            "operator": "contains"
+          },
+          {
+            "source": "quotation.select.output.selections[*].code",
+            "target": "inventory.query.input.codes",
+            "operator": "contains"
+          },
+          {
+            "source": "inventory.query.input.codes",
+            "target": "assistant.table.output.rows[*].material_code",
+            "operator": "contains"
+          },
+          {
+            "source": "assistant.table.output.rows[*].material_code",
+            "target": "inventory.query.input.codes",
+            "operator": "contains"
+          }
+        ]
+      }
+    },
+    {
+      "id": "quotation_table",
+      "type": "structured_output",
+      "severity": "hard",
+      "config": {
+        "format": "markdown_table",
+        "exact_columns": true,
+        "min_rows": 2,
+        "required_columns": [
+          "编码",
+          "中文名称",
+          "英文/印尼名",
+          "规格",
+          "单价(B级)",
+          "在仓库存",
+          "可用库存",
+          "单位",
+          "备注"
+        ]
+      }
+    }
+  ],
+  "judge": {
+    "mode": "current_ai_process",
+    "required": true,
+    "rubric": [
+      {
+        "id": "requirement_satisfaction",
+        "description": "是否完整覆盖直接50与三通50的价格和库存",
+        "weight": 40
+      },
+      {
+        "id": "selection_reasoning",
+        "description": "是否经 select_quotation_candidates 锁码，且两行选型符合业务知识（直通/三通不得混选）",
+        "weight": 35
+      },
+      {
+        "id": "clarity",
+        "description": "表格与说明是否清晰",
+        "weight": 25
+      }
+    ],
+    "threshold": 80
+  },
+  "decision": {
+    "policy": "all_hard_and_soft_threshold",
+    "hard": {
+      "require": "all"
+    },
+    "soft": {
+      "aggregate": "weighted_average",
+      "threshold": 80
+    }
+  },
+  "trials": {
+    "count": 3,
+    "metrics": [
+      "pass_at_1",
+      "pass_at_3",
+      "pass_power_3",
+      "flaky_rate",
+      "latency"
+    ]
+  },
+  "schema_version": "eval.case/v1",
+  "status": "locked",
+  "confirmed_at": "2026-07-19T06:33:16.282Z",
+  "case_hash": "sha256:0736b34f73c61cedf973e2dac4cafeb06745ec7dd437e01dacfee566515aae50"
+}

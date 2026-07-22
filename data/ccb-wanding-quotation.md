@@ -55,20 +55,20 @@
 
 ## 报价匹配规则
 
-报价匹配与选型**必须**结合业务知识库。调用顺序（**2026-06-30 硬约束**）：
+报价匹配与选型**必须**结合业务知识库。调用顺序（**2026-07-19 API-first**）：
 
-1. **本会话第一次查价前** Read `wanding_business_knowledge.md`（`PreToolUse` 拦截未 Read 的 `match_quotation`）。
-2. 然后 `match_quotation` / `match_quotation_batch`。
-3. **同会话后续查价** — 不再 Read 知识库，直接 match。
-4. 多候选：同条回复 **1 推荐价 + ≤4 bullet「其他可能」**（`post-match-knowledge-nudge.py` 仅约束回复形态）。
+1. `match_quotation` / `match_quotation_batch`（**不要求** match 前先 Read 知识库；PreToolUse 强制 Read 已移除）。
+2. **选型**：`select_quotation_candidates`（工具内加载知识；主流路径）。
+3. `status: unable_to_select` / 选型工具不可用 → 才 Read `wanding_business_knowledge.md` 做 agent 侧 fallback 自选。
+4. 多候选：同条回复 **1 推荐价 + ≤4 bullet「其他可能」**（`post-match-knowledge-nudge.py` 催 select，非 Read-first）。
 
-**以下情况除会话 Read 外，还须 Read `data.Md`：**
+**以下情况还须 Read `data.Md`：**
 
 - `get_product_price_tiers` / 多档一览（`post-price-tiers-nudge.py`）
 
-**以下情况在已 Read 知识库后按规则选型即可**（不必重复 Read）：
+**主流路径不必 agent Read 知识库：**
 
-- 单候选或多候选查价
+- `select_quotation_candidates` 返回 `ok` 后的单候选/多候选查价
 - `show_candidates=true`
 - 候选来源不同（历史报价 vs 字段匹配）
 - 用户纠正过选型
@@ -124,7 +124,7 @@ data/wanding_business_knowledge.md
 | `candidates_returned` | 本次 JSON 附带的候选条数（默认 ≤7） |
 | `candidates_truncated` | 为 `true` 时表示还有更多候选未返回 |
 | `candidates` | 候选列表（`code` / `matched_name` / `unit_price` / `source`） |
-| `selection_context.knowledge_source` | 业务知识库路径 — **本会话首次查价前 Read 一次**（`PreToolUse` 强制）；不在 JSON 内联全文 |
+| `selection_context.knowledge_source` | 业务知识库路径 — 由 `select_quotation_candidates` 工具内加载；agent 仅在 `unable_to_select` 时 Read；不在 JSON 内联全文 |
 
 **batch 顶层**：`{ batch_limit, items_requested, items_processed, items_truncated, results[], remaining_keywords? }`（每批 ≤10 行，**故意截断**）。
 
@@ -246,14 +246,14 @@ data/wanding_business_knowledge.md
 
 ## 选型与澄清
 
-> **Spec anchor (2026-06-29):** [`.trellis/spec/integration/agents-unified-model.md`](../.trellis/spec/integration/agents-unified-model.md) § Quotation multi-candidate reply. L1 seed: `ccb-installer/config/agents/quotation-agent.md` §选型与澄清（须与下文一致）。
+> **Spec anchor (2026-07-19):** [`.trellis/spec/integration/agents-unified-model.md`](../.trellis/spec/integration/agents-unified-model.md) § Selection + knowledge / Quotation multi-candidate reply. L1: `ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md`（须与下文一致）。
 
-具体选型规则、业务默认、纠偏案例**只维护在** `wanding_business_knowledge.md`。**本节只规定流程，不重复规则正文。**
+具体选型规则、业务默认、纠偏案例**只维护在** `wanding_business_knowledge.md`（由 select MCP 加载）。**本节只规定流程，不重复规则正文。**
 
 执行要求：
 - **禁止** `AskUserQuestion`；澄清用 assistant 正文 + 用户下一条。
 - **查前**（match 前缺压力/档位等）：A/B/C 选项，可 `1A 2C`。
-- **查后多候选**：**先 Read 知识库（本会话仅一次）→ match → 同条回复 1 推荐价 + ≤4 bullet「其他可能」**；**禁止**「用途 A/B/C / 按 1A 格式 / 请选序号」阻塞；「直接50」默认推荐 PVC-U 排水 8020020755。
+- **查后多候选**：**match → `select_quotation_candidates` → 同条回复 1 推荐价 + ≤4 bullet「其他可能」**；`unable_to_select` 才 Read 知识库自选；**禁止**「用途 A/B/C / 按 1A 格式 / 请选序号」阻塞；「直接50」默认推荐 PVC-U 排水 8020020755。
 - 仅 §9 强制澄清或用户要看全部候选时才请用户选编码。
 - `candidates_truncated` → 单独 `match_quotation` + `show_candidates:true`。
 - 替代品：**出单写死编码前**确认；查价回复仍先给推荐 + bullet。

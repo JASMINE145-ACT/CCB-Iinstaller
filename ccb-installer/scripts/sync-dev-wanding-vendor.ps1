@@ -91,6 +91,19 @@ Invoke-Robocopy `
     -Destination $mcpDst `
     -ExtraArgs @("/E")
 
+# quotation-server runtime needs node_modules (MCP SDK). Dist-only sync leaves Bun unable to
+# resolve @modelcontextprotocol/sdk — same failure mode after a wiped vendor tree.
+$quotNmSrc = Join-Path $RepoRoot "mcp_servers\quotation-server\node_modules"
+$quotNmDst = Join-Path $vendor "mcp-servers\quotation-server\node_modules"
+if (Test-Path -LiteralPath $quotNmSrc) {
+    Invoke-Robocopy `
+        -Source $quotNmSrc `
+        -Destination $quotNmDst `
+        -ExtraArgs @("/E")
+} else {
+    Write-Host "[skip] missing quotation-server node_modules: $quotNmSrc" -ForegroundColor Yellow
+}
+
 $priceLibMcpDst = Join-Path $vendor "mcp-servers\price-library-server\dist"
 Invoke-Robocopy `
     -Source (Join-Path $RepoRoot "mcp_servers\price-library-server\dist") `

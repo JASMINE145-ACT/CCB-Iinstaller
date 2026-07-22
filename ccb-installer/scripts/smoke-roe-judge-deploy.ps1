@@ -32,6 +32,24 @@ function Assert-Content($path, $pattern, $label) {
     }
 }
 
+function Get-Sha256Hex($path) {
+    $getFileHash = Get-Command Get-FileHash -ErrorAction SilentlyContinue
+    if ($getFileHash) {
+        return (Get-FileHash -Algorithm SHA256 -LiteralPath $path).Hash
+    }
+    $stream = [System.IO.File]::OpenRead($path)
+    try {
+        $sha = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            return ([System.BitConverter]::ToString($sha.ComputeHash($stream))).Replace('-', '')
+        } finally {
+            $sha.Dispose()
+        }
+    } finally {
+        $stream.Dispose()
+    }
+}
+
 Write-Host "=== ROE Judge deploy artifacts ==="
 Assert-File (Join-Path $skillDest "scripts\validators\generic-roe-judge.sh") "generic-roe-judge.sh deployed"
 Assert-File (Join-Path $skillDest "scripts\lib\parse_transcript_roe_judge.py") "parse_transcript_roe_judge.py deployed"
@@ -79,7 +97,7 @@ if ($LASTEXITCODE -eq 0) {
 
 $repoPy = Join-Path $repoRoot "ccb-installer\config\skills\ccb-subagent-gate\scripts\lib\parse_transcript_roe_judge.py"
 $livePy = Join-Path $skillDest "scripts\lib\parse_transcript_roe_judge.py"
-if ((Test-Path $livePy) -and (Get-FileHash $repoPy).Hash -eq (Get-FileHash $livePy).Hash) {
+if ((Test-Path $livePy) -and (Get-Sha256Hex $repoPy) -eq (Get-Sha256Hex $livePy)) {
     Write-Host "[PASS] deployed parse_transcript_roe_judge.py matches repo"
     $pass++
 } else {

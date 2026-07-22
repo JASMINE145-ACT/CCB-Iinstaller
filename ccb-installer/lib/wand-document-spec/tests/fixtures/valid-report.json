@@ -1,0 +1,35 @@
+{
+  "spec_version": "1.0",
+  "document_id": "doc-smoke-ai-report",
+  "title": "AI 技术调研报告",
+  "sections": [
+    {
+      "section_id": "sec-executive-summary",
+      "level": 1,
+      "title": "执行摘要",
+      "blocks": [
+        {
+          "block_id": "blk-exec-p1",
+          "type": "paragraph",
+          "text": "本报告总结近期 AI 技术趋势与对业务的影响。"
+        }
+      ]
+    },
+    {
+      "section_id": "sec-findings",
+      "level": 1,
+      "title": "主要发现",
+      "blocks": [
+        {
+          "block_id": "blk-findings-table",
+          "type": "table",
+          "headers": ["维度", "结论"],
+          "rows": [
+            ["模型", "多模态能力持续增强"],
+            ["Agent", "工具编排成为主流"]
+          ]
+        }
+      ]
+    }
+  ]
+}

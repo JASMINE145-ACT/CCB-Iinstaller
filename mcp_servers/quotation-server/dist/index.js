@@ -151,6 +151,36 @@ server.setRequestHandler(ListToolsRequestSchema, () => ({
             },
         },
         {
+            name: "select_quotation_candidates",
+            description: "Primary structured selection API: given match candidates (+ optional knowledge_path), return {status, selections[{keywords,code,reason}]}. status=ok means lock those codes for inventory/table. status=unable_to_select means the agent may Read business knowledge and select manually (fallback). Does not call inventory. Codes must come from provided candidates.",
+            inputSchema: {
+                type: "object",
+                properties: {
+                    items: {
+                        type: "array",
+                        description: "Preferred: [{keywords, candidates}] from match_quotation / match_quotation_batch results.",
+                        items: {
+                            type: "object",
+                            properties: {
+                                keywords: { type: "string" },
+                                candidates: { type: "array", items: { type: "object" } },
+                            },
+                            required: ["keywords", "candidates"],
+                        },
+                    },
+                    results: {
+                        type: "array",
+                        description: "Optional passthrough of match_quotation_batch.results.",
+                        items: { type: "object" },
+                    },
+                    keywords: { type: "string", description: "Single-item convenience with candidates[]." },
+                    candidates: { type: "array", items: { type: "object" } },
+                    knowledge_path: { type: "string", description: "Optional override for business knowledge md path." },
+                    customer_level: customerLevelSchema,
+                },
+            },
+        },
+        {
             name: "get_product_price_tiers",
             description: "List all non-zero price tiers for one product code from org price library (factory/A/B/C/D/E/LOCAL/RUCIKA/PE etc.). Use when user asks what price types exist, compares tiers, or questions tier meaning. Agent MUST Read vendor data.Md (same turn) before explaining labels — per-source semantics differ (RUCIKA price_d ≠ 青山). Returns tiers[] + product_type + data_md_path.",
             inputSchema: {
@@ -164,17 +194,34 @@ server.setRequestHandler(ListToolsRequestSchema, () => ({
         },
         {
             name: "append_business_rule",
-            description: "Append a confirmed business rule to the shared organization knowledge doc (center VPS wanding_business_knowledge). Without confirmed=true returns requires_confirmation only. Do NOT edit the local shadow md file for shared updates.",
+            description: "Append a confirmed business rule to org knowledge (Org Mutate UX). Preview confirmed=false returns envelope (+ legacy rule_text). Hard cap / near-duplicate may return LIMIT_EXCEEDED or NEAR_DUPLICATE. Do NOT edit the local shadow md for shared updates. Prefer one append for one semantic rule — do not split.",
             inputSchema: {
                 type: "object",
                 properties: {
-                    rule_text: { type: "string", description: "Rule text to append (aliases: rule, content, text)." },
+                    rule_text: { type: "string", description: "Rule text to append (aliases: rule, content, text). Soft guide ≤8000 chars; hard cap 16000." },
                     confirmed: { type: "boolean", description: "Must be true after user confirms the shared update." },
                     section: { type: "string", description: "Optional markdown section heading (default: 业务规则补充)." },
                     reason: { type: "string", description: "Optional note stored with the rule block." },
                     slug: { type: "string", description: "Org knowledge slug (default: wanding_business_knowledge)." },
+                    force_near_duplicate: { type: "boolean", description: "true only after user explicitly OK despite NEAR_DUPLICATE preview." },
                 },
                 required: ["rule_text"],
+            },
+        },
+        {
+            name: "delete_business_rule",
+            description: "Delete one business-knowledge Markdown rule block (Org Mutate). Preview with confirmed=false. Locate via block_id OR content_hash+snippet (+ optional doc_version). Apply gated by: test slug / ORG_KNOWLEDGE_MCP_DELETE / ORG_KNOWLEDGE_DELETE_IS_ADMIN / session is_admin or org_knowledge.write from GET /api/auth/user — else FORBIDDEN (Chinese recovery). History retained for UI/REST revert. Do not use fuzzy contains-only.",
+            inputSchema: {
+                type: "object",
+                properties: {
+                    block_id: { type: "string", description: "Stamped id from append (org_mutate_block comment)." },
+                    content_hash: { type: "string", description: "sha256 hex of normalized block (alias: hash)." },
+                    snippet: { type: "string", description: "Exact substring of the unique block (required with hash for legacy blocks)." },
+                    doc_version: { type: "number", description: "Expected doc version; mismatch → CONFLICT." },
+                    confirmed: { type: "boolean", description: "true to apply after preview." },
+                    slug: { type: "string", description: "Default wanding_business_knowledge; use *_test for smoke." },
+                    allow_section_edit: { type: "boolean", description: "Must be true to delete section headings (still RBAC-gated)." },
+                },
             },
         },
         {

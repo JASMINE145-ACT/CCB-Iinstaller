@@ -85,6 +85,7 @@ function Get-WandingShipScripts {
         'internal-upgrade.ps1',
         'repair-wanding-install-dir.ps1',
         'find-wanding-installs.ps1',
+        'purge-stale-wanding-installs.ps1',
         'rollback-last-update.ps1'
     )
 }

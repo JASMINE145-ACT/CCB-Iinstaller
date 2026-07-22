@@ -457,21 +457,24 @@ contracts:
       - .trellis/tasks/07-06-employee-profile-settings-prompt/prd.md
 
   - id: WANd.RUN.HOOK.001
-    title: PreToolUse knowledge gate before match_quotation
+    title: Quotation selection API-first (no PreToolUse force-Read)
     domain: execution
     description: >
-      Subagent PreToolUse denies match until Read(business knowledge); transcript path
-      must include derived subagent jsonl (hook_transcript.py).
+      Happy-path selection uses mcp__quotation__select_quotation_candidates after match.
+      Agent Read(business knowledge) is fallback-only on unable_to_select. PreToolUse
+      pre-match-knowledge-gate is removed from quotation-agent L1; modes quotation-agent:knowledge=off.
     code:
-      - ccb-installer/scripts/hooks/hook_transcript.py
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md
+      - ccb-installer/config/skills/ccb-subagent-gate/config/modes.json
+      - python/quotation/select_dispatch.py
     tests:
-      - eval/agent_eval_cases.jsonl#quote-knowledge-select-direct50-b
+      - ccb-installer/scripts/__tests__/quotation-agent-output-contract.test.mjs
+      - python/tests/test_select_quotation_candidates.py
     spec:
-      - .trellis/spec/integration/agent-team-architecture.md
-      - .trellis/tasks/07-07-quotation-match-acp-upstream-error/prd.md
+      - .trellis/spec/integration/agents-unified-model.md
     related:
-      - WANd.ROUTING.REVIEWER.001
-
+      - WANd.QUOTE.SELECT_API.001
+      - WANd.QUOTE.SELECT_WIRE.001
   - id: WANd.OBSERVE.DELEGATION.001
     title: DelegationRun B0 + nested View Steps
     domain: observability
@@ -517,6 +520,65 @@ contracts:
     related:
       - WANd.OBSERVE.DELEGATION.001
       - WANd.ROUTING.ASSIGNMENT.004
+
+  - id: WANd.OBSERVE.WORKSPACE.001
+    title: Mid-session workspace auto-expand + collapsed-pref toast CTA
+    domain: observability
+    description: >
+      When agent writes files mid-session, desktop project panel auto-expands.
+      User collapsed preference shows toast with View Project CTA instead of silent fail.
+      hasFiles producer uses workspaceTreeHasVisibleContent (root-level files count).
+    code:
+      - aionui-src/packages/desktop/src/renderer/pages/conversation/Workspace/utils/treeHelpers.ts
+      - aionui-src/packages/desktop/src/renderer/pages/conversation/Workspace/hooks/useWorkspaceTree.ts
+      - aionui-src/packages/desktop/src/renderer/pages/conversation/hooks/useWorkspaceCollapse.ts
+      - aionui-src/packages/desktop/src/renderer/utils/workspace/workspaceAutoOpenToast.tsx
+    tests:
+      - aionui-src/tests/unit/workspace/workspaceTreeHasVisibleContent.test.ts
+      - aionui-src/tests/unit/renderer/useWorkspaceCollapse.dom.test.ts
+    spec:
+      - .trellis/spec/frontend/chat-acp-flow.md
+      - .trellis/tasks/07-16-workspace-todo-observability/prd.md
+    related:
+      - WANd.OBSERVE.DELEGATION.002
+
+  - id: WANd.OBSERVE.PLAN.001
+    title: Parent TodoWrite checklist UI (PlanChecklist + MessagePlan)
+    domain: observability
+    description: >
+      Shared PlanChecklist renders done/in_progress/pending states. MessagePlan wraps
+      parent orchestrator plans in main chat. Subagent plans with parentToolUseId suppressed.
+    code:
+      - aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/components/PlanChecklist.tsx
+      - aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/components/MessagePlan.tsx
+      - aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/MessageList.tsx
+    tests:
+      - aionui-src/tests/unit/renderer/MessagePlan.dom.test.tsx
+    spec:
+      - .trellis/spec/frontend/chat-acp-flow.md
+      - .trellis/tasks/07-16-workspace-todo-observability/prd.md
+    related:
+      - WANd.OBSERVE.PLAN.002
+
+  - id: WANd.OBSERVE.PLAN.002
+    title: SubagentDrawer read-only Todo from message list
+    domain: observability
+    description: >
+      resolveLatestPlanForDelegation reads type plan messages (not tool calls).
+      MessageList attaches suppressed turnPlanMessages to tool_summary; SubagentDrawer renders PlanChecklist.
+    code:
+      - aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/utils/resolveLatestPlanForDelegation.ts
+      - aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/acp/SubagentDrawer.tsx
+      - aionui-src/packages/desktop/src/renderer/pages/conversation/Messages/components/MessageToolGroupSummary.tsx
+    tests:
+      - aionui-src/tests/unit/renderer/resolveLatestPlanForDelegation.test.ts
+      - aionui-src/tests/unit/renderer/SubagentDrawer.dom.test.tsx
+    spec:
+      - .trellis/spec/frontend/chat-acp-flow.md
+      - .trellis/tasks/07-16-workspace-todo-observability/prd.md
+    related:
+      - WANd.OBSERVE.PLAN.001
+      - WANd.OBSERVE.DELEGATION.001
 
   - id: WANd.LEARNING.TURN_HARVEST.001
     title: TurnHarvest checkpoint + FullReview mainline
@@ -624,3 +686,102 @@ contracts:
       - .trellis/tasks/07-14-precipitation-effectiveness/prd.md
     related:
       - WANd.LEARNING.IDLE.001
+
+  # --- 07-21-quotation-relay-stale-fix: 4 new contracts (2026-07-20) ---
+  - id: WANd.AGENT.SEED.SYNC.001
+    title: Paired agent L1 source == install seed (no drift)
+    domain: deployment
+    status: shipped-slim
+    description: >
+      Every agent L1 in ccb-installer/staging/seed/agents/ must byte-equal its
+      source in ccb-installer/packages/vertical/com.wanding.trade/agents/.
+      2026-07-19 regression: quotation-agent.md source updated (7/20, 31,217 B)
+      but staging seed stayed 7/18 (23,989 B), -7,230 B drift. deploy-seed-agents
+      then shipped stale L1 to live installs and sub-agent produced forbidden
+      'A 选项' replies. Guard pytest scans ALL 5 paired agents (not just
+      quotation-agent) and any drift fails CI before reaching deploy.
+    code:
+      - ccb-installer/config/skills/ccb-subagent-gate/tests/test_seed_sync.py
+      - ccb-installer/staging/seed/agents/*.md
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/*.md
+    tests:
+      - ccb-installer/config/skills/ccb-subagent-gate/tests/test_seed_sync.py
+    spec:
+      - .trellis/spec/integration/agents-unified-model.md#agent-md-authority
+      - .trellis/tasks/07-21-quotation-relay-stale-fix/prd.md
+    related:
+      - WANd.RUN.HOOK.001
+
+  - id: WANd.EVAL.CASE.PRICE_ONLY.001
+    title: Agent Eval Case — price-only path (no inventory)
+    domain: eval
+    status: shipped-slim
+    description: >
+      Locked Case .agent-eval/cases/quotation-direct50-price-only.json covers
+      the 'price only' sub-path of quotation-agent (查价 with no inventory).
+      Hard-grader: match + supplier + select must be present; inventory /
+      get_inventory_by_code / fill_quotation_sheet must be absent. L1 § 查后
+      多候选 BAD shape (A/B/C menu, '按 1A 格式', '请选序号') is encoded in
+      the soft rubric weight 15% (no_clarification_dump).
+    code:
+      - .agent-eval/cases/quotation-direct50-price-only.json
+      - agent-eval-plugin/test/quotation-direct50-price-only.test.mjs
+    tests:
+      - agent-eval-plugin/test/quotation-direct50-price-only.test.mjs
+    spec:
+      - .trellis/spec/agent-eval/index.md
+      - .trellis/tasks/07-21-quotation-relay-stale-fix/prd.md
+    related:
+      - WANd.QUOTE.SELECT_API.001
+      - WANd.TRADE.SOURCING.DUAL.001
+
+  - id: WANd.QUOTE.RELAY.GUARD.001
+    title: PostToolUse relay nudge after select_quotation_candidates ok
+    domain: execution
+    status: shipped-slim
+    description: >
+      Hook scripts/post-quotation-relay-nudge.py (PostToolUse on
+      mcp__quotation__select_quotation_candidates) emits an additionalContext
+      line listing locked codes and the L1 § 查后多候选 GOOD pattern when
+      select returns status=ok with non-empty selections. modes.json
+      quotation-agent:relay-guard=off (nudge-only, same posture as
+      :knowledge=off). 45s session dedupe. 2026-07-19 regression: sub-agent
+      produced '按 A 选项已交付' with no price table; this hook would have
+      nudged the locked code into the next assistant text. Hard block remains
+      quotation-agent:roe-judge (universal ROE).
+    code:
+      - ccb-installer/config/skills/ccb-subagent-gate/scripts/post-quotation-relay-nudge.py
+      - ccb-installer/config/skills/ccb-subagent-gate/config/modes.json
+    tests:
+      - ccb-installer/config/skills/ccb-subagent-gate/tests/test_post_quotation_relay_nudge.py
+    spec:
+      - .trellis/spec/integration/agents-unified-model.md#selection-knowledge
+      - .trellis/tasks/07-21-quotation-relay-stale-fix/prd.md
+    related:
+      - WANd.QUOTE.SELECT_API.001
+      - WANd.AGENT.SEED.SYNC.001
+
+  - id: WANd.QUOTE.ORCH.RELAY.STRICT.001
+    title: Orchestrator relay strict for sub-agent query results
+    domain: execution
+    status: shipped-slim
+    description: >
+      Strengthens WANd.ORCH.OUTCOME_RELAY.001 for query-type sub-agent results
+      (no artifact, e.g. 查价): wande-orchestrator final user reply must
+      include the locked material code + price + supplier section from
+      sub-agent's tool trace. Original outcome-relay covers artifact-bearing
+      paths; this contract adds the query-only path surfaced 2026-07-19 where
+      parent replied '报价专家返回的结果里没有具体的物料价格表,只有一个
+      待继续确认的状态' instead of relaying the locked 8020020755 ¥1,219.
+    code:
+      - ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md
+      - .trellis/spec/integration/agents-unified-model.md
+    tests:
+      - eval/agent_eval_cases.jsonl#orchestrator-query-outcome-relay
+    spec:
+      - .trellis/spec/integration/agents-unified-model.md#wan-d-orch-wakeup-relay-001
+      - .trellis/tasks/07-21-quotation-relay-stale-fix/prd.md
+    related:
+      - WANd.ORCH.OUTCOME_RELAY.001
+      - WANd.QUOTE.RELAY.GUARD.001
+

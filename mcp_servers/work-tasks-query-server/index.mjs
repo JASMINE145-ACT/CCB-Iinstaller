@@ -9,11 +9,13 @@
  * - AIONCORE_PORT (default 13400) with http://127.0.0.1:{port}
  * - AIONCORE_JWT — static JWT
  *
- * Optional:
- * - WORK_TASKS_AGENT_ROLE: employee | manager (overrides /api/auth/user)
+ * Optional break-glass (not a closure PASS):
+ * - WORK_TASKS_ALLOW_ROLE_OVERRIDE=1 + WORK_TASKS_AGENT_ROLE=employee|manager
  *
- * v2 tools: list_mine, brief (mine-only), get, resolve_assignee (manager).
- * Legacy: username===admin maps to manager until EIL is_admin (P4).
+ * Lifecycle: mutating tools require employment_status active|transferred (same allowlist as
+ * AionCore JWT middleware). Suspended/terminated → audit result=denied (REST already 401).
+ *
+ * Role resolve: DB work_task_role / is_admin (JWT→/api/auth/user). Env override ignored by default.
  */
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
@@ -50,7 +52,38 @@ function readUserFields(user) {
     id: body?.id ?? body?.user_id ?? null,
     username: body?.username ?? null,
     work_task_role: body?.work_task_role ?? null,
+    is_admin: Boolean(body?.is_admin),
+    employment_status: body?.employment_status ?? null,
   };
+}
+
+/** Same allowlist as aionui_common::is_employment_status_login_allowed. */
+function isEmploymentAllowed(status) {
+  const s = String(status ?? '').trim().toLowerCase();
+  return s === 'active' || s === 'transferred';
+}
+
+function isLifecycleDeniedError(error) {
+  const msg = error instanceof Error ? error.message : String(error);
+  return (
+    /Account is suspended or terminated/i.test(msg) ||
+    /employment_status=/i.test(msg) ||
+    /\(401\).*suspended/i.test(msg)
+  );
+}
+
+function assertMutatingEmployment(actor, toolName) {
+  if (!actor?.actor_user_id) return;
+  const status = actor.employment_status;
+  if (status == null || String(status).trim() === '') {
+    const err = new Error(`${toolName} forbidden: employment_status missing (lifecycle)`);
+    err.code = 'LIFECYCLE_DENIED';
+    throw err;
+  }
+  if (isEmploymentAllowed(status)) return;
+  const err = new Error(`${toolName} forbidden: employment_status=${status} (lifecycle)`);
+  err.code = 'LIFECYCLE_DENIED';
+  throw err;
 }
 
 function baseUrl() {
@@ -82,14 +115,44 @@ function roleCanQuery(role) {
   return normalized === 'admin' || normalized === 'manager';
 }
 
-async function resolveRole() {
+function roleFromFields(fields) {
   const forced = String(process.env.WORK_TASKS_AGENT_ROLE ?? '').trim().toLowerCase();
-  if (forced) return forced;
+  const allowOverride = matches(
+    String(process.env.WORK_TASKS_ALLOW_ROLE_OVERRIDE ?? '').trim().toLowerCase(),
+    ['1', 'true', 'yes']
+  );
+  if (forced && allowOverride) {
+    console.error(
+      JSON.stringify({
+        event: 'work_tasks_role_override',
+        warning: 'WORK_TASKS_AGENT_ROLE used (break-glass)',
+        role: forced,
+      })
+    );
+    return forced;
+  }
+  if (forced && !allowOverride) {
+    console.error(
+      JSON.stringify({
+        event: 'work_tasks_role_override_ignored',
+        warning:
+          'WORK_TASKS_AGENT_ROLE is set but ignored; set WORK_TASKS_ALLOW_ROLE_OVERRIDE=1 for break-glass',
+        ignored: forced,
+      })
+    );
+  }
+  if (fields?.is_admin) return 'manager';
+  return String(fields?.work_task_role ?? 'employee').trim().toLowerCase() || 'employee';
+}
+
+function matches(value, allowed) {
+  return allowed.includes(value);
+}
+
+
+async function resolveRole() {
   const fields = readUserFields(await fetchJson('GET', '/api/auth/user'));
-  const stored = String(fields.work_task_role ?? 'employee').trim().toLowerCase();
-  const username = String(fields.username ?? '').trim();
-  // Legacy fallback until EIL is_admin (P4): admin username acts as manager for tool gates.
-  return username.toLowerCase() === 'admin' ? 'manager' : stored;
+  return roleFromFields(fields);
 }
 
 function assertQueryPermission(role) {
@@ -110,6 +173,8 @@ async function resolveActor() {
     actor_user_id: fields.id,
     actor_username: fields.username,
     work_task_role: fields.work_task_role,
+    is_admin: fields.is_admin,
+    employment_status: fields.employment_status,
   };
 }
 
@@ -202,6 +267,8 @@ async function fetchQuery(params = {}) {
   if (params.status) qs.set('status', params.status);
   if (params.assignee_id) qs.set('assignee_id', params.assignee_id);
   if (params.overdue) qs.set('overdue', 'true');
+  // Backend enforces: manager default direct_reports; company requires is_admin.
+  if (params.scope) qs.set('scope', params.scope);
   const suffix = qs.toString() ? `?${qs.toString()}` : '';
   return fetchJson('GET', `/api/work-tasks/query${suffix}`);
 }
@@ -448,6 +515,11 @@ function buildTools(canQuery) {
             description: 'Optional filter: pending_accept | accepted | completed | incomplete | deferred',
           },
           assignee_id: { type: 'string', description: 'Optional assignee user id filter.' },
+          scope: {
+            type: 'string',
+            description:
+              'Optional: direct_reports (manager default) | company (org admin only) | self.',
+          },
           overdue_only: {
             type: 'boolean',
             description: 'When true, list only overdue items (summary still reflects full set).',
@@ -498,13 +570,45 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const name = request.params.name;
   const args = request.params.arguments ?? {};
-  const role = await resolveRole();
   const requestId = randomUUID();
-  let actor = null;
+  // Do not seed from WORK_TASKS_AGENT_ROLE — only roleFromFields (break-glass gated).
+  let role = 'employee';
+  let actor = {
+    actor_user_id: null,
+    actor_username: null,
+    work_task_role: role,
+    is_admin: false,
+    employment_status: null,
+  };
   try {
     actor = await resolveActor();
-  } catch {
-    actor = { actor_user_id: null, actor_username: null, work_task_role: role };
+    role = roleFromFields({
+      username: actor.actor_username,
+      work_task_role: actor.work_task_role,
+      is_admin: actor.is_admin,
+    });
+  } catch (error) {
+    if (isLifecycleDeniedError(error)) {
+      auditLog({
+        request_id: requestId,
+        tool_name: name,
+        actor_user_id: null,
+        actor_username: null,
+        work_task_role: role,
+        result: 'denied',
+        reason: 'lifecycle',
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return {
+        isError: true,
+        content: [
+          {
+            type: 'text',
+            text: error instanceof Error ? error.message : String(error),
+          },
+        ],
+      };
+    }
   }
 
   const auditBase = {
@@ -513,12 +617,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     actor_user_id: actor.actor_user_id,
     actor_username: actor.actor_username,
     work_task_role: role,
+    employment_status: actor.employment_status ?? null,
     target_task_id: typeof args.id === 'string' ? args.id : null,
     target_assignee_id: typeof args.assignee_id === 'string' ? args.assignee_id : null,
   };
 
   try {
     if (name === 'work_tasks_create') {
+      assertMutatingEmployment(actor, name);
       const data = await createTask(args);
       auditLog({ ...auditBase, result: 'ok', result_count: 1, task_id: data?.id ?? null });
       return {
@@ -526,6 +632,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       };
     }
     if (name === 'work_tasks_edit') {
+      assertMutatingEmployment(actor, name);
       const data = await editTask(args);
       auditLog({ ...auditBase, result: 'ok', result_count: 1, task_id: data?.id ?? args.id ?? null });
       return {
@@ -583,6 +690,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const data = await fetchQuery({
         status: args.status,
         assignee_id: args.assignee_id,
+        scope: args.scope,
         overdue: args.overdue_only ? true : undefined,
       });
       const count = Array.isArray(data?.items) ? data.items.length : 0;
@@ -593,11 +701,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
     throw new Error(`Unknown tool: ${request.params.name}`);
   } catch (error) {
+    const denied = isLifecycleDeniedError(error) || error?.code === 'LIFECYCLE_DENIED';
     auditLog({
       ...auditBase,
-      result: 'error',
+      result: denied ? 'denied' : 'error',
+      reason: denied ? 'lifecycle' : undefined,
       error: error instanceof Error ? error.message : String(error),
     });
+    if (denied) {
+      return {
+        isError: true,
+        content: [
+          {
+            type: 'text',
+            text: error instanceof Error ? error.message : String(error),
+          },
+        ],
+      };
+    }
     throw error;
   }
 });

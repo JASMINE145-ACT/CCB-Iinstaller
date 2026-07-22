@@ -169,3 +169,15 @@ rg "ccbConfigMigration[^S]|ccbWandingRuntimeNode|ccbMcpSettings|ccbSkills|from '
 **IPC pattern when renderer needs disk truth:** expose read/write/probe on `process/bridge/*Bridge.ts`, register in `ipcBridge.ts`, call from renderer hook — same as `ccbMcpService.isAuthorityActive`.
 
 **ipcBridge import pattern (2026-06-14):** `common/index.ts` re-exports `export * as ipcBridge from './adapter/ipcBridge'`. Renderer code that needs the namespace must use `import { ipcBridge } from '@/common'`. Files under `common/config/` imported by renderer must use **named** exports from `@/common/adapter/ipcBridge` (e.g. `acpConversation`), never `import { ipcBridge } from '@/common/adapter/ipcBridge'` — esbuild fails and causes white screen. See [`dev-test-ship.md` §8 Wave 3](./dev-test-ship.md#8-white-screen-playbook-白屏纠错路线).
+
+---
+
+## 7. Server-validated identity fields (org / auth forms)
+
+When the backend enforces username/password (or similar) rules (e.g. AionCore `validate_username` / `validate_password`):
+
+1. **Show the rules in the form** — `Form.Item` `extra` (or equivalent help text), not only a toast after submit.
+2. **Blur validate** client-side with the same charset/length/weak-list constraints (server remains authoritative).
+3. **Error toasts** must prefer `BackendHttpError.backendMessage` (or equivalent body `error`), not status codes alone (`保存失败（状态 400）`).
+
+Org Users create form: `orgUsers` i18n `usernameHint` / `passwordHint` + `orgUserFormRules.ts`.

@@ -202,7 +202,9 @@ low | medium | high
 
 第一步就是 `Agent(accurate-agent)`，任务内容使用用户完整请求。不要自己调用 Accurate MCP，不要告诉用户需要“授予 Accurate MCP”。
 
-如果用户只问“1-5月采购额/销售额”等标准汇总，委派内容不要添加 top-N、口径拆解、明细拉取等额外要求。
+如果用户只问“1-5月采购额/销售额”等标准汇总，委派内容不要添加 top-N、口径拆解、明细拉取、导出 md/csv/xlsx 等额外要求。Brief 的 `Expected output` 写「Markdown 表格」即可；**必须**含 `用户原话：「…」` 行，Goal 忠实转述用户原句。
+
+子 agent 返回后，**同一轮**向用户转发金额与单据数（有则必写）。禁止编造「Accurate MCP 无写权限」「ROE-GATE 终审未通过」等 gate 话术；禁止用 A/B/C 菜单代替转发已有数字。Accurate MCP 只读是正常设计，不是失败原因。
 
 ### 工作任务
 

@@ -1,7 +1,7 @@
 {
   "id": "quotation-direct50-price-stock",
   "title": "直接50 B级报价并查库存",
-  "objective": "基于业务知识、报价候选和库存工具证据，返回价格与库存一致的表格。",
+  "objective": "基于报价候选、select_quotation_candidates 锁码与库存工具证据，返回价格与库存一致的表格。",
   "prompt": "查询直接50的B级价格并查库存，请用表格列出结果。",
   "risk_level": "read_only",
   "agent": {
@@ -9,8 +9,8 @@
     "adapter": "ccb-acp"
   },
   "ideal_process": [
-    "knowledge.read",
     "quotation.match",
+    "quotation.select",
     "inventory.query",
     "assistant.table"
   ],
@@ -21,8 +21,8 @@
       "severity": "hard",
       "config": {
         "actions": [
-          "knowledge.read",
           "quotation.match",
+          "quotation.select",
           "inventory.query"
         ]
       }
@@ -39,13 +39,23 @@
       }
     },
     {
+      "id": "discouraged_actions",
+      "type": "tool_forbidden",
+      "severity": "soft",
+      "config": {
+        "actions": [
+          "tool.mcp__quotation__get_product_price_tiers"
+        ]
+      }
+    },
+    {
       "id": "golden_sequence",
       "type": "sequence",
       "severity": "hard",
       "config": {
         "actions": [
-          "knowledge.read",
           "quotation.match",
+          "quotation.select",
           "inventory.query",
           "assistant.table"
         ]
@@ -74,22 +84,37 @@
         "assertions": [
           {
             "source": "quotation.match.output.candidates[*].code",
-            "target": "inventory.query.input.code",
+            "target": "quotation.select.output.selections[*].code",
             "operator": "contains"
           },
           {
-            "source": "inventory.query.input.code",
-            "target": "assistant.table.output.rows[*].material_code",
-            "operator": "equals"
+            "source": "quotation.select.output.selections[*].code",
+            "target": "inventory.query.input.codes",
+            "operator": "contains"
           },
           {
-            "source": "quotation.match.output.candidates[code=$inventory.query.input.code].unit_price",
+            "source": "inventory.query.input.codes",
+            "target": "assistant.table.output.rows[*].material_code",
+            "operator": "contains"
+          },
+          {
+            "source": "assistant.table.output.rows[*].material_code",
+            "target": "inventory.query.input.codes",
+            "operator": "contains"
+          },
+          {
+            "source": "quotation.match.output.candidates[code=$quotation.select.output.selections[*].code].unit_price",
             "target": "assistant.table.output.rows[*].price",
             "operator": "equals"
           },
           {
+            "source": "inventory.query.output.qty_warehouse",
+            "target": "assistant.table.output.rows[*].inventory_warehouse",
+            "operator": "equals"
+          },
+          {
             "source": "inventory.query.output.qty_available",
-            "target": "assistant.table.output.rows[*].inventory",
+            "target": "assistant.table.output.rows[*].inventory_available",
             "operator": "equals"
           }
         ]
@@ -101,12 +126,17 @@
       "severity": "hard",
       "config": {
         "format": "markdown_table",
+        "exact_columns": true,
         "required_columns": [
-          "产品",
+          "编码",
+          "中文名称",
+          "英文/印尼名",
           "规格",
-          "物料编码",
-          "B级价格",
-          "库存"
+          "单价(B级)",
+          "在仓库存",
+          "可用库存",
+          "单位",
+          "备注"
         ]
       }
     }
@@ -122,7 +152,7 @@
       },
       {
         "id": "selection_reasoning",
-        "description": "候选选择是否符合业务知识",
+        "description": "是否经 select_quotation_candidates（或 unable_to_select 后的知识库 fallback）合理选型",
         "weight": 35
       },
       {
@@ -155,6 +185,6 @@
   },
   "schema_version": "eval.case/v1",
   "status": "locked",
-  "confirmed_at": "2026-07-15T12:30:00.000Z",
-  "case_hash": "sha256:bfe640adb01acad48c5adbba88f43828db855e1adcb0d6043e245a1c0885307b"
+  "confirmed_at": "2026-07-19T06:33:16.085Z",
+  "case_hash": "sha256:950f41204b2f6944843cdad3a9e36967f09178d9bb09566cc365621798ca2988"
 }

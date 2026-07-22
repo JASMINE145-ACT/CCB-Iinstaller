@@ -1,0 +1,23 @@
+{
+  "spec_version": "1.0",
+  "document_id": "doc-bad",
+  "title": "Bad",
+  "sections": [
+    {
+      "section_id": "sec-a",
+      "level": 1,
+      "title": "A",
+      "blocks": [
+        { "block_id": "blk-dup", "type": "paragraph", "text": "one" }
+      ]
+    },
+    {
+      "section_id": "sec-b",
+      "level": 1,
+      "title": "B",
+      "blocks": [
+        { "block_id": "blk-dup", "type": "paragraph", "text": "duplicate id" }
+      ]
+    }
+  ]
+}

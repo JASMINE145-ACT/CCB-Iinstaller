@@ -395,7 +395,7 @@ Agent: tiers[] prices + data.Md §来源映射 for product_type (e.g. §RUCIKA, 
 
 **Tasks:** [`06-28-product-price-tiers-tool`](../../tasks/06-28-product-price-tiers-tool/) (tool) · [`06-28-price-tiers-data-md-read-hook`](../../tasks/06-28-price-tiers-data-md-read-hook/) (Read hook) · [`06-29-price-tiers-synthesis-and-seed-fallback`](../../tasks/06-29-price-tiers-synthesis-and-seed-fallback/) (synthesis + seed supplement).
 
-**PostToolUse enforcement (2026-06-29):** `post-price-tiers-nudge.py` on `get_product_price_tiers` success — injects Read `data_md_path` + markdown tier table requirement. **Knowledge Read (2026-06-30):** PreToolUse `pre-match-knowledge-gate.py` denies `match_quotation` until session `Read(wanding_business_knowledge)`; Stop `:knowledge` = **block**. See [`agents-unified-model.md`](./agents-unified-model.md) § Knowledge Read enforcement.
+**PostToolUse enforcement (2026-06-29):** `post-price-tiers-nudge.py` on `get_product_price_tiers` success — injects Read `data_md_path` + markdown tier table requirement. **Knowledge Read (updated 2026-07-19):** Selection is API-first via `select_quotation_candidates` (tool loads knowledge). PreToolUse force-Read before match **removed**; Stop `:knowledge` = **off**. See [`agents-unified-model.md`](./agents-unified-model.md) § Selection + knowledge.
 
 **Bundled_seed tier supplement (B2, 2026-06-29):** When `price_source` is `bundled_seed` / `lkg_snapshot`, or org dict yields `tier_count < 2`, `get_product_price_tiers` merges non-zero tiers from full `price_library` xlsx (`tier_supplemented_from=local_xlsx`). Org API full dict unchanged.
 

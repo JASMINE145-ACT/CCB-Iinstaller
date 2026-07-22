@@ -20,7 +20,7 @@ if (-not (Test-Path $ClaudeCodeBRoot)) {
 }
 
 $DestAcp = Join-Path $ClaudeCodeBRoot "src\services\acp"
-foreach ($file in @("agent.ts", "agentSessionProfile.ts", "packageRegistry.ts", "employeeProfile.ts", "mcpSessionPrefetch.ts", "mcpToolRepeatGuard.ts", "wanDEnvBootstrap.ts", "wanDMcpWarmup.ts", "sessionMcpConfig.ts", "permissions.ts", "askUserQuestionPermissionResolve.ts", "workspacePointer.ts", "promptConversion.ts", "sessionTranscript.ts")) {
+foreach ($file in @("agent.ts", "agentSessionProfile.ts", "handoffBrief.ts", "packageRegistry.ts", "employeeProfile.ts", "mcpSessionPrefetch.ts", "mcpToolRepeatGuard.ts", "wanDEnvBootstrap.ts", "wanDMcpWarmup.ts", "sessionMcpConfig.ts", "permissions.ts", "askUserQuestionPermissionResolve.ts", "workspacePointer.ts", "promptConversion.ts", "sessionTranscript.ts")) {
   $src = Join-Path $Overlay $file
   if (-not (Test-Path $src)) { Write-Error "Missing overlay file: $src" }
   Copy-Item $src (Join-Path $DestAcp $file) -Force
@@ -64,6 +64,14 @@ if (Test-Path $profileTestSrc) {
   New-Item -ItemType Directory -Force -Path (Split-Path $profileTestDest -Parent) | Out-Null
   Copy-Item $profileTestSrc $profileTestDest -Force
   Write-Host "Copied agentSessionProfile.test.ts"
+}
+
+$briefTestSrc = Join-Path $Overlay "__tests__\handoffBrief.test.ts"
+$briefTestDest = Join-Path $DestAcp "__tests__\handoffBrief.test.ts"
+if (Test-Path $briefTestSrc) {
+  New-Item -ItemType Directory -Force -Path (Split-Path $briefTestDest -Parent) | Out-Null
+  Copy-Item $briefTestSrc $briefTestDest -Force
+  Write-Host "Copied handoffBrief.test.ts"
 }
 
 $employeeProfileTestSrc = Join-Path $Overlay "__tests__\employeeProfile.test.ts"

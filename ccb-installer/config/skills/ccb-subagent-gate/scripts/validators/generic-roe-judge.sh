@@ -24,6 +24,12 @@ if [[ -z "$py" ]]; then
   exit 0
 fi
 
+# Windows PowerShell/Git Bash may expose a GBK console encoding even when stdout
+# is captured. Force UTF-8 so Chinese gaps/reject prompts survive both the main
+# evaluator and the fallback JSON field extraction below.
+export PYTHONIOENCODING="${PYTHONIOENCODING:-utf-8}"
+export PYTHONUTF8="${PYTHONUTF8:-1}"
+
 log_dir="$(roe_judge_log_dir)"
 skill_root="$(roe_judge_skill_root)"
 if [[ -z "$skill_root" ]]; then

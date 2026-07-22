@@ -1,0 +1,83 @@
+{
+  "id": "quotation-agent-prompt",
+  "name": "quotation-agent-prompt",
+  "title": "报价 Agent 系统性稳态：L1 / Hooks / 父转述分层收敛",
+  "description": "先按层归因（orch relay vs L1 过载 vs hooks/modes 不对称），再最小收敛；禁止盲删锚点。",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": "ccb-installer",
+  "package": "vertical/com.wanding.trade",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-19",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    {
+      "id": "R",
+      "title": "Research: symptom layers + settings parity vs accurate",
+      "touches": "WANd.QUOTE.SETTINGS.PARITY.001",
+      "files": [
+        ".trellis/tasks/07-19-quotation-agent-prompt/research/symptom-layer-matrix.md",
+        ".trellis/tasks/07-19-quotation-agent-prompt/research/settings-parity-vs-accurate.md"
+      ]
+    },
+    {
+      "id": "H1",
+      "title": "If primary: orch query relay strict",
+      "touches": "WANd.QUOTE.ORCH.RELAY.STRICT.001",
+      "files": [
+        "ccb-installer/config/skills/ccb-subagent-gate/scripts/lib/parse_transcript_outcome_relay.py",
+        "ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md"
+      ]
+    },
+    {
+      "id": "H2",
+      "title": "If primary: L1 slim with contract inventory",
+      "touches": "WANd.QUOTE.L1.SLIM.001",
+      "files": [
+        "ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md",
+        "ccb-installer/staging/seed/agents/quotation-agent.md"
+      ]
+    },
+    {
+      "id": "H3",
+      "title": "If primary: modes/hooks parity decisions",
+      "touches": "WANd.QUOTE.SETTINGS.PARITY.001",
+      "files": [
+        "ccb-installer/config/skills/ccb-subagent-gate/config/modes.json"
+      ]
+    }
+  ],
+  "children": [
+    "07-21-quotation-relay-stale-fix",
+    "07-20-inventory-batch-multi-code",
+    "07-20-learn-by-data-select-first",
+    "07-21-quotation-prompt-reply-style"
+  ],
+  "parent": null,
+  "relatedFiles": [
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/accurate-agent.md",
+    ".trellis/tasks/07-11-safe-quotation-agent-prompt-refactor/research/quotation-agent-logic-inventory.md",
+    ".trellis/tasks/07-21-quotation-relay-stale-fix/closeout.md",
+    ".trellis/tasks/07-20-accurate-agent-readonly-convergence/prd.md"
+  ],
+  "notes": "Empty PRD filled 2026-07-20 via /trellis:plan-execution. Do not implement until user approves execution-plan.md. Sibling (Accurate readonly): 07-20-accurate-agent-readonly-convergence.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "scenario": "E-C-A",
+    "plan_depth": "Standard",
+    "verification_profile": "Standard",
+    "risk_tags": [
+      "ui",
+      "migration",
+      "long-running"
+    ],
+    "sibling_of": "07-20-accurate-agent-readonly-convergence"
+  }
+}

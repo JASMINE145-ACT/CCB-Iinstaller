@@ -237,8 +237,10 @@ The engine **recalls and ranks**; it does **not** pick the final SKU for the use
 |---------|-------|
 | Candidate list + scores + `source` | Matching engine |
 | Business disambiguation (国标 vs 日标, AW给水 vs 排水, 青山价含义…) | `wanding_business_knowledge.md` + Claude Code |
-| Session Read gate | `pre-match-knowledge-gate.py` — first `match_quotation` per session requires Read |
+| Session selection | `select_quotation_candidates` after match (API-first); agent Read only on `unable_to_select` |
 | Reply shape | 1 recommended price line + ≤4 bullet alternatives — [`agents-unified-model.md`](../integration/agents-unified-model.md) |
+
+`select_quotation_candidates` (`python/quotation/select_dispatch.py`, 2026-07-19): decision priority is (1) knowledge explicit default → must select, (2) no clause but dominant candidate → select with reason, (3) true multi-way conflict → `unable_to_select`. Input candidates are normalized to unwrap ACP `{"$text":"<json>"}` / raw JSON strings before LLM + `validate_selections` (otherwise every `code` looks empty and select falsely returns unable). Live vendor must stay in sync with repo.
 
 `selection_payloads.build_selection_payload` sets `selection_owner: "claude_code"` and embeds `selection_context.instructions`.
 

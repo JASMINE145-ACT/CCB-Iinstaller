@@ -100,7 +100,7 @@ AionUI renderer (aionui-src, HMR)
 | `data/*.xlsx`, `data/wanding_business_knowledge.md` | ❌ | robocopy → `CCB-Wanding\vendor\wanding\data`（§4.2） | MCP 查价命中新编码 |
 | `mcp_servers/quotation-server/dist/**` | ❌ | robocopy → `vendor\mcp-servers\quotation-server\dist` | quotation MCP 工具行为；含 `append_business_rule`（2026-06-28） |
 | `ccb-installer/packages/vertical/com.wanding.trade/agents/quotation-agent.md`（org 知识库写入规则） | ❌ | `deploy-seed-agents.ps1 -ForceMd` + vendor sync + **新会话** | agent 禁止 Edit shadow；追加走 MCP |
-| `ccb-installer/config/skills/ccb-subagent-gate/**`（PreToolUse 强制 Read） | ❌ | `deploy-subagent-gate-skill.ps1` + **新会话** | `pre-match-knowledge-gate.py` 存在；`modes.json` → `quotation-agent:knowledge` = **block** |
+| `ccb-installer/config/skills/ccb-subagent-gate/**` | ❌ | `deploy-subagent-gate-skill.ps1` + **新会话** | `modes.json` → `quotation-agent:knowledge` = **off**; L1 has **no** PreToolUse pre-match gate |
 | `AionCore/crates/**` | ❌ | 重启 **`start-dev-full.ps1 -SkipBootstrap`**（默认 `-BuildAioncore`） | sync smoke：work-tasks + org-knowledge **401** |
 | `AionCore` **CCB profile `acp_meta` passthrough** | ❌ | 同上；fork 必须把 `extra.acp_meta` 打进 `session/new` `_meta` | CCB log: `session profile id from session meta: word-creator`（非 handoff） |
 | `ccb-installer/config/agents/**`（keep set / 退役） | ❌ | `start-dev-full.ps1` 内建 `deploy-seed-agents -ForceMd`（含 prune）；单独改 agent 也可手动跑同命令 | Guid **5** 张预设卡（见 `agents-unified-model.md` §713） |

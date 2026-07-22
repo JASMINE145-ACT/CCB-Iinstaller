@@ -1,0 +1,81 @@
+{
+  "id": "accurate-agent-readonly-convergence",
+  "name": "accurate-agent-readonly-convergence",
+  "title": "Accurate 只读查询收敛：禁过度交付 + ROE 误伤 + 父代理乱解释",
+  "description": "Orchestrator→accurate 委派路径对时，子代理仍 Write/xlsx/明细拉取，ROE-GATE 误挡后父代理用『写权限/终审未通过』甩锅。与 07-19 quotation 稳态同族，独立 sibling。",
+  "status": "completed",
+  "dev_type": null,
+  "scope": "ccb-installer",
+  "package": "vertical/com.wanding.trade",
+  "priority": "P1",
+  "creator": "JASMINE145-ACT",
+  "assignee": "JASMINE145-ACT",
+  "createdAt": "2026-07-20",
+  "completedAt": "2026-07-20",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    {
+      "id": "R",
+      "title": "Research: 2026-07-20 sales query ROE false-positive autopsy",
+      "touches": "WANd.ACC.ROE.READONLY.001",
+      "files": [
+        ".trellis/tasks/07-20-accurate-agent-readonly-convergence/research/symptom-2026-07-20-sales-roe-false-positive.md"
+      ]
+    },
+    {
+      "id": "H1",
+      "title": "accurate L1: readonly query = 1× summarize → table; forbid Write/xlsx/DIY",
+      "touches": "WANd.ACC.READONLY.CONVERGE.001",
+      "files": [
+        "ccb-installer/packages/vertical/com.wanding.trade/agents/accurate-agent.md",
+        "ccb-installer/staging/seed/agents/accurate-agent.md"
+      ]
+    },
+    {
+      "id": "H2",
+      "title": "ROE: accurate readonly skip / dedicated profile; no Write-as-L2 false block",
+      "touches": "WANd.ACC.ROE.READONLY.001",
+      "files": [
+        "ccb-installer/config/skills/ccb-subagent-gate/config/roe-judge-profiles/accurate-agent.json",
+        "ccb-installer/config/skills/ccb-subagent-gate/config/modes.json",
+        "ccb-installer/config/skills/ccb-subagent-gate/scripts/lib/parse_transcript_roe_judge.py"
+      ]
+    },
+    {
+      "id": "H3",
+      "title": "orch: forward Accurate numbers; forbid inventing MCP write-permission / ROE failure narratives",
+      "touches": "WANd.ORCH.NO_FABRICATE_GATE.001",
+      "files": [
+        "ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md"
+      ]
+    }
+  ],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    ".trellis/tasks/07-19-quotation-agent-prompt/prd.md",
+    ".trellis/tasks/07-06-accurate-delegation-convergence/research/delegation-convergence-diagnosis.md",
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/accurate-agent.md",
+    "ccb-installer/packages/vertical/com.wanding.trade/agents/wande-orchestrator.md",
+    "ccb-installer/config/skills/ccb-subagent-gate/config/modes.json",
+    "ccb-installer/config/skills/ccb-subagent-gate/scripts/lib/parse_transcript_roe_judge.py"
+  ],
+  "notes": "Completed 2026-07-20. Closeout: closeout.md. Guid smoke: 5月销售额 1× summarize + relay PASS.",
+  "meta": {
+    "execution_plan": "execution-plan.md",
+    "scenario": "C",
+    "plan_depth": "Standard",
+    "verification_profile": "Standard",
+    "risk_tags": [
+      "ui",
+      "migration",
+      "long-running"
+    ],
+    "sibling_of": "07-19-quotation-agent-prompt",
+    "closeout": "closeout.md"
+  }
+}

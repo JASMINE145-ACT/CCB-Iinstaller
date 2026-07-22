@@ -484,6 +484,22 @@ URL **不要**末尾 `/`。保存后 **完全退出并重启 AionUI**。
 | `%APPDATA%\AionUi\aionui\org-session.token` | MCP JWT |
 | `sessionStorage` `aionui-org-session-token` | UI JWT |
 
+Dev 配置（`AIONUI_APPDATA_PROFILE=AionUi-Dev`）对应 `%APPDATA%\AionUi-Dev\aionui\…`。
+
+### 10.5 排查：supplier-directory / Org MCP 返回 401
+
+**现象**：报价 dual-call 调 `suppliers_hybrid_match`（或其它 Org MCP）返回 `HTTP 401` / `Invalid or expired token`，或带前缀 `ORG_SESSION_EXPIRED` / `ORG_AUTH_FAILED`。
+
+**含义**：不是供应商搜索算法坏了，而是磁盘上的 Org JWT（`org-session.token`）缺失或已过期（常见 ~24h TTL）。
+
+**处理**：
+
+1. 打开对应 AppData 配置的 AionUI，完成 **Org SSO 登录**（会重写 `org-session.token`）。
+2. 确认 token 文件 mtime 已更新；可选解码 JWT 检查 `exp` 仍在未来。
+3. 无需重启 MCP 进程（supplier-directory 每次请求重读 token 文件）；再调一次供应商工具验证。
+
+**勿**：把 401 当成「货源库宕机」去改 match 逻辑；勿用长期静态 `AIONCORE_JWT` 顶生产会话。
+
 ---
 
 ## 变更记录
@@ -494,6 +510,7 @@ URL **不要**末尾 `/`。保存后 **完全退出并重启 AionUI**。
 | 2026-06-12 | 增加路径 B：Linux Ubuntu VPS（SSH、scp、cargo、ufw、systemd） |
 | 2026-06-19 | §11 Phase 1 JWT_SECRET；§12 登录 shadow sync（中心知识 → 本地 md） |
 | 2026-06-22 | §13 统一 SSO 员工 onboarding（一次登录、sso.env、launcher） |
+| 2026-07-19 | §10.5 supplier-directory / Org MCP 401 → 重新登录刷新 `org-session.token` |
 
 ---
 

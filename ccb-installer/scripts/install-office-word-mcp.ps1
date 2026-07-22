@@ -122,4 +122,45 @@ if __name__ == "__main__":
 '@
 
 Set-Content -LiteralPath $serverPy -Value $launcher -Encoding UTF8
+
+# WANd DocumentSpec extension (lib -> site-packages)
+$wandSpecSrc = Join-Path (Split-Path -Parent $PSScriptRoot) "lib\wand-document-spec\wand_document_spec"
+$wandSpecDst = Join-Path $sitePackages "wand_document_spec"
+if (Test-Path -LiteralPath $wandSpecSrc) {
+    if (Test-Path -LiteralPath $wandSpecDst) { Remove-Item -LiteralPath $wandSpecDst -Recurse -Force }
+    Copy-Item -LiteralPath $wandSpecSrc -Destination $wandSpecDst -Recurse -Force
+    Write-Host "[office-word-mcp] synced wand_document_spec -> $wandSpecDst"
+} else {
+    Write-Warning "[office-word-mcp] wand_document_spec source missing: $wandSpecSrc"
+}
+
+# Idempotent: inject DocumentSpec registration into vendor main.py (survives pip reinstall)
+$wordMainPy = Join-Path $sitePackages "word_document_server\main.py"
+$hookMarker = "register_wand_document_spec_tools"
+if ((Test-Path -LiteralPath $wordMainPy) -and (Test-Path -LiteralPath $wandSpecDst)) {
+    $mainText = Get-Content -LiteralPath $wordMainPy -Raw -Encoding UTF8
+    if ($mainText -notmatch [regex]::Escape($hookMarker)) {
+        $hookBlock = @'
+
+    # WANd DocumentSpec tools (CCB-Wanding extension)
+    try:
+        from wand_document_spec.mcp_register import register_wand_document_spec_tools
+        register_wand_document_spec_tools(mcp)
+        print("Registered WANd DocumentSpec tools", file=sys.stderr)
+    except ImportError as exc:
+        print(f"WANd DocumentSpec tools not loaded: {exc}", file=sys.stderr)
+
+'@
+        if ($mainText -match '(?m)^def run_server\(\):') {
+            $mainText = $mainText -replace '(?m)^def run_server\(\):', ($hookBlock + "`r`ndef run_server():")
+            Set-Content -LiteralPath $wordMainPy -Value $mainText -Encoding UTF8 -NoNewline
+            Write-Host "[office-word-mcp] injected DocumentSpec hook into word_document_server/main.py"
+        } else {
+            Write-Warning "[office-word-mcp] could not find def run_server() to inject DocumentSpec hook"
+        }
+    } else {
+        Write-Host "[office-word-mcp] DocumentSpec hook already present in main.py"
+    }
+}
+
 Write-Host "[office-word-mcp] OK -> $serverPy"

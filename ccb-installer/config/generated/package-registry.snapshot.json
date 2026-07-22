@@ -106,11 +106,10 @@
       "mcpServers": [
         "quotation",
         "excel",
-        "price-library"
+        "price-library",
+        "supplier-directory"
       ],
-      "skills": [
-        "quotation-learn-by-data"
-      ],
+      "skills": [],
       "requiredCapabilities": [
         "business.pricing.quote"
       ]
@@ -128,19 +127,6 @@
         "wanding-deep-research"
       ],
       "requiredCapabilities": []
-    },
-    {
-      "id": "supplier-directory-agent",
-      "packageId": "com.wanding.trade",
-      "source": "ccb-installer/packages/vertical/com.wanding.trade/agents/supplier-directory-agent.md",
-      "displayName": "供应商名录",
-      "mcpServers": [
-        "supplier-directory"
-      ],
-      "skills": [],
-      "requiredCapabilities": [
-        "business.supplier-directory.read"
-      ]
     },
     {
       "id": "wande-orchestrator",
@@ -327,6 +313,12 @@
       "legacyId": "work-tasks-agent",
       "kind": "agent",
       "targetId": "work-tasks-agent",
+      "packageId": "com.wanding.trade"
+    },
+    {
+      "legacyId": "supplier-directory-agent",
+      "kind": "agent",
+      "targetId": "quotation-agent",
       "packageId": "com.wanding.trade"
     }
   ],
